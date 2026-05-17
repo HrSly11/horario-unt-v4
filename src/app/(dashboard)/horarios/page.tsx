@@ -1,7 +1,7 @@
 'use client';
 
 import { useTRPC } from '@/trpc/client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Building2, FlaskConical, User } from 'lucide-react';
 import Link from 'next/link';
@@ -25,11 +25,25 @@ const SLOT_COLORS = [
 
 type ViewMode = 'general' | 'aula' | 'docente';
 
+type HorarioAsignacion = {
+  id: string;
+  grupo: {
+    nombre: string;
+    cursoId?: string;
+    curso: { id: string; codigo: string };
+  };
+  docente?: { nombre: string };
+  aula?: { codigo: string };
+  franjaHoraria: { dia: string; horaInicio: string };
+};
+
 export default function HorariosPage() {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<ViewMode>('general');
   const [selectedAulaId, setSelectedAulaId] = useState<string | null>(null);
   const [selectedDocenteId, setSelectedDocenteId] = useState<string | null>(null);
+  const [showAutoModal, setShowAutoModal] = useState(false);
 
   const { data: periodoActivo } = useQuery(trpc.periodo.active.queryOptions());
   const { data: aulas = [] } = useQuery(trpc.aula.list.queryOptions({}));
@@ -41,16 +55,58 @@ export default function HorariosPage() {
       ? { docenteId: selectedDocenteId, periodoId: periodoActivo?.id ?? '' }
       : { periodoId: periodoActivo?.id ?? '' };
 
-  const queryOpts = viewMode === 'aula' && selectedAulaId
+  const queryOpts = (viewMode === 'aula' && selectedAulaId
     ? trpc.horario.byAula.queryOptions(queryInput as { aulaId: string; periodoId: string })
     : viewMode === 'docente' && selectedDocenteId
       ? trpc.horario.byDocente.queryOptions(queryInput as { docenteId: string; periodoId: string })
-      : trpc.horario.list.queryOptions({ periodoId: periodoActivo?.id ?? '' });
+      : trpc.horario.list.queryOptions({ periodoId: periodoActivo?.id ?? '' })) as unknown;
 
-  const { data: asignaciones = [], isLoading } = useQuery({
-    ...queryOpts,
+  const queryResult = useQuery<any>({
+    ...(queryOpts as any),
     enabled: !!periodoActivo?.id,
   });
+
+  const asignaciones = (queryResult.data ?? []) as HorarioAsignacion[];
+  const isLoading = queryResult.isLoading;
+
+  const autoGenerateMutation = useMutation(
+    trpc.horario.autoGenerate.mutationOptions({
+      onSuccess: (data) => {
+        if (!data.success) {
+          alert(data.reason ?? 'No se pudo autogenerar el horario.');
+          return;
+        }
+
+        setShowAutoModal(false);
+        queryClient.invalidateQueries({ queryKey: trpc.horario.list.queryKey() });
+        if (selectedAulaId && periodoActivo?.id) {
+          queryClient.invalidateQueries({
+            queryKey: trpc.horario.byAula.queryKey({
+              aulaId: selectedAulaId,
+              periodoId: periodoActivo.id,
+            }),
+          });
+        }
+        if (selectedDocenteId && periodoActivo?.id) {
+          queryClient.invalidateQueries({
+            queryKey: trpc.horario.byDocente.queryKey({
+              docenteId: selectedDocenteId,
+              periodoId: periodoActivo.id,
+            }),
+          });
+        }
+        queryClient.invalidateQueries({ queryKey: trpc.horario.stats.queryKey() });
+        queryClient.invalidateQueries({ queryKey: trpc.aula.stats.queryKey() });
+
+        alert(
+          `Autogeneracion completada.\nAsignaciones creadas: ${data.createdCount}\nSin asignar: ${data.unassignedCount}`
+        );
+      },
+      onError: () => {
+        alert('Error al autogenerar el horario.');
+      },
+    })
+  );
 
   // Build grid
   const horas = [...new Set(asignaciones.map((a) => a.franjaHoraria.horaInicio))].sort();
@@ -58,7 +114,7 @@ export default function HorariosPage() {
   const cursoColorMap = new Map<string, string>();
   let colorIdx = 0;
   asignaciones.forEach((a) => {
-    const key = 'cursoId' in a.grupo ? a.grupo.cursoId : a.grupo.curso.id;
+    const key = (a.grupo.cursoId ?? a.grupo.curso.id ?? a.id) as string;
     if (!cursoColorMap.has(key)) {
       cursoColorMap.set(key, SLOT_COLORS[colorIdx % SLOT_COLORS.length]);
       colorIdx++;
@@ -75,12 +131,21 @@ export default function HorariosPage() {
             {asignaciones.length > 0 && ` · ${asignaciones.length} asignaciones`}
           </p>
         </div>
-        <Link
-          href="/sesiones"
-          className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25"
-        >
-          Ir a Sesiones de Llenado
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowAutoModal(true)}
+            disabled={!periodoActivo}
+            className="rounded-lg border border-indigo-500/40 bg-indigo-600/10 px-4 py-2.5 text-sm font-medium text-indigo-300 hover:bg-indigo-600/20 disabled:opacity-50"
+          >
+            Autogenerar
+          </button>
+          <Link
+            href="/sesiones"
+            className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25"
+          >
+            Ir a Sesiones de Llenado
+          </Link>
+        </div>
       </div>
 
       {/* View Mode Tabs */}
@@ -151,7 +216,7 @@ export default function HorariosPage() {
               <tr className="border-b border-gray-800">
                 <th className="sticky left-0 bg-gray-900 px-3 py-2 text-left font-medium text-gray-400 w-16">Hora</th>
                 {DIAS.map((dia) => (
-                  <th key={dia} className="px-2 py-2 text-center font-medium text-gray-400 min-w-[140px]">
+                  <th key={dia} className="px-2 py-2 text-center font-medium text-gray-400 min-w-35">
                     {DIA_LABELS[dia]}
                   </th>
                 ))}
@@ -168,15 +233,19 @@ export default function HorariosPage() {
                     return (
                       <td key={dia} className="px-1 py-1">
                         {slotAsignaciones.map((a) => {
-                          const key = 'cursoId' in a.grupo ? a.grupo.cursoId : a.grupo.curso.id;
+                          const key = (a.grupo.cursoId ?? a.grupo.curso.id ?? a.id) as string;
                           return (
                             <div key={a.id} className={`rounded-md border p-1.5 mb-0.5 ${cursoColorMap.get(key)}`}>
                               <p className="font-semibold truncate">{a.grupo.curso.codigo}</p>
-                              {'docente' in a && a.docente && (
-                                <p className="text-[10px] opacity-70 truncate">{a.docente.nombre.split(' ').slice(0, 2).join(' ')}</p>
+                              {'docente' in a && (a as { docente?: { nombre: string } }).docente && (
+                                <p className="text-[10px] opacity-70 truncate">
+                                  {(a as { docente: { nombre: string } }).docente.nombre.split(' ').slice(0, 2).join(' ')}
+                                </p>
                               )}
-                              {'aula' in a && a.aula && (
-                                <p className="text-[10px] opacity-50">{a.aula.codigo} · G{a.grupo.nombre}</p>
+                              {'aula' in a && (a as { aula?: { codigo: string } }).aula && (
+                                <p className="text-[10px] opacity-50">
+                                  {(a as { aula: { codigo: string } }).aula.codigo} · G{(a as { grupo: { nombre: string } }).grupo.nombre}
+                                </p>
                               )}
                             </div>
                           );
@@ -188,6 +257,39 @@ export default function HorariosPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {showAutoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-gray-700 bg-gray-900 p-6 shadow-2xl">
+            <h2 className="text-lg font-semibold text-white">Autogenerar horario</h2>
+            <p className="mt-2 text-sm text-gray-400">
+              Esto eliminara las asignaciones actuales del periodo y generara un nuevo horario
+              automaticamente segun la jerarquia y restricciones.
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => setShowAutoModal(false)}
+                className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-400 hover:bg-gray-800"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (!periodoActivo) return;
+                  autoGenerateMutation.mutate({
+                    periodoId: periodoActivo.id,
+                    overwrite: true,
+                  });
+                }}
+                disabled={autoGenerateMutation.isPending || !periodoActivo}
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+              >
+                {autoGenerateMutation.isPending ? 'Generando...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

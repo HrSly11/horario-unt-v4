@@ -180,7 +180,7 @@ export default function SesionDetailPage({ params }: { params: Promise<{ id: str
       {/* Progress Bar */}
       <div className="mb-6 rounded-full bg-gray-800 h-2 overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-500"
+          className="h-full bg-linear-to-r from-indigo-500 to-cyan-400 transition-all duration-500"
           style={{ width: `${sesion.progreso.porcentaje}%` }}
         />
       </div>
@@ -250,27 +250,22 @@ export default function SesionDetailPage({ params }: { params: Promise<{ id: str
                 <BookOpen className="inline h-3 w-3 -mt-0.5 mr-1" />
                 Seleccione el curso/grupo a asignar
               </p>
-              <div className="flex flex-wrap gap-2">
-                {docenteGrupos.length === 0 ? (
-                  <p className="text-sm text-gray-600">No tiene grupos asignados. Asigne grupos desde Cursos.</p>
-                ) : (
-                  docenteGrupos.map((dg) => (
-                    <button
-                      key={dg.id}
-                      onClick={() => setSelectedGrupoId(dg.grupoId)}
-                      className={`rounded-lg border px-3 py-2 text-sm transition-all ${
-                        selectedGrupoId === dg.grupoId
-                          ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300'
-                          : 'border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600'
-                      }`}
-                    >
-                      <span className="font-mono text-xs text-indigo-400">{dg.grupo.curso.codigo}</span>
-                      <span className="ml-1.5">{dg.grupo.curso.nombre}</span>
-                      <span className="ml-1.5 text-gray-500">G{dg.grupo.nombre}</span>
-                    </button>
-                  ))
-                )}
-              </div>
+              {docenteGrupos.length === 0 ? (
+                <p className="text-sm text-gray-600">No tiene grupos asignados. Asigne grupos desde Cursos.</p>
+              ) : (
+                <select
+                  value={selectedGrupoId ?? ''}
+                  onChange={(e) => setSelectedGrupoId(e.target.value || null)}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 focus:border-indigo-500 focus:outline-none"
+                >
+                  <option value="">Seleccione un curso/grupo</option>
+                  {docenteGrupos.map((dg) => (
+                    <option key={dg.id} value={dg.grupoId}>
+                      {dg.grupo.curso.codigo} - {dg.grupo.curso.nombre} - G{dg.grupo.nombre}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* Tab: Teoría / Laboratorio */}
@@ -330,7 +325,7 @@ export default function SesionDetailPage({ params }: { params: Promise<{ id: str
                       <tr className="border-b border-gray-800">
                         <th className="sticky left-0 bg-gray-900 px-3 py-2 text-left font-medium text-gray-400 w-16">Hora</th>
                         {DIAS.map((dia) => (
-                          <th key={dia} className="px-2 py-2 text-center font-medium text-gray-400 min-w-[100px]">
+                          <th key={dia} className="px-2 py-2 text-center font-medium text-gray-400 min-w-25">
                             {DIA_LABELS[dia]}
                           </th>
                         ))}
