@@ -49,8 +49,15 @@ export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next();
 });
 
-export const representanteProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.session.role !== 'REPRESENTANTE_ESCUELA' && ctx.session.role !== 'ADMIN') {
+export const secretariaProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.session.role !== 'SECRETARIA_ACADEMICA' && ctx.session.role !== 'ADMIN') {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+  return next();
+});
+
+export const directorProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.session.role !== 'DIRECTOR_ESCUELA' && ctx.session.role !== 'ADMIN') {
     throw new TRPCError({ code: 'FORBIDDEN' });
   }
   return next();

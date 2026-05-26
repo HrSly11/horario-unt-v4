@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure } from '../init';
+import { createTRPCRouter, baseProcedure, adminProcedure, directorProcedure } from '../init';
 
 const periodoInput = z.object({
   nombre: z.string().min(3, 'El nombre es obligatorio (ej: 2026-I)'),
@@ -66,6 +66,41 @@ export const periodoRouter = createTRPCRouter({
         where: { id: input.id },
         data: { activo: input.activo },
       });
+    }),
+
+  /** Director starts the process: Planificación -> Postulación (Disponibilidad) */
+  startAssignmentProcess: directorProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const periodo = await ctx.prisma.periodoAcademico.update({
+        where: { id: input.id },
+        data: { estado: 'POSTULACION' } // Use POSTULACION as the availability entry phase
+      });
+
+      // 1. Notify all active teachers to enter availability
+      const docentes = await ctx.prisma.docente.findMany({ where: { activo: true } });
+      await ctx.prisma.notification.createMany({
+        data: docentes.map(d => ({
+          docenteId: d.id,
+          titulo: 'Ingreso de Disponibilidad',
+          mensaje: `Se ha iniciado el proceso para el periodo ${periodo.nombre}. Por favor, registre su disponibilidad horaria.`,
+          tipo: 'INFO',
+          link: '/disponibilidad'
+        }))
+      });
+
+      // 2. Notify secretary to prepare for assignment
+      // (Optional: search for secretary user and create log/notification if secretary model exists, 
+      // but usually secretary is just a role in User model. We'll use logs for now)
+      await ctx.prisma.log.create({
+        data: {
+          userId: ctx.session?.id || 'SYSTEM',
+          accion: 'START_PROCESS',
+          detalles: `Proceso de asignación iniciado para el periodo ${periodo.nombre}`
+        }
+      });
+
+      return periodo;
     }),
 
   // ── Franjas Horarias ──────────────────────────

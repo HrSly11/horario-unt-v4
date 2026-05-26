@@ -21,26 +21,6 @@ import { useTRPC } from '@/trpc/client';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation } from '@tanstack/react-query';
 
-const publicNavigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Docentes', href: '/docentes', icon: Users },
-  { name: 'Cursos', href: '/cursos', icon: BookOpen },
-  { name: 'Aulas', href: '/aulas', icon: Building2 },
-  { name: 'Periodos', href: '/periodos', icon: CalendarDays },
-  { name: 'Horarios', href: '/horarios', icon: Calendar },
-  { name: 'Reportes', href: '/reportes', icon: FileText },
-];
-
-const docenteNavigation = [
-  { name: 'Mi Disponibilidad', href: '/disponibilidad', icon: Calendar },
-];
-
-const adminNavigation = [
-  { name: 'Sesiones de Llenado', href: '/sesiones', icon: Calendar },
-  { name: 'Gestión Usuarios', href: '/usuarios', icon: ShieldCheck },
-  { name: 'Bitácora', href: '/bitacora', icon: History },
-];
-
 export function Sidebar() {
   const pathname = usePathname();
   const trpc = useTRPC();
@@ -56,11 +36,60 @@ export function Sidebar() {
     })
   );
 
-  const navigation = [...publicNavigation];
-  if (user?.role === 'ADMIN' || user?.role === 'REPRESENTANTE_ESCUELA') {
-    navigation.push(...adminNavigation);
-  } else if (user?.role === 'DOCENTE') {
-    navigation.push(...docenteNavigation);
+  const role = user?.role;
+
+  const navigation = [
+    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  ];
+
+  // Logic based on requirements
+  if (role === 'ADMIN') {
+    navigation.push(
+      { name: 'Docentes', href: '/docentes', icon: Users },
+      { name: 'Cursos', href: '/cursos', icon: BookOpen },
+      { name: 'Aulas', href: '/aulas', icon: Building2 },
+      { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Horarios', href: '/horarios', icon: Calendar },
+      { name: 'Reportes', href: '/reportes', icon: FileText },
+      { name: 'Asignación de Horarios', href: '/asignacion', icon: Calendar },
+      { name: 'Gestión Usuarios', href: '/usuarios', icon: ShieldCheck },
+      { name: 'Bitácora', href: '/bitacora', icon: History }
+    );
+  } else if (role === 'SECRETARIA_ACADEMICA') {
+    navigation.push(
+      { name: 'Docentes', href: '/docentes', icon: Users },
+      { name: 'Cursos', href: '/cursos', icon: BookOpen },
+      { name: 'Aulas', href: '/aulas', icon: Building2 },
+      { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Horarios', href: '/horarios', icon: Calendar },
+      { name: 'Reportes', href: '/reportes', icon: FileText },
+      { name: 'Asignación de Horarios', href: '/asignacion', icon: Calendar }
+    );
+  } else if (role === 'DIRECTOR_ESCUELA') {
+    navigation.push(
+      { name: 'Docentes', href: '/docentes', icon: Users },
+      { name: 'Cursos', href: '/cursos', icon: BookOpen },
+      { name: 'Aulas', href: '/aulas', icon: Building2 },
+      { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Horarios', href: '/horarios', icon: Calendar },
+      { name: 'Reportes', href: '/reportes', icon: FileText }
+    );
+  } else if (role === 'DOCENTE') {
+    navigation.push(
+      { name: 'Cursos', href: '/cursos', icon: BookOpen },
+      { name: 'Aulas', href: '/aulas', icon: Building2 },
+      { name: 'Horarios', href: '/horarios', icon: Calendar },
+      { name: 'Semestre', href: '/periodos', icon: CalendarDays },
+      { name: 'Mi Disponibilidad', href: '/disponibilidad', icon: Calendar }
+    );
+  } else { // Guest (Not logged in) or role === 'INVITADO'
+    navigation.push(
+      { name: 'Docentes', href: '/docentes', icon: Users },
+      { name: 'Cursos', href: '/cursos', icon: BookOpen },
+      { name: 'Aulas', href: '/aulas', icon: Building2 },
+      { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Horarios', href: '/horarios', icon: Calendar }
+    );
   }
 
   return (

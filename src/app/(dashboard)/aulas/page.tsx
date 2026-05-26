@@ -34,6 +34,7 @@ export default function AulasPage() {
 
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
   const isAdmin = user?.role === 'ADMIN';
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_ACADEMICA';
 
   const { data: aulas = [], isLoading } = useQuery({
     ...trpc.aula.list.queryOptions({ search: search || undefined, tipo: filterTipo })
@@ -79,7 +80,7 @@ export default function AulasPage() {
           <h1 className="text-2xl font-bold text-white">Aulas y Laboratorios</h1>
           <p className="text-sm text-gray-500 mt-1">{aulas.length} ambientes registrados</p>
         </div>
-        {isAdmin && (
+        {canEdit && (
           <button onClick={() => setShowModal(true)}
             className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25">
             <Plus className="h-4 w-4" /> Nueva Aula
@@ -134,7 +135,7 @@ export default function AulasPage() {
                   <td className="px-4 py-3 text-center text-gray-400">{a.piso}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      {isAdmin ? (
+                      {canEdit ? (
                         <>
                           <button onClick={() => openEdit(a)} className="rounded-md p-1.5 text-gray-500 hover:bg-gray-700 hover:text-gray-300"><Pencil className="h-3.5 w-3.5" /></button>
                           <button onClick={() => deleteMutation.mutate({ id: a.id })} className="rounded-md p-1.5 text-gray-500 hover:bg-red-900/30 hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>

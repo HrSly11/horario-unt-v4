@@ -77,14 +77,20 @@ export default function DisponibilidadPage() {
             Marca los bloques horarios en los que estás disponible para dictar clases (7:00 AM - 9:00 PM)
           </p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saveMutation.isPending}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 shadow-lg shadow-indigo-500/20"
-        >
-          {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Guardar Cambios
-        </button>
+        <div className="flex flex-col items-end gap-2">
+           <div className="flex items-center gap-2 text-[10px] text-amber-400/80 bg-amber-400/5 px-3 py-1.5 rounded-full border border-amber-400/20">
+             <AlertCircle className="h-3 w-3" />
+             Si no marca ningún bloque, se considerará disponibilidad completa.
+           </div>
+           <button
+             onClick={handleSave}
+             disabled={saveMutation.isPending}
+             className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 shadow-lg shadow-indigo-500/20"
+           >
+             {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+             Guardar Cambios
+           </button>
+        </div>
       </div>
 
       {message && (

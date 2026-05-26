@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, protectedProcedure, representanteProcedure } from '../init';
+import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 import { CategoriaDocente, TipoDocente } from '@/generated/prisma/client';
 
@@ -83,18 +83,18 @@ export const docenteRouter = createTRPCRouter({
       });
     }),
 
-  create: representanteProcedure.input(docenteInput).mutation(({ ctx, input }) => {
+  create: secretariaProcedure.input(docenteInput).mutation(({ ctx, input }) => {
     return ctx.prisma.docente.create({ data: input });
   }),
 
-  update: representanteProcedure
+  update: secretariaProcedure
     .input(z.object({ id: z.string() }).merge(docenteInput))
     .mutation(({ ctx, input }) => {
       const { id, ...data } = input;
       return ctx.prisma.docente.update({ where: { id }, data });
     }),
 
-  delete: representanteProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
+  delete: adminProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
     return ctx.prisma.docente.delete({ where: { id: input.id } });
   }),
 
@@ -130,31 +130,28 @@ export const docenteRouter = createTRPCRouter({
   personalStats: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
-    const docente = await ctx.prisma.docente.findUniqueOrThrow({
-      where: { id: ctx.session.docenteId },
-      include: {
-        docenteGrupos: {
-          include: { 
-            grupo: { 
-              include: { 
-                curso: true,
-                asignaciones: {
-                  include: { aula: true, franjaHoraria: true }
-                }
-              } 
-            } 
+    const [docente, assignments] = await Promise.all([
+      ctx.prisma.docente.findUniqueOrThrow({
+        where: { id: ctx.session.docenteId },
+        include: {
+          docenteGrupos: {
+            include: { grupo: { include: { curso: true } } },
           },
         },
-      },
-    });
+      }),
+      ctx.prisma.asignacion.findMany({
+        where: { docenteId: ctx.session.docenteId },
+        include: {
+          grupo: { include: { curso: true } },
+          aula: true,
+          franjaHoraria: true,
+        },
+      }),
+    ]);
 
     const totalHoras = docente.docenteGrupos.reduce((acc: number, dg: any) => {
       return acc + (dg.grupo.curso.horasTeoria + dg.grupo.curso.horasLaboratorio);
     }, 0);
-
-    const assignments = docente.docenteGrupos.flatMap((dg: any) => 
-      dg.grupo.asignaciones.filter((a: any) => a.docenteId === docente.id)
-    );
 
     return {
       docente,
@@ -183,7 +180,7 @@ export const docenteRouter = createTRPCRouter({
     }),
 
   /** Application to a course/group by a docente */
-  postulateToGroup: baseProcedure
+  postulateToGroup: protectedProcedure
     .input(z.object({ grupoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });

@@ -43,7 +43,7 @@ export default function DocentesPage() {
   const [search, setSearch] = useState('');
 
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
-  const isAdmin = user?.role === 'ADMIN';
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_ACADEMICA';
 
   const { data: docentes = [], isLoading } = useQuery({
     ...trpc.docente.list.queryOptions({ search: search || undefined })
@@ -109,23 +109,23 @@ export default function DocentesPage() {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Docentes</h1>
+          <h1 className="text-2xl font-bold text-white">Gestión de Docentes</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {docentes.length} docentes registrados
+            Directorio y disponibilidad de la plana docente
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {isAdmin && (
+          {canEdit && (
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-indigo-500 shadow-lg shadow-indigo-500/25"
             >
               <Plus className="h-4 w-4" />
-              Nuevo Docente
+              Registrar Docente
             </button>
           )}
         </div>
@@ -177,7 +177,7 @@ export default function DocentesPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      {isAdmin ? (
+                      {canEdit ? (
                         <>
                           <button onClick={() => openEdit(d)} className="rounded-md p-1.5 text-gray-500 hover:bg-gray-700 hover:text-gray-300">
                             <Pencil className="h-3.5 w-3.5" />

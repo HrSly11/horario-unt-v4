@@ -3,13 +3,15 @@ import type { NextRequest } from 'next/server';
 import { decrypt } from './lib/auth';
 
 // Rutas que requieren autenticación
-const protectedRoutes = ['/perfil', '/sesiones', '/disponibilidad'];
-// Rutas que requieren ser Admin o Representante
-const adminRoutes = ['/usuarios', '/bitacora', '/sesiones'];
+const protectedRoutes = ['/perfil', '/asignacion', '/disponibilidad'];
+// Rutas que requieren ser Admin o Secretaria (Asignación)
+const assignmentRoutes = ['/asignacion'];
+// Rutas que requieren ser Admin, Secretaria o Director (Admin tools)
+const adminRoutes = ['/usuarios', '/bitacora'];
 // Rutas públicas que no deberían verse si ya estás logueado (ej: login, registro)
 const authRoutes = ['/login', '/registro'];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // 1. Obtener sesión de la cookie
@@ -34,9 +36,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // 4. Redirección si intenta ir a ruta de admin sin ser admin o representante
+  // 4. Redirección si intenta ir a ruta de asignación (Solo Admin y Secretaria)
+  if (assignmentRoutes.some(route => path.startsWith(route))) {
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'SECRETARIA_ACADEMICA')) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  // 5. Redirección si intenta ir a ruta de admin (Admin, Secretaria, Director)
   if (adminRoutes.some(route => path.startsWith(route))) {
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'REPRESENTANTE_ESCUELA')) {
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'SECRETARIA_ACADEMICA' && user.role !== 'DIRECTOR_ESCUELA')) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

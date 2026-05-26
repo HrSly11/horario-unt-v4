@@ -92,7 +92,9 @@ export default function ReportesPage() {
     generateMutation.mutate({ periodoId: periodoActivo.id, tipo });
   };
 
-  if (user?.role !== 'ADMIN') {
+  const isAuthorized = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_ACADEMICA' || user?.role === 'DIRECTOR_ESCUELA';
+
+  if (!isAuthorized) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <div className="h-16 w-16 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
@@ -100,7 +102,7 @@ export default function ReportesPage() {
         </div>
         <h2 className="text-xl font-bold text-white">Acceso Restringido</h2>
         <p className="text-gray-500 mt-2 max-w-sm">
-          Solo los administradores del sistema tienen permiso para generar reportes operacionales y de gestión.
+          No tiene permisos suficientes para acceder al módulo de reportes institucionales.
         </p>
       </div>
     );

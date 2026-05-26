@@ -39,6 +39,7 @@ export class ScheduleEngine {
   private assignments: Assignment[] = [];
   private unassigned: UnassignedItem[] = [];
   private docenteHorasPorDia = new Map<string, Map<string, string[]>>();
+  private cycleHorasPorDia = new Map<number, Map<string, string[]>>(); // New: track cycle hours
   private franjaById = new Map<string, FranjaForSchedule>();
   private blockedDocenteSlots: Set<string>;
   private blockedAulaSlots: Set<string>;
@@ -46,8 +47,8 @@ export class ScheduleEngine {
   constructor(input: ScheduleEngineInput) {
     this.input = input;
     this.checker = new ConstraintChecker();
-    this.blockedDocenteSlots = input.blockedDocenteSlots ?? new Set();
-    this.blockedAulaSlots = input.blockedAulaSlots ?? new Set();
+    this.blockedDocenteSlots = new Set(input.blockedDocenteSlots || []);
+    this.blockedAulaSlots = new Set(input.blockedAulaSlots || []);
   }
 
   generate(): ScheduleResult {
@@ -55,6 +56,7 @@ export class ScheduleEngine {
     this.unassigned = [];
     this.checker.clear();
     this.docenteHorasPorDia.clear();
+    this.cycleHorasPorDia.clear();
     this.franjaById = new Map(this.input.franjas.map((f) => [f.id, f]));
 
     const sortedDocentes = sortDocentesByHierarchy(this.input.docentes);
@@ -69,7 +71,8 @@ export class ScheduleEngine {
 
     const existing = this.input.existingAssignments ?? [];
     for (const assignment of existing) {
-      this.checker.addAssignment(assignment);
+      const grupo = grupoMap.get(assignment.grupoId);
+      this.checker.addAssignment(assignment, grupo?.ciclo);
       this.seedDocenteHora(assignment);
 
       const remaining = remainingByGrupo.get(assignment.grupoId);
@@ -144,6 +147,8 @@ export class ScheduleEngine {
   /**
    * Tries to assign `hoursNeeded` slots for a grupo/docente combination.
    * Returns true if ALL hours were assigned, false otherwise.
+   * 
+   * IMPROVED: Prioritizes consecutive hours on the same day.
    */
   private assignSlots(
     docenteId: string,
@@ -161,47 +166,144 @@ export class ScheduleEngine {
       return false;
     }
 
+    const grupo = this.input.grupos.find(g => g.id === grupoId);
     let assignedCount = 0;
 
-    for (const franja of this.input.franjas) {
+    // Group franjas by day and sort by block number
+    const franjasByDay = new Map<string, FranjaForSchedule[]>();
+    for (const f of this.input.franjas) {
+      const dayFranjas = franjasByDay.get(f.dia) ?? [];
+      dayFranjas.push(f);
+      franjasByDay.set(f.dia, dayFranjas);
+    }
+    for (const dayFranjas of franjasByDay.values()) {
+      dayFranjas.sort((a, b) => a.numeroBloque - b.numeroBloque);
+    }
+
+    // Try to find blocks of consecutive hours
+    // We try from largest block possible (hoursNeeded) down to 1
+    for (let blockSize = Math.min(hoursNeeded, 6); blockSize >= 1; blockSize--) {
       if (assignedCount >= hoursNeeded) break;
+      // console.log(`Checking blockSize ${blockSize} for docente ${docenteId}, grupo ${grupoId}`);
 
-      if (this.isDocenteBlocked(docenteId, franja.id)) continue;
+      // Days sorted by current docente load (prefer days with fewer hours if we have to choose)
+      const sortedDays = Array.from(franjasByDay.keys()).sort((a, b) => {
+        const horasA = this.getDocenteHoras(docenteId, a).length;
+        const horasB = this.getDocenteHoras(docenteId, b).length;
+        return horasA - horasB;
+      });
 
-      // Check docente availability for this franja
-      if (!this.checker.isDocenteAvailable(docenteId, franja.id)) continue;
-      // Check grupo availability for this franja
-      if (!this.checker.isGrupoAvailable(grupoId, franja.id)) continue;
+      for (const dia of sortedDays) {
+        if (assignedCount >= hoursNeeded) break;
+        
+        const dayFranjas = franjasByDay.get(dia) || [];
+        
+        // Find consecutive blocks of 'blockSize' in this day
+        for (let i = 0; i <= dayFranjas.length - blockSize; i++) {
+          if (assignedCount + blockSize > hoursNeeded) break; // Don't over-assign
 
-      const diaHoras = this.getDocenteHoras(docenteId, franja.dia);
-      if (wouldExceedContinuousHours(diaHoras, franja.horaInicio)) continue;
+          const candidateBlock = dayFranjas.slice(i, i + blockSize);
+          
+          // Check if block is consecutive in time (numeroBloque)
+          const isConsecutive = candidateBlock.every((f, idx) => 
+            idx === 0 || f.numeroBloque === candidateBlock[idx - 1].numeroBloque + 1
+          );
+          if (!isConsecutive) continue;
 
-      const lunchBlocked = getLunchBlockedHoras(diaHoras);
-      if (lunchBlocked.includes(franja.horaInicio)) continue;
+          // Check if all franjas in block are already assigned in this run
+          const isAlreadyAssigned = candidateBlock.some(f => 
+            this.assignments.some(a => a.franjaHorariaId === f.id && a.docenteId === docenteId)
+          );
+          if (isAlreadyAssigned) continue;
 
-      // Find first available aula in this franja
-      for (const aula of availableAulas) {
-        if (this.isAulaBlocked(aula.id, franja.id)) {
-          continue;
+          // Check if all franjas in block are available for docente, grupo, cycle
+          const isBlockAvailable = candidateBlock.every(franja => {
+            if (this.isDocenteBlocked(docenteId, franja.id)) return false;
+            if (!this.checker.isDocenteAvailable(docenteId, franja.id)) return false;
+            if (!this.checker.isGrupoAvailable(grupoId, franja.id)) return false;
+            if (grupo && !this.checker.isCycleAvailable(grupo.ciclo, franja.id)) return false;
+            
+            // Limit hours per day check (simplified, we'll check properly below)
+            const currentDayHoras = this.getDocenteHoras(docenteId, dia);
+            if (currentDayHoras.length >= 6) return false;
+
+            return true;
+          });
+
+          if (!isBlockAvailable) continue;
+
+          // Find an aula that is available for the ENTIRE block
+          let selectedAula: AulaForSchedule | null = null;
+          for (const aula of availableAulas) {
+            const isAulaAvailableForBlock = candidateBlock.every(franja => {
+              if (this.isAulaBlocked(aula.id, franja.id)) return false;
+              if (!this.checker.isSlotFullyAvailable(docenteId, aula.id, grupoId, franja.id, grupo?.ciclo)) {
+                return false;
+              }
+              return true;
+            });
+
+            if (isAulaAvailableForBlock) {
+              selectedAula = aula;
+              break;
+            }
+          }
+
+          if (selectedAula) {
+            // Check if adding this block violates continuous hours or lunch
+            // We simulate adding the entire block
+            const currentDayHoras = this.getDocenteHoras(docenteId, dia);
+            let canAddBlock = true;
+            let tempDayHoras = [...currentDayHoras];
+
+            for (const franja of candidateBlock) {
+              if (wouldExceedContinuousHours(tempDayHoras, franja.horaInicio)) {
+                canAddBlock = false;
+                break;
+              }
+              const lunchBlocked = getLunchBlockedHoras(tempDayHoras);
+              if (lunchBlocked.includes(franja.horaInicio)) {
+                canAddBlock = false;
+                break;
+              }
+              
+              if (grupo) {
+                const cycleDiaHoras = this.getCycleHoras(grupo.ciclo, dia);
+                const cycleLunchBlocked = getLunchBlockedHoras(cycleDiaHoras);
+                if (cycleLunchBlocked.includes(franja.horaInicio)) {
+                  canAddBlock = false;
+                  break;
+                }
+              }
+              
+              tempDayHoras.push(franja.horaInicio);
+            }
+
+            if (canAddBlock && tempDayHoras.length <= 6) {
+              // ASSIGN THE BLOCK
+              for (const franja of candidateBlock) {
+                const assignment: Assignment = {
+                  grupoId,
+                  docenteId,
+                  aulaId: selectedAula.id,
+                  franjaHorariaId: franja.id,
+                  tipo,
+                  confirmado: false,
+                };
+
+                this.assignments.push(assignment);
+                this.checker.addAssignment(assignment, grupo?.ciclo);
+                this.addDocenteHora(docenteId, franja.dia, franja.horaInicio);
+                if (grupo) {
+                  this.addCycleHora(grupo.ciclo, franja.dia, franja.horaInicio);
+                }
+                assignedCount++;
+              }
+              // Skip the franjas we just assigned to avoid overlaps in same day search
+              i += blockSize - 1;
+            }
+          }
         }
-        if (!this.checker.isSlotFullyAvailable(docenteId, aula.id, grupoId, franja.id)) {
-          continue;
-        }
-
-        // Found a valid slot!
-        const assignment: Assignment = {
-          grupoId,
-          docenteId,
-          aulaId: aula.id,
-          franjaHorariaId: franja.id,
-          tipo,
-        };
-
-        this.assignments.push(assignment);
-        this.checker.addAssignment(assignment);
-        this.addDocenteHora(docenteId, franja.dia, franja.horaInicio);
-        assignedCount++;
-        break; // Move to next franja
       }
     }
 
@@ -209,7 +311,7 @@ export class ScheduleEngine {
       this.unassigned.push({
         grupoId,
         tipo,
-        reason: `Solo se asignaron ${assignedCount}/${hoursNeeded} horas — no hay slots disponibles sin conflictos`,
+        reason: `Solo se pudieron asignar ${assignedCount} de ${hoursNeeded} horas. Posible falta de aulas o cruces de ciclo/docente.`,
       });
       return false;
     }
@@ -222,17 +324,24 @@ export class ScheduleEngine {
   }
 
   private isDocenteBlocked(docenteId: string, franjaId: string): boolean {
-    return this.blockedDocenteSlots.has(this.key(docenteId, franjaId));
+    const key = `${docenteId}::${franjaId}`;
+    return this.blockedDocenteSlots.has(key);
   }
 
   private isAulaBlocked(aulaId: string, franjaId: string): boolean {
-    return this.blockedAulaSlots.has(this.key(aulaId, franjaId));
+    const key = `${aulaId}::${franjaId}`;
+    return this.blockedAulaSlots.has(key);
   }
 
   private seedDocenteHora(assignment: Assignment): void {
     const franja = this.franjaById.get(assignment.franjaHorariaId);
     if (!franja) return;
     this.addDocenteHora(assignment.docenteId, franja.dia, franja.horaInicio);
+    
+    const grupo = this.input.grupos.find(g => g.id === assignment.grupoId);
+    if (grupo) {
+      this.addCycleHora(grupo.ciclo, franja.dia, franja.horaInicio);
+    }
   }
 
   private addDocenteHora(docenteId: string, dia: string, horaInicio: string): void {
@@ -243,8 +352,21 @@ export class ScheduleEngine {
     this.docenteHorasPorDia.set(docenteId, perDia);
   }
 
+  private addCycleHora(ciclo: number, dia: string, horaInicio: string): void {
+    const perDia = this.cycleHorasPorDia.get(ciclo) ?? new Map<string, string[]>();
+    const horas = perDia.get(dia) ?? [];
+    horas.push(horaInicio);
+    perDia.set(dia, horas);
+    this.cycleHorasPorDia.set(ciclo, perDia);
+  }
+
   private getDocenteHoras(docenteId: string, dia: string): string[] {
     const perDia = this.docenteHorasPorDia.get(docenteId);
+    return perDia?.get(dia) ?? [];
+  }
+
+  private getCycleHoras(ciclo: number, dia: string): string[] {
+    const perDia = this.cycleHorasPorDia.get(ciclo);
     return perDia?.get(dia) ?? [];
   }
 }

@@ -34,17 +34,40 @@ export default function PeriodosPage() {
     })
   );
 
+  const startProcessMutation = useMutation(
+    trpc.periodo.startAssignmentProcess.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: trpc.periodo.list.queryKey() });
+        alert('Proceso iniciado. Se ha notificado a los docentes.');
+      },
+      onError: (err: any) => alert(err.message),
+    })
+  );
+
+  const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
+  const isDirector = user?.role === 'DIRECTOR_ESCUELA' || user?.role === 'ADMIN';
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_ACADEMICA' || user?.role === 'DIRECTOR_ESCUELA';
+  const isGuest = user?.role === 'INVITADO';
+  const isDocente = user?.role === 'DOCENTE';
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Periodos Académicos</h1>
-          <p className="text-sm text-gray-500 mt-1">{periodos.length} periodos</p>
+          <p className="text-sm text-gray-500 mt-1">Configuración de semestres y estados del proceso</p>
         </div>
-        <button onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25">
-          <Plus className="h-4 w-4" /> Nuevo Periodo
-        </button>
+        {canEdit && !isGuest && !isDocente && (
+          <button
+            onClick={() => {
+              setForm({ nombre: '', fechaInicio: '', fechaFin: '', activo: false });
+              setShowModal(true);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-500 shadow-lg shadow-indigo-600/25 transition-all"
+          >
+            <Plus className="h-4 w-4" /> Nuevo Periodo
+          </button>
+        )}
       </div>
 
       <div className="grid gap-4">
@@ -62,6 +85,16 @@ export default function PeriodosPage() {
                         Activo
                       </span>
                     )}
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium border ${
+                      p.estado === 'PLANIFICACION' ? 'bg-gray-500/10 text-gray-400 border-gray-500/20' :
+                      p.estado === 'POSTULACION' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                      p.estado === 'ASIGNACION' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                      p.estado === 'REVISION' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
+                      p.estado === 'APROBADO' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                      'bg-red-500/10 text-red-400 border-red-500/20'
+                    }`}>
+                      {p.estado}
+                    </span>
                   </div>
                   <p className="text-sm text-gray-500 mt-1">
                     {new Date(p.fechaInicio).toLocaleDateString('es-PE')} — {new Date(p.fechaFin).toLocaleDateString('es-PE')}
@@ -71,16 +104,30 @@ export default function PeriodosPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  {!p.activo && (
-                    <button onClick={() => toggleMutation.mutate({ id: p.id, activo: true })}
-                      className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/10">
-                      Activar
-                    </button>
+                  {canEdit && !isGuest && !isDocente && (
+                    <>
+                      {isDirector && p.estado === 'PLANIFICACION' && (
+                        <button onClick={() => {
+                          if (confirm('¿Desea iniciar el proceso de asignación? Esto notificará a los docentes para ingresar su disponibilidad.')) {
+                            startProcessMutation.mutate({ id: p.id });
+                          }
+                        }}
+                          className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/20">
+                          Iniciar Proceso
+                        </button>
+                      )}
+                      {!p.activo && (
+                        <button onClick={() => toggleMutation.mutate({ id: p.id, activo: true })}
+                          className="rounded-lg border border-emerald-500/30 px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/10">
+                          Activar
+                        </button>
+                      )}
+                      <button onClick={() => deleteMutation.mutate({ id: p.id })}
+                        className="rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/10">
+                        Eliminar
+                      </button>
+                    </>
                   )}
-                  <button onClick={() => deleteMutation.mutate({ id: p.id })}
-                    className="rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/10">
-                    Eliminar
-                  </button>
                 </div>
               </div>
             </div>

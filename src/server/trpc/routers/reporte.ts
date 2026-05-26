@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { createTRPCRouter, adminProcedure } from '../init';
+import { TRPCError } from '@trpc/server';
+import { createTRPCRouter, adminProcedure, protectedProcedure, secretariaProcedure, directorProcedure, baseProcedure } from '../init';
 import {
   renderPDF,
   generateAulaReportHTML,
@@ -10,22 +11,63 @@ import {
 
 export const reporteRouter = createTRPCRouter({
   /** Generate PDF report — returns base64-encoded PDF */
-  generatePDF: adminProcedure
+  generatePDF: baseProcedure
     .input(z.object({
       periodoId: z.string(),
       tipo: z.enum(['por-aula', 'por-laboratorio', 'por-docente', 'por-ciclo', 'gestion']),
+      docenteId: z.string().optional(), // For specific docente report
+      aulaId: z.string().optional(),    // For specific aula report
+      ciclo: z.number().optional(),      // For specific ciclo report
     }))
     .mutation(async ({ ctx, input }) => {
-      const periodo = await ctx.prisma.periodoAcademico.findUniqueOrThrow({
-        where: { id: input.periodoId },
-      });
+      // Auth check
+      const role = ctx.session?.role;
+      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+      
+      if (input.tipo === 'gestion' && !isPrivileged) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'No tiene permisos para generar reportes de gestión',
+        });
+      }
 
-      let html = '';
-      const options = { landscape: true };
+      if (!isPrivileged && role === 'DOCENTE') {
+        if (input.tipo !== 'por-docente') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'No tiene permisos para generar este reporte',
+          });
+        }
+        // If it's a docente report, they can only see their own
+        if (input.docenteId && input.docenteId !== ctx.session?.docenteId) {
+           throw new TRPCError({
+             code: 'FORBIDDEN',
+             message: 'No tiene permisos para ver el horario de otro docente',
+           });
+        }
+      }
+
+      // Guest access (no session) is allowed for 'por-aula', 'por-laboratorio', 'por-ciclo', 'por-docente' (all)
+      // but if a specific docenteId is requested by a guest, it's also allowed as it's public info.
+
+      try {
+        const periodo = await ctx.prisma.periodoAcademico.findUniqueOrThrow({
+          where: { id: input.periodoId },
+        });
+
+        let html = '';
+        const options = { landscape: true };
 
       if (input.tipo === 'por-aula' || input.tipo === 'por-laboratorio') {
+        const whereClause: any = {};
+        if (input.aulaId) {
+          whereClause.id = input.aulaId;
+        } else if (input.tipo === 'por-laboratorio') {
+          whereClause.tipo = 'LABORATORIO';
+        }
+
         const aulas = await ctx.prisma.aula.findMany({
-          where: input.tipo === 'por-laboratorio' ? { tipo: 'LABORATORIO' } : { tipo: 'TEORIA' },
+          where: whereClause,
           include: {
             asignaciones: {
               where: { periodoId: input.periodoId },
@@ -38,7 +80,19 @@ export const reporteRouter = createTRPCRouter({
           },
         });
 
-        const reportData = aulas.map(aula => ({
+        // Filter out aulas with no assignments if we're generating a batch report
+        const aulasWithAssignments = input.aulaId 
+          ? aulas 
+          : aulas.filter(aula => aula.asignaciones.length > 0);
+
+        if (aulasWithAssignments.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'No hay asignaciones registradas para los ambientes seleccionados',
+          });
+        }
+
+        const reportData = aulasWithAssignments.map(aula => ({
           aulaCodigo: aula.codigo,
           aulaNombre: aula.nombre,
           tipo: aula.tipo,
@@ -50,61 +104,87 @@ export const reporteRouter = createTRPCRouter({
             cursoNombre: a.grupo.curso.nombre,
             grupoNombre: a.grupo.nombre,
             docenteNombre: a.docente.nombre,
+            docenteCodigo: a.docente.codigo || undefined,
             aulaCodigo: aula.codigo,
-            tipo: a.tipo,
+            aulaNombre: aula.nombre,
+            tipo: a.tipo as any,
+            ciclo: a.grupo.curso.ciclo,
+            horasTeoria: a.grupo.curso.horasTeoria,
+            horasPractica: 0,
+            horasLaboratorio: a.grupo.curso.horasLaboratorio,
           })),
         }));
 
         html = generateAulaReportHTML(reportData, periodo.nombre);
       } else if (input.tipo === 'por-ciclo') {
-        const cursos = await ctx.prisma.curso.findMany({
-          where: { aperturado: true },
+        const asignaciones = await ctx.prisma.asignacion.findMany({
+          where: { periodoId: input.periodoId },
           include: {
-            grupos: {
-              where: { periodoAcademicoId: input.periodoId },
-              include: {
-                asignaciones: {
-                  include: { docente: true, aula: true, franjaHoraria: true },
-                },
-              },
-            },
+            grupo: { include: { curso: true } },
+            docente: true,
+            aula: true,
+            franjaHoraria: true,
           },
-          orderBy: { ciclo: 'asc' },
+          orderBy: [
+            { grupo: { curso: { ciclo: 'asc' } } },
+            { grupo: { nombre: 'asc' } }
+          ]
         });
 
-        const ciclos = [...new Set(cursos.map(c => c.ciclo))].sort((a, b) => a - b);
+        const reportData: any[] = [];
         
-        const reportData = ciclos.map(ciclo => {
-          const cursosCiclo = cursos.filter(c => c.ciclo === ciclo);
-          const slots: any[] = [];
-          
-          cursosCiclo.forEach(c => {
-            c.grupos.forEach(g => {
-              g.asignaciones.forEach(a => {
-                slots.push({
-                  dia: a.franjaHoraria.dia,
-                  horaInicio: a.franjaHoraria.horaInicio,
-                  cursoCodigo: c.codigo,
-                  cursoNombre: c.nombre,
-                  grupoNombre: g.nombre,
-                  docenteNombre: a.docente.nombre,
-                  aulaCodigo: a.aula.codigo,
-                  tipo: a.tipo,
-                });
-              });
-            });
-          });
+        // Group by Ciclo and then by Section (Grupo name)
+        const uniqueCiclos = [...new Set(asignaciones.map(a => a.grupo.curso.ciclo))].sort((a, b) => a - b);
+        
+        for (const ciclo of uniqueCiclos) {
+          if (input.ciclo && ciclo !== input.ciclo) continue;
 
-          return {
-            ciclo,
-            slots,
-          };
-        });
+          const asignacionesCiclo = asignaciones.filter(a => a.grupo.curso.ciclo === ciclo);
+          const secciones = [...new Set(asignacionesCiclo.map(a => a.grupo.nombre))].sort();
+
+          for (const seccion of secciones) {
+            const slots = asignacionesCiclo
+              .filter(a => a.grupo.nombre === seccion)
+              .map(a => ({
+                dia: a.franjaHoraria.dia,
+                horaInicio: a.franjaHoraria.horaInicio,
+                cursoCodigo: a.grupo.curso.codigo,
+                cursoNombre: a.grupo.curso.nombre,
+                grupoNombre: seccion,
+                docenteNombre: a.docente.nombre,
+                aulaCodigo: a.aula.codigo,
+                aulaNombre: a.aula.nombre,
+                tipo: a.tipo,
+                ciclo: ciclo,
+                horasTeoria: a.grupo.curso.horasTeoria,
+                horasPractica: 0,
+                horasLaboratorio: a.grupo.curso.horasLaboratorio,
+              }));
+
+            if (slots.length > 0) {
+              reportData.push({
+                ciclo,
+                seccion,
+                periodoNombre: periodo.nombre,
+                fechaInicio: periodo.fechaInicio.toLocaleDateString('es-PE'),
+                fechaFin: periodo.fechaFin.toLocaleDateString('es-PE'),
+                slots,
+              });
+            }
+          }
+        }
+
+        if (reportData.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'No hay asignaciones registradas para generar el reporte de ciclos',
+          });
+        }
 
         html = generateCicloReportHTML(reportData, periodo.nombre);
       } else if (input.tipo === 'por-docente') {
         const docentes = await ctx.prisma.docente.findMany({
-          where: { activo: true },
+          where: input.docenteId ? { id: input.docenteId } : { activo: true },
           include: {
             asignaciones: {
               where: { periodoId: input.periodoId },
@@ -119,21 +199,43 @@ export const reporteRouter = createTRPCRouter({
 
         const reportData = docentes
           .filter(d => d.asignaciones.length > 0)
-          .map(d => ({
-            docenteNombre: d.nombre,
-            tipo: d.tipo,
-            categoria: d.categoria,
-            slots: d.asignaciones.map(a => ({
-              dia: a.franjaHoraria.dia,
-              horaInicio: a.franjaHoraria.horaInicio,
-              cursoCodigo: a.grupo.curso.codigo,
-              cursoNombre: a.grupo.curso.nombre,
-              grupoNombre: a.grupo.nombre,
+          .map(d => {
+            // VALIDATION: Check for overlaps in docente schedule
+            const slotsSet = new Set();
+            for (const a of d.asignaciones) {
+              const key = `${a.franjaHoraria.dia}-${a.franjaHoraria.horaInicio}`;
+              if (slotsSet.has(key)) {
+                throw new TRPCError({
+                  code: 'CONFLICT',
+                  message: `Conflicto detectado para docente ${d.nombre}: Cruce de horario en ${key}`,
+                });
+              }
+              slotsSet.add(key);
+            }
+
+            return {
               docenteNombre: d.nombre,
-              aulaCodigo: a.aula.codigo,
-              tipo: a.tipo,
-            })),
-          }));
+              docenteCodigo: d.codigo || undefined,
+              tipo: d.tipo,
+              categoria: d.categoria,
+              antiguedad: d.antiguedad.toLocaleDateString('es-PE'),
+              slots: d.asignaciones.map(a => ({
+                dia: a.franjaHoraria.dia,
+                horaInicio: a.franjaHoraria.horaInicio,
+                cursoCodigo: a.grupo.curso.codigo,
+                cursoNombre: a.grupo.curso.nombre,
+                grupoNombre: a.grupo.nombre,
+                docenteNombre: d.nombre,
+                aulaCodigo: a.aula.codigo,
+                aulaNombre: a.aula.nombre,
+                tipo: a.tipo as any,
+                ciclo: a.grupo.curso.ciclo,
+                horasTeoria: a.grupo.curso.horasTeoria,
+                horasPractica: 0,
+                horasLaboratorio: a.grupo.curso.horasLaboratorio,
+              })),
+            };
+          });
 
         html = generateDocenteReportHTML(reportData, periodo.nombre);
       } else if (input.tipo === 'gestion') {
@@ -198,6 +300,13 @@ export const reporteRouter = createTRPCRouter({
       }
 
       const pdfBuffer = await renderPDF(html, options);
-      return { pdf: pdfBuffer.toString('base64'), filename: `reporte-${input.tipo}.pdf` };
+        return { pdf: pdfBuffer.toString('base64'), filename: `reporte-${input.tipo}.pdf` };
+      } catch (error: any) {
+        console.error('Error generating PDF:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error.message || 'Error al generar el reporte PDF',
+        });
+      }
     }),
 });

@@ -50,31 +50,21 @@ enum TipoRestriccion {
   PREFERENCIA
 }
 
-enum EstadoSesion {
-  PROGRAMADA
-  EN_CURSO
-  FINALIZADA
-}
-
-enum EstadoTurno {
-  PENDIENTE
-  EN_TURNO
-  COMPLETADO
-  AUSENTE
-}
-
 enum UserRole {
   ADMIN
   DOCENTE
   ESTUDIANTE
   INVITADO
-  REPRESENTANTE_ESCUELA
+  SECRETARIA_ACADEMICA
+  DIRECTOR_ESCUELA
 }
 
 enum EstadoPeriodo {
   PLANIFICACION
   POSTULACION
   ASIGNACION
+  REVISION
+  APROBADO
   FINALIZADO
 }
 
@@ -93,6 +83,7 @@ model User {
 
   docente Docente? @relation(fields: [docenteId], references: [id], onDelete: SetNull)
   logs    Log[]
+  periodosAprobados PeriodoAcademico[] @relation("AprobadorPeriodo")
 
   @@map("users")
 }
@@ -113,6 +104,7 @@ model Log {
 
 model Docente {
   id                String            @id @default(cuid())
+  codigo            String?           @unique
   nombre            String
   email             String            @unique
   categoria         CategoriaDocente
@@ -130,7 +122,6 @@ model Docente {
   restricciones    RestriccionDocente[]
   docenteGrupos    DocenteGrupo[]
   preasignaciones  Preasignacion[]
-  turnos           TurnoDocente[]
   disponibilidades DisponibilidadDocente[]
   postulaciones    PostulacionCurso[]
   notificaciones   Notification[]
@@ -248,13 +239,19 @@ model PeriodoAcademico {
   fechaFin    DateTime      @map("fecha_fin")
   activo      Boolean       @default(false)
   estado      EstadoPeriodo @default(PLANIFICACION)
+  
+  // Aprobación
+  aprobadoPorId      String?   @map("aprobado_por_id")
+  fechaAprobacion    DateTime? @map("fecha_aprobacion")
+  comentariosDirector String?   @map("comentarios_director") @db.Text
+
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
   grupos          Grupo[]
   asignaciones    Asignacion[]
-  sesiones        SesionLlenado[]
   preasignaciones Preasignacion[]
+  aprobadoPor     User?            @relation("AprobadorPeriodo", fields: [aprobadoPorId], references: [id])
 
   @@map("periodos_academicos")
 }
@@ -377,43 +374,4 @@ model Preasignacion {
 
   @@unique([aulaId, franjaHorariaId, periodoId])
   @@map("preasignaciones")
-}
-
-/// Sesión de llenado presencial (ej: 08/06/2026, 8:00-13:00, cada 15 min)
-model SesionLlenado {
-  id          String       @id @default(cuid())
-  periodoId   String       @map("periodo_id")
-  nombre      String       // "Sesión 1 — Nombrados Principales"
-  fecha       DateTime     @db.Date
-  horaInicio  String       @map("hora_inicio")  // "08:00"
-  horaFin     String       @map("hora_fin")     // "13:00"
-  intervalo   Int          @default(15)          // minutos por turno
-  estado      EstadoSesion @default(PROGRAMADA)
-  turnoActual Int          @default(0) @map("turno_actual")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-
-  periodo     PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
-  turnos      TurnoDocente[]
-
-  @@map("sesiones_llenado")
-}
-
-/// Turno individual de un docente dentro de una sesión
-model TurnoDocente {
-  id           String      @id @default(cuid())
-  sesionId     String      @map("sesion_id")
-  docenteId    String      @map("docente_id")
-  orden        Int         // 1-based, posición en cola jerárquica
-  horaAsignada String      @map("hora_asignada") // "08:00", "08:15", "08:30"
-  estado       EstadoTurno @default(PENDIENTE)
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
-
-  sesion       SesionLlenado @relation(fields: [sesionId], references: [id], onDelete: Cascade)
-  docente      Docente       @relation(fields: [docenteId], references: [id], onDelete: Cascade)
-
-  @@unique([sesionId, docenteId])
-  @@unique([sesionId, orden])
-  @@map("turnos_docentes")
 }

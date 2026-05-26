@@ -16,6 +16,7 @@ export interface GrupoForSchedule {
   cursoId: string;
   cursoNombre: string;
   cursoCodigo: string;
+  ciclo: number; // Added: track cycle for conflicts
   horasTeoria: number;
   horasLaboratorio: number;
   requiereLaboratorio: boolean;
@@ -43,6 +44,7 @@ export interface Assignment {
   aulaId: string;
   franjaHorariaId: string;
   tipo: 'TEORIA' | 'LABORATORIO';
+  confirmado?: boolean;
 }
 
 export interface UnassignedItem {

@@ -1,38 +1,30 @@
-import { SCHEDULING_CONFIG } from './config';
-
 /**
- * Determines if a lunch break is required based on consecutive morning hours.
- *
- * Rule: If a docente has >= `umbralAlmuerzo` (default: 4) continuous hours
- * scheduled before 12:00, the system blocks 12:00-13:00 or 13:00-14:00.
- *
- * @param scheduledHoras - Array of horaInicio strings already assigned to the docente on a given day
- * @returns Array of hora strings that should be blocked for lunch (e.g., ['12:00'] or ['13:00'])
+ * Determines if a lunch break is required.
+ * 
+ * Rule: Preference for 13:00-14:00. 
+ * If the docente/group has classes before AND after the 12:00-14:00 window,
+ * they MUST have at least 1 hour free in that window.
  */
 export function getLunchBlockedHoras(scheduledHoras: string[]): string[] {
-  if (scheduledHoras.length === 0) return [];
+  // Preferred lunch hour: 13:00 (1 PM)
+  const PREFERRED_LUNCH = '13:00';
+  
+  // If they already have assignments in the morning AND afternoon, 
+  // or if they have >= 4 hours in the morning, block the lunch hour.
+  const hasMorning = scheduledHoras.some(h => h < '12:00');
+  const hasAfternoon = scheduledHoras.some(h => h >= '14:00');
+  const morningCount = scheduledHoras.filter(h => h < '13:00').length;
 
-  // Sort and find continuous morning blocks (before 12:00)
-  const morningHoras = scheduledHoras
-    .filter((h) => h < '12:00')
-    .sort();
+  if ((hasMorning && hasAfternoon) || morningCount >= 4) {
+    if (!scheduledHoras.includes(PREFERRED_LUNCH)) {
+      return [PREFERRED_LUNCH];
+    }
+    // If 1 PM is somehow already taken, try to block 12 PM as alternative
+    if (!scheduledHoras.includes('12:00')) {
+      return ['12:00'];
+    }
+  }
 
-  if (morningHoras.length < SCHEDULING_CONFIG.umbralAlmuerzo) return [];
-
-  // Check if they are continuous
-  const continuousCount = countContinuousHours(morningHoras);
-
-  if (continuousCount < SCHEDULING_CONFIG.umbralAlmuerzo) return [];
-
-  // Block both lunch window options
-  // If 12:00 is already occupied, block 13:00 instead (and vice versa)
-  const has12 = scheduledHoras.includes('12:00');
-  const has13 = scheduledHoras.includes('13:00');
-
-  if (!has12) return ['12:00'];
-  if (!has13) return ['13:00'];
-
-  // Both occupied — nothing to block (unusual case)
   return [];
 }
 

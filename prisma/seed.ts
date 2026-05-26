@@ -16,8 +16,6 @@ async function main() {
   await prisma.notification.deleteMany();
   await prisma.log.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.turnoDocente.deleteMany();
-  await prisma.sesionLlenado.deleteMany();
   await prisma.asignacion.deleteMany();
   await prisma.preasignacion.deleteMany();
   await prisma.restriccionDocente.deleteMany();
@@ -43,9 +41,9 @@ async function main() {
     },
   });
 
-  // ── Franjas Horarias (Lun-Vie, 7am-10pm, bloques de 1h) ──
+  // ── Franjas Horarias (Lun-Vie, 7am-9pm, bloques de 1h) ──
   const dias: DiaSemana[] = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
-  const horas = Array.from({ length: 15 }, (_, i) => ({
+  const horas = Array.from({ length: 14 }, (_, i) => ({
     inicio: `${String(7 + i).padStart(2, '0')}:00`,
     fin: `${String(8 + i).padStart(2, '0')}:00`,
     bloque: i + 1,
@@ -223,12 +221,21 @@ async function main() {
     },
   });
 
-  const representante = await prisma.user.create({
+  const secretaria = await prisma.user.create({
     data: {
-      email: 'escuela@unt.edu.pe',
+      email: 'secretaria@unt.edu.pe',
+      password: hashedPassword,
+      nombre: 'Secretaria Académica',
+      role: UserRole.SECRETARIA_ACADEMICA,
+    },
+  });
+
+  const director = await prisma.user.create({
+    data: {
+      email: 'director@unt.edu.pe',
       password: hashedPassword,
       nombre: 'Director de Escuela',
-      role: UserRole.REPRESENTANTE_ESCUELA,
+      role: UserRole.DIRECTOR_ESCUELA,
     },
   });
 
@@ -264,7 +271,7 @@ async function main() {
   console.log(`   Grupos: ${gruposCreated.length}`);
   console.log(`   Docente-Grupo: ${docenteGrupoCount}`);
   console.log(`   Feriados: ${feriadosData.length}`);
-  console.log(`   Usuarios: 3 (admin@unt.edu.pe, cmendez@unitru.edu.pe, mlopez@unitru.edu.pe)`);
+  console.log(`   Usuarios: 4 (admin@unt.edu.pe, secretaria@unt.edu.pe, director@unt.edu.pe, cmendez@unitru.edu.pe, mlopez@unitru.edu.pe)`);
 }
 
 main()

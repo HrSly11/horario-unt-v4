@@ -1,10 +1,9 @@
 'use client';
 
 import { useTRPC } from '@/trpc/client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Building2, FlaskConical, User, Calendar, CheckCircle2, FileDown } from 'lucide-react';
-import Link from 'next/link';
+import { Building2, FlaskConical, User, Calendar, FileDown, Eye, CheckCircle2 } from 'lucide-react';
 
 const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
 const DIA_LABELS: Record<string, string> = {
@@ -21,16 +20,25 @@ const SLOT_COLORS = [
   'bg-rose-500/20 border-rose-500/30 text-rose-300',
   'bg-teal-500/20 border-teal-500/30 text-teal-300',
   'bg-orange-500/20 border-orange-500/30 text-orange-300',
+  'bg-lime-500/20 border-lime-500/30 text-lime-300',
+  'bg-pink-500/20 border-pink-500/30 text-pink-300',
+  'bg-violet-500/20 border-violet-500/30 text-violet-300',
+  'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300',
+  'bg-sky-500/20 border-sky-500/30 text-sky-300',
+  'bg-blue-500/20 border-blue-500/30 text-blue-300',
+  'bg-red-500/20 border-red-500/30 text-red-300',
+  'bg-yellow-500/20 border-yellow-500/30 text-yellow-300',
 ];
 
-type ViewMode = 'general' | 'aula' | 'docente' | 'mi-horario';
+type ViewMode = 'general' | 'aula' | 'docente' | 'mi-horario' | 'ciclo';
 
 type HorarioAsignacion = {
   id: string;
   tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO';
+  confirmado: boolean;
+  docenteId?: string;
   grupo: {
     nombre: string;
-    cursoId?: string;
     curso: { id: string; codigo: string; nombre: string; ciclo: number };
   };
   docente?: { nombre: string; tipo: string; categoria: string };
@@ -40,25 +48,22 @@ type HorarioAsignacion = {
 
 export default function HorariosPage() {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
-  const isAdmin = user?.role === 'ADMIN';
   const isDocente = user?.role === 'DOCENTE';
+  const isDirector = user?.role === 'DIRECTOR_ESCUELA';
+  const isSecretaria = user?.role === 'SECRETARIA_ACADEMICA';
+  const isAdmin = user?.role === 'ADMIN';
+  const isGuest = user?.role === 'INVITADO';
 
   const [viewMode, setViewMode] = useState<ViewMode>(isDocente ? 'mi-horario' : 'general');
   const [selectedAulaId, setSelectedAulaId] = useState<string | null>(null);
   const [selectedDocenteId, setSelectedDocenteId] = useState<string | null>(null);
-  const [showAutoModal, setShowAutoModal] = useState(false);
+  const [selectedCiclo, setSelectedCiclo] = useState<number | null>(1);
 
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
   const { data: aulas = [] } = useQuery({ ...trpc.aula.list.queryOptions({}) });
   const { data: docentes = [] } = useQuery({ ...trpc.docente.list.queryOptions({}) });
-  const { data: franjas = [] } = useQuery({ ...trpc.periodo.franjas.queryOptions() });
-
-  const { data: personalStats } = useQuery({
-    ...trpc.docente.personalStats.queryOptions(),
-    enabled: isDocente,
-  });
+  const { data: stats } = useQuery({ ...trpc.horario.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }), enabled: !!periodoActivo?.id });
 
   const queryInput = viewMode === 'aula' && selectedAulaId
     ? { aulaId: selectedAulaId, periodoId: periodoActivo?.id ?? '' }
@@ -66,21 +71,25 @@ export default function HorariosPage() {
       ? { docenteId: selectedDocenteId, periodoId: periodoActivo?.id ?? '' }
       : viewMode === 'mi-horario' && user?.docenteId
         ? { docenteId: user.docenteId, periodoId: periodoActivo?.id ?? '' }
-        : { periodoId: periodoActivo?.id ?? '' };
+        : viewMode === 'ciclo' && selectedCiclo
+          ? { periodoId: periodoActivo?.id ?? '', ciclo: selectedCiclo }
+          : { periodoId: periodoActivo?.id ?? '' };
 
-  const queryOpts = viewMode === 'aula' && selectedAulaId
-    ? trpc.horario.byAula.queryOptions(queryInput as { aulaId: string; periodoId: string })
-    : (viewMode === 'docente' && selectedDocenteId) || (viewMode === 'mi-horario' && user?.docenteId)
-      ? trpc.horario.byDocente.queryOptions(queryInput as { docenteId: string; periodoId: string })
-      : trpc.horario.list.queryOptions({ periodoId: periodoActivo?.id ?? '' });
-
-  const queryResult = useQuery({
-    ...queryOpts,
+  const { data: rawAsignaciones = [], isLoading } = useQuery({
+    ...trpc.horario.list.queryOptions(queryInput),
     enabled: !!periodoActivo?.id,
   });
 
-  const asignaciones = (queryResult.data ?? []) as HorarioAsignacion[];
-  const isLoading = queryResult.isLoading;
+  // Filter by cycle if in general or cycle view
+  const isPrivileged = isAdmin || isSecretaria || isDirector;
+  const asignaciones = (rawAsignaciones as HorarioAsignacion[]).filter(a => {
+    const isVisible = isPrivileged || a.confirmado;
+    if (!isVisible) return false;
+    if (viewMode === 'ciclo' && selectedCiclo !== null) {
+      return a.grupo.curso.ciclo === selectedCiclo;
+    }
+    return true;
+  });
 
   const downloadBase64PDF = (base64: string, filename: string) => {
     const link = document.createElement('a');
@@ -91,350 +100,199 @@ export default function HorariosPage() {
 
   const generatePDFMutation = useMutation(
     trpc.reporte.generatePDF.mutationOptions({
-      onSuccess: (data) => {
-        downloadBase64PDF(data.pdf, data.filename);
-      },
+      onSuccess: (data) => downloadBase64PDF(data.pdf, data.filename),
       onError: () => alert('Error al generar el PDF'),
     })
   );
 
-  const autoGenerateMutation = useMutation(
-    trpc.horario.autoGenerate.mutationOptions({
-      onSuccess: (data) => {
-        if (!data.success) {
-          alert(data.reason ?? 'No se pudo autogenerar el horario.');
-          return;
-        }
-
-        setShowAutoModal(false);
-        queryClient.invalidateQueries({ queryKey: trpc.horario.list.queryKey() });
-        if (selectedAulaId && periodoActivo?.id) {
-          queryClient.invalidateQueries({
-            queryKey: trpc.horario.byAula.queryKey({
-              aulaId: selectedAulaId,
-              periodoId: periodoActivo.id,
-            }),
-          });
-        }
-        if (selectedDocenteId && periodoActivo?.id) {
-          queryClient.invalidateQueries({
-            queryKey: trpc.horario.byDocente.queryKey({
-              docenteId: selectedDocenteId,
-              periodoId: periodoActivo.id,
-            }),
-          });
-        }
-        queryClient.invalidateQueries({ queryKey: trpc.horario.stats.queryKey() });
-        queryClient.invalidateQueries({ queryKey: trpc.aula.stats.queryKey() });
-
-        alert(
-          `Autogeneracion completada.\nAsignaciones creadas: ${data.createdCount}\nSin asignar: ${data.unassignedCount}`
-        );
-      },
-      onError: () => {
-        alert('Error al autogenerar el horario.');
-      },
-    })
-  );
-
-  // Build grid
   const horas = [...new Set(asignaciones.map((a) => a.franjaHoraria.horaInicio))].sort();
-
+  
+  // Stable color mapping by course ID
+  const uniqueCourseIds = Array.from(new Set(rawAsignaciones.map(a => a.grupo?.curso?.id))).filter(Boolean) as string[];
   const cursoColorMap = new Map<string, string>();
-  let colorIdx = 0;
-  asignaciones.forEach((a) => {
-    const key = (a.grupo.cursoId ?? a.grupo.curso.id ?? a.id) as string;
-    if (!cursoColorMap.has(key)) {
-      cursoColorMap.set(key, SLOT_COLORS[colorIdx % SLOT_COLORS.length]);
-      colorIdx++;
-    }
+  uniqueCourseIds.sort().forEach((id, i) => {
+    cursoColorMap.set(id, SLOT_COLORS[i % SLOT_COLORS.length]);
   });
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Horarios</h1>
+          <h1 className="text-2xl font-bold text-white">Visualización de Horarios</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {periodoActivo?.nombre ?? 'Sin periodo activo'}
-            {asignaciones.length > 0 && ` · ${asignaciones.length} asignaciones`}
+            {periodoActivo?.nombre ?? 'Sin periodo activo'} · 
+            <span className={periodoActivo?.estado === 'APROBADO' ? 'text-emerald-400 ml-1' : 'text-amber-400 ml-1'}>
+              {periodoActivo?.estado === 'APROBADO' ? 'Publicado' : 'En proceso'}
+            </span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {viewMode === 'mi-horario' && (
-            <button
-              onClick={() => {
-                if (!periodoActivo || !user?.docenteId) return;
-                generatePDFMutation.mutate({
-                  periodoId: periodoActivo.id,
-                  tipo: 'por-docente',
-                });
-              }}
-              disabled={generatePDFMutation.isPending}
-              className="flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-600/10 px-4 py-2.5 text-sm font-medium text-emerald-300 hover:bg-emerald-600/20 disabled:opacity-50"
-            >
-              <FileDown className="h-4 w-4" /> {generatePDFMutation.isPending ? 'Generando...' : 'Descargar PDF'}
-            </button>
-          )}
-          {isAdmin && (
-            <>
-              <button
-                onClick={() => setShowAutoModal(true)}
-                disabled={!periodoActivo}
-                className="rounded-lg border border-indigo-500/40 bg-indigo-600/10 px-4 py-2.5 text-sm font-medium text-indigo-300 hover:bg-indigo-600/20 disabled:opacity-50"
-              >
-                Autogenerar
-              </button>
-              <Link
-                href="/sesiones"
-                className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25"
-              >
-                Ir a Sesiones de Llenado
-              </Link>
-            </>
-          )}
+        
+        <div className="flex gap-2">
+           <button
+             onClick={() => {
+               if (!periodoActivo) return;
+               
+               let tipo: 'por-aula' | 'por-laboratorio' | 'por-docente' | 'por-ciclo' = 'por-ciclo';
+               let docenteId: string | undefined = undefined;
+               let aulaId: string | undefined = undefined;
+               let ciclo: number | undefined = undefined;
+
+               if (viewMode === 'mi-horario') {
+                 tipo = 'por-docente';
+                 docenteId = user?.docenteId || undefined;
+               } else if (viewMode === 'docente') {
+                 tipo = 'por-docente';
+                 docenteId = selectedDocenteId || undefined;
+               } else if (viewMode === 'aula') {
+                 const selectedAula = aulas.find(a => a.id === selectedAulaId);
+                 tipo = selectedAula?.tipo === 'LABORATORIO' ? 'por-laboratorio' : 'por-aula';
+                 aulaId = selectedAulaId || undefined;
+               } else if (viewMode === 'ciclo') {
+                 tipo = 'por-ciclo';
+                 ciclo = selectedCiclo || undefined;
+               } else if (viewMode === 'general') {
+                 tipo = 'por-ciclo';
+                 // ciclo remains undefined to download all
+               }
+
+               generatePDFMutation.mutate({ 
+                 periodoId: periodoActivo.id, 
+                 tipo,
+                 docenteId,
+                 aulaId,
+                 ciclo
+               });
+             }}
+             disabled={generatePDFMutation.isPending || !periodoActivo}
+             className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-xs font-bold text-white hover:bg-gray-700 disabled:opacity-50"
+           >
+             <FileDown className="h-4 w-4" /> {generatePDFMutation.isPending ? 'Generando...' : 'Descargar PDF'}
+           </button>
         </div>
       </div>
 
+      {/* Stats for Secretary/Director */}
+      {isPrivileged && stats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+           <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
+             <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Progreso de Asignación</p>
+             <div className="flex items-end justify-between">
+               <span className="text-xl font-bold text-white">{Math.round((stats.gruposAsignados / stats.totalGrupos) * 100)}%</span>
+               <span className="text-xs text-gray-500">{stats.gruposAsignados} / {stats.totalGrupos} grupos</span>
+             </div>
+           </div>
+           <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
+             <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Aulas en Uso</p>
+             <p className="text-xl font-bold text-white">{stats.aulasEnUso}</p>
+           </div>
+           <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
+             <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Estado</p>
+             <div className="flex items-center gap-2">
+               <div className={`h-2 w-2 rounded-full ${periodoActivo?.estado === 'APROBADO' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+               <span className="text-sm font-bold text-gray-200">{periodoActivo?.estado}</span>
+             </div>
+           </div>
+        </div>
+      )}
+
       {/* View Mode Tabs */}
-      <div className="flex gap-1 rounded-lg bg-gray-800 p-1 mb-4">
+      <div className="flex gap-1 rounded-lg bg-gray-800 p-1">
         {isDocente && (
-          <button onClick={() => { setViewMode('mi-horario'); setSelectedAulaId(null); setSelectedDocenteId(null); }}
-            className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'mi-horario' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-400 hover:text-gray-200'}`}>
+          <button onClick={() => setViewMode('mi-horario')}
+            className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'mi-horario' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}>
             <Calendar className="h-3.5 w-3.5" /> Mi Horario
           </button>
         )}
-        <button onClick={() => { setViewMode('general'); setSelectedAulaId(null); setSelectedDocenteId(null); }}
+        <button onClick={() => setViewMode('general')}
           className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'general' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
-          General
+          Todo
+        </button>
+        <button onClick={() => setViewMode('ciclo')}
+          className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'ciclo' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
+          Por Ciclo
         </button>
         <button onClick={() => setViewMode('aula')}
           className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'aula' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
           <Building2 className="h-3.5 w-3.5" /> Por Aula
         </button>
-        <button onClick={() => setViewMode('docente')}
-          className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'docente' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
-          <User className="h-3.5 w-3.5" /> Por Docente
-        </button>
+        {(isDirector || isSecretaria || isAdmin) && (
+          <button onClick={() => setViewMode('docente')}
+            className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'docente' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
+            <User className="h-3.5 w-3.5" /> Por Docente
+          </button>
+        )}
       </div>
 
-      {/* Docente Info Header for "Mi Horario" */}
-      {viewMode === 'mi-horario' && personalStats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 flex items-center gap-4">
-            <div className="h-10 w-10 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-400 font-bold">
-              {personalStats.docente.nombre.charAt(0)}
-            </div>
-            <div>
-              <p className="text-[10px] text-gray-500 uppercase font-bold">Docente</p>
-              <p className="text-sm text-white font-bold">{personalStats.docente.nombre}</p>
-            </div>
-          </div>
-          <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
-            <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Carga Horaria</p>
-            <div className="flex items-center gap-2">
-              <span className={`text-lg font-bold ${personalStats.workload >= personalStats.limits.min ? 'text-emerald-400' : 'text-amber-400'}`}>
-                {personalStats.workload}h
-              </span>
-              <span className="text-xs text-gray-600">/ {personalStats.limits.max}h max</span>
-            </div>
-          </div>
-          <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
-            <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Categoría / Tipo</p>
-            <p className="text-sm text-gray-200 font-semibold">{personalStats.docente.categoria} · {personalStats.docente.tipo}</p>
-          </div>
-          <div className="p-4 rounded-xl bg-gray-900 border border-gray-800 flex items-center justify-between">
-            <div>
-              <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Cursos</p>
-              <p className="text-sm text-gray-200 font-semibold">{personalStats.coursesCount} asignados</p>
-            </div>
-            {personalStats.workload >= personalStats.limits.min && (
-              <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Entity Selector */}
-      {viewMode === 'aula' && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {aulas.map((a) => (
-            <button key={a.id} onClick={() => setSelectedAulaId(a.id)}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
-                selectedAulaId === a.id
-                  ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300'
-                  : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600'
-              }`}>
-              {a.codigo}
-              <span className="ml-1 text-gray-500">
-                {a.tipo === 'LABORATORIO' ? <FlaskConical className="inline h-3 w-3" /> : null}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-      {viewMode === 'docente' && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {docentes.slice(0, 20).map((d) => (
-            <button key={d.id} onClick={() => setSelectedDocenteId(d.id)}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
-                selectedDocenteId === d.id
-                  ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300'
-                  : 'border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600'
-              }`}>
-              {d.nombre.split(' ').slice(0, 2).join(' ')}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Selectors */}
+      <div className="flex flex-wrap gap-2">
+        {viewMode === 'ciclo' && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(c => (
+          <button key={c} onClick={() => setSelectedCiclo(c)}
+            className={`rounded-lg border px-4 py-1.5 text-xs font-bold transition-all ${selectedCiclo === c ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-800 bg-gray-900/50 text-gray-400 hover:border-gray-700'}`}>
+            CICLO {c}
+          </button>
+        ))}
+        {viewMode === 'aula' && aulas.map(a => (
+          <button key={a.id} onClick={() => setSelectedAulaId(a.id)}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selectedAulaId === a.id ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-800 bg-gray-900/50 text-gray-400 hover:border-gray-700'}`}>
+            {a.codigo} {a.tipo === 'LABORATORIO' && <FlaskConical className="inline h-3 w-3 ml-1" />}
+          </button>
+        ))}
+        {viewMode === 'docente' && docentes.map(d => (
+          <button key={d.id} onClick={() => setSelectedDocenteId(d.id)}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selectedDocenteId === d.id ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-800 bg-gray-900/50 text-gray-400 hover:border-gray-700'}`}>
+            {d.nombre.split(' ').slice(0, 2).join(' ')}
+          </button>
+        ))}
+      </div>
 
       {/* Grid */}
-      {!periodoActivo ? (
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-12 text-center text-gray-600">
-          Configure un periodo activo
-        </div>
-      ) : isLoading ? (
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-12 text-center text-gray-600">Cargando...</div>
-      ) : asignaciones.length === 0 ? (
-        <div className="rounded-xl border border-gray-800 bg-gray-900 p-12 text-center">
-          <p className="text-gray-500">No hay asignaciones</p>
-          <p className="text-xs text-gray-600 mt-1">Use las sesiones de llenado para asignar horarios</p>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-gray-800 bg-gray-900 overflow-hidden overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-gray-800">
-                <th className="sticky left-0 bg-gray-900 px-3 py-2 text-left font-medium text-gray-400 w-16">Hora</th>
-                {DIAS.map((dia) => (
-                  <th key={dia} className="px-2 py-2 text-center font-medium text-gray-400 min-w-35">
-                    {DIA_LABELS[dia]}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {horas.map((hora, rowIndex) => (
-                <tr key={hora} className="border-b border-gray-800/50">
-                  <td className="sticky left-0 bg-gray-900 px-3 py-1.5 font-mono text-gray-500">{hora}</td>
-                  {DIAS.map((dia) => {
-                    const slotAsignaciones = asignaciones.filter(
-                      (a) => a.franjaHoraria.dia === dia && a.franjaHoraria.horaInicio === hora
-                    );
+      <div className="rounded-2xl border border-gray-800 bg-gray-900 overflow-hidden shadow-xl overflow-x-auto">
+        <table className="w-full text-[11px]">
+          <thead>
+            <tr className="bg-gray-800/50">
+              <th className="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-widest w-20 sticky left-0 bg-gray-800">Hora</th>
+              {DIAS.map(dia => (
+                <th key={dia} className="px-2 py-3 text-center font-bold text-gray-400 uppercase tracking-widest min-w-[140px]">
+                  {DIA_LABELS[dia]}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {horas.length === 0 ? (
+              <tr><td colSpan={6} className="px-4 py-20 text-center text-gray-600 font-medium">No hay asignaciones confirmadas para mostrar</td></tr>
+            ) : (
+              horas.map(hora => (
+                <tr key={hora} className="border-t border-gray-800/50">
+                  <td className="px-4 py-3 font-mono text-gray-500 bg-gray-950/30 sticky left-0">{hora}</td>
+                  {DIAS.map(dia => {
+                    const a = asignaciones.find(a => a.franjaHoraria.dia === dia && a.franjaHoraria.horaInicio === hora);
+                    if (!a) return <td key={dia} className="px-1 py-1" />;
                     
-                    if (slotAsignaciones.length === 0) return <td key={dia} className="px-1 py-1" />;
-
-                    // Simplified unification: only for single-assignment slots (non-conflicting)
-                    if (slotAsignaciones.length === 1) {
-                      const a = slotAsignaciones[0];
-                      const prevHora = horas[rowIndex - 1];
-                      const prevAsignaciones = prevHora ? asignaciones.filter(
-                        (pa) => pa.franjaHoraria.dia === dia && pa.franjaHoraria.horaInicio === prevHora
-                      ) : [];
-                      
-                      const isSameAsPrev = prevAsignaciones.length === 1 && 
-                        prevAsignaciones[0].grupo.curso.codigo === a.grupo.curso.codigo &&
-                        prevAsignaciones[0].grupo.nombre === a.grupo.nombre &&
-                        prevAsignaciones[0].aula?.codigo === a.aula?.codigo;
-
-                      if (isSameAsPrev) return null;
-
-                      // Calculate rowSpan
-                      let rowSpan = 1;
-                      for (let i = rowIndex + 1; i < horas.length; i++) {
-                        const nextHora = horas[i];
-                        const nextAsignaciones = asignaciones.filter(
-                          (na) => na.franjaHoraria.dia === dia && na.franjaHoraria.horaInicio === nextHora
-                        );
-                        if (nextAsignaciones.length === 1 && 
-                            nextAsignaciones[0].grupo.curso.codigo === a.grupo.curso.codigo &&
-                            nextAsignaciones[0].grupo.nombre === a.grupo.nombre &&
-                            nextAsignaciones[0].aula?.codigo === a.aula?.codigo) {
-                          rowSpan++;
-                        } else {
-                          break;
-                        }
-                      }
-
-                      const key = (a.grupo.cursoId ?? a.grupo.curso.id ?? a.id) as string;
-                      return (
-                        <td key={dia} className="px-1 py-1" rowSpan={rowSpan}>
-                          <div
-                            className={`rounded-md border p-2 h-full min-h-[45px] transition-all flex flex-col justify-center ${cursoColorMap.get(key)}`}
-                          >
-                            <p className="font-bold text-[11px] leading-tight">{a.grupo.curso.codigo}</p>
-                            <p className="text-[10px] font-medium opacity-90 truncate mt-0.5">{a.grupo.curso.nombre}</p>
-                            <div className="mt-1 pt-1 border-t border-white/10 flex flex-wrap gap-x-2 gap-y-0.5">
-                              {viewMode !== 'docente' && a.docente && (
-                                <p className="text-[9px] opacity-75 font-medium">
-                                  {a.docente.nombre.split(' ').slice(0, 2).join(' ')}
-                                </p>
-                              )}
-                              {viewMode !== 'aula' && a.aula && (
-                                <p className="text-[9px] opacity-75 font-medium">
-                                  {a.aula.codigo}
-                                </p>
-                              )}
-                              <p className="text-[9px] opacity-75 font-bold">G{a.grupo.nombre}</p>
-                              <p className="text-[9px] opacity-90 font-black text-white/50">{a.tipo}</p>
-                            </div>
-                          </div>
-                        </td>
-                      );
-                    }
-
-                    // Conflict case (multiple assignments in same slot)
+                    const colorClass = cursoColorMap.get(a.grupo.curso.id) || '';
                     return (
                       <td key={dia} className="px-1 py-1">
-                        <div className="bg-red-500/20 border border-red-500/30 rounded-md p-1">
-                          {slotAsignaciones.map((a) => (
-                            <div key={a.id} className="text-[9px] text-red-300 border-b border-red-500/10 last:border-0 py-0.5">
-                              {a.grupo.curso.codigo} - G{a.grupo.nombre}
-                            </div>
-                          ))}
+                        <div className={`p-2 rounded-lg border flex flex-col justify-center min-h-[50px] ${colorClass}`}>
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="font-black text-[10px] leading-tight">{a.grupo.curso.codigo}</p>
+                            {isPrivileged && !a.confirmado && <span className="text-[7px] bg-white/20 px-1 rounded font-bold">BORRADOR</span>}
+                          </div>
+                          <p className="text-[9px] font-medium opacity-80 truncate">{a.grupo.curso.nombre}</p>
+                          <div className="mt-1 pt-1 border-t border-white/10 flex flex-wrap gap-x-2 text-[8px] font-bold opacity-70">
+                            <span>G{a.grupo.nombre}</span>
+                            <span>{a.aula?.codigo}</span>
+                            {viewMode !== 'docente' && viewMode !== 'mi-horario' && <span>{a.docente?.nombre.split(' ')[0]}</span>}
+                          </div>
                         </div>
                       </td>
                     );
                   })}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {showAutoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-gray-700 bg-gray-900 p-6 shadow-2xl">
-            <h2 className="text-lg font-semibold text-white">Autogenerar horario</h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Esto eliminara las asignaciones actuales del periodo y generara un nuevo horario
-              automaticamente segun la jerarquia y restricciones.
-            </p>
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                onClick={() => setShowAutoModal(false)}
-                className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-400 hover:bg-gray-800"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  if (!periodoActivo) return;
-                  autoGenerateMutation.mutate({
-                    periodoId: periodoActivo.id,
-                    overwrite: true,
-                  });
-                }}
-                disabled={autoGenerateMutation.isPending || !periodoActivo}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
-              >
-                {autoGenerateMutation.isPending ? 'Generando...' : 'Confirmar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

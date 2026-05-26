@@ -39,7 +39,10 @@ export default function CursosPage() {
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
   const isAdmin = user?.role === 'ADMIN';
   const isDocente = user?.role === 'DOCENTE';
-  const isRepresentative = user?.role === 'REPRESENTANTE_ESCUELA';
+  const isSecretaria = user?.role === 'SECRETARIA_ACADEMICA';
+  const isDirector = user?.role === 'DIRECTOR_ESCUELA';
+
+  const canManage = isAdmin || isSecretaria;
 
   const { data: cursos = [], isLoading } = useQuery({
     ...trpc.curso.list.queryOptions({ search: search || undefined, ciclo: filterCiclo })
@@ -164,34 +167,34 @@ export default function CursosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Cursos</h1>
-          <p className="text-sm text-gray-500 mt-1">{cursos.length} cursos registrados</p>
+          <h1 className="text-2xl font-bold text-white">Catálogo de Cursos</h1>
+          <p className="text-sm text-gray-500 mt-1">Gestión de oferta académica e ingeniería de sistemas</p>
         </div>
         <div className="flex gap-3">
-          {isRepresentative && periodoActivo?.estado === 'PLANIFICACION' && (
-            <button 
-              onClick={() => startProcessMutation.mutate()}
-              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/25 transition-all"
-            >
-              <TrendingUp className="h-4 w-4" /> Iniciar Postulaciones
-            </button>
-          )}
-          {isRepresentative && periodoActivo?.estado === 'POSTULACION' && (
-            <button 
-              onClick={() => processAssignmentsMutation.mutate({ periodoId: periodoActivo.id })}
-              disabled={processAssignmentsMutation.isPending}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25 transition-all"
-            >
-              {processAssignmentsMutation.isPending ? 'Procesando...' : 'Procesar Asignaciones'}
-            </button>
-          )}
-          {(isAdmin || isRepresentative) && (
-            <button onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25">
-              <Plus className="h-4 w-4" /> Nuevo Curso
-            </button>
-          )}
-        </div>
+           {isSecretaria && periodoActivo?.estado === 'PLANIFICACION' && (
+             <button 
+               onClick={() => startProcessMutation.mutate({ periodoId: periodoActivo.id })}
+               className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/25 transition-all"
+             >
+               <TrendingUp className="h-4 w-4" /> Iniciar Postulaciones
+             </button>
+           )}
+           {isSecretaria && periodoActivo?.estado === 'POSTULACION' && (
+             <button 
+               onClick={() => processAssignmentsMutation.mutate({ periodoId: periodoActivo.id })}
+               disabled={processAssignmentsMutation.isPending}
+               className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25 transition-all"
+             >
+               {processAssignmentsMutation.isPending ? 'Procesando...' : 'Procesar Asignaciones'}
+             </button>
+           )}
+           {canManage && (
+             <button onClick={() => { setEditId(null); setForm(emptyForm); setShowModal(true); }}
+               className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25">
+               <Plus className="h-4 w-4" /> Nuevo Curso
+             </button>
+           )}
+         </div>
       </div>
 
       {isDocente && (
@@ -306,15 +309,15 @@ export default function CursosPage() {
               <th className="px-4 py-3 text-center font-medium text-gray-400">H. Teoría</th>
               <th className="px-4 py-3 text-center font-medium text-gray-400">H. Lab</th>
               <th className="px-4 py-3 text-center font-medium text-gray-400">Grupos</th>
-              {(isAdmin || isRepresentative) && <th className="px-4 py-3 text-center font-medium text-gray-400">Apertura</th>}
+              {canManage && <th className="px-4 py-3 text-center font-medium text-gray-400">Apertura</th>}
               <th className="px-4 py-3 text-right font-medium text-gray-400">Acciones</th>
             </tr>
           </thead>
           <tbody>
               {isLoading ? (
-                <tr><td colSpan={isAdmin || isRepresentative ? 9 : 8} className="px-4 py-12 text-center text-gray-600">Cargando...</td></tr>
+                <tr><td colSpan={canManage ? 9 : 8} className="px-4 py-12 text-center text-gray-600">Cargando...</td></tr>
               ) : cursos.length === 0 ? (
-                <tr><td colSpan={isAdmin || isRepresentative ? 9 : 8} className="px-4 py-12 text-center text-gray-600">No se encontraron cursos</td></tr>
+                <tr><td colSpan={canManage ? 9 : 8} className="px-4 py-12 text-center text-gray-600">No se encontraron cursos</td></tr>
               ) : (
               cursos.map((c) => (
                 <tr key={c.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
@@ -327,7 +330,7 @@ export default function CursosPage() {
                   <td className="px-4 py-3 text-center text-gray-400">{c.horasTeoria}h</td>
                   <td className="px-4 py-3 text-center text-gray-400">{c.horasLaboratorio}h</td>
                   <td className="px-4 py-3 text-center text-gray-400">{c.grupos.length}</td>
-                  {(isAdmin || isRepresentative) && (
+                  {canManage && (
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => toggleAperturaMutation.mutate({ id: c.id, aperturado: !c.aperturado })}
@@ -343,21 +346,21 @@ export default function CursosPage() {
                   )}
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      {isAdmin && (
+                      {canManage ? (
                         <>
                           <button onClick={() => openEdit(c)} className="rounded-md p-1.5 text-gray-500 hover:bg-gray-700 hover:text-gray-300"><Pencil className="h-3.5 w-3.5" /></button>
                           <button onClick={() => deleteMutation.mutate({ id: c.id })} className="rounded-md p-1.5 text-gray-500 hover:bg-red-900/30 hover:text-red-400"><Trash2 className="h-3.5 w-3.5" /></button>
                         </>
-                      )}
-                      {isDocente && (
+                      ) : isDocente ? (
                         <button 
                           onClick={() => { setSelectedCurso(c); setShowAssignModal(true); }}
                           className="px-3 py-1 rounded-md bg-indigo-600/20 text-indigo-400 text-xs font-semibold hover:bg-indigo-600/30"
                         >
                           Inscribirse
                         </button>
+                      ) : (
+                        <span className="text-[10px] text-gray-600 font-medium">Solo lectura</span>
                       )}
-                      {!user && <span className="text-[10px] text-gray-600">Solo lectura</span>}
                     </div>
                   </td>
                 </tr>

@@ -98,16 +98,6 @@ export type MantenimientoAula = $Result.DefaultSelection<Prisma.$MantenimientoAu
  * Slots preasignados por la dirección de escuela (antes del llenado)
  */
 export type Preasignacion = $Result.DefaultSelection<Prisma.$PreasignacionPayload>
-/**
- * Model SesionLlenado
- * Sesión de llenado presencial (ej: 08/06/2026, 8:00-13:00, cada 15 min)
- */
-export type SesionLlenado = $Result.DefaultSelection<Prisma.$SesionLlenadoPayload>
-/**
- * Model TurnoDocente
- * Turno individual de un docente dentro de una sesión
- */
-export type TurnoDocente = $Result.DefaultSelection<Prisma.$TurnoDocentePayload>
 
 /**
  * Enums
@@ -167,31 +157,13 @@ export const TipoRestriccion: {
 export type TipoRestriccion = (typeof TipoRestriccion)[keyof typeof TipoRestriccion]
 
 
-export const EstadoSesion: {
-  PROGRAMADA: 'PROGRAMADA',
-  EN_CURSO: 'EN_CURSO',
-  FINALIZADA: 'FINALIZADA'
-};
-
-export type EstadoSesion = (typeof EstadoSesion)[keyof typeof EstadoSesion]
-
-
-export const EstadoTurno: {
-  PENDIENTE: 'PENDIENTE',
-  EN_TURNO: 'EN_TURNO',
-  COMPLETADO: 'COMPLETADO',
-  AUSENTE: 'AUSENTE'
-};
-
-export type EstadoTurno = (typeof EstadoTurno)[keyof typeof EstadoTurno]
-
-
 export const UserRole: {
   ADMIN: 'ADMIN',
   DOCENTE: 'DOCENTE',
   ESTUDIANTE: 'ESTUDIANTE',
   INVITADO: 'INVITADO',
-  REPRESENTANTE_ESCUELA: 'REPRESENTANTE_ESCUELA'
+  SECRETARIA_ACADEMICA: 'SECRETARIA_ACADEMICA',
+  DIRECTOR_ESCUELA: 'DIRECTOR_ESCUELA'
 };
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
@@ -201,6 +173,8 @@ export const EstadoPeriodo: {
   PLANIFICACION: 'PLANIFICACION',
   POSTULACION: 'POSTULACION',
   ASIGNACION: 'ASIGNACION',
+  REVISION: 'REVISION',
+  APROBADO: 'APROBADO',
   FINALIZADO: 'FINALIZADO'
 };
 
@@ -231,14 +205,6 @@ export const TipoAsignacion: typeof $Enums.TipoAsignacion
 export type TipoRestriccion = $Enums.TipoRestriccion
 
 export const TipoRestriccion: typeof $Enums.TipoRestriccion
-
-export type EstadoSesion = $Enums.EstadoSesion
-
-export const EstadoSesion: typeof $Enums.EstadoSesion
-
-export type EstadoTurno = $Enums.EstadoTurno
-
-export const EstadoTurno: typeof $Enums.EstadoTurno
 
 export type UserRole = $Enums.UserRole
 
@@ -538,26 +504,6 @@ export class PrismaClient<
     * ```
     */
   get preasignacion(): Prisma.PreasignacionDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.sesionLlenado`: Exposes CRUD operations for the **SesionLlenado** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more SesionLlenados
-    * const sesionLlenados = await prisma.sesionLlenado.findMany()
-    * ```
-    */
-  get sesionLlenado(): Prisma.SesionLlenadoDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.turnoDocente`: Exposes CRUD operations for the **TurnoDocente** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more TurnoDocentes
-    * const turnoDocentes = await prisma.turnoDocente.findMany()
-    * ```
-    */
-  get turnoDocente(): Prisma.TurnoDocenteDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1008,9 +954,7 @@ export namespace Prisma {
     DocenteGrupo: 'DocenteGrupo',
     Feriado: 'Feriado',
     MantenimientoAula: 'MantenimientoAula',
-    Preasignacion: 'Preasignacion',
-    SesionLlenado: 'SesionLlenado',
-    TurnoDocente: 'TurnoDocente'
+    Preasignacion: 'Preasignacion'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1026,7 +970,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion" | "sesionLlenado" | "turnoDocente"
+      modelProps: "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2288,154 +2232,6 @@ export namespace Prisma {
           }
         }
       }
-      SesionLlenado: {
-        payload: Prisma.$SesionLlenadoPayload<ExtArgs>
-        fields: Prisma.SesionLlenadoFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.SesionLlenadoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.SesionLlenadoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>
-          }
-          findFirst: {
-            args: Prisma.SesionLlenadoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.SesionLlenadoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>
-          }
-          findMany: {
-            args: Prisma.SesionLlenadoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>[]
-          }
-          create: {
-            args: Prisma.SesionLlenadoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>
-          }
-          createMany: {
-            args: Prisma.SesionLlenadoCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.SesionLlenadoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>[]
-          }
-          delete: {
-            args: Prisma.SesionLlenadoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>
-          }
-          update: {
-            args: Prisma.SesionLlenadoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>
-          }
-          deleteMany: {
-            args: Prisma.SesionLlenadoDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.SesionLlenadoUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.SesionLlenadoUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>[]
-          }
-          upsert: {
-            args: Prisma.SesionLlenadoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SesionLlenadoPayload>
-          }
-          aggregate: {
-            args: Prisma.SesionLlenadoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSesionLlenado>
-          }
-          groupBy: {
-            args: Prisma.SesionLlenadoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SesionLlenadoGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.SesionLlenadoCountArgs<ExtArgs>
-            result: $Utils.Optional<SesionLlenadoCountAggregateOutputType> | number
-          }
-        }
-      }
-      TurnoDocente: {
-        payload: Prisma.$TurnoDocentePayload<ExtArgs>
-        fields: Prisma.TurnoDocenteFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.TurnoDocenteFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.TurnoDocenteFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>
-          }
-          findFirst: {
-            args: Prisma.TurnoDocenteFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.TurnoDocenteFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>
-          }
-          findMany: {
-            args: Prisma.TurnoDocenteFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>[]
-          }
-          create: {
-            args: Prisma.TurnoDocenteCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>
-          }
-          createMany: {
-            args: Prisma.TurnoDocenteCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.TurnoDocenteCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>[]
-          }
-          delete: {
-            args: Prisma.TurnoDocenteDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>
-          }
-          update: {
-            args: Prisma.TurnoDocenteUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>
-          }
-          deleteMany: {
-            args: Prisma.TurnoDocenteDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.TurnoDocenteUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.TurnoDocenteUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>[]
-          }
-          upsert: {
-            args: Prisma.TurnoDocenteUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TurnoDocentePayload>
-          }
-          aggregate: {
-            args: Prisma.TurnoDocenteAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTurnoDocente>
-          }
-          groupBy: {
-            args: Prisma.TurnoDocenteGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TurnoDocenteGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.TurnoDocenteCountArgs<ExtArgs>
-            result: $Utils.Optional<TurnoDocenteCountAggregateOutputType> | number
-          }
-        }
-      }
     }
   } & {
     other: {
@@ -2561,8 +2357,6 @@ export namespace Prisma {
     feriado?: FeriadoOmit
     mantenimientoAula?: MantenimientoAulaOmit
     preasignacion?: PreasignacionOmit
-    sesionLlenado?: SesionLlenadoOmit
-    turnoDocente?: TurnoDocenteOmit
   }
 
   /* Types for Logging */
@@ -2644,10 +2438,12 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     logs: number
+    periodosAprobados: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     logs?: boolean | UserCountOutputTypeCountLogsArgs
+    periodosAprobados?: boolean | UserCountOutputTypeCountPeriodosAprobadosArgs
   }
 
   // Custom InputTypes
@@ -2668,6 +2464,13 @@ export namespace Prisma {
     where?: LogWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPeriodosAprobadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PeriodoAcademicoWhereInput
+  }
+
 
   /**
    * Count Type DocenteCountOutputType
@@ -2678,7 +2481,6 @@ export namespace Prisma {
     restricciones: number
     docenteGrupos: number
     preasignaciones: number
-    turnos: number
     disponibilidades: number
     postulaciones: number
     notificaciones: number
@@ -2689,7 +2491,6 @@ export namespace Prisma {
     restricciones?: boolean | DocenteCountOutputTypeCountRestriccionesArgs
     docenteGrupos?: boolean | DocenteCountOutputTypeCountDocenteGruposArgs
     preasignaciones?: boolean | DocenteCountOutputTypeCountPreasignacionesArgs
-    turnos?: boolean | DocenteCountOutputTypeCountTurnosArgs
     disponibilidades?: boolean | DocenteCountOutputTypeCountDisponibilidadesArgs
     postulaciones?: boolean | DocenteCountOutputTypeCountPostulacionesArgs
     notificaciones?: boolean | DocenteCountOutputTypeCountNotificacionesArgs
@@ -2732,13 +2533,6 @@ export namespace Prisma {
    */
   export type DocenteCountOutputTypeCountPreasignacionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PreasignacionWhereInput
-  }
-
-  /**
-   * DocenteCountOutputType without action
-   */
-  export type DocenteCountOutputTypeCountTurnosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TurnoDocenteWhereInput
   }
 
   /**
@@ -2899,14 +2693,12 @@ export namespace Prisma {
   export type PeriodoAcademicoCountOutputType = {
     grupos: number
     asignaciones: number
-    sesiones: number
     preasignaciones: number
   }
 
   export type PeriodoAcademicoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     grupos?: boolean | PeriodoAcademicoCountOutputTypeCountGruposArgs
     asignaciones?: boolean | PeriodoAcademicoCountOutputTypeCountAsignacionesArgs
-    sesiones?: boolean | PeriodoAcademicoCountOutputTypeCountSesionesArgs
     preasignaciones?: boolean | PeriodoAcademicoCountOutputTypeCountPreasignacionesArgs
   }
 
@@ -2933,13 +2725,6 @@ export namespace Prisma {
    */
   export type PeriodoAcademicoCountOutputTypeCountAsignacionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AsignacionWhereInput
-  }
-
-  /**
-   * PeriodoAcademicoCountOutputType without action
-   */
-  export type PeriodoAcademicoCountOutputTypeCountSesionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SesionLlenadoWhereInput
   }
 
   /**
@@ -3014,37 +2799,6 @@ export namespace Prisma {
    */
   export type FranjaHorariaCountOutputTypeCountDisponibilidadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DisponibilidadDocenteWhereInput
-  }
-
-
-  /**
-   * Count Type SesionLlenadoCountOutputType
-   */
-
-  export type SesionLlenadoCountOutputType = {
-    turnos: number
-  }
-
-  export type SesionLlenadoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    turnos?: boolean | SesionLlenadoCountOutputTypeCountTurnosArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * SesionLlenadoCountOutputType without action
-   */
-  export type SesionLlenadoCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenadoCountOutputType
-     */
-    select?: SesionLlenadoCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * SesionLlenadoCountOutputType without action
-   */
-  export type SesionLlenadoCountOutputTypeCountTurnosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TurnoDocenteWhereInput
   }
 
 
@@ -3250,6 +3004,7 @@ export namespace Prisma {
     updatedAt?: boolean
     docente?: boolean | User$docenteArgs<ExtArgs>
     logs?: boolean | User$logsArgs<ExtArgs>
+    periodosAprobados?: boolean | User$periodosAprobadosArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3295,6 +3050,7 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | User$docenteArgs<ExtArgs>
     logs?: boolean | User$logsArgs<ExtArgs>
+    periodosAprobados?: boolean | User$periodosAprobadosArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3309,6 +3065,7 @@ export namespace Prisma {
     objects: {
       docente: Prisma.$DocentePayload<ExtArgs> | null
       logs: Prisma.$LogPayload<ExtArgs>[]
+      periodosAprobados: Prisma.$PeriodoAcademicoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3716,6 +3473,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     docente<T extends User$docenteArgs<ExtArgs> = {}>(args?: Subset<T, User$docenteArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     logs<T extends User$logsArgs<ExtArgs> = {}>(args?: Subset<T, User$logsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    periodosAprobados<T extends User$periodosAprobadosArgs<ExtArgs> = {}>(args?: Subset<T, User$periodosAprobadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4195,6 +3953,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: LogScalarFieldEnum | LogScalarFieldEnum[]
+  }
+
+  /**
+   * User.periodosAprobados
+   */
+  export type User$periodosAprobadosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PeriodoAcademico
+     */
+    select?: PeriodoAcademicoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PeriodoAcademico
+     */
+    omit?: PeriodoAcademicoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PeriodoAcademicoInclude<ExtArgs> | null
+    where?: PeriodoAcademicoWhereInput
+    orderBy?: PeriodoAcademicoOrderByWithRelationInput | PeriodoAcademicoOrderByWithRelationInput[]
+    cursor?: PeriodoAcademicoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PeriodoAcademicoScalarFieldEnum | PeriodoAcademicoScalarFieldEnum[]
   }
 
   /**
@@ -5590,7 +5372,6 @@ export namespace Prisma {
     restricciones?: boolean | Docente$restriccionesArgs<ExtArgs>
     docenteGrupos?: boolean | Docente$docenteGruposArgs<ExtArgs>
     preasignaciones?: boolean | Docente$preasignacionesArgs<ExtArgs>
-    turnos?: boolean | Docente$turnosArgs<ExtArgs>
     disponibilidades?: boolean | Docente$disponibilidadesArgs<ExtArgs>
     postulaciones?: boolean | Docente$postulacionesArgs<ExtArgs>
     notificaciones?: boolean | Docente$notificacionesArgs<ExtArgs>
@@ -5652,7 +5433,6 @@ export namespace Prisma {
     restricciones?: boolean | Docente$restriccionesArgs<ExtArgs>
     docenteGrupos?: boolean | Docente$docenteGruposArgs<ExtArgs>
     preasignaciones?: boolean | Docente$preasignacionesArgs<ExtArgs>
-    turnos?: boolean | Docente$turnosArgs<ExtArgs>
     disponibilidades?: boolean | Docente$disponibilidadesArgs<ExtArgs>
     postulaciones?: boolean | Docente$postulacionesArgs<ExtArgs>
     notificaciones?: boolean | Docente$notificacionesArgs<ExtArgs>
@@ -5669,7 +5449,6 @@ export namespace Prisma {
       restricciones: Prisma.$RestriccionDocentePayload<ExtArgs>[]
       docenteGrupos: Prisma.$DocenteGrupoPayload<ExtArgs>[]
       preasignaciones: Prisma.$PreasignacionPayload<ExtArgs>[]
-      turnos: Prisma.$TurnoDocentePayload<ExtArgs>[]
       disponibilidades: Prisma.$DisponibilidadDocentePayload<ExtArgs>[]
       postulaciones: Prisma.$PostulacionCursoPayload<ExtArgs>[]
       notificaciones: Prisma.$NotificationPayload<ExtArgs>[]
@@ -6087,7 +5866,6 @@ export namespace Prisma {
     restricciones<T extends Docente$restriccionesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$restriccionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     docenteGrupos<T extends Docente$docenteGruposArgs<ExtArgs> = {}>(args?: Subset<T, Docente$docenteGruposArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     preasignaciones<T extends Docente$preasignacionesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$preasignacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    turnos<T extends Docente$turnosArgs<ExtArgs> = {}>(args?: Subset<T, Docente$turnosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     disponibilidades<T extends Docente$disponibilidadesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$disponibilidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     postulaciones<T extends Docente$postulacionesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$postulacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostulacionCursoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     notificaciones<T extends Docente$notificacionesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$notificacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6620,30 +6398,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PreasignacionScalarFieldEnum | PreasignacionScalarFieldEnum[]
-  }
-
-  /**
-   * Docente.turnos
-   */
-  export type Docente$turnosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    where?: TurnoDocenteWhereInput
-    orderBy?: TurnoDocenteOrderByWithRelationInput | TurnoDocenteOrderByWithRelationInput[]
-    cursor?: TurnoDocenteWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TurnoDocenteScalarFieldEnum | TurnoDocenteScalarFieldEnum[]
   }
 
   /**
@@ -13701,6 +13455,9 @@ export namespace Prisma {
     fechaFin: Date | null
     activo: boolean | null
     estado: $Enums.EstadoPeriodo | null
+    aprobadoPorId: string | null
+    fechaAprobacion: Date | null
+    comentariosDirector: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13712,6 +13469,9 @@ export namespace Prisma {
     fechaFin: Date | null
     activo: boolean | null
     estado: $Enums.EstadoPeriodo | null
+    aprobadoPorId: string | null
+    fechaAprobacion: Date | null
+    comentariosDirector: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13723,6 +13483,9 @@ export namespace Prisma {
     fechaFin: number
     activo: number
     estado: number
+    aprobadoPorId: number
+    fechaAprobacion: number
+    comentariosDirector: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -13736,6 +13499,9 @@ export namespace Prisma {
     fechaFin?: true
     activo?: true
     estado?: true
+    aprobadoPorId?: true
+    fechaAprobacion?: true
+    comentariosDirector?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13747,6 +13513,9 @@ export namespace Prisma {
     fechaFin?: true
     activo?: true
     estado?: true
+    aprobadoPorId?: true
+    fechaAprobacion?: true
+    comentariosDirector?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13758,6 +13527,9 @@ export namespace Prisma {
     fechaFin?: true
     activo?: true
     estado?: true
+    aprobadoPorId?: true
+    fechaAprobacion?: true
+    comentariosDirector?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -13842,6 +13614,9 @@ export namespace Prisma {
     fechaFin: Date
     activo: boolean
     estado: $Enums.EstadoPeriodo
+    aprobadoPorId: string | null
+    fechaAprobacion: Date | null
+    comentariosDirector: string | null
     createdAt: Date
     updatedAt: Date
     _count: PeriodoAcademicoCountAggregateOutputType | null
@@ -13870,12 +13645,15 @@ export namespace Prisma {
     fechaFin?: boolean
     activo?: boolean
     estado?: boolean
+    aprobadoPorId?: boolean
+    fechaAprobacion?: boolean
+    comentariosDirector?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     grupos?: boolean | PeriodoAcademico$gruposArgs<ExtArgs>
     asignaciones?: boolean | PeriodoAcademico$asignacionesArgs<ExtArgs>
-    sesiones?: boolean | PeriodoAcademico$sesionesArgs<ExtArgs>
     preasignaciones?: boolean | PeriodoAcademico$preasignacionesArgs<ExtArgs>
+    aprobadoPor?: boolean | PeriodoAcademico$aprobadoPorArgs<ExtArgs>
     _count?: boolean | PeriodoAcademicoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["periodoAcademico"]>
 
@@ -13886,8 +13664,12 @@ export namespace Prisma {
     fechaFin?: boolean
     activo?: boolean
     estado?: boolean
+    aprobadoPorId?: boolean
+    fechaAprobacion?: boolean
+    comentariosDirector?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aprobadoPor?: boolean | PeriodoAcademico$aprobadoPorArgs<ExtArgs>
   }, ExtArgs["result"]["periodoAcademico"]>
 
   export type PeriodoAcademicoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -13897,8 +13679,12 @@ export namespace Prisma {
     fechaFin?: boolean
     activo?: boolean
     estado?: boolean
+    aprobadoPorId?: boolean
+    fechaAprobacion?: boolean
+    comentariosDirector?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aprobadoPor?: boolean | PeriodoAcademico$aprobadoPorArgs<ExtArgs>
   }, ExtArgs["result"]["periodoAcademico"]>
 
   export type PeriodoAcademicoSelectScalar = {
@@ -13908,28 +13694,35 @@ export namespace Prisma {
     fechaFin?: boolean
     activo?: boolean
     estado?: boolean
+    aprobadoPorId?: boolean
+    fechaAprobacion?: boolean
+    comentariosDirector?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type PeriodoAcademicoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "fechaInicio" | "fechaFin" | "activo" | "estado" | "createdAt" | "updatedAt", ExtArgs["result"]["periodoAcademico"]>
+  export type PeriodoAcademicoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nombre" | "fechaInicio" | "fechaFin" | "activo" | "estado" | "aprobadoPorId" | "fechaAprobacion" | "comentariosDirector" | "createdAt" | "updatedAt", ExtArgs["result"]["periodoAcademico"]>
   export type PeriodoAcademicoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     grupos?: boolean | PeriodoAcademico$gruposArgs<ExtArgs>
     asignaciones?: boolean | PeriodoAcademico$asignacionesArgs<ExtArgs>
-    sesiones?: boolean | PeriodoAcademico$sesionesArgs<ExtArgs>
     preasignaciones?: boolean | PeriodoAcademico$preasignacionesArgs<ExtArgs>
+    aprobadoPor?: boolean | PeriodoAcademico$aprobadoPorArgs<ExtArgs>
     _count?: boolean | PeriodoAcademicoCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type PeriodoAcademicoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type PeriodoAcademicoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type PeriodoAcademicoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    aprobadoPor?: boolean | PeriodoAcademico$aprobadoPorArgs<ExtArgs>
+  }
+  export type PeriodoAcademicoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    aprobadoPor?: boolean | PeriodoAcademico$aprobadoPorArgs<ExtArgs>
+  }
 
   export type $PeriodoAcademicoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "PeriodoAcademico"
     objects: {
       grupos: Prisma.$GrupoPayload<ExtArgs>[]
       asignaciones: Prisma.$AsignacionPayload<ExtArgs>[]
-      sesiones: Prisma.$SesionLlenadoPayload<ExtArgs>[]
       preasignaciones: Prisma.$PreasignacionPayload<ExtArgs>[]
+      aprobadoPor: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13938,6 +13731,9 @@ export namespace Prisma {
       fechaFin: Date
       activo: boolean
       estado: $Enums.EstadoPeriodo
+      aprobadoPorId: string | null
+      fechaAprobacion: Date | null
+      comentariosDirector: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["periodoAcademico"]>
@@ -14336,8 +14132,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     grupos<T extends PeriodoAcademico$gruposArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$gruposArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     asignaciones<T extends PeriodoAcademico$asignacionesArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$asignacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    sesiones<T extends PeriodoAcademico$sesionesArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$sesionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     preasignaciones<T extends PeriodoAcademico$preasignacionesArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$preasignacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    aprobadoPor<T extends PeriodoAcademico$aprobadoPorArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$aprobadoPorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14373,6 +14169,9 @@ export namespace Prisma {
     readonly fechaFin: FieldRef<"PeriodoAcademico", 'DateTime'>
     readonly activo: FieldRef<"PeriodoAcademico", 'Boolean'>
     readonly estado: FieldRef<"PeriodoAcademico", 'EstadoPeriodo'>
+    readonly aprobadoPorId: FieldRef<"PeriodoAcademico", 'String'>
+    readonly fechaAprobacion: FieldRef<"PeriodoAcademico", 'DateTime'>
+    readonly comentariosDirector: FieldRef<"PeriodoAcademico", 'String'>
     readonly createdAt: FieldRef<"PeriodoAcademico", 'DateTime'>
     readonly updatedAt: FieldRef<"PeriodoAcademico", 'DateTime'>
   }
@@ -14629,6 +14428,10 @@ export namespace Prisma {
      */
     data: PeriodoAcademicoCreateManyInput | PeriodoAcademicoCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PeriodoAcademicoIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -14699,6 +14502,10 @@ export namespace Prisma {
      * Limit how many PeriodoAcademicos to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PeriodoAcademicoIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -14816,30 +14623,6 @@ export namespace Prisma {
   }
 
   /**
-   * PeriodoAcademico.sesiones
-   */
-  export type PeriodoAcademico$sesionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    where?: SesionLlenadoWhereInput
-    orderBy?: SesionLlenadoOrderByWithRelationInput | SesionLlenadoOrderByWithRelationInput[]
-    cursor?: SesionLlenadoWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: SesionLlenadoScalarFieldEnum | SesionLlenadoScalarFieldEnum[]
-  }
-
-  /**
    * PeriodoAcademico.preasignaciones
    */
   export type PeriodoAcademico$preasignacionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -14861,6 +14644,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PreasignacionScalarFieldEnum | PreasignacionScalarFieldEnum[]
+  }
+
+  /**
+   * PeriodoAcademico.aprobadoPor
+   */
+  export type PeriodoAcademico$aprobadoPorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -22603,2359 +22405,6 @@ export namespace Prisma {
 
 
   /**
-   * Model SesionLlenado
-   */
-
-  export type AggregateSesionLlenado = {
-    _count: SesionLlenadoCountAggregateOutputType | null
-    _avg: SesionLlenadoAvgAggregateOutputType | null
-    _sum: SesionLlenadoSumAggregateOutputType | null
-    _min: SesionLlenadoMinAggregateOutputType | null
-    _max: SesionLlenadoMaxAggregateOutputType | null
-  }
-
-  export type SesionLlenadoAvgAggregateOutputType = {
-    intervalo: number | null
-    turnoActual: number | null
-  }
-
-  export type SesionLlenadoSumAggregateOutputType = {
-    intervalo: number | null
-    turnoActual: number | null
-  }
-
-  export type SesionLlenadoMinAggregateOutputType = {
-    id: string | null
-    periodoId: string | null
-    nombre: string | null
-    fecha: Date | null
-    horaInicio: string | null
-    horaFin: string | null
-    intervalo: number | null
-    estado: $Enums.EstadoSesion | null
-    turnoActual: number | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type SesionLlenadoMaxAggregateOutputType = {
-    id: string | null
-    periodoId: string | null
-    nombre: string | null
-    fecha: Date | null
-    horaInicio: string | null
-    horaFin: string | null
-    intervalo: number | null
-    estado: $Enums.EstadoSesion | null
-    turnoActual: number | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type SesionLlenadoCountAggregateOutputType = {
-    id: number
-    periodoId: number
-    nombre: number
-    fecha: number
-    horaInicio: number
-    horaFin: number
-    intervalo: number
-    estado: number
-    turnoActual: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type SesionLlenadoAvgAggregateInputType = {
-    intervalo?: true
-    turnoActual?: true
-  }
-
-  export type SesionLlenadoSumAggregateInputType = {
-    intervalo?: true
-    turnoActual?: true
-  }
-
-  export type SesionLlenadoMinAggregateInputType = {
-    id?: true
-    periodoId?: true
-    nombre?: true
-    fecha?: true
-    horaInicio?: true
-    horaFin?: true
-    intervalo?: true
-    estado?: true
-    turnoActual?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type SesionLlenadoMaxAggregateInputType = {
-    id?: true
-    periodoId?: true
-    nombre?: true
-    fecha?: true
-    horaInicio?: true
-    horaFin?: true
-    intervalo?: true
-    estado?: true
-    turnoActual?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type SesionLlenadoCountAggregateInputType = {
-    id?: true
-    periodoId?: true
-    nombre?: true
-    fecha?: true
-    horaInicio?: true
-    horaFin?: true
-    intervalo?: true
-    estado?: true
-    turnoActual?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type SesionLlenadoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which SesionLlenado to aggregate.
-     */
-    where?: SesionLlenadoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SesionLlenados to fetch.
-     */
-    orderBy?: SesionLlenadoOrderByWithRelationInput | SesionLlenadoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: SesionLlenadoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SesionLlenados from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SesionLlenados.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned SesionLlenados
-    **/
-    _count?: true | SesionLlenadoCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: SesionLlenadoAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: SesionLlenadoSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: SesionLlenadoMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: SesionLlenadoMaxAggregateInputType
-  }
-
-  export type GetSesionLlenadoAggregateType<T extends SesionLlenadoAggregateArgs> = {
-        [P in keyof T & keyof AggregateSesionLlenado]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateSesionLlenado[P]>
-      : GetScalarType<T[P], AggregateSesionLlenado[P]>
-  }
-
-
-
-
-  export type SesionLlenadoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SesionLlenadoWhereInput
-    orderBy?: SesionLlenadoOrderByWithAggregationInput | SesionLlenadoOrderByWithAggregationInput[]
-    by: SesionLlenadoScalarFieldEnum[] | SesionLlenadoScalarFieldEnum
-    having?: SesionLlenadoScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: SesionLlenadoCountAggregateInputType | true
-    _avg?: SesionLlenadoAvgAggregateInputType
-    _sum?: SesionLlenadoSumAggregateInputType
-    _min?: SesionLlenadoMinAggregateInputType
-    _max?: SesionLlenadoMaxAggregateInputType
-  }
-
-  export type SesionLlenadoGroupByOutputType = {
-    id: string
-    periodoId: string
-    nombre: string
-    fecha: Date
-    horaInicio: string
-    horaFin: string
-    intervalo: number
-    estado: $Enums.EstadoSesion
-    turnoActual: number
-    createdAt: Date
-    updatedAt: Date
-    _count: SesionLlenadoCountAggregateOutputType | null
-    _avg: SesionLlenadoAvgAggregateOutputType | null
-    _sum: SesionLlenadoSumAggregateOutputType | null
-    _min: SesionLlenadoMinAggregateOutputType | null
-    _max: SesionLlenadoMaxAggregateOutputType | null
-  }
-
-  type GetSesionLlenadoGroupByPayload<T extends SesionLlenadoGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<SesionLlenadoGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof SesionLlenadoGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], SesionLlenadoGroupByOutputType[P]>
-            : GetScalarType<T[P], SesionLlenadoGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type SesionLlenadoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    periodoId?: boolean
-    nombre?: boolean
-    fecha?: boolean
-    horaInicio?: boolean
-    horaFin?: boolean
-    intervalo?: boolean
-    estado?: boolean
-    turnoActual?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
-    turnos?: boolean | SesionLlenado$turnosArgs<ExtArgs>
-    _count?: boolean | SesionLlenadoCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["sesionLlenado"]>
-
-  export type SesionLlenadoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    periodoId?: boolean
-    nombre?: boolean
-    fecha?: boolean
-    horaInicio?: boolean
-    horaFin?: boolean
-    intervalo?: boolean
-    estado?: boolean
-    turnoActual?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["sesionLlenado"]>
-
-  export type SesionLlenadoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    periodoId?: boolean
-    nombre?: boolean
-    fecha?: boolean
-    horaInicio?: boolean
-    horaFin?: boolean
-    intervalo?: boolean
-    estado?: boolean
-    turnoActual?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["sesionLlenado"]>
-
-  export type SesionLlenadoSelectScalar = {
-    id?: boolean
-    periodoId?: boolean
-    nombre?: boolean
-    fecha?: boolean
-    horaInicio?: boolean
-    horaFin?: boolean
-    intervalo?: boolean
-    estado?: boolean
-    turnoActual?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type SesionLlenadoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "periodoId" | "nombre" | "fecha" | "horaInicio" | "horaFin" | "intervalo" | "estado" | "turnoActual" | "createdAt" | "updatedAt", ExtArgs["result"]["sesionLlenado"]>
-  export type SesionLlenadoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
-    turnos?: boolean | SesionLlenado$turnosArgs<ExtArgs>
-    _count?: boolean | SesionLlenadoCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type SesionLlenadoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
-  }
-  export type SesionLlenadoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
-  }
-
-  export type $SesionLlenadoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "SesionLlenado"
-    objects: {
-      periodo: Prisma.$PeriodoAcademicoPayload<ExtArgs>
-      turnos: Prisma.$TurnoDocentePayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      periodoId: string
-      nombre: string
-      fecha: Date
-      horaInicio: string
-      horaFin: string
-      intervalo: number
-      estado: $Enums.EstadoSesion
-      turnoActual: number
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["sesionLlenado"]>
-    composites: {}
-  }
-
-  type SesionLlenadoGetPayload<S extends boolean | null | undefined | SesionLlenadoDefaultArgs> = $Result.GetResult<Prisma.$SesionLlenadoPayload, S>
-
-  type SesionLlenadoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<SesionLlenadoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: SesionLlenadoCountAggregateInputType | true
-    }
-
-  export interface SesionLlenadoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SesionLlenado'], meta: { name: 'SesionLlenado' } }
-    /**
-     * Find zero or one SesionLlenado that matches the filter.
-     * @param {SesionLlenadoFindUniqueArgs} args - Arguments to find a SesionLlenado
-     * @example
-     * // Get one SesionLlenado
-     * const sesionLlenado = await prisma.sesionLlenado.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends SesionLlenadoFindUniqueArgs>(args: SelectSubset<T, SesionLlenadoFindUniqueArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one SesionLlenado that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {SesionLlenadoFindUniqueOrThrowArgs} args - Arguments to find a SesionLlenado
-     * @example
-     * // Get one SesionLlenado
-     * const sesionLlenado = await prisma.sesionLlenado.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends SesionLlenadoFindUniqueOrThrowArgs>(args: SelectSubset<T, SesionLlenadoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first SesionLlenado that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SesionLlenadoFindFirstArgs} args - Arguments to find a SesionLlenado
-     * @example
-     * // Get one SesionLlenado
-     * const sesionLlenado = await prisma.sesionLlenado.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends SesionLlenadoFindFirstArgs>(args?: SelectSubset<T, SesionLlenadoFindFirstArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first SesionLlenado that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SesionLlenadoFindFirstOrThrowArgs} args - Arguments to find a SesionLlenado
-     * @example
-     * // Get one SesionLlenado
-     * const sesionLlenado = await prisma.sesionLlenado.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends SesionLlenadoFindFirstOrThrowArgs>(args?: SelectSubset<T, SesionLlenadoFindFirstOrThrowArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more SesionLlenados that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SesionLlenadoFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all SesionLlenados
-     * const sesionLlenados = await prisma.sesionLlenado.findMany()
-     * 
-     * // Get first 10 SesionLlenados
-     * const sesionLlenados = await prisma.sesionLlenado.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const sesionLlenadoWithIdOnly = await prisma.sesionLlenado.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends SesionLlenadoFindManyArgs>(args?: SelectSubset<T, SesionLlenadoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a SesionLlenado.
-     * @param {SesionLlenadoCreateArgs} args - Arguments to create a SesionLlenado.
-     * @example
-     * // Create one SesionLlenado
-     * const SesionLlenado = await prisma.sesionLlenado.create({
-     *   data: {
-     *     // ... data to create a SesionLlenado
-     *   }
-     * })
-     * 
-     */
-    create<T extends SesionLlenadoCreateArgs>(args: SelectSubset<T, SesionLlenadoCreateArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many SesionLlenados.
-     * @param {SesionLlenadoCreateManyArgs} args - Arguments to create many SesionLlenados.
-     * @example
-     * // Create many SesionLlenados
-     * const sesionLlenado = await prisma.sesionLlenado.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends SesionLlenadoCreateManyArgs>(args?: SelectSubset<T, SesionLlenadoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many SesionLlenados and returns the data saved in the database.
-     * @param {SesionLlenadoCreateManyAndReturnArgs} args - Arguments to create many SesionLlenados.
-     * @example
-     * // Create many SesionLlenados
-     * const sesionLlenado = await prisma.sesionLlenado.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many SesionLlenados and only return the `id`
-     * const sesionLlenadoWithIdOnly = await prisma.sesionLlenado.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends SesionLlenadoCreateManyAndReturnArgs>(args?: SelectSubset<T, SesionLlenadoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a SesionLlenado.
-     * @param {SesionLlenadoDeleteArgs} args - Arguments to delete one SesionLlenado.
-     * @example
-     * // Delete one SesionLlenado
-     * const SesionLlenado = await prisma.sesionLlenado.delete({
-     *   where: {
-     *     // ... filter to delete one SesionLlenado
-     *   }
-     * })
-     * 
-     */
-    delete<T extends SesionLlenadoDeleteArgs>(args: SelectSubset<T, SesionLlenadoDeleteArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one SesionLlenado.
-     * @param {SesionLlenadoUpdateArgs} args - Arguments to update one SesionLlenado.
-     * @example
-     * // Update one SesionLlenado
-     * const sesionLlenado = await prisma.sesionLlenado.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends SesionLlenadoUpdateArgs>(args: SelectSubset<T, SesionLlenadoUpdateArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more SesionLlenados.
-     * @param {SesionLlenadoDeleteManyArgs} args - Arguments to filter SesionLlenados to delete.
-     * @example
-     * // Delete a few SesionLlenados
-     * const { count } = await prisma.sesionLlenado.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends SesionLlenadoDeleteManyArgs>(args?: SelectSubset<T, SesionLlenadoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more SesionLlenados.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SesionLlenadoUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many SesionLlenados
-     * const sesionLlenado = await prisma.sesionLlenado.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends SesionLlenadoUpdateManyArgs>(args: SelectSubset<T, SesionLlenadoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more SesionLlenados and returns the data updated in the database.
-     * @param {SesionLlenadoUpdateManyAndReturnArgs} args - Arguments to update many SesionLlenados.
-     * @example
-     * // Update many SesionLlenados
-     * const sesionLlenado = await prisma.sesionLlenado.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more SesionLlenados and only return the `id`
-     * const sesionLlenadoWithIdOnly = await prisma.sesionLlenado.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends SesionLlenadoUpdateManyAndReturnArgs>(args: SelectSubset<T, SesionLlenadoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one SesionLlenado.
-     * @param {SesionLlenadoUpsertArgs} args - Arguments to update or create a SesionLlenado.
-     * @example
-     * // Update or create a SesionLlenado
-     * const sesionLlenado = await prisma.sesionLlenado.upsert({
-     *   create: {
-     *     // ... data to create a SesionLlenado
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the SesionLlenado we want to update
-     *   }
-     * })
-     */
-    upsert<T extends SesionLlenadoUpsertArgs>(args: SelectSubset<T, SesionLlenadoUpsertArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of SesionLlenados.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SesionLlenadoCountArgs} args - Arguments to filter SesionLlenados to count.
-     * @example
-     * // Count the number of SesionLlenados
-     * const count = await prisma.sesionLlenado.count({
-     *   where: {
-     *     // ... the filter for the SesionLlenados we want to count
-     *   }
-     * })
-    **/
-    count<T extends SesionLlenadoCountArgs>(
-      args?: Subset<T, SesionLlenadoCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], SesionLlenadoCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a SesionLlenado.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SesionLlenadoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends SesionLlenadoAggregateArgs>(args: Subset<T, SesionLlenadoAggregateArgs>): Prisma.PrismaPromise<GetSesionLlenadoAggregateType<T>>
-
-    /**
-     * Group by SesionLlenado.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {SesionLlenadoGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends SesionLlenadoGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: SesionLlenadoGroupByArgs['orderBy'] }
-        : { orderBy?: SesionLlenadoGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, SesionLlenadoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSesionLlenadoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the SesionLlenado model
-   */
-  readonly fields: SesionLlenadoFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for SesionLlenado.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__SesionLlenadoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    periodo<T extends PeriodoAcademicoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademicoDefaultArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    turnos<T extends SesionLlenado$turnosArgs<ExtArgs> = {}>(args?: Subset<T, SesionLlenado$turnosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the SesionLlenado model
-   */
-  interface SesionLlenadoFieldRefs {
-    readonly id: FieldRef<"SesionLlenado", 'String'>
-    readonly periodoId: FieldRef<"SesionLlenado", 'String'>
-    readonly nombre: FieldRef<"SesionLlenado", 'String'>
-    readonly fecha: FieldRef<"SesionLlenado", 'DateTime'>
-    readonly horaInicio: FieldRef<"SesionLlenado", 'String'>
-    readonly horaFin: FieldRef<"SesionLlenado", 'String'>
-    readonly intervalo: FieldRef<"SesionLlenado", 'Int'>
-    readonly estado: FieldRef<"SesionLlenado", 'EstadoSesion'>
-    readonly turnoActual: FieldRef<"SesionLlenado", 'Int'>
-    readonly createdAt: FieldRef<"SesionLlenado", 'DateTime'>
-    readonly updatedAt: FieldRef<"SesionLlenado", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * SesionLlenado findUnique
-   */
-  export type SesionLlenadoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * Filter, which SesionLlenado to fetch.
-     */
-    where: SesionLlenadoWhereUniqueInput
-  }
-
-  /**
-   * SesionLlenado findUniqueOrThrow
-   */
-  export type SesionLlenadoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * Filter, which SesionLlenado to fetch.
-     */
-    where: SesionLlenadoWhereUniqueInput
-  }
-
-  /**
-   * SesionLlenado findFirst
-   */
-  export type SesionLlenadoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * Filter, which SesionLlenado to fetch.
-     */
-    where?: SesionLlenadoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SesionLlenados to fetch.
-     */
-    orderBy?: SesionLlenadoOrderByWithRelationInput | SesionLlenadoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for SesionLlenados.
-     */
-    cursor?: SesionLlenadoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SesionLlenados from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SesionLlenados.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SesionLlenados.
-     */
-    distinct?: SesionLlenadoScalarFieldEnum | SesionLlenadoScalarFieldEnum[]
-  }
-
-  /**
-   * SesionLlenado findFirstOrThrow
-   */
-  export type SesionLlenadoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * Filter, which SesionLlenado to fetch.
-     */
-    where?: SesionLlenadoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SesionLlenados to fetch.
-     */
-    orderBy?: SesionLlenadoOrderByWithRelationInput | SesionLlenadoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for SesionLlenados.
-     */
-    cursor?: SesionLlenadoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SesionLlenados from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SesionLlenados.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SesionLlenados.
-     */
-    distinct?: SesionLlenadoScalarFieldEnum | SesionLlenadoScalarFieldEnum[]
-  }
-
-  /**
-   * SesionLlenado findMany
-   */
-  export type SesionLlenadoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * Filter, which SesionLlenados to fetch.
-     */
-    where?: SesionLlenadoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of SesionLlenados to fetch.
-     */
-    orderBy?: SesionLlenadoOrderByWithRelationInput | SesionLlenadoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing SesionLlenados.
-     */
-    cursor?: SesionLlenadoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` SesionLlenados from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` SesionLlenados.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of SesionLlenados.
-     */
-    distinct?: SesionLlenadoScalarFieldEnum | SesionLlenadoScalarFieldEnum[]
-  }
-
-  /**
-   * SesionLlenado create
-   */
-  export type SesionLlenadoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * The data needed to create a SesionLlenado.
-     */
-    data: XOR<SesionLlenadoCreateInput, SesionLlenadoUncheckedCreateInput>
-  }
-
-  /**
-   * SesionLlenado createMany
-   */
-  export type SesionLlenadoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many SesionLlenados.
-     */
-    data: SesionLlenadoCreateManyInput | SesionLlenadoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * SesionLlenado createManyAndReturn
-   */
-  export type SesionLlenadoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * The data used to create many SesionLlenados.
-     */
-    data: SesionLlenadoCreateManyInput | SesionLlenadoCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * SesionLlenado update
-   */
-  export type SesionLlenadoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * The data needed to update a SesionLlenado.
-     */
-    data: XOR<SesionLlenadoUpdateInput, SesionLlenadoUncheckedUpdateInput>
-    /**
-     * Choose, which SesionLlenado to update.
-     */
-    where: SesionLlenadoWhereUniqueInput
-  }
-
-  /**
-   * SesionLlenado updateMany
-   */
-  export type SesionLlenadoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update SesionLlenados.
-     */
-    data: XOR<SesionLlenadoUpdateManyMutationInput, SesionLlenadoUncheckedUpdateManyInput>
-    /**
-     * Filter which SesionLlenados to update
-     */
-    where?: SesionLlenadoWhereInput
-    /**
-     * Limit how many SesionLlenados to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * SesionLlenado updateManyAndReturn
-   */
-  export type SesionLlenadoUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * The data used to update SesionLlenados.
-     */
-    data: XOR<SesionLlenadoUpdateManyMutationInput, SesionLlenadoUncheckedUpdateManyInput>
-    /**
-     * Filter which SesionLlenados to update
-     */
-    where?: SesionLlenadoWhereInput
-    /**
-     * Limit how many SesionLlenados to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * SesionLlenado upsert
-   */
-  export type SesionLlenadoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * The filter to search for the SesionLlenado to update in case it exists.
-     */
-    where: SesionLlenadoWhereUniqueInput
-    /**
-     * In case the SesionLlenado found by the `where` argument doesn't exist, create a new SesionLlenado with this data.
-     */
-    create: XOR<SesionLlenadoCreateInput, SesionLlenadoUncheckedCreateInput>
-    /**
-     * In case the SesionLlenado was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<SesionLlenadoUpdateInput, SesionLlenadoUncheckedUpdateInput>
-  }
-
-  /**
-   * SesionLlenado delete
-   */
-  export type SesionLlenadoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-    /**
-     * Filter which SesionLlenado to delete.
-     */
-    where: SesionLlenadoWhereUniqueInput
-  }
-
-  /**
-   * SesionLlenado deleteMany
-   */
-  export type SesionLlenadoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which SesionLlenados to delete
-     */
-    where?: SesionLlenadoWhereInput
-    /**
-     * Limit how many SesionLlenados to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * SesionLlenado.turnos
-   */
-  export type SesionLlenado$turnosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    where?: TurnoDocenteWhereInput
-    orderBy?: TurnoDocenteOrderByWithRelationInput | TurnoDocenteOrderByWithRelationInput[]
-    cursor?: TurnoDocenteWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TurnoDocenteScalarFieldEnum | TurnoDocenteScalarFieldEnum[]
-  }
-
-  /**
-   * SesionLlenado without action
-   */
-  export type SesionLlenadoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the SesionLlenado
-     */
-    select?: SesionLlenadoSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the SesionLlenado
-     */
-    omit?: SesionLlenadoOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SesionLlenadoInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model TurnoDocente
-   */
-
-  export type AggregateTurnoDocente = {
-    _count: TurnoDocenteCountAggregateOutputType | null
-    _avg: TurnoDocenteAvgAggregateOutputType | null
-    _sum: TurnoDocenteSumAggregateOutputType | null
-    _min: TurnoDocenteMinAggregateOutputType | null
-    _max: TurnoDocenteMaxAggregateOutputType | null
-  }
-
-  export type TurnoDocenteAvgAggregateOutputType = {
-    orden: number | null
-  }
-
-  export type TurnoDocenteSumAggregateOutputType = {
-    orden: number | null
-  }
-
-  export type TurnoDocenteMinAggregateOutputType = {
-    id: string | null
-    sesionId: string | null
-    docenteId: string | null
-    orden: number | null
-    horaAsignada: string | null
-    estado: $Enums.EstadoTurno | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type TurnoDocenteMaxAggregateOutputType = {
-    id: string | null
-    sesionId: string | null
-    docenteId: string | null
-    orden: number | null
-    horaAsignada: string | null
-    estado: $Enums.EstadoTurno | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type TurnoDocenteCountAggregateOutputType = {
-    id: number
-    sesionId: number
-    docenteId: number
-    orden: number
-    horaAsignada: number
-    estado: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type TurnoDocenteAvgAggregateInputType = {
-    orden?: true
-  }
-
-  export type TurnoDocenteSumAggregateInputType = {
-    orden?: true
-  }
-
-  export type TurnoDocenteMinAggregateInputType = {
-    id?: true
-    sesionId?: true
-    docenteId?: true
-    orden?: true
-    horaAsignada?: true
-    estado?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type TurnoDocenteMaxAggregateInputType = {
-    id?: true
-    sesionId?: true
-    docenteId?: true
-    orden?: true
-    horaAsignada?: true
-    estado?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type TurnoDocenteCountAggregateInputType = {
-    id?: true
-    sesionId?: true
-    docenteId?: true
-    orden?: true
-    horaAsignada?: true
-    estado?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type TurnoDocenteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TurnoDocente to aggregate.
-     */
-    where?: TurnoDocenteWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TurnoDocentes to fetch.
-     */
-    orderBy?: TurnoDocenteOrderByWithRelationInput | TurnoDocenteOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: TurnoDocenteWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TurnoDocentes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TurnoDocentes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned TurnoDocentes
-    **/
-    _count?: true | TurnoDocenteCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: TurnoDocenteAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: TurnoDocenteSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: TurnoDocenteMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: TurnoDocenteMaxAggregateInputType
-  }
-
-  export type GetTurnoDocenteAggregateType<T extends TurnoDocenteAggregateArgs> = {
-        [P in keyof T & keyof AggregateTurnoDocente]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateTurnoDocente[P]>
-      : GetScalarType<T[P], AggregateTurnoDocente[P]>
-  }
-
-
-
-
-  export type TurnoDocenteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TurnoDocenteWhereInput
-    orderBy?: TurnoDocenteOrderByWithAggregationInput | TurnoDocenteOrderByWithAggregationInput[]
-    by: TurnoDocenteScalarFieldEnum[] | TurnoDocenteScalarFieldEnum
-    having?: TurnoDocenteScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: TurnoDocenteCountAggregateInputType | true
-    _avg?: TurnoDocenteAvgAggregateInputType
-    _sum?: TurnoDocenteSumAggregateInputType
-    _min?: TurnoDocenteMinAggregateInputType
-    _max?: TurnoDocenteMaxAggregateInputType
-  }
-
-  export type TurnoDocenteGroupByOutputType = {
-    id: string
-    sesionId: string
-    docenteId: string
-    orden: number
-    horaAsignada: string
-    estado: $Enums.EstadoTurno
-    createdAt: Date
-    updatedAt: Date
-    _count: TurnoDocenteCountAggregateOutputType | null
-    _avg: TurnoDocenteAvgAggregateOutputType | null
-    _sum: TurnoDocenteSumAggregateOutputType | null
-    _min: TurnoDocenteMinAggregateOutputType | null
-    _max: TurnoDocenteMaxAggregateOutputType | null
-  }
-
-  type GetTurnoDocenteGroupByPayload<T extends TurnoDocenteGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<TurnoDocenteGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof TurnoDocenteGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], TurnoDocenteGroupByOutputType[P]>
-            : GetScalarType<T[P], TurnoDocenteGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type TurnoDocenteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sesionId?: boolean
-    docenteId?: boolean
-    orden?: boolean
-    horaAsignada?: boolean
-    estado?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    sesion?: boolean | SesionLlenadoDefaultArgs<ExtArgs>
-    docente?: boolean | DocenteDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["turnoDocente"]>
-
-  export type TurnoDocenteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sesionId?: boolean
-    docenteId?: boolean
-    orden?: boolean
-    horaAsignada?: boolean
-    estado?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    sesion?: boolean | SesionLlenadoDefaultArgs<ExtArgs>
-    docente?: boolean | DocenteDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["turnoDocente"]>
-
-  export type TurnoDocenteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sesionId?: boolean
-    docenteId?: boolean
-    orden?: boolean
-    horaAsignada?: boolean
-    estado?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    sesion?: boolean | SesionLlenadoDefaultArgs<ExtArgs>
-    docente?: boolean | DocenteDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["turnoDocente"]>
-
-  export type TurnoDocenteSelectScalar = {
-    id?: boolean
-    sesionId?: boolean
-    docenteId?: boolean
-    orden?: boolean
-    horaAsignada?: boolean
-    estado?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type TurnoDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sesionId" | "docenteId" | "orden" | "horaAsignada" | "estado" | "createdAt" | "updatedAt", ExtArgs["result"]["turnoDocente"]>
-  export type TurnoDocenteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    sesion?: boolean | SesionLlenadoDefaultArgs<ExtArgs>
-    docente?: boolean | DocenteDefaultArgs<ExtArgs>
-  }
-  export type TurnoDocenteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    sesion?: boolean | SesionLlenadoDefaultArgs<ExtArgs>
-    docente?: boolean | DocenteDefaultArgs<ExtArgs>
-  }
-  export type TurnoDocenteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    sesion?: boolean | SesionLlenadoDefaultArgs<ExtArgs>
-    docente?: boolean | DocenteDefaultArgs<ExtArgs>
-  }
-
-  export type $TurnoDocentePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TurnoDocente"
-    objects: {
-      sesion: Prisma.$SesionLlenadoPayload<ExtArgs>
-      docente: Prisma.$DocentePayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      sesionId: string
-      docenteId: string
-      orden: number
-      horaAsignada: string
-      estado: $Enums.EstadoTurno
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["turnoDocente"]>
-    composites: {}
-  }
-
-  type TurnoDocenteGetPayload<S extends boolean | null | undefined | TurnoDocenteDefaultArgs> = $Result.GetResult<Prisma.$TurnoDocentePayload, S>
-
-  type TurnoDocenteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TurnoDocenteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: TurnoDocenteCountAggregateInputType | true
-    }
-
-  export interface TurnoDocenteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TurnoDocente'], meta: { name: 'TurnoDocente' } }
-    /**
-     * Find zero or one TurnoDocente that matches the filter.
-     * @param {TurnoDocenteFindUniqueArgs} args - Arguments to find a TurnoDocente
-     * @example
-     * // Get one TurnoDocente
-     * const turnoDocente = await prisma.turnoDocente.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends TurnoDocenteFindUniqueArgs>(args: SelectSubset<T, TurnoDocenteFindUniqueArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one TurnoDocente that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {TurnoDocenteFindUniqueOrThrowArgs} args - Arguments to find a TurnoDocente
-     * @example
-     * // Get one TurnoDocente
-     * const turnoDocente = await prisma.turnoDocente.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends TurnoDocenteFindUniqueOrThrowArgs>(args: SelectSubset<T, TurnoDocenteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TurnoDocente that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TurnoDocenteFindFirstArgs} args - Arguments to find a TurnoDocente
-     * @example
-     * // Get one TurnoDocente
-     * const turnoDocente = await prisma.turnoDocente.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends TurnoDocenteFindFirstArgs>(args?: SelectSubset<T, TurnoDocenteFindFirstArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TurnoDocente that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TurnoDocenteFindFirstOrThrowArgs} args - Arguments to find a TurnoDocente
-     * @example
-     * // Get one TurnoDocente
-     * const turnoDocente = await prisma.turnoDocente.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends TurnoDocenteFindFirstOrThrowArgs>(args?: SelectSubset<T, TurnoDocenteFindFirstOrThrowArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more TurnoDocentes that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TurnoDocenteFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all TurnoDocentes
-     * const turnoDocentes = await prisma.turnoDocente.findMany()
-     * 
-     * // Get first 10 TurnoDocentes
-     * const turnoDocentes = await prisma.turnoDocente.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const turnoDocenteWithIdOnly = await prisma.turnoDocente.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends TurnoDocenteFindManyArgs>(args?: SelectSubset<T, TurnoDocenteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a TurnoDocente.
-     * @param {TurnoDocenteCreateArgs} args - Arguments to create a TurnoDocente.
-     * @example
-     * // Create one TurnoDocente
-     * const TurnoDocente = await prisma.turnoDocente.create({
-     *   data: {
-     *     // ... data to create a TurnoDocente
-     *   }
-     * })
-     * 
-     */
-    create<T extends TurnoDocenteCreateArgs>(args: SelectSubset<T, TurnoDocenteCreateArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many TurnoDocentes.
-     * @param {TurnoDocenteCreateManyArgs} args - Arguments to create many TurnoDocentes.
-     * @example
-     * // Create many TurnoDocentes
-     * const turnoDocente = await prisma.turnoDocente.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends TurnoDocenteCreateManyArgs>(args?: SelectSubset<T, TurnoDocenteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many TurnoDocentes and returns the data saved in the database.
-     * @param {TurnoDocenteCreateManyAndReturnArgs} args - Arguments to create many TurnoDocentes.
-     * @example
-     * // Create many TurnoDocentes
-     * const turnoDocente = await prisma.turnoDocente.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many TurnoDocentes and only return the `id`
-     * const turnoDocenteWithIdOnly = await prisma.turnoDocente.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends TurnoDocenteCreateManyAndReturnArgs>(args?: SelectSubset<T, TurnoDocenteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a TurnoDocente.
-     * @param {TurnoDocenteDeleteArgs} args - Arguments to delete one TurnoDocente.
-     * @example
-     * // Delete one TurnoDocente
-     * const TurnoDocente = await prisma.turnoDocente.delete({
-     *   where: {
-     *     // ... filter to delete one TurnoDocente
-     *   }
-     * })
-     * 
-     */
-    delete<T extends TurnoDocenteDeleteArgs>(args: SelectSubset<T, TurnoDocenteDeleteArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one TurnoDocente.
-     * @param {TurnoDocenteUpdateArgs} args - Arguments to update one TurnoDocente.
-     * @example
-     * // Update one TurnoDocente
-     * const turnoDocente = await prisma.turnoDocente.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends TurnoDocenteUpdateArgs>(args: SelectSubset<T, TurnoDocenteUpdateArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more TurnoDocentes.
-     * @param {TurnoDocenteDeleteManyArgs} args - Arguments to filter TurnoDocentes to delete.
-     * @example
-     * // Delete a few TurnoDocentes
-     * const { count } = await prisma.turnoDocente.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends TurnoDocenteDeleteManyArgs>(args?: SelectSubset<T, TurnoDocenteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TurnoDocentes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TurnoDocenteUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many TurnoDocentes
-     * const turnoDocente = await prisma.turnoDocente.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends TurnoDocenteUpdateManyArgs>(args: SelectSubset<T, TurnoDocenteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TurnoDocentes and returns the data updated in the database.
-     * @param {TurnoDocenteUpdateManyAndReturnArgs} args - Arguments to update many TurnoDocentes.
-     * @example
-     * // Update many TurnoDocentes
-     * const turnoDocente = await prisma.turnoDocente.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more TurnoDocentes and only return the `id`
-     * const turnoDocenteWithIdOnly = await prisma.turnoDocente.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends TurnoDocenteUpdateManyAndReturnArgs>(args: SelectSubset<T, TurnoDocenteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one TurnoDocente.
-     * @param {TurnoDocenteUpsertArgs} args - Arguments to update or create a TurnoDocente.
-     * @example
-     * // Update or create a TurnoDocente
-     * const turnoDocente = await prisma.turnoDocente.upsert({
-     *   create: {
-     *     // ... data to create a TurnoDocente
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the TurnoDocente we want to update
-     *   }
-     * })
-     */
-    upsert<T extends TurnoDocenteUpsertArgs>(args: SelectSubset<T, TurnoDocenteUpsertArgs<ExtArgs>>): Prisma__TurnoDocenteClient<$Result.GetResult<Prisma.$TurnoDocentePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of TurnoDocentes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TurnoDocenteCountArgs} args - Arguments to filter TurnoDocentes to count.
-     * @example
-     * // Count the number of TurnoDocentes
-     * const count = await prisma.turnoDocente.count({
-     *   where: {
-     *     // ... the filter for the TurnoDocentes we want to count
-     *   }
-     * })
-    **/
-    count<T extends TurnoDocenteCountArgs>(
-      args?: Subset<T, TurnoDocenteCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], TurnoDocenteCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a TurnoDocente.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TurnoDocenteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends TurnoDocenteAggregateArgs>(args: Subset<T, TurnoDocenteAggregateArgs>): Prisma.PrismaPromise<GetTurnoDocenteAggregateType<T>>
-
-    /**
-     * Group by TurnoDocente.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TurnoDocenteGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends TurnoDocenteGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TurnoDocenteGroupByArgs['orderBy'] }
-        : { orderBy?: TurnoDocenteGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, TurnoDocenteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTurnoDocenteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the TurnoDocente model
-   */
-  readonly fields: TurnoDocenteFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for TurnoDocente.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__TurnoDocenteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    sesion<T extends SesionLlenadoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SesionLlenadoDefaultArgs<ExtArgs>>): Prisma__SesionLlenadoClient<$Result.GetResult<Prisma.$SesionLlenadoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    docente<T extends DocenteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DocenteDefaultArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the TurnoDocente model
-   */
-  interface TurnoDocenteFieldRefs {
-    readonly id: FieldRef<"TurnoDocente", 'String'>
-    readonly sesionId: FieldRef<"TurnoDocente", 'String'>
-    readonly docenteId: FieldRef<"TurnoDocente", 'String'>
-    readonly orden: FieldRef<"TurnoDocente", 'Int'>
-    readonly horaAsignada: FieldRef<"TurnoDocente", 'String'>
-    readonly estado: FieldRef<"TurnoDocente", 'EstadoTurno'>
-    readonly createdAt: FieldRef<"TurnoDocente", 'DateTime'>
-    readonly updatedAt: FieldRef<"TurnoDocente", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * TurnoDocente findUnique
-   */
-  export type TurnoDocenteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * Filter, which TurnoDocente to fetch.
-     */
-    where: TurnoDocenteWhereUniqueInput
-  }
-
-  /**
-   * TurnoDocente findUniqueOrThrow
-   */
-  export type TurnoDocenteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * Filter, which TurnoDocente to fetch.
-     */
-    where: TurnoDocenteWhereUniqueInput
-  }
-
-  /**
-   * TurnoDocente findFirst
-   */
-  export type TurnoDocenteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * Filter, which TurnoDocente to fetch.
-     */
-    where?: TurnoDocenteWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TurnoDocentes to fetch.
-     */
-    orderBy?: TurnoDocenteOrderByWithRelationInput | TurnoDocenteOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TurnoDocentes.
-     */
-    cursor?: TurnoDocenteWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TurnoDocentes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TurnoDocentes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TurnoDocentes.
-     */
-    distinct?: TurnoDocenteScalarFieldEnum | TurnoDocenteScalarFieldEnum[]
-  }
-
-  /**
-   * TurnoDocente findFirstOrThrow
-   */
-  export type TurnoDocenteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * Filter, which TurnoDocente to fetch.
-     */
-    where?: TurnoDocenteWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TurnoDocentes to fetch.
-     */
-    orderBy?: TurnoDocenteOrderByWithRelationInput | TurnoDocenteOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TurnoDocentes.
-     */
-    cursor?: TurnoDocenteWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TurnoDocentes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TurnoDocentes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TurnoDocentes.
-     */
-    distinct?: TurnoDocenteScalarFieldEnum | TurnoDocenteScalarFieldEnum[]
-  }
-
-  /**
-   * TurnoDocente findMany
-   */
-  export type TurnoDocenteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * Filter, which TurnoDocentes to fetch.
-     */
-    where?: TurnoDocenteWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TurnoDocentes to fetch.
-     */
-    orderBy?: TurnoDocenteOrderByWithRelationInput | TurnoDocenteOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing TurnoDocentes.
-     */
-    cursor?: TurnoDocenteWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TurnoDocentes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TurnoDocentes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TurnoDocentes.
-     */
-    distinct?: TurnoDocenteScalarFieldEnum | TurnoDocenteScalarFieldEnum[]
-  }
-
-  /**
-   * TurnoDocente create
-   */
-  export type TurnoDocenteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * The data needed to create a TurnoDocente.
-     */
-    data: XOR<TurnoDocenteCreateInput, TurnoDocenteUncheckedCreateInput>
-  }
-
-  /**
-   * TurnoDocente createMany
-   */
-  export type TurnoDocenteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many TurnoDocentes.
-     */
-    data: TurnoDocenteCreateManyInput | TurnoDocenteCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * TurnoDocente createManyAndReturn
-   */
-  export type TurnoDocenteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * The data used to create many TurnoDocentes.
-     */
-    data: TurnoDocenteCreateManyInput | TurnoDocenteCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * TurnoDocente update
-   */
-  export type TurnoDocenteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * The data needed to update a TurnoDocente.
-     */
-    data: XOR<TurnoDocenteUpdateInput, TurnoDocenteUncheckedUpdateInput>
-    /**
-     * Choose, which TurnoDocente to update.
-     */
-    where: TurnoDocenteWhereUniqueInput
-  }
-
-  /**
-   * TurnoDocente updateMany
-   */
-  export type TurnoDocenteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update TurnoDocentes.
-     */
-    data: XOR<TurnoDocenteUpdateManyMutationInput, TurnoDocenteUncheckedUpdateManyInput>
-    /**
-     * Filter which TurnoDocentes to update
-     */
-    where?: TurnoDocenteWhereInput
-    /**
-     * Limit how many TurnoDocentes to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * TurnoDocente updateManyAndReturn
-   */
-  export type TurnoDocenteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * The data used to update TurnoDocentes.
-     */
-    data: XOR<TurnoDocenteUpdateManyMutationInput, TurnoDocenteUncheckedUpdateManyInput>
-    /**
-     * Filter which TurnoDocentes to update
-     */
-    where?: TurnoDocenteWhereInput
-    /**
-     * Limit how many TurnoDocentes to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * TurnoDocente upsert
-   */
-  export type TurnoDocenteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * The filter to search for the TurnoDocente to update in case it exists.
-     */
-    where: TurnoDocenteWhereUniqueInput
-    /**
-     * In case the TurnoDocente found by the `where` argument doesn't exist, create a new TurnoDocente with this data.
-     */
-    create: XOR<TurnoDocenteCreateInput, TurnoDocenteUncheckedCreateInput>
-    /**
-     * In case the TurnoDocente was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<TurnoDocenteUpdateInput, TurnoDocenteUncheckedUpdateInput>
-  }
-
-  /**
-   * TurnoDocente delete
-   */
-  export type TurnoDocenteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-    /**
-     * Filter which TurnoDocente to delete.
-     */
-    where: TurnoDocenteWhereUniqueInput
-  }
-
-  /**
-   * TurnoDocente deleteMany
-   */
-  export type TurnoDocenteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TurnoDocentes to delete
-     */
-    where?: TurnoDocenteWhereInput
-    /**
-     * Limit how many TurnoDocentes to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * TurnoDocente without action
-   */
-  export type TurnoDocenteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TurnoDocente
-     */
-    select?: TurnoDocenteSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TurnoDocente
-     */
-    omit?: TurnoDocenteOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TurnoDocenteInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Enums
    */
 
@@ -25107,6 +22556,9 @@ export namespace Prisma {
     fechaFin: 'fechaFin',
     activo: 'activo',
     estado: 'estado',
+    aprobadoPorId: 'aprobadoPorId',
+    fechaAprobacion: 'fechaAprobacion',
+    comentariosDirector: 'comentariosDirector',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -25197,37 +22649,6 @@ export namespace Prisma {
   };
 
   export type PreasignacionScalarFieldEnum = (typeof PreasignacionScalarFieldEnum)[keyof typeof PreasignacionScalarFieldEnum]
-
-
-  export const SesionLlenadoScalarFieldEnum: {
-    id: 'id',
-    periodoId: 'periodoId',
-    nombre: 'nombre',
-    fecha: 'fecha',
-    horaInicio: 'horaInicio',
-    horaFin: 'horaFin',
-    intervalo: 'intervalo',
-    estado: 'estado',
-    turnoActual: 'turnoActual',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type SesionLlenadoScalarFieldEnum = (typeof SesionLlenadoScalarFieldEnum)[keyof typeof SesionLlenadoScalarFieldEnum]
-
-
-  export const TurnoDocenteScalarFieldEnum: {
-    id: 'id',
-    sesionId: 'sesionId',
-    docenteId: 'docenteId',
-    orden: 'orden',
-    horaAsignada: 'horaAsignada',
-    estado: 'estado',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type TurnoDocenteScalarFieldEnum = (typeof TurnoDocenteScalarFieldEnum)[keyof typeof TurnoDocenteScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -25432,34 +22853,6 @@ export namespace Prisma {
    */
   export type ListEnumTipoRestriccionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoRestriccion[]'>
     
-
-
-  /**
-   * Reference to a field of type 'EstadoSesion'
-   */
-  export type EnumEstadoSesionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoSesion'>
-    
-
-
-  /**
-   * Reference to a field of type 'EstadoSesion[]'
-   */
-  export type ListEnumEstadoSesionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoSesion[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'EstadoTurno'
-   */
-  export type EnumEstadoTurnoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoTurno'>
-    
-
-
-  /**
-   * Reference to a field of type 'EstadoTurno[]'
-   */
-  export type ListEnumEstadoTurnoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoTurno[]'>
-    
   /**
    * Deep Input Types
    */
@@ -25480,6 +22873,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     docente?: XOR<DocenteNullableScalarRelationFilter, DocenteWhereInput> | null
     logs?: LogListRelationFilter
+    periodosAprobados?: PeriodoAcademicoListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -25494,6 +22888,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     docente?: DocenteOrderByWithRelationInput
     logs?: LogOrderByRelationAggregateInput
+    periodosAprobados?: PeriodoAcademicoOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -25511,6 +22906,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     docente?: XOR<DocenteNullableScalarRelationFilter, DocenteWhereInput> | null
     logs?: LogListRelationFilter
+    periodosAprobados?: PeriodoAcademicoListRelationFilter
   }, "id" | "email" | "docenteId">
 
   export type UserOrderByWithAggregationInput = {
@@ -25629,7 +23025,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteListRelationFilter
     docenteGrupos?: DocenteGrupoListRelationFilter
     preasignaciones?: PreasignacionListRelationFilter
-    turnos?: TurnoDocenteListRelationFilter
     disponibilidades?: DisponibilidadDocenteListRelationFilter
     postulaciones?: PostulacionCursoListRelationFilter
     notificaciones?: NotificationListRelationFilter
@@ -25654,7 +23049,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteOrderByRelationAggregateInput
     docenteGrupos?: DocenteGrupoOrderByRelationAggregateInput
     preasignaciones?: PreasignacionOrderByRelationAggregateInput
-    turnos?: TurnoDocenteOrderByRelationAggregateInput
     disponibilidades?: DisponibilidadDocenteOrderByRelationAggregateInput
     postulaciones?: PostulacionCursoOrderByRelationAggregateInput
     notificaciones?: NotificationOrderByRelationAggregateInput
@@ -25682,7 +23076,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteListRelationFilter
     docenteGrupos?: DocenteGrupoListRelationFilter
     preasignaciones?: PreasignacionListRelationFilter
-    turnos?: TurnoDocenteListRelationFilter
     disponibilidades?: DisponibilidadDocenteListRelationFilter
     postulaciones?: PostulacionCursoListRelationFilter
     notificaciones?: NotificationListRelationFilter
@@ -26192,12 +23585,15 @@ export namespace Prisma {
     fechaFin?: DateTimeFilter<"PeriodoAcademico"> | Date | string
     activo?: BoolFilter<"PeriodoAcademico"> | boolean
     estado?: EnumEstadoPeriodoFilter<"PeriodoAcademico"> | $Enums.EstadoPeriodo
+    aprobadoPorId?: StringNullableFilter<"PeriodoAcademico"> | string | null
+    fechaAprobacion?: DateTimeNullableFilter<"PeriodoAcademico"> | Date | string | null
+    comentariosDirector?: StringNullableFilter<"PeriodoAcademico"> | string | null
     createdAt?: DateTimeFilter<"PeriodoAcademico"> | Date | string
     updatedAt?: DateTimeFilter<"PeriodoAcademico"> | Date | string
     grupos?: GrupoListRelationFilter
     asignaciones?: AsignacionListRelationFilter
-    sesiones?: SesionLlenadoListRelationFilter
     preasignaciones?: PreasignacionListRelationFilter
+    aprobadoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type PeriodoAcademicoOrderByWithRelationInput = {
@@ -26207,12 +23603,15 @@ export namespace Prisma {
     fechaFin?: SortOrder
     activo?: SortOrder
     estado?: SortOrder
+    aprobadoPorId?: SortOrderInput | SortOrder
+    fechaAprobacion?: SortOrderInput | SortOrder
+    comentariosDirector?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     grupos?: GrupoOrderByRelationAggregateInput
     asignaciones?: AsignacionOrderByRelationAggregateInput
-    sesiones?: SesionLlenadoOrderByRelationAggregateInput
     preasignaciones?: PreasignacionOrderByRelationAggregateInput
+    aprobadoPor?: UserOrderByWithRelationInput
   }
 
   export type PeriodoAcademicoWhereUniqueInput = Prisma.AtLeast<{
@@ -26225,12 +23624,15 @@ export namespace Prisma {
     fechaFin?: DateTimeFilter<"PeriodoAcademico"> | Date | string
     activo?: BoolFilter<"PeriodoAcademico"> | boolean
     estado?: EnumEstadoPeriodoFilter<"PeriodoAcademico"> | $Enums.EstadoPeriodo
+    aprobadoPorId?: StringNullableFilter<"PeriodoAcademico"> | string | null
+    fechaAprobacion?: DateTimeNullableFilter<"PeriodoAcademico"> | Date | string | null
+    comentariosDirector?: StringNullableFilter<"PeriodoAcademico"> | string | null
     createdAt?: DateTimeFilter<"PeriodoAcademico"> | Date | string
     updatedAt?: DateTimeFilter<"PeriodoAcademico"> | Date | string
     grupos?: GrupoListRelationFilter
     asignaciones?: AsignacionListRelationFilter
-    sesiones?: SesionLlenadoListRelationFilter
     preasignaciones?: PreasignacionListRelationFilter
+    aprobadoPor?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "nombre">
 
   export type PeriodoAcademicoOrderByWithAggregationInput = {
@@ -26240,6 +23642,9 @@ export namespace Prisma {
     fechaFin?: SortOrder
     activo?: SortOrder
     estado?: SortOrder
+    aprobadoPorId?: SortOrderInput | SortOrder
+    fechaAprobacion?: SortOrderInput | SortOrder
+    comentariosDirector?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: PeriodoAcademicoCountOrderByAggregateInput
@@ -26257,6 +23662,9 @@ export namespace Prisma {
     fechaFin?: DateTimeWithAggregatesFilter<"PeriodoAcademico"> | Date | string
     activo?: BoolWithAggregatesFilter<"PeriodoAcademico"> | boolean
     estado?: EnumEstadoPeriodoWithAggregatesFilter<"PeriodoAcademico"> | $Enums.EstadoPeriodo
+    aprobadoPorId?: StringNullableWithAggregatesFilter<"PeriodoAcademico"> | string | null
+    fechaAprobacion?: DateTimeNullableWithAggregatesFilter<"PeriodoAcademico"> | Date | string | null
+    comentariosDirector?: StringNullableWithAggregatesFilter<"PeriodoAcademico"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"PeriodoAcademico"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PeriodoAcademico"> | Date | string
   }
@@ -26735,173 +24143,6 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Preasignacion"> | Date | string
   }
 
-  export type SesionLlenadoWhereInput = {
-    AND?: SesionLlenadoWhereInput | SesionLlenadoWhereInput[]
-    OR?: SesionLlenadoWhereInput[]
-    NOT?: SesionLlenadoWhereInput | SesionLlenadoWhereInput[]
-    id?: StringFilter<"SesionLlenado"> | string
-    periodoId?: StringFilter<"SesionLlenado"> | string
-    nombre?: StringFilter<"SesionLlenado"> | string
-    fecha?: DateTimeFilter<"SesionLlenado"> | Date | string
-    horaInicio?: StringFilter<"SesionLlenado"> | string
-    horaFin?: StringFilter<"SesionLlenado"> | string
-    intervalo?: IntFilter<"SesionLlenado"> | number
-    estado?: EnumEstadoSesionFilter<"SesionLlenado"> | $Enums.EstadoSesion
-    turnoActual?: IntFilter<"SesionLlenado"> | number
-    createdAt?: DateTimeFilter<"SesionLlenado"> | Date | string
-    updatedAt?: DateTimeFilter<"SesionLlenado"> | Date | string
-    periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
-    turnos?: TurnoDocenteListRelationFilter
-  }
-
-  export type SesionLlenadoOrderByWithRelationInput = {
-    id?: SortOrder
-    periodoId?: SortOrder
-    nombre?: SortOrder
-    fecha?: SortOrder
-    horaInicio?: SortOrder
-    horaFin?: SortOrder
-    intervalo?: SortOrder
-    estado?: SortOrder
-    turnoActual?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    periodo?: PeriodoAcademicoOrderByWithRelationInput
-    turnos?: TurnoDocenteOrderByRelationAggregateInput
-  }
-
-  export type SesionLlenadoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: SesionLlenadoWhereInput | SesionLlenadoWhereInput[]
-    OR?: SesionLlenadoWhereInput[]
-    NOT?: SesionLlenadoWhereInput | SesionLlenadoWhereInput[]
-    periodoId?: StringFilter<"SesionLlenado"> | string
-    nombre?: StringFilter<"SesionLlenado"> | string
-    fecha?: DateTimeFilter<"SesionLlenado"> | Date | string
-    horaInicio?: StringFilter<"SesionLlenado"> | string
-    horaFin?: StringFilter<"SesionLlenado"> | string
-    intervalo?: IntFilter<"SesionLlenado"> | number
-    estado?: EnumEstadoSesionFilter<"SesionLlenado"> | $Enums.EstadoSesion
-    turnoActual?: IntFilter<"SesionLlenado"> | number
-    createdAt?: DateTimeFilter<"SesionLlenado"> | Date | string
-    updatedAt?: DateTimeFilter<"SesionLlenado"> | Date | string
-    periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
-    turnos?: TurnoDocenteListRelationFilter
-  }, "id">
-
-  export type SesionLlenadoOrderByWithAggregationInput = {
-    id?: SortOrder
-    periodoId?: SortOrder
-    nombre?: SortOrder
-    fecha?: SortOrder
-    horaInicio?: SortOrder
-    horaFin?: SortOrder
-    intervalo?: SortOrder
-    estado?: SortOrder
-    turnoActual?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: SesionLlenadoCountOrderByAggregateInput
-    _avg?: SesionLlenadoAvgOrderByAggregateInput
-    _max?: SesionLlenadoMaxOrderByAggregateInput
-    _min?: SesionLlenadoMinOrderByAggregateInput
-    _sum?: SesionLlenadoSumOrderByAggregateInput
-  }
-
-  export type SesionLlenadoScalarWhereWithAggregatesInput = {
-    AND?: SesionLlenadoScalarWhereWithAggregatesInput | SesionLlenadoScalarWhereWithAggregatesInput[]
-    OR?: SesionLlenadoScalarWhereWithAggregatesInput[]
-    NOT?: SesionLlenadoScalarWhereWithAggregatesInput | SesionLlenadoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"SesionLlenado"> | string
-    periodoId?: StringWithAggregatesFilter<"SesionLlenado"> | string
-    nombre?: StringWithAggregatesFilter<"SesionLlenado"> | string
-    fecha?: DateTimeWithAggregatesFilter<"SesionLlenado"> | Date | string
-    horaInicio?: StringWithAggregatesFilter<"SesionLlenado"> | string
-    horaFin?: StringWithAggregatesFilter<"SesionLlenado"> | string
-    intervalo?: IntWithAggregatesFilter<"SesionLlenado"> | number
-    estado?: EnumEstadoSesionWithAggregatesFilter<"SesionLlenado"> | $Enums.EstadoSesion
-    turnoActual?: IntWithAggregatesFilter<"SesionLlenado"> | number
-    createdAt?: DateTimeWithAggregatesFilter<"SesionLlenado"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"SesionLlenado"> | Date | string
-  }
-
-  export type TurnoDocenteWhereInput = {
-    AND?: TurnoDocenteWhereInput | TurnoDocenteWhereInput[]
-    OR?: TurnoDocenteWhereInput[]
-    NOT?: TurnoDocenteWhereInput | TurnoDocenteWhereInput[]
-    id?: StringFilter<"TurnoDocente"> | string
-    sesionId?: StringFilter<"TurnoDocente"> | string
-    docenteId?: StringFilter<"TurnoDocente"> | string
-    orden?: IntFilter<"TurnoDocente"> | number
-    horaAsignada?: StringFilter<"TurnoDocente"> | string
-    estado?: EnumEstadoTurnoFilter<"TurnoDocente"> | $Enums.EstadoTurno
-    createdAt?: DateTimeFilter<"TurnoDocente"> | Date | string
-    updatedAt?: DateTimeFilter<"TurnoDocente"> | Date | string
-    sesion?: XOR<SesionLlenadoScalarRelationFilter, SesionLlenadoWhereInput>
-    docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
-  }
-
-  export type TurnoDocenteOrderByWithRelationInput = {
-    id?: SortOrder
-    sesionId?: SortOrder
-    docenteId?: SortOrder
-    orden?: SortOrder
-    horaAsignada?: SortOrder
-    estado?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    sesion?: SesionLlenadoOrderByWithRelationInput
-    docente?: DocenteOrderByWithRelationInput
-  }
-
-  export type TurnoDocenteWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    sesionId_docenteId?: TurnoDocenteSesionIdDocenteIdCompoundUniqueInput
-    sesionId_orden?: TurnoDocenteSesionIdOrdenCompoundUniqueInput
-    AND?: TurnoDocenteWhereInput | TurnoDocenteWhereInput[]
-    OR?: TurnoDocenteWhereInput[]
-    NOT?: TurnoDocenteWhereInput | TurnoDocenteWhereInput[]
-    sesionId?: StringFilter<"TurnoDocente"> | string
-    docenteId?: StringFilter<"TurnoDocente"> | string
-    orden?: IntFilter<"TurnoDocente"> | number
-    horaAsignada?: StringFilter<"TurnoDocente"> | string
-    estado?: EnumEstadoTurnoFilter<"TurnoDocente"> | $Enums.EstadoTurno
-    createdAt?: DateTimeFilter<"TurnoDocente"> | Date | string
-    updatedAt?: DateTimeFilter<"TurnoDocente"> | Date | string
-    sesion?: XOR<SesionLlenadoScalarRelationFilter, SesionLlenadoWhereInput>
-    docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
-  }, "id" | "sesionId_docenteId" | "sesionId_orden">
-
-  export type TurnoDocenteOrderByWithAggregationInput = {
-    id?: SortOrder
-    sesionId?: SortOrder
-    docenteId?: SortOrder
-    orden?: SortOrder
-    horaAsignada?: SortOrder
-    estado?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: TurnoDocenteCountOrderByAggregateInput
-    _avg?: TurnoDocenteAvgOrderByAggregateInput
-    _max?: TurnoDocenteMaxOrderByAggregateInput
-    _min?: TurnoDocenteMinOrderByAggregateInput
-    _sum?: TurnoDocenteSumOrderByAggregateInput
-  }
-
-  export type TurnoDocenteScalarWhereWithAggregatesInput = {
-    AND?: TurnoDocenteScalarWhereWithAggregatesInput | TurnoDocenteScalarWhereWithAggregatesInput[]
-    OR?: TurnoDocenteScalarWhereWithAggregatesInput[]
-    NOT?: TurnoDocenteScalarWhereWithAggregatesInput | TurnoDocenteScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TurnoDocente"> | string
-    sesionId?: StringWithAggregatesFilter<"TurnoDocente"> | string
-    docenteId?: StringWithAggregatesFilter<"TurnoDocente"> | string
-    orden?: IntWithAggregatesFilter<"TurnoDocente"> | number
-    horaAsignada?: StringWithAggregatesFilter<"TurnoDocente"> | string
-    estado?: EnumEstadoTurnoWithAggregatesFilter<"TurnoDocente"> | $Enums.EstadoTurno
-    createdAt?: DateTimeWithAggregatesFilter<"TurnoDocente"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"TurnoDocente"> | Date | string
-  }
-
   export type UserCreateInput = {
     id?: string
     email: string
@@ -26913,6 +24154,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     docente?: DocenteCreateNestedOneWithoutUserInput
     logs?: LogCreateNestedManyWithoutUserInput
+    periodosAprobados?: PeriodoAcademicoCreateNestedManyWithoutAprobadoPorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -26926,6 +24168,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     logs?: LogUncheckedCreateNestedManyWithoutUserInput
+    periodosAprobados?: PeriodoAcademicoUncheckedCreateNestedManyWithoutAprobadoPorInput
   }
 
   export type UserUpdateInput = {
@@ -26939,6 +24182,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneWithoutUserNestedInput
     logs?: LogUpdateManyWithoutUserNestedInput
+    periodosAprobados?: PeriodoAcademicoUpdateManyWithoutAprobadoPorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -26952,6 +24196,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     logs?: LogUncheckedUpdateManyWithoutUserNestedInput
+    periodosAprobados?: PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -27076,7 +24321,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
@@ -27101,7 +24345,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
@@ -27126,7 +24369,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
@@ -27151,7 +24393,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
@@ -27696,12 +24937,14 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     grupos?: GrupoCreateNestedManyWithoutPeriodoAcademicoInput
     asignaciones?: AsignacionCreateNestedManyWithoutPeriodoInput
-    sesiones?: SesionLlenadoCreateNestedManyWithoutPeriodoInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutPeriodoInput
+    aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
   }
 
   export type PeriodoAcademicoUncheckedCreateInput = {
@@ -27711,11 +24954,13 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    aprobadoPorId?: string | null
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     grupos?: GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutPeriodoInput
-    sesiones?: SesionLlenadoUncheckedCreateNestedManyWithoutPeriodoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
@@ -27726,12 +24971,14 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupos?: GrupoUpdateManyWithoutPeriodoAcademicoNestedInput
     asignaciones?: AsignacionUpdateManyWithoutPeriodoNestedInput
-    sesiones?: SesionLlenadoUpdateManyWithoutPeriodoNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutPeriodoNestedInput
+    aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateInput = {
@@ -27741,11 +24988,13 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    aprobadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupos?: GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput
     asignaciones?: AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput
-    sesiones?: SesionLlenadoUncheckedUpdateManyWithoutPeriodoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
@@ -27756,6 +25005,9 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    aprobadoPorId?: string | null
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -27767,6 +25019,8 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -27778,6 +25032,9 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    aprobadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -28235,182 +25492,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SesionLlenadoCreateInput = {
-    id?: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    periodo: PeriodoAcademicoCreateNestedOneWithoutSesionesInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutSesionInput
-  }
-
-  export type SesionLlenadoUncheckedCreateInput = {
-    id?: string
-    periodoId: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutSesionInput
-  }
-
-  export type SesionLlenadoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutSesionesNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutSesionNestedInput
-  }
-
-  export type SesionLlenadoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    periodoId?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutSesionNestedInput
-  }
-
-  export type SesionLlenadoCreateManyInput = {
-    id?: string
-    periodoId: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type SesionLlenadoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SesionLlenadoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    periodoId?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TurnoDocenteCreateInput = {
-    id?: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    sesion: SesionLlenadoCreateNestedOneWithoutTurnosInput
-    docente: DocenteCreateNestedOneWithoutTurnosInput
-  }
-
-  export type TurnoDocenteUncheckedCreateInput = {
-    id?: string
-    sesionId: string
-    docenteId: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type TurnoDocenteUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    sesion?: SesionLlenadoUpdateOneRequiredWithoutTurnosNestedInput
-    docente?: DocenteUpdateOneRequiredWithoutTurnosNestedInput
-  }
-
-  export type TurnoDocenteUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sesionId?: StringFieldUpdateOperationsInput | string
-    docenteId?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TurnoDocenteCreateManyInput = {
-    id?: string
-    sesionId: string
-    docenteId: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type TurnoDocenteUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TurnoDocenteUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sesionId?: StringFieldUpdateOperationsInput | string
-    docenteId?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -28475,12 +25556,22 @@ export namespace Prisma {
     none?: LogWhereInput
   }
 
+  export type PeriodoAcademicoListRelationFilter = {
+    every?: PeriodoAcademicoWhereInput
+    some?: PeriodoAcademicoWhereInput
+    none?: PeriodoAcademicoWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
   export type LogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PeriodoAcademicoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28672,12 +25763,6 @@ export namespace Prisma {
     none?: PreasignacionWhereInput
   }
 
-  export type TurnoDocenteListRelationFilter = {
-    every?: TurnoDocenteWhereInput
-    some?: TurnoDocenteWhereInput
-    none?: TurnoDocenteWhereInput
-  }
-
   export type DisponibilidadDocenteListRelationFilter = {
     every?: DisponibilidadDocenteWhereInput
     some?: DisponibilidadDocenteWhereInput
@@ -28709,10 +25794,6 @@ export namespace Prisma {
   }
 
   export type PreasignacionOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type TurnoDocenteOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -29161,14 +26242,15 @@ export namespace Prisma {
     not?: NestedEnumEstadoPeriodoFilter<$PrismaModel> | $Enums.EstadoPeriodo
   }
 
-  export type SesionLlenadoListRelationFilter = {
-    every?: SesionLlenadoWhereInput
-    some?: SesionLlenadoWhereInput
-    none?: SesionLlenadoWhereInput
-  }
-
-  export type SesionLlenadoOrderByRelationAggregateInput = {
-    _count?: SortOrder
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type PeriodoAcademicoCountOrderByAggregateInput = {
@@ -29178,6 +26260,9 @@ export namespace Prisma {
     fechaFin?: SortOrder
     activo?: SortOrder
     estado?: SortOrder
+    aprobadoPorId?: SortOrder
+    fechaAprobacion?: SortOrder
+    comentariosDirector?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29189,6 +26274,9 @@ export namespace Prisma {
     fechaFin?: SortOrder
     activo?: SortOrder
     estado?: SortOrder
+    aprobadoPorId?: SortOrder
+    fechaAprobacion?: SortOrder
+    comentariosDirector?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29200,6 +26288,9 @@ export namespace Prisma {
     fechaFin?: SortOrder
     activo?: SortOrder
     estado?: SortOrder
+    aprobadoPorId?: SortOrder
+    fechaAprobacion?: SortOrder
+    comentariosDirector?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29212,6 +26303,20 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEstadoPeriodoFilter<$PrismaModel>
     _max?: NestedEnumEstadoPeriodoFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type EnumDiaSemanaFilter<$PrismaModel = never> = {
@@ -29521,148 +26626,6 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type EnumEstadoSesionFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoSesion | EnumEstadoSesionFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoSesionFilter<$PrismaModel> | $Enums.EstadoSesion
-  }
-
-  export type SesionLlenadoCountOrderByAggregateInput = {
-    id?: SortOrder
-    periodoId?: SortOrder
-    nombre?: SortOrder
-    fecha?: SortOrder
-    horaInicio?: SortOrder
-    horaFin?: SortOrder
-    intervalo?: SortOrder
-    estado?: SortOrder
-    turnoActual?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type SesionLlenadoAvgOrderByAggregateInput = {
-    intervalo?: SortOrder
-    turnoActual?: SortOrder
-  }
-
-  export type SesionLlenadoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    periodoId?: SortOrder
-    nombre?: SortOrder
-    fecha?: SortOrder
-    horaInicio?: SortOrder
-    horaFin?: SortOrder
-    intervalo?: SortOrder
-    estado?: SortOrder
-    turnoActual?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type SesionLlenadoMinOrderByAggregateInput = {
-    id?: SortOrder
-    periodoId?: SortOrder
-    nombre?: SortOrder
-    fecha?: SortOrder
-    horaInicio?: SortOrder
-    horaFin?: SortOrder
-    intervalo?: SortOrder
-    estado?: SortOrder
-    turnoActual?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type SesionLlenadoSumOrderByAggregateInput = {
-    intervalo?: SortOrder
-    turnoActual?: SortOrder
-  }
-
-  export type EnumEstadoSesionWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoSesion | EnumEstadoSesionFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoSesionWithAggregatesFilter<$PrismaModel> | $Enums.EstadoSesion
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEstadoSesionFilter<$PrismaModel>
-    _max?: NestedEnumEstadoSesionFilter<$PrismaModel>
-  }
-
-  export type EnumEstadoTurnoFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoTurno | EnumEstadoTurnoFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoTurnoFilter<$PrismaModel> | $Enums.EstadoTurno
-  }
-
-  export type SesionLlenadoScalarRelationFilter = {
-    is?: SesionLlenadoWhereInput
-    isNot?: SesionLlenadoWhereInput
-  }
-
-  export type TurnoDocenteSesionIdDocenteIdCompoundUniqueInput = {
-    sesionId: string
-    docenteId: string
-  }
-
-  export type TurnoDocenteSesionIdOrdenCompoundUniqueInput = {
-    sesionId: string
-    orden: number
-  }
-
-  export type TurnoDocenteCountOrderByAggregateInput = {
-    id?: SortOrder
-    sesionId?: SortOrder
-    docenteId?: SortOrder
-    orden?: SortOrder
-    horaAsignada?: SortOrder
-    estado?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type TurnoDocenteAvgOrderByAggregateInput = {
-    orden?: SortOrder
-  }
-
-  export type TurnoDocenteMaxOrderByAggregateInput = {
-    id?: SortOrder
-    sesionId?: SortOrder
-    docenteId?: SortOrder
-    orden?: SortOrder
-    horaAsignada?: SortOrder
-    estado?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type TurnoDocenteMinOrderByAggregateInput = {
-    id?: SortOrder
-    sesionId?: SortOrder
-    docenteId?: SortOrder
-    orden?: SortOrder
-    horaAsignada?: SortOrder
-    estado?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type TurnoDocenteSumOrderByAggregateInput = {
-    orden?: SortOrder
-  }
-
-  export type EnumEstadoTurnoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoTurno | EnumEstadoTurnoFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoTurnoWithAggregatesFilter<$PrismaModel> | $Enums.EstadoTurno
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEstadoTurnoFilter<$PrismaModel>
-    _max?: NestedEnumEstadoTurnoFilter<$PrismaModel>
-  }
-
   export type DocenteCreateNestedOneWithoutUserInput = {
     create?: XOR<DocenteCreateWithoutUserInput, DocenteUncheckedCreateWithoutUserInput>
     connectOrCreate?: DocenteCreateOrConnectWithoutUserInput
@@ -29676,11 +26639,25 @@ export namespace Prisma {
     connect?: LogWhereUniqueInput | LogWhereUniqueInput[]
   }
 
+  export type PeriodoAcademicoCreateNestedManyWithoutAprobadoPorInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput> | PeriodoAcademicoCreateWithoutAprobadoPorInput[] | PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput[]
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput | PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput[]
+    createMany?: PeriodoAcademicoCreateManyAprobadoPorInputEnvelope
+    connect?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+  }
+
   export type LogUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<LogCreateWithoutUserInput, LogUncheckedCreateWithoutUserInput> | LogCreateWithoutUserInput[] | LogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: LogCreateOrConnectWithoutUserInput | LogCreateOrConnectWithoutUserInput[]
     createMany?: LogCreateManyUserInputEnvelope
     connect?: LogWhereUniqueInput | LogWhereUniqueInput[]
+  }
+
+  export type PeriodoAcademicoUncheckedCreateNestedManyWithoutAprobadoPorInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput> | PeriodoAcademicoCreateWithoutAprobadoPorInput[] | PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput[]
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput | PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput[]
+    createMany?: PeriodoAcademicoCreateManyAprobadoPorInputEnvelope
+    connect?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -29723,6 +26700,20 @@ export namespace Prisma {
     deleteMany?: LogScalarWhereInput | LogScalarWhereInput[]
   }
 
+  export type PeriodoAcademicoUpdateManyWithoutAprobadoPorNestedInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput> | PeriodoAcademicoCreateWithoutAprobadoPorInput[] | PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput[]
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput | PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput[]
+    upsert?: PeriodoAcademicoUpsertWithWhereUniqueWithoutAprobadoPorInput | PeriodoAcademicoUpsertWithWhereUniqueWithoutAprobadoPorInput[]
+    createMany?: PeriodoAcademicoCreateManyAprobadoPorInputEnvelope
+    set?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    disconnect?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    delete?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    connect?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    update?: PeriodoAcademicoUpdateWithWhereUniqueWithoutAprobadoPorInput | PeriodoAcademicoUpdateWithWhereUniqueWithoutAprobadoPorInput[]
+    updateMany?: PeriodoAcademicoUpdateManyWithWhereWithoutAprobadoPorInput | PeriodoAcademicoUpdateManyWithWhereWithoutAprobadoPorInput[]
+    deleteMany?: PeriodoAcademicoScalarWhereInput | PeriodoAcademicoScalarWhereInput[]
+  }
+
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
   }
@@ -29739,6 +26730,20 @@ export namespace Prisma {
     update?: LogUpdateWithWhereUniqueWithoutUserInput | LogUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: LogUpdateManyWithWhereWithoutUserInput | LogUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: LogScalarWhereInput | LogScalarWhereInput[]
+  }
+
+  export type PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorNestedInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput> | PeriodoAcademicoCreateWithoutAprobadoPorInput[] | PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput[]
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput | PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput[]
+    upsert?: PeriodoAcademicoUpsertWithWhereUniqueWithoutAprobadoPorInput | PeriodoAcademicoUpsertWithWhereUniqueWithoutAprobadoPorInput[]
+    createMany?: PeriodoAcademicoCreateManyAprobadoPorInputEnvelope
+    set?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    disconnect?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    delete?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    connect?: PeriodoAcademicoWhereUniqueInput | PeriodoAcademicoWhereUniqueInput[]
+    update?: PeriodoAcademicoUpdateWithWhereUniqueWithoutAprobadoPorInput | PeriodoAcademicoUpdateWithWhereUniqueWithoutAprobadoPorInput[]
+    updateMany?: PeriodoAcademicoUpdateManyWithWhereWithoutAprobadoPorInput | PeriodoAcademicoUpdateManyWithWhereWithoutAprobadoPorInput[]
+    deleteMany?: PeriodoAcademicoScalarWhereInput | PeriodoAcademicoScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutLogsInput = {
@@ -29783,13 +26788,6 @@ export namespace Prisma {
     connectOrCreate?: PreasignacionCreateOrConnectWithoutDocenteInput | PreasignacionCreateOrConnectWithoutDocenteInput[]
     createMany?: PreasignacionCreateManyDocenteInputEnvelope
     connect?: PreasignacionWhereUniqueInput | PreasignacionWhereUniqueInput[]
-  }
-
-  export type TurnoDocenteCreateNestedManyWithoutDocenteInput = {
-    create?: XOR<TurnoDocenteCreateWithoutDocenteInput, TurnoDocenteUncheckedCreateWithoutDocenteInput> | TurnoDocenteCreateWithoutDocenteInput[] | TurnoDocenteUncheckedCreateWithoutDocenteInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutDocenteInput | TurnoDocenteCreateOrConnectWithoutDocenteInput[]
-    createMany?: TurnoDocenteCreateManyDocenteInputEnvelope
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
   }
 
   export type DisponibilidadDocenteCreateNestedManyWithoutDocenteInput = {
@@ -29845,13 +26843,6 @@ export namespace Prisma {
     connectOrCreate?: PreasignacionCreateOrConnectWithoutDocenteInput | PreasignacionCreateOrConnectWithoutDocenteInput[]
     createMany?: PreasignacionCreateManyDocenteInputEnvelope
     connect?: PreasignacionWhereUniqueInput | PreasignacionWhereUniqueInput[]
-  }
-
-  export type TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput = {
-    create?: XOR<TurnoDocenteCreateWithoutDocenteInput, TurnoDocenteUncheckedCreateWithoutDocenteInput> | TurnoDocenteCreateWithoutDocenteInput[] | TurnoDocenteUncheckedCreateWithoutDocenteInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutDocenteInput | TurnoDocenteCreateOrConnectWithoutDocenteInput[]
-    createMany?: TurnoDocenteCreateManyDocenteInputEnvelope
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
   }
 
   export type DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput = {
@@ -29951,20 +26942,6 @@ export namespace Prisma {
     update?: PreasignacionUpdateWithWhereUniqueWithoutDocenteInput | PreasignacionUpdateWithWhereUniqueWithoutDocenteInput[]
     updateMany?: PreasignacionUpdateManyWithWhereWithoutDocenteInput | PreasignacionUpdateManyWithWhereWithoutDocenteInput[]
     deleteMany?: PreasignacionScalarWhereInput | PreasignacionScalarWhereInput[]
-  }
-
-  export type TurnoDocenteUpdateManyWithoutDocenteNestedInput = {
-    create?: XOR<TurnoDocenteCreateWithoutDocenteInput, TurnoDocenteUncheckedCreateWithoutDocenteInput> | TurnoDocenteCreateWithoutDocenteInput[] | TurnoDocenteUncheckedCreateWithoutDocenteInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutDocenteInput | TurnoDocenteCreateOrConnectWithoutDocenteInput[]
-    upsert?: TurnoDocenteUpsertWithWhereUniqueWithoutDocenteInput | TurnoDocenteUpsertWithWhereUniqueWithoutDocenteInput[]
-    createMany?: TurnoDocenteCreateManyDocenteInputEnvelope
-    set?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    disconnect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    delete?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    update?: TurnoDocenteUpdateWithWhereUniqueWithoutDocenteInput | TurnoDocenteUpdateWithWhereUniqueWithoutDocenteInput[]
-    updateMany?: TurnoDocenteUpdateManyWithWhereWithoutDocenteInput | TurnoDocenteUpdateManyWithWhereWithoutDocenteInput[]
-    deleteMany?: TurnoDocenteScalarWhereInput | TurnoDocenteScalarWhereInput[]
   }
 
   export type DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput = {
@@ -30073,20 +27050,6 @@ export namespace Prisma {
     update?: PreasignacionUpdateWithWhereUniqueWithoutDocenteInput | PreasignacionUpdateWithWhereUniqueWithoutDocenteInput[]
     updateMany?: PreasignacionUpdateManyWithWhereWithoutDocenteInput | PreasignacionUpdateManyWithWhereWithoutDocenteInput[]
     deleteMany?: PreasignacionScalarWhereInput | PreasignacionScalarWhereInput[]
-  }
-
-  export type TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput = {
-    create?: XOR<TurnoDocenteCreateWithoutDocenteInput, TurnoDocenteUncheckedCreateWithoutDocenteInput> | TurnoDocenteCreateWithoutDocenteInput[] | TurnoDocenteUncheckedCreateWithoutDocenteInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutDocenteInput | TurnoDocenteCreateOrConnectWithoutDocenteInput[]
-    upsert?: TurnoDocenteUpsertWithWhereUniqueWithoutDocenteInput | TurnoDocenteUpsertWithWhereUniqueWithoutDocenteInput[]
-    createMany?: TurnoDocenteCreateManyDocenteInputEnvelope
-    set?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    disconnect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    delete?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    update?: TurnoDocenteUpdateWithWhereUniqueWithoutDocenteInput | TurnoDocenteUpdateWithWhereUniqueWithoutDocenteInput[]
-    updateMany?: TurnoDocenteUpdateManyWithWhereWithoutDocenteInput | TurnoDocenteUpdateManyWithWhereWithoutDocenteInput[]
-    deleteMany?: TurnoDocenteScalarWhereInput | TurnoDocenteScalarWhereInput[]
   }
 
   export type DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput = {
@@ -30559,18 +27522,17 @@ export namespace Prisma {
     connect?: AsignacionWhereUniqueInput | AsignacionWhereUniqueInput[]
   }
 
-  export type SesionLlenadoCreateNestedManyWithoutPeriodoInput = {
-    create?: XOR<SesionLlenadoCreateWithoutPeriodoInput, SesionLlenadoUncheckedCreateWithoutPeriodoInput> | SesionLlenadoCreateWithoutPeriodoInput[] | SesionLlenadoUncheckedCreateWithoutPeriodoInput[]
-    connectOrCreate?: SesionLlenadoCreateOrConnectWithoutPeriodoInput | SesionLlenadoCreateOrConnectWithoutPeriodoInput[]
-    createMany?: SesionLlenadoCreateManyPeriodoInputEnvelope
-    connect?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-  }
-
   export type PreasignacionCreateNestedManyWithoutPeriodoInput = {
     create?: XOR<PreasignacionCreateWithoutPeriodoInput, PreasignacionUncheckedCreateWithoutPeriodoInput> | PreasignacionCreateWithoutPeriodoInput[] | PreasignacionUncheckedCreateWithoutPeriodoInput[]
     connectOrCreate?: PreasignacionCreateOrConnectWithoutPeriodoInput | PreasignacionCreateOrConnectWithoutPeriodoInput[]
     createMany?: PreasignacionCreateManyPeriodoInputEnvelope
     connect?: PreasignacionWhereUniqueInput | PreasignacionWhereUniqueInput[]
+  }
+
+  export type UserCreateNestedOneWithoutPeriodosAprobadosInput = {
+    create?: XOR<UserCreateWithoutPeriodosAprobadosInput, UserUncheckedCreateWithoutPeriodosAprobadosInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPeriodosAprobadosInput
+    connect?: UserWhereUniqueInput
   }
 
   export type GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput = {
@@ -30587,13 +27549,6 @@ export namespace Prisma {
     connect?: AsignacionWhereUniqueInput | AsignacionWhereUniqueInput[]
   }
 
-  export type SesionLlenadoUncheckedCreateNestedManyWithoutPeriodoInput = {
-    create?: XOR<SesionLlenadoCreateWithoutPeriodoInput, SesionLlenadoUncheckedCreateWithoutPeriodoInput> | SesionLlenadoCreateWithoutPeriodoInput[] | SesionLlenadoUncheckedCreateWithoutPeriodoInput[]
-    connectOrCreate?: SesionLlenadoCreateOrConnectWithoutPeriodoInput | SesionLlenadoCreateOrConnectWithoutPeriodoInput[]
-    createMany?: SesionLlenadoCreateManyPeriodoInputEnvelope
-    connect?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-  }
-
   export type PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput = {
     create?: XOR<PreasignacionCreateWithoutPeriodoInput, PreasignacionUncheckedCreateWithoutPeriodoInput> | PreasignacionCreateWithoutPeriodoInput[] | PreasignacionUncheckedCreateWithoutPeriodoInput[]
     connectOrCreate?: PreasignacionCreateOrConnectWithoutPeriodoInput | PreasignacionCreateOrConnectWithoutPeriodoInput[]
@@ -30603,6 +27558,10 @@ export namespace Prisma {
 
   export type EnumEstadoPeriodoFieldUpdateOperationsInput = {
     set?: $Enums.EstadoPeriodo
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type GrupoUpdateManyWithoutPeriodoAcademicoNestedInput = {
@@ -30633,20 +27592,6 @@ export namespace Prisma {
     deleteMany?: AsignacionScalarWhereInput | AsignacionScalarWhereInput[]
   }
 
-  export type SesionLlenadoUpdateManyWithoutPeriodoNestedInput = {
-    create?: XOR<SesionLlenadoCreateWithoutPeriodoInput, SesionLlenadoUncheckedCreateWithoutPeriodoInput> | SesionLlenadoCreateWithoutPeriodoInput[] | SesionLlenadoUncheckedCreateWithoutPeriodoInput[]
-    connectOrCreate?: SesionLlenadoCreateOrConnectWithoutPeriodoInput | SesionLlenadoCreateOrConnectWithoutPeriodoInput[]
-    upsert?: SesionLlenadoUpsertWithWhereUniqueWithoutPeriodoInput | SesionLlenadoUpsertWithWhereUniqueWithoutPeriodoInput[]
-    createMany?: SesionLlenadoCreateManyPeriodoInputEnvelope
-    set?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    disconnect?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    delete?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    connect?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    update?: SesionLlenadoUpdateWithWhereUniqueWithoutPeriodoInput | SesionLlenadoUpdateWithWhereUniqueWithoutPeriodoInput[]
-    updateMany?: SesionLlenadoUpdateManyWithWhereWithoutPeriodoInput | SesionLlenadoUpdateManyWithWhereWithoutPeriodoInput[]
-    deleteMany?: SesionLlenadoScalarWhereInput | SesionLlenadoScalarWhereInput[]
-  }
-
   export type PreasignacionUpdateManyWithoutPeriodoNestedInput = {
     create?: XOR<PreasignacionCreateWithoutPeriodoInput, PreasignacionUncheckedCreateWithoutPeriodoInput> | PreasignacionCreateWithoutPeriodoInput[] | PreasignacionUncheckedCreateWithoutPeriodoInput[]
     connectOrCreate?: PreasignacionCreateOrConnectWithoutPeriodoInput | PreasignacionCreateOrConnectWithoutPeriodoInput[]
@@ -30659,6 +27604,16 @@ export namespace Prisma {
     update?: PreasignacionUpdateWithWhereUniqueWithoutPeriodoInput | PreasignacionUpdateWithWhereUniqueWithoutPeriodoInput[]
     updateMany?: PreasignacionUpdateManyWithWhereWithoutPeriodoInput | PreasignacionUpdateManyWithWhereWithoutPeriodoInput[]
     deleteMany?: PreasignacionScalarWhereInput | PreasignacionScalarWhereInput[]
+  }
+
+  export type UserUpdateOneWithoutPeriodosAprobadosNestedInput = {
+    create?: XOR<UserCreateWithoutPeriodosAprobadosInput, UserUncheckedCreateWithoutPeriodosAprobadosInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPeriodosAprobadosInput
+    upsert?: UserUpsertWithoutPeriodosAprobadosInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPeriodosAprobadosInput, UserUpdateWithoutPeriodosAprobadosInput>, UserUncheckedUpdateWithoutPeriodosAprobadosInput>
   }
 
   export type GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput = {
@@ -30687,20 +27642,6 @@ export namespace Prisma {
     update?: AsignacionUpdateWithWhereUniqueWithoutPeriodoInput | AsignacionUpdateWithWhereUniqueWithoutPeriodoInput[]
     updateMany?: AsignacionUpdateManyWithWhereWithoutPeriodoInput | AsignacionUpdateManyWithWhereWithoutPeriodoInput[]
     deleteMany?: AsignacionScalarWhereInput | AsignacionScalarWhereInput[]
-  }
-
-  export type SesionLlenadoUncheckedUpdateManyWithoutPeriodoNestedInput = {
-    create?: XOR<SesionLlenadoCreateWithoutPeriodoInput, SesionLlenadoUncheckedCreateWithoutPeriodoInput> | SesionLlenadoCreateWithoutPeriodoInput[] | SesionLlenadoUncheckedCreateWithoutPeriodoInput[]
-    connectOrCreate?: SesionLlenadoCreateOrConnectWithoutPeriodoInput | SesionLlenadoCreateOrConnectWithoutPeriodoInput[]
-    upsert?: SesionLlenadoUpsertWithWhereUniqueWithoutPeriodoInput | SesionLlenadoUpsertWithWhereUniqueWithoutPeriodoInput[]
-    createMany?: SesionLlenadoCreateManyPeriodoInputEnvelope
-    set?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    disconnect?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    delete?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    connect?: SesionLlenadoWhereUniqueInput | SesionLlenadoWhereUniqueInput[]
-    update?: SesionLlenadoUpdateWithWhereUniqueWithoutPeriodoInput | SesionLlenadoUpdateWithWhereUniqueWithoutPeriodoInput[]
-    updateMany?: SesionLlenadoUpdateManyWithWhereWithoutPeriodoInput | SesionLlenadoUpdateManyWithWhereWithoutPeriodoInput[]
-    deleteMany?: SesionLlenadoScalarWhereInput | SesionLlenadoScalarWhereInput[]
   }
 
   export type PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput = {
@@ -31149,98 +28090,6 @@ export namespace Prisma {
     update?: XOR<XOR<PeriodoAcademicoUpdateToOneWithWhereWithoutPreasignacionesInput, PeriodoAcademicoUpdateWithoutPreasignacionesInput>, PeriodoAcademicoUncheckedUpdateWithoutPreasignacionesInput>
   }
 
-  export type PeriodoAcademicoCreateNestedOneWithoutSesionesInput = {
-    create?: XOR<PeriodoAcademicoCreateWithoutSesionesInput, PeriodoAcademicoUncheckedCreateWithoutSesionesInput>
-    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutSesionesInput
-    connect?: PeriodoAcademicoWhereUniqueInput
-  }
-
-  export type TurnoDocenteCreateNestedManyWithoutSesionInput = {
-    create?: XOR<TurnoDocenteCreateWithoutSesionInput, TurnoDocenteUncheckedCreateWithoutSesionInput> | TurnoDocenteCreateWithoutSesionInput[] | TurnoDocenteUncheckedCreateWithoutSesionInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutSesionInput | TurnoDocenteCreateOrConnectWithoutSesionInput[]
-    createMany?: TurnoDocenteCreateManySesionInputEnvelope
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-  }
-
-  export type TurnoDocenteUncheckedCreateNestedManyWithoutSesionInput = {
-    create?: XOR<TurnoDocenteCreateWithoutSesionInput, TurnoDocenteUncheckedCreateWithoutSesionInput> | TurnoDocenteCreateWithoutSesionInput[] | TurnoDocenteUncheckedCreateWithoutSesionInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutSesionInput | TurnoDocenteCreateOrConnectWithoutSesionInput[]
-    createMany?: TurnoDocenteCreateManySesionInputEnvelope
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-  }
-
-  export type EnumEstadoSesionFieldUpdateOperationsInput = {
-    set?: $Enums.EstadoSesion
-  }
-
-  export type PeriodoAcademicoUpdateOneRequiredWithoutSesionesNestedInput = {
-    create?: XOR<PeriodoAcademicoCreateWithoutSesionesInput, PeriodoAcademicoUncheckedCreateWithoutSesionesInput>
-    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutSesionesInput
-    upsert?: PeriodoAcademicoUpsertWithoutSesionesInput
-    connect?: PeriodoAcademicoWhereUniqueInput
-    update?: XOR<XOR<PeriodoAcademicoUpdateToOneWithWhereWithoutSesionesInput, PeriodoAcademicoUpdateWithoutSesionesInput>, PeriodoAcademicoUncheckedUpdateWithoutSesionesInput>
-  }
-
-  export type TurnoDocenteUpdateManyWithoutSesionNestedInput = {
-    create?: XOR<TurnoDocenteCreateWithoutSesionInput, TurnoDocenteUncheckedCreateWithoutSesionInput> | TurnoDocenteCreateWithoutSesionInput[] | TurnoDocenteUncheckedCreateWithoutSesionInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutSesionInput | TurnoDocenteCreateOrConnectWithoutSesionInput[]
-    upsert?: TurnoDocenteUpsertWithWhereUniqueWithoutSesionInput | TurnoDocenteUpsertWithWhereUniqueWithoutSesionInput[]
-    createMany?: TurnoDocenteCreateManySesionInputEnvelope
-    set?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    disconnect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    delete?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    update?: TurnoDocenteUpdateWithWhereUniqueWithoutSesionInput | TurnoDocenteUpdateWithWhereUniqueWithoutSesionInput[]
-    updateMany?: TurnoDocenteUpdateManyWithWhereWithoutSesionInput | TurnoDocenteUpdateManyWithWhereWithoutSesionInput[]
-    deleteMany?: TurnoDocenteScalarWhereInput | TurnoDocenteScalarWhereInput[]
-  }
-
-  export type TurnoDocenteUncheckedUpdateManyWithoutSesionNestedInput = {
-    create?: XOR<TurnoDocenteCreateWithoutSesionInput, TurnoDocenteUncheckedCreateWithoutSesionInput> | TurnoDocenteCreateWithoutSesionInput[] | TurnoDocenteUncheckedCreateWithoutSesionInput[]
-    connectOrCreate?: TurnoDocenteCreateOrConnectWithoutSesionInput | TurnoDocenteCreateOrConnectWithoutSesionInput[]
-    upsert?: TurnoDocenteUpsertWithWhereUniqueWithoutSesionInput | TurnoDocenteUpsertWithWhereUniqueWithoutSesionInput[]
-    createMany?: TurnoDocenteCreateManySesionInputEnvelope
-    set?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    disconnect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    delete?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    connect?: TurnoDocenteWhereUniqueInput | TurnoDocenteWhereUniqueInput[]
-    update?: TurnoDocenteUpdateWithWhereUniqueWithoutSesionInput | TurnoDocenteUpdateWithWhereUniqueWithoutSesionInput[]
-    updateMany?: TurnoDocenteUpdateManyWithWhereWithoutSesionInput | TurnoDocenteUpdateManyWithWhereWithoutSesionInput[]
-    deleteMany?: TurnoDocenteScalarWhereInput | TurnoDocenteScalarWhereInput[]
-  }
-
-  export type SesionLlenadoCreateNestedOneWithoutTurnosInput = {
-    create?: XOR<SesionLlenadoCreateWithoutTurnosInput, SesionLlenadoUncheckedCreateWithoutTurnosInput>
-    connectOrCreate?: SesionLlenadoCreateOrConnectWithoutTurnosInput
-    connect?: SesionLlenadoWhereUniqueInput
-  }
-
-  export type DocenteCreateNestedOneWithoutTurnosInput = {
-    create?: XOR<DocenteCreateWithoutTurnosInput, DocenteUncheckedCreateWithoutTurnosInput>
-    connectOrCreate?: DocenteCreateOrConnectWithoutTurnosInput
-    connect?: DocenteWhereUniqueInput
-  }
-
-  export type EnumEstadoTurnoFieldUpdateOperationsInput = {
-    set?: $Enums.EstadoTurno
-  }
-
-  export type SesionLlenadoUpdateOneRequiredWithoutTurnosNestedInput = {
-    create?: XOR<SesionLlenadoCreateWithoutTurnosInput, SesionLlenadoUncheckedCreateWithoutTurnosInput>
-    connectOrCreate?: SesionLlenadoCreateOrConnectWithoutTurnosInput
-    upsert?: SesionLlenadoUpsertWithoutTurnosInput
-    connect?: SesionLlenadoWhereUniqueInput
-    update?: XOR<XOR<SesionLlenadoUpdateToOneWithWhereWithoutTurnosInput, SesionLlenadoUpdateWithoutTurnosInput>, SesionLlenadoUncheckedUpdateWithoutTurnosInput>
-  }
-
-  export type DocenteUpdateOneRequiredWithoutTurnosNestedInput = {
-    create?: XOR<DocenteCreateWithoutTurnosInput, DocenteUncheckedCreateWithoutTurnosInput>
-    connectOrCreate?: DocenteCreateOrConnectWithoutTurnosInput
-    upsert?: DocenteUpsertWithoutTurnosInput
-    connect?: DocenteWhereUniqueInput
-    update?: XOR<XOR<DocenteUpdateToOneWithWhereWithoutTurnosInput, DocenteUpdateWithoutTurnosInput>, DocenteUncheckedUpdateWithoutTurnosInput>
-  }
-
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -31481,6 +28330,17 @@ export namespace Prisma {
     not?: NestedEnumEstadoPeriodoFilter<$PrismaModel> | $Enums.EstadoPeriodo
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedEnumEstadoPeriodoWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.EstadoPeriodo | EnumEstadoPeriodoFieldRefInput<$PrismaModel>
     in?: $Enums.EstadoPeriodo[] | ListEnumEstadoPeriodoFieldRefInput<$PrismaModel>
@@ -31489,6 +28349,20 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEstadoPeriodoFilter<$PrismaModel>
     _max?: NestedEnumEstadoPeriodoFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumDiaSemanaFilter<$PrismaModel = never> = {
@@ -31542,40 +28416,6 @@ export namespace Prisma {
     _max?: NestedEnumTipoRestriccionFilter<$PrismaModel>
   }
 
-  export type NestedEnumEstadoSesionFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoSesion | EnumEstadoSesionFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoSesionFilter<$PrismaModel> | $Enums.EstadoSesion
-  }
-
-  export type NestedEnumEstadoSesionWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoSesion | EnumEstadoSesionFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoSesion[] | ListEnumEstadoSesionFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoSesionWithAggregatesFilter<$PrismaModel> | $Enums.EstadoSesion
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEstadoSesionFilter<$PrismaModel>
-    _max?: NestedEnumEstadoSesionFilter<$PrismaModel>
-  }
-
-  export type NestedEnumEstadoTurnoFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoTurno | EnumEstadoTurnoFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoTurnoFilter<$PrismaModel> | $Enums.EstadoTurno
-  }
-
-  export type NestedEnumEstadoTurnoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EstadoTurno | EnumEstadoTurnoFieldRefInput<$PrismaModel>
-    in?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EstadoTurno[] | ListEnumEstadoTurnoFieldRefInput<$PrismaModel>
-    not?: NestedEnumEstadoTurnoWithAggregatesFilter<$PrismaModel> | $Enums.EstadoTurno
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEstadoTurnoFilter<$PrismaModel>
-    _max?: NestedEnumEstadoTurnoFilter<$PrismaModel>
-  }
-
   export type DocenteCreateWithoutUserInput = {
     id?: string
     nombre: string
@@ -31594,7 +28434,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
@@ -31618,7 +28457,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
@@ -31657,6 +28495,48 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PeriodoAcademicoCreateWithoutAprobadoPorInput = {
+    id?: string
+    nombre: string
+    fechaInicio: Date | string
+    fechaFin: Date | string
+    activo?: boolean
+    estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grupos?: GrupoCreateNestedManyWithoutPeriodoAcademicoInput
+    asignaciones?: AsignacionCreateNestedManyWithoutPeriodoInput
+    preasignaciones?: PreasignacionCreateNestedManyWithoutPeriodoInput
+  }
+
+  export type PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput = {
+    id?: string
+    nombre: string
+    fechaInicio: Date | string
+    fechaFin: Date | string
+    activo?: boolean
+    estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grupos?: GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput
+    asignaciones?: AsignacionUncheckedCreateNestedManyWithoutPeriodoInput
+    preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
+  }
+
+  export type PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput = {
+    where: PeriodoAcademicoWhereUniqueInput
+    create: XOR<PeriodoAcademicoCreateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput>
+  }
+
+  export type PeriodoAcademicoCreateManyAprobadoPorInputEnvelope = {
+    data: PeriodoAcademicoCreateManyAprobadoPorInput | PeriodoAcademicoCreateManyAprobadoPorInput[]
+    skipDuplicates?: boolean
+  }
+
   export type DocenteUpsertWithoutUserInput = {
     update: XOR<DocenteUpdateWithoutUserInput, DocenteUncheckedUpdateWithoutUserInput>
     create: XOR<DocenteCreateWithoutUserInput, DocenteUncheckedCreateWithoutUserInput>
@@ -31686,7 +28566,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
@@ -31710,7 +28589,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
@@ -31745,6 +28623,39 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Log"> | Date | string
   }
 
+  export type PeriodoAcademicoUpsertWithWhereUniqueWithoutAprobadoPorInput = {
+    where: PeriodoAcademicoWhereUniqueInput
+    update: XOR<PeriodoAcademicoUpdateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedUpdateWithoutAprobadoPorInput>
+    create: XOR<PeriodoAcademicoCreateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput>
+  }
+
+  export type PeriodoAcademicoUpdateWithWhereUniqueWithoutAprobadoPorInput = {
+    where: PeriodoAcademicoWhereUniqueInput
+    data: XOR<PeriodoAcademicoUpdateWithoutAprobadoPorInput, PeriodoAcademicoUncheckedUpdateWithoutAprobadoPorInput>
+  }
+
+  export type PeriodoAcademicoUpdateManyWithWhereWithoutAprobadoPorInput = {
+    where: PeriodoAcademicoScalarWhereInput
+    data: XOR<PeriodoAcademicoUpdateManyMutationInput, PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorInput>
+  }
+
+  export type PeriodoAcademicoScalarWhereInput = {
+    AND?: PeriodoAcademicoScalarWhereInput | PeriodoAcademicoScalarWhereInput[]
+    OR?: PeriodoAcademicoScalarWhereInput[]
+    NOT?: PeriodoAcademicoScalarWhereInput | PeriodoAcademicoScalarWhereInput[]
+    id?: StringFilter<"PeriodoAcademico"> | string
+    nombre?: StringFilter<"PeriodoAcademico"> | string
+    fechaInicio?: DateTimeFilter<"PeriodoAcademico"> | Date | string
+    fechaFin?: DateTimeFilter<"PeriodoAcademico"> | Date | string
+    activo?: BoolFilter<"PeriodoAcademico"> | boolean
+    estado?: EnumEstadoPeriodoFilter<"PeriodoAcademico"> | $Enums.EstadoPeriodo
+    aprobadoPorId?: StringNullableFilter<"PeriodoAcademico"> | string | null
+    fechaAprobacion?: DateTimeNullableFilter<"PeriodoAcademico"> | Date | string | null
+    comentariosDirector?: StringNullableFilter<"PeriodoAcademico"> | string | null
+    createdAt?: DateTimeFilter<"PeriodoAcademico"> | Date | string
+    updatedAt?: DateTimeFilter<"PeriodoAcademico"> | Date | string
+  }
+
   export type UserCreateWithoutLogsInput = {
     id?: string
     email: string
@@ -31755,6 +28666,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     docente?: DocenteCreateNestedOneWithoutUserInput
+    periodosAprobados?: PeriodoAcademicoCreateNestedManyWithoutAprobadoPorInput
   }
 
   export type UserUncheckedCreateWithoutLogsInput = {
@@ -31767,6 +28679,7 @@ export namespace Prisma {
     docenteId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    periodosAprobados?: PeriodoAcademicoUncheckedCreateNestedManyWithoutAprobadoPorInput
   }
 
   export type UserCreateOrConnectWithoutLogsInput = {
@@ -31795,6 +28708,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneWithoutUserNestedInput
+    periodosAprobados?: PeriodoAcademicoUpdateManyWithoutAprobadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLogsInput = {
@@ -31807,6 +28721,7 @@ export namespace Prisma {
     docenteId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodosAprobados?: PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorNestedInput
   }
 
   export type AsignacionCreateWithoutDocenteInput = {
@@ -31919,36 +28834,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type TurnoDocenteCreateWithoutDocenteInput = {
-    id?: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    sesion: SesionLlenadoCreateNestedOneWithoutTurnosInput
-  }
-
-  export type TurnoDocenteUncheckedCreateWithoutDocenteInput = {
-    id?: string
-    sesionId: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type TurnoDocenteCreateOrConnectWithoutDocenteInput = {
-    where: TurnoDocenteWhereUniqueInput
-    create: XOR<TurnoDocenteCreateWithoutDocenteInput, TurnoDocenteUncheckedCreateWithoutDocenteInput>
-  }
-
-  export type TurnoDocenteCreateManyDocenteInputEnvelope = {
-    data: TurnoDocenteCreateManyDocenteInput | TurnoDocenteCreateManyDocenteInput[]
-    skipDuplicates?: boolean
-  }
-
   export type DisponibilidadDocenteCreateWithoutDocenteInput = {
     id?: string
     createdAt?: Date | string
@@ -32037,6 +28922,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     logs?: LogCreateNestedManyWithoutUserInput
+    periodosAprobados?: PeriodoAcademicoCreateNestedManyWithoutAprobadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDocenteInput = {
@@ -32049,6 +28935,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     logs?: LogUncheckedCreateNestedManyWithoutUserInput
+    periodosAprobados?: PeriodoAcademicoUncheckedCreateNestedManyWithoutAprobadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDocenteInput = {
@@ -32171,36 +29058,6 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Preasignacion"> | Date | string
   }
 
-  export type TurnoDocenteUpsertWithWhereUniqueWithoutDocenteInput = {
-    where: TurnoDocenteWhereUniqueInput
-    update: XOR<TurnoDocenteUpdateWithoutDocenteInput, TurnoDocenteUncheckedUpdateWithoutDocenteInput>
-    create: XOR<TurnoDocenteCreateWithoutDocenteInput, TurnoDocenteUncheckedCreateWithoutDocenteInput>
-  }
-
-  export type TurnoDocenteUpdateWithWhereUniqueWithoutDocenteInput = {
-    where: TurnoDocenteWhereUniqueInput
-    data: XOR<TurnoDocenteUpdateWithoutDocenteInput, TurnoDocenteUncheckedUpdateWithoutDocenteInput>
-  }
-
-  export type TurnoDocenteUpdateManyWithWhereWithoutDocenteInput = {
-    where: TurnoDocenteScalarWhereInput
-    data: XOR<TurnoDocenteUpdateManyMutationInput, TurnoDocenteUncheckedUpdateManyWithoutDocenteInput>
-  }
-
-  export type TurnoDocenteScalarWhereInput = {
-    AND?: TurnoDocenteScalarWhereInput | TurnoDocenteScalarWhereInput[]
-    OR?: TurnoDocenteScalarWhereInput[]
-    NOT?: TurnoDocenteScalarWhereInput | TurnoDocenteScalarWhereInput[]
-    id?: StringFilter<"TurnoDocente"> | string
-    sesionId?: StringFilter<"TurnoDocente"> | string
-    docenteId?: StringFilter<"TurnoDocente"> | string
-    orden?: IntFilter<"TurnoDocente"> | number
-    horaAsignada?: StringFilter<"TurnoDocente"> | string
-    estado?: EnumEstadoTurnoFilter<"TurnoDocente"> | $Enums.EstadoTurno
-    createdAt?: DateTimeFilter<"TurnoDocente"> | Date | string
-    updatedAt?: DateTimeFilter<"TurnoDocente"> | Date | string
-  }
-
   export type DisponibilidadDocenteUpsertWithWhereUniqueWithoutDocenteInput = {
     where: DisponibilidadDocenteWhereUniqueInput
     update: XOR<DisponibilidadDocenteUpdateWithoutDocenteInput, DisponibilidadDocenteUncheckedUpdateWithoutDocenteInput>
@@ -32306,6 +29163,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     logs?: LogUpdateManyWithoutUserNestedInput
+    periodosAprobados?: PeriodoAcademicoUpdateManyWithoutAprobadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDocenteInput = {
@@ -32318,6 +29176,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     logs?: LogUncheckedUpdateManyWithoutUserNestedInput
+    periodosAprobados?: PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorNestedInput
   }
 
   export type DocenteCreateWithoutNotificacionesInput = {
@@ -32338,7 +29197,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
@@ -32362,7 +29220,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
@@ -32402,7 +29259,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
@@ -32426,7 +29282,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
@@ -32552,7 +29407,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
@@ -32576,7 +29430,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
@@ -32647,7 +29500,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
@@ -32671,7 +29523,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
@@ -32732,7 +29583,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
@@ -32756,7 +29606,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
@@ -32839,7 +29688,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
@@ -32863,7 +29711,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
@@ -32968,11 +29815,13 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     asignaciones?: AsignacionCreateNestedManyWithoutPeriodoInput
-    sesiones?: SesionLlenadoCreateNestedManyWithoutPeriodoInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutPeriodoInput
+    aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutGruposInput = {
@@ -32982,10 +29831,12 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    aprobadoPorId?: string | null
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutPeriodoInput
-    sesiones?: SesionLlenadoUncheckedCreateNestedManyWithoutPeriodoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
@@ -33147,11 +29998,13 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignaciones?: AsignacionUpdateManyWithoutPeriodoNestedInput
-    sesiones?: SesionLlenadoUpdateManyWithoutPeriodoNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutPeriodoNestedInput
+    aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutGruposInput = {
@@ -33161,10 +30014,12 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    aprobadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignaciones?: AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput
-    sesiones?: SesionLlenadoUncheckedUpdateManyWithoutPeriodoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
@@ -33382,44 +30237,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type SesionLlenadoCreateWithoutPeriodoInput = {
-    id?: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    turnos?: TurnoDocenteCreateNestedManyWithoutSesionInput
-  }
-
-  export type SesionLlenadoUncheckedCreateWithoutPeriodoInput = {
-    id?: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutSesionInput
-  }
-
-  export type SesionLlenadoCreateOrConnectWithoutPeriodoInput = {
-    where: SesionLlenadoWhereUniqueInput
-    create: XOR<SesionLlenadoCreateWithoutPeriodoInput, SesionLlenadoUncheckedCreateWithoutPeriodoInput>
-  }
-
-  export type SesionLlenadoCreateManyPeriodoInputEnvelope = {
-    data: SesionLlenadoCreateManyPeriodoInput | SesionLlenadoCreateManyPeriodoInput[]
-    skipDuplicates?: boolean
-  }
-
   export type PreasignacionCreateWithoutPeriodoInput = {
     id?: string
     aulaId: string
@@ -33450,6 +30267,37 @@ export namespace Prisma {
   export type PreasignacionCreateManyPeriodoInputEnvelope = {
     data: PreasignacionCreateManyPeriodoInput | PreasignacionCreateManyPeriodoInput[]
     skipDuplicates?: boolean
+  }
+
+  export type UserCreateWithoutPeriodosAprobadosInput = {
+    id?: string
+    email: string
+    password: string
+    nombre: string
+    role?: $Enums.UserRole
+    activo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    docente?: DocenteCreateNestedOneWithoutUserInput
+    logs?: LogCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPeriodosAprobadosInput = {
+    id?: string
+    email: string
+    password: string
+    nombre: string
+    role?: $Enums.UserRole
+    activo?: boolean
+    docenteId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    logs?: LogUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPeriodosAprobadosInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPeriodosAprobadosInput, UserUncheckedCreateWithoutPeriodosAprobadosInput>
   }
 
   export type GrupoUpsertWithWhereUniqueWithoutPeriodoAcademicoInput = {
@@ -33484,39 +30332,6 @@ export namespace Prisma {
     data: XOR<AsignacionUpdateManyMutationInput, AsignacionUncheckedUpdateManyWithoutPeriodoInput>
   }
 
-  export type SesionLlenadoUpsertWithWhereUniqueWithoutPeriodoInput = {
-    where: SesionLlenadoWhereUniqueInput
-    update: XOR<SesionLlenadoUpdateWithoutPeriodoInput, SesionLlenadoUncheckedUpdateWithoutPeriodoInput>
-    create: XOR<SesionLlenadoCreateWithoutPeriodoInput, SesionLlenadoUncheckedCreateWithoutPeriodoInput>
-  }
-
-  export type SesionLlenadoUpdateWithWhereUniqueWithoutPeriodoInput = {
-    where: SesionLlenadoWhereUniqueInput
-    data: XOR<SesionLlenadoUpdateWithoutPeriodoInput, SesionLlenadoUncheckedUpdateWithoutPeriodoInput>
-  }
-
-  export type SesionLlenadoUpdateManyWithWhereWithoutPeriodoInput = {
-    where: SesionLlenadoScalarWhereInput
-    data: XOR<SesionLlenadoUpdateManyMutationInput, SesionLlenadoUncheckedUpdateManyWithoutPeriodoInput>
-  }
-
-  export type SesionLlenadoScalarWhereInput = {
-    AND?: SesionLlenadoScalarWhereInput | SesionLlenadoScalarWhereInput[]
-    OR?: SesionLlenadoScalarWhereInput[]
-    NOT?: SesionLlenadoScalarWhereInput | SesionLlenadoScalarWhereInput[]
-    id?: StringFilter<"SesionLlenado"> | string
-    periodoId?: StringFilter<"SesionLlenado"> | string
-    nombre?: StringFilter<"SesionLlenado"> | string
-    fecha?: DateTimeFilter<"SesionLlenado"> | Date | string
-    horaInicio?: StringFilter<"SesionLlenado"> | string
-    horaFin?: StringFilter<"SesionLlenado"> | string
-    intervalo?: IntFilter<"SesionLlenado"> | number
-    estado?: EnumEstadoSesionFilter<"SesionLlenado"> | $Enums.EstadoSesion
-    turnoActual?: IntFilter<"SesionLlenado"> | number
-    createdAt?: DateTimeFilter<"SesionLlenado"> | Date | string
-    updatedAt?: DateTimeFilter<"SesionLlenado"> | Date | string
-  }
-
   export type PreasignacionUpsertWithWhereUniqueWithoutPeriodoInput = {
     where: PreasignacionWhereUniqueInput
     update: XOR<PreasignacionUpdateWithoutPeriodoInput, PreasignacionUncheckedUpdateWithoutPeriodoInput>
@@ -33531,6 +30346,43 @@ export namespace Prisma {
   export type PreasignacionUpdateManyWithWhereWithoutPeriodoInput = {
     where: PreasignacionScalarWhereInput
     data: XOR<PreasignacionUpdateManyMutationInput, PreasignacionUncheckedUpdateManyWithoutPeriodoInput>
+  }
+
+  export type UserUpsertWithoutPeriodosAprobadosInput = {
+    update: XOR<UserUpdateWithoutPeriodosAprobadosInput, UserUncheckedUpdateWithoutPeriodosAprobadosInput>
+    create: XOR<UserCreateWithoutPeriodosAprobadosInput, UserUncheckedCreateWithoutPeriodosAprobadosInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPeriodosAprobadosInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPeriodosAprobadosInput, UserUncheckedUpdateWithoutPeriodosAprobadosInput>
+  }
+
+  export type UserUpdateWithoutPeriodosAprobadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneWithoutUserNestedInput
+    logs?: LogUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPeriodosAprobadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    docenteId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    logs?: LogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AsignacionCreateWithoutFranjaHorariaInput = {
@@ -33793,7 +30645,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
@@ -33817,7 +30668,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
@@ -33898,11 +30748,13 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     grupos?: GrupoCreateNestedManyWithoutPeriodoAcademicoInput
-    sesiones?: SesionLlenadoCreateNestedManyWithoutPeriodoInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutPeriodoInput
+    aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutAsignacionesInput = {
@@ -33912,10 +30764,12 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    aprobadoPorId?: string | null
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     grupos?: GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput
-    sesiones?: SesionLlenadoUncheckedCreateNestedManyWithoutPeriodoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
@@ -33985,7 +30839,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
@@ -34009,7 +30862,6 @@ export namespace Prisma {
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
@@ -34108,11 +30960,13 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupos?: GrupoUpdateManyWithoutPeriodoAcademicoNestedInput
-    sesiones?: SesionLlenadoUpdateManyWithoutPeriodoNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutPeriodoNestedInput
+    aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutAsignacionesInput = {
@@ -34122,10 +30976,12 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    aprobadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupos?: GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput
-    sesiones?: SesionLlenadoUncheckedUpdateManyWithoutPeriodoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
@@ -34146,7 +31002,6 @@ export namespace Prisma {
     asignaciones?: AsignacionCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
@@ -34170,7 +31025,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
@@ -34241,7 +31095,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
@@ -34265,7 +31118,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
@@ -34326,7 +31178,6 @@ export namespace Prisma {
     asignaciones?: AsignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
@@ -34350,7 +31201,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
@@ -34417,7 +31267,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
@@ -34441,7 +31290,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
@@ -34634,7 +31482,6 @@ export namespace Prisma {
     asignaciones?: AsignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
@@ -34658,7 +31505,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
-    turnos?: TurnoDocenteUncheckedCreateNestedManyWithoutDocenteInput
     disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
@@ -34735,11 +31581,13 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     grupos?: GrupoCreateNestedManyWithoutPeriodoAcademicoInput
     asignaciones?: AsignacionCreateNestedManyWithoutPeriodoInput
-    sesiones?: SesionLlenadoCreateNestedManyWithoutPeriodoInput
+    aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutPreasignacionesInput = {
@@ -34749,11 +31597,13 @@ export namespace Prisma {
     fechaFin: Date | string
     activo?: boolean
     estado?: $Enums.EstadoPeriodo
+    aprobadoPorId?: string | null
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     grupos?: GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutPeriodoInput
-    sesiones?: SesionLlenadoUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutPreasignacionesInput = {
@@ -34789,7 +31639,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
@@ -34813,7 +31662,6 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
@@ -34908,11 +31756,13 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupos?: GrupoUpdateManyWithoutPeriodoAcademicoNestedInput
     asignaciones?: AsignacionUpdateManyWithoutPeriodoNestedInput
-    sesiones?: SesionLlenadoUpdateManyWithoutPeriodoNestedInput
+    aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutPreasignacionesInput = {
@@ -34922,313 +31772,13 @@ export namespace Prisma {
     fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
     activo?: BoolFieldUpdateOperationsInput | boolean
     estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    aprobadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupos?: GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput
     asignaciones?: AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput
-    sesiones?: SesionLlenadoUncheckedUpdateManyWithoutPeriodoNestedInput
-  }
-
-  export type PeriodoAcademicoCreateWithoutSesionesInput = {
-    id?: string
-    nombre: string
-    fechaInicio: Date | string
-    fechaFin: Date | string
-    activo?: boolean
-    estado?: $Enums.EstadoPeriodo
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    grupos?: GrupoCreateNestedManyWithoutPeriodoAcademicoInput
-    asignaciones?: AsignacionCreateNestedManyWithoutPeriodoInput
-    preasignaciones?: PreasignacionCreateNestedManyWithoutPeriodoInput
-  }
-
-  export type PeriodoAcademicoUncheckedCreateWithoutSesionesInput = {
-    id?: string
-    nombre: string
-    fechaInicio: Date | string
-    fechaFin: Date | string
-    activo?: boolean
-    estado?: $Enums.EstadoPeriodo
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    grupos?: GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput
-    asignaciones?: AsignacionUncheckedCreateNestedManyWithoutPeriodoInput
-    preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
-  }
-
-  export type PeriodoAcademicoCreateOrConnectWithoutSesionesInput = {
-    where: PeriodoAcademicoWhereUniqueInput
-    create: XOR<PeriodoAcademicoCreateWithoutSesionesInput, PeriodoAcademicoUncheckedCreateWithoutSesionesInput>
-  }
-
-  export type TurnoDocenteCreateWithoutSesionInput = {
-    id?: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    docente: DocenteCreateNestedOneWithoutTurnosInput
-  }
-
-  export type TurnoDocenteUncheckedCreateWithoutSesionInput = {
-    id?: string
-    docenteId: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type TurnoDocenteCreateOrConnectWithoutSesionInput = {
-    where: TurnoDocenteWhereUniqueInput
-    create: XOR<TurnoDocenteCreateWithoutSesionInput, TurnoDocenteUncheckedCreateWithoutSesionInput>
-  }
-
-  export type TurnoDocenteCreateManySesionInputEnvelope = {
-    data: TurnoDocenteCreateManySesionInput | TurnoDocenteCreateManySesionInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type PeriodoAcademicoUpsertWithoutSesionesInput = {
-    update: XOR<PeriodoAcademicoUpdateWithoutSesionesInput, PeriodoAcademicoUncheckedUpdateWithoutSesionesInput>
-    create: XOR<PeriodoAcademicoCreateWithoutSesionesInput, PeriodoAcademicoUncheckedCreateWithoutSesionesInput>
-    where?: PeriodoAcademicoWhereInput
-  }
-
-  export type PeriodoAcademicoUpdateToOneWithWhereWithoutSesionesInput = {
-    where?: PeriodoAcademicoWhereInput
-    data: XOR<PeriodoAcademicoUpdateWithoutSesionesInput, PeriodoAcademicoUncheckedUpdateWithoutSesionesInput>
-  }
-
-  export type PeriodoAcademicoUpdateWithoutSesionesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
-    activo?: BoolFieldUpdateOperationsInput | boolean
-    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    grupos?: GrupoUpdateManyWithoutPeriodoAcademicoNestedInput
-    asignaciones?: AsignacionUpdateManyWithoutPeriodoNestedInput
-    preasignaciones?: PreasignacionUpdateManyWithoutPeriodoNestedInput
-  }
-
-  export type PeriodoAcademicoUncheckedUpdateWithoutSesionesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
-    activo?: BoolFieldUpdateOperationsInput | boolean
-    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    grupos?: GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput
-    asignaciones?: AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput
-    preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
-  }
-
-  export type TurnoDocenteUpsertWithWhereUniqueWithoutSesionInput = {
-    where: TurnoDocenteWhereUniqueInput
-    update: XOR<TurnoDocenteUpdateWithoutSesionInput, TurnoDocenteUncheckedUpdateWithoutSesionInput>
-    create: XOR<TurnoDocenteCreateWithoutSesionInput, TurnoDocenteUncheckedCreateWithoutSesionInput>
-  }
-
-  export type TurnoDocenteUpdateWithWhereUniqueWithoutSesionInput = {
-    where: TurnoDocenteWhereUniqueInput
-    data: XOR<TurnoDocenteUpdateWithoutSesionInput, TurnoDocenteUncheckedUpdateWithoutSesionInput>
-  }
-
-  export type TurnoDocenteUpdateManyWithWhereWithoutSesionInput = {
-    where: TurnoDocenteScalarWhereInput
-    data: XOR<TurnoDocenteUpdateManyMutationInput, TurnoDocenteUncheckedUpdateManyWithoutSesionInput>
-  }
-
-  export type SesionLlenadoCreateWithoutTurnosInput = {
-    id?: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    periodo: PeriodoAcademicoCreateNestedOneWithoutSesionesInput
-  }
-
-  export type SesionLlenadoUncheckedCreateWithoutTurnosInput = {
-    id?: string
-    periodoId: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type SesionLlenadoCreateOrConnectWithoutTurnosInput = {
-    where: SesionLlenadoWhereUniqueInput
-    create: XOR<SesionLlenadoCreateWithoutTurnosInput, SesionLlenadoUncheckedCreateWithoutTurnosInput>
-  }
-
-  export type DocenteCreateWithoutTurnosInput = {
-    id?: string
-    nombre: string
-    email: string
-    categoria: $Enums.CategoriaDocente
-    tipo: $Enums.TipoDocente
-    antiguedad: Date | string
-    activo?: boolean
-    gradoAcademico?: string | null
-    especialidad?: string | null
-    experienciaAnios?: number
-    perfilAcademico?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    asignaciones?: AsignacionCreateNestedManyWithoutDocenteInput
-    restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
-    docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
-    preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
-    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
-    postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
-    notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
-    user?: UserCreateNestedOneWithoutDocenteInput
-  }
-
-  export type DocenteUncheckedCreateWithoutTurnosInput = {
-    id?: string
-    nombre: string
-    email: string
-    categoria: $Enums.CategoriaDocente
-    tipo: $Enums.TipoDocente
-    antiguedad: Date | string
-    activo?: boolean
-    gradoAcademico?: string | null
-    especialidad?: string | null
-    experienciaAnios?: number
-    perfilAcademico?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    asignaciones?: AsignacionUncheckedCreateNestedManyWithoutDocenteInput
-    restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
-    docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
-    preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
-    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
-    postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
-    notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
-    user?: UserUncheckedCreateNestedOneWithoutDocenteInput
-  }
-
-  export type DocenteCreateOrConnectWithoutTurnosInput = {
-    where: DocenteWhereUniqueInput
-    create: XOR<DocenteCreateWithoutTurnosInput, DocenteUncheckedCreateWithoutTurnosInput>
-  }
-
-  export type SesionLlenadoUpsertWithoutTurnosInput = {
-    update: XOR<SesionLlenadoUpdateWithoutTurnosInput, SesionLlenadoUncheckedUpdateWithoutTurnosInput>
-    create: XOR<SesionLlenadoCreateWithoutTurnosInput, SesionLlenadoUncheckedCreateWithoutTurnosInput>
-    where?: SesionLlenadoWhereInput
-  }
-
-  export type SesionLlenadoUpdateToOneWithWhereWithoutTurnosInput = {
-    where?: SesionLlenadoWhereInput
-    data: XOR<SesionLlenadoUpdateWithoutTurnosInput, SesionLlenadoUncheckedUpdateWithoutTurnosInput>
-  }
-
-  export type SesionLlenadoUpdateWithoutTurnosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutSesionesNestedInput
-  }
-
-  export type SesionLlenadoUncheckedUpdateWithoutTurnosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    periodoId?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DocenteUpsertWithoutTurnosInput = {
-    update: XOR<DocenteUpdateWithoutTurnosInput, DocenteUncheckedUpdateWithoutTurnosInput>
-    create: XOR<DocenteCreateWithoutTurnosInput, DocenteUncheckedCreateWithoutTurnosInput>
-    where?: DocenteWhereInput
-  }
-
-  export type DocenteUpdateToOneWithWhereWithoutTurnosInput = {
-    where?: DocenteWhereInput
-    data: XOR<DocenteUpdateWithoutTurnosInput, DocenteUncheckedUpdateWithoutTurnosInput>
-  }
-
-  export type DocenteUpdateWithoutTurnosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    categoria?: EnumCategoriaDocenteFieldUpdateOperationsInput | $Enums.CategoriaDocente
-    tipo?: EnumTipoDocenteFieldUpdateOperationsInput | $Enums.TipoDocente
-    antiguedad?: DateTimeFieldUpdateOperationsInput | Date | string
-    activo?: BoolFieldUpdateOperationsInput | boolean
-    gradoAcademico?: NullableStringFieldUpdateOperationsInput | string | null
-    especialidad?: NullableStringFieldUpdateOperationsInput | string | null
-    experienciaAnios?: IntFieldUpdateOperationsInput | number
-    perfilAcademico?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    asignaciones?: AsignacionUpdateManyWithoutDocenteNestedInput
-    restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
-    docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
-    preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
-    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
-    postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
-    notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
-    user?: UserUpdateOneWithoutDocenteNestedInput
-  }
-
-  export type DocenteUncheckedUpdateWithoutTurnosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    categoria?: EnumCategoriaDocenteFieldUpdateOperationsInput | $Enums.CategoriaDocente
-    tipo?: EnumTipoDocenteFieldUpdateOperationsInput | $Enums.TipoDocente
-    antiguedad?: DateTimeFieldUpdateOperationsInput | Date | string
-    activo?: BoolFieldUpdateOperationsInput | boolean
-    gradoAcademico?: NullableStringFieldUpdateOperationsInput | string | null
-    especialidad?: NullableStringFieldUpdateOperationsInput | string | null
-    experienciaAnios?: IntFieldUpdateOperationsInput | number
-    perfilAcademico?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    asignaciones?: AsignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
-    docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
-    preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
-    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
-    postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
-    notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
-    user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
   }
 
   export type LogCreateManyUserInput = {
@@ -35238,6 +31788,19 @@ export namespace Prisma {
     ip?: string | null
     userAgent?: string | null
     createdAt?: Date | string
+  }
+
+  export type PeriodoAcademicoCreateManyAprobadoPorInput = {
+    id?: string
+    nombre: string
+    fechaInicio: Date | string
+    fechaFin: Date | string
+    activo?: boolean
+    estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type LogUpdateWithoutUserInput = {
@@ -35265,6 +31828,51 @@ export namespace Prisma {
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PeriodoAcademicoUpdateWithoutAprobadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grupos?: GrupoUpdateManyWithoutPeriodoAcademicoNestedInput
+    asignaciones?: AsignacionUpdateManyWithoutPeriodoNestedInput
+    preasignaciones?: PreasignacionUpdateManyWithoutPeriodoNestedInput
+  }
+
+  export type PeriodoAcademicoUncheckedUpdateWithoutAprobadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grupos?: GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput
+    asignaciones?: AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput
+    preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
+  }
+
+  export type PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AsignacionCreateManyDocenteInput = {
@@ -35300,16 +31908,6 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     motivo?: string
     createdAt?: Date | string
-  }
-
-  export type TurnoDocenteCreateManyDocenteInput = {
-    id?: string
-    sesionId: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
   export type DisponibilidadDocenteCreateManyDocenteInput = {
@@ -35439,36 +32037,6 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     motivo?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TurnoDocenteUpdateWithoutDocenteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    sesion?: SesionLlenadoUpdateOneRequiredWithoutTurnosNestedInput
-  }
-
-  export type TurnoDocenteUncheckedUpdateWithoutDocenteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sesionId?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TurnoDocenteUncheckedUpdateManyWithoutDocenteInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sesionId?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DisponibilidadDocenteUpdateWithoutDocenteInput = {
@@ -35820,19 +32388,6 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
-  export type SesionLlenadoCreateManyPeriodoInput = {
-    id?: string
-    nombre: string
-    fecha: Date | string
-    horaInicio: string
-    horaFin: string
-    intervalo?: number
-    estado?: $Enums.EstadoSesion
-    turnoActual?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type PreasignacionCreateManyPeriodoInput = {
     id?: string
     docenteId: string
@@ -35905,47 +32460,6 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     confirmado?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type SesionLlenadoUpdateWithoutPeriodoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    turnos?: TurnoDocenteUpdateManyWithoutSesionNestedInput
-  }
-
-  export type SesionLlenadoUncheckedUpdateWithoutPeriodoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    turnos?: TurnoDocenteUncheckedUpdateManyWithoutSesionNestedInput
-  }
-
-  export type SesionLlenadoUncheckedUpdateManyWithoutPeriodoInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nombre?: StringFieldUpdateOperationsInput | string
-    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
-    horaInicio?: StringFieldUpdateOperationsInput | string
-    horaFin?: StringFieldUpdateOperationsInput | string
-    intervalo?: IntFieldUpdateOperationsInput | number
-    estado?: EnumEstadoSesionFieldUpdateOperationsInput | $Enums.EstadoSesion
-    turnoActual?: IntFieldUpdateOperationsInput | number
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PreasignacionUpdateWithoutPeriodoInput = {
@@ -36151,46 +32665,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TurnoDocenteCreateManySesionInput = {
-    id?: string
-    docenteId: string
-    orden: number
-    horaAsignada: string
-    estado?: $Enums.EstadoTurno
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type TurnoDocenteUpdateWithoutSesionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    docente?: DocenteUpdateOneRequiredWithoutTurnosNestedInput
-  }
-
-  export type TurnoDocenteUncheckedUpdateWithoutSesionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    docenteId?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type TurnoDocenteUncheckedUpdateManyWithoutSesionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    docenteId?: StringFieldUpdateOperationsInput | string
-    orden?: IntFieldUpdateOperationsInput | number
-    horaAsignada?: StringFieldUpdateOperationsInput | string
-    estado?: EnumEstadoTurnoFieldUpdateOperationsInput | $Enums.EstadoTurno
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

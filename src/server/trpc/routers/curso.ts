@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, representanteProcedure } from '../init';
+import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 
 const cursoInput = z.object({
@@ -72,27 +72,27 @@ export const cursoRouter = createTRPCRouter({
       });
     }),
 
-  create: representanteProcedure.input(cursoInput).mutation(({ ctx, input }) => {
+  create: secretariaProcedure.input(cursoInput).mutation(({ ctx, input }) => {
     return ctx.prisma.curso.create({ data: input });
   }),
 
-  update: representanteProcedure
+  update: secretariaProcedure
     .input(z.object({ id: z.string() }).merge(cursoInput))
     .mutation(({ ctx, input }) => {
       const { id, ...data } = input;
       return ctx.prisma.curso.update({ where: { id }, data });
     }),
 
-  delete: representanteProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
+  delete: adminProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
     return ctx.prisma.curso.delete({ where: { id: input.id } });
   }),
 
   // Grupos
-  createGrupo: representanteProcedure.input(grupoInput).mutation(({ ctx, input }) => {
+  createGrupo: secretariaProcedure.input(grupoInput).mutation(({ ctx, input }) => {
     return ctx.prisma.grupo.create({ data: input });
   }),
 
-  deleteGrupo: representanteProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
+  deleteGrupo: adminProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
     return ctx.prisma.grupo.delete({ where: { id: input.id } });
   }),
 
@@ -107,7 +107,7 @@ export const cursoRouter = createTRPCRouter({
   }),
 
   /** Aperture courses for the semester (Representative only) */
-  toggleApertura: representanteProcedure
+  toggleApertura: secretariaProcedure
     .input(z.object({ id: z.string(), aperturado: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.curso.update({
@@ -117,7 +117,7 @@ export const cursoRouter = createTRPCRouter({
     }),
 
   /** Start scheduling process (Representative only) */
-  startProcess: representanteProcedure.mutation(async ({ ctx }) => {
+  startProcess: secretariaProcedure.mutation(async ({ ctx }) => {
     const periodo = await ctx.prisma.periodoAcademico.findFirst({ where: { activo: true } });
     if (!periodo) throw new TRPCError({ code: 'NOT_FOUND' });
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { baseProcedure, createTRPCRouter, protectedProcedure, adminProcedure, representanteProcedure } from '../init';
+import { baseProcedure, createTRPCRouter, protectedProcedure, adminProcedure, secretariaProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
 import { encrypt } from '@/lib/auth';
@@ -161,14 +161,14 @@ export const authRouter = createTRPCRouter({
     }),
 
   // Admin only: Users management
-  listUsers: representanteProcedure.query(async ({ ctx }) => {
+  listUsers: secretariaProcedure.query(async ({ ctx }) => {
     return ctx.prisma.user.findMany({
       include: { docente: true },
       orderBy: { createdAt: 'desc' }
     });
   }),
 
-  toggleUserStatus: representanteProcedure
+  toggleUserStatus: secretariaProcedure
     .input(z.object({ userId: z.string(), activo: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.user.update({
@@ -178,7 +178,7 @@ export const authRouter = createTRPCRouter({
     }),
 
   // Admin only: Bitacora
-  getLogs: representanteProcedure.query(async ({ ctx }) => {
+  getLogs: secretariaProcedure.query(async ({ ctx }) => {
     return ctx.prisma.log.findMany({
       include: { user: { select: { nombre: true, email: true, role: true } } },
       orderBy: { createdAt: 'desc' },

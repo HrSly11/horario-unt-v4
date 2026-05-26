@@ -15,13 +15,13 @@ export async function renderPDF(
 
   try {
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'load' });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const pdf = await page.pdf({
       format: 'A4',
-      landscape: options.landscape ?? true,
+      landscape: options.tipo === 'gestion' ? false : (options.landscape ?? true),
       printBackground: true,
-      margin: { top: '10mm', bottom: '15mm', left: '10mm', right: '10mm' },
+      margin: { top: '5mm', bottom: '5mm', left: '5mm', right: '5mm' },
     });
 
     return Buffer.from(pdf);

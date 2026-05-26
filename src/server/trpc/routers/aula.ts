@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, representanteProcedure } from '../init';
+import { createTRPCRouter, baseProcedure, adminProcedure, secretariaProcedure } from '../init';
 
 const aulaInput = z.object({
   codigo: z.string().min(2, 'El código es obligatorio'),
@@ -88,18 +88,18 @@ export const aulaRouter = createTRPCRouter({
       };
     }),
 
-  create: representanteProcedure.input(aulaInput).mutation(({ ctx, input }) => {
+  create: secretariaProcedure.input(aulaInput).mutation(({ ctx, input }) => {
     return ctx.prisma.aula.create({ data: input });
   }),
 
-  update: representanteProcedure
+  update: secretariaProcedure
     .input(z.object({ id: z.string() }).merge(aulaInput))
     .mutation(({ ctx, input }) => {
       const { id, ...data } = input;
       return ctx.prisma.aula.update({ where: { id }, data });
     }),
 
-  delete: representanteProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
+  delete: adminProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
     return ctx.prisma.aula.delete({ where: { id: input.id } });
   })
 });
