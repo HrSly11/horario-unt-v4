@@ -173,7 +173,7 @@ export default function CursosPage() {
         <div className="flex gap-3">
            {isSecretaria && periodoActivo?.estado === 'PLANIFICACION' && (
              <button 
-               onClick={() => startProcessMutation.mutate({ periodoId: periodoActivo.id })}
+               onClick={() => startProcessMutation.mutate()}
                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 shadow-lg shadow-emerald-500/25 transition-all"
              >
                <TrendingUp className="h-4 w-4" /> Iniciar Postulaciones
