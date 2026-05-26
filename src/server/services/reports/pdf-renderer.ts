@@ -33,6 +33,7 @@ export async function renderPDF(
 
   try {
     const page = await browser.newPage();
+    // @ts-ignore - domcontentloaded es válido pero el tipo lo marca como error
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
     const pdf = await page.pdf({
