@@ -20,10 +20,23 @@ export const reporteRouter = createTRPCRouter({
       ciclo: z.number().optional(),      // For specific ciclo report
     }))
     .mutation(async ({ ctx, input }) => {
-      // Auth check
       const role = ctx.session?.role;
       const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
-      
+
+      const periodo = await ctx.prisma.periodoAcademico.findUniqueOrThrow({
+        where: { id: input.periodoId },
+        select: { id: true, nombre: true, fechaInicio: true, fechaFin: true, estado: true }
+      });
+
+      const isPublished = periodo.estado === 'APROBADO' || periodo.estado === 'FINALIZADO';
+
+      if (!isPrivileged && !isPublished) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'El horario aún no ha sido publicado',
+        });
+      }
+
       if (input.tipo === 'gestion' && !isPrivileged) {
         throw new TRPCError({
           code: 'FORBIDDEN',
@@ -38,7 +51,6 @@ export const reporteRouter = createTRPCRouter({
             message: 'No tiene permisos para generar este reporte',
           });
         }
-        // If it's a docente report, they can only see their own
         if (input.docenteId && input.docenteId !== ctx.session?.docenteId) {
            throw new TRPCError({
              code: 'FORBIDDEN',
@@ -47,13 +59,9 @@ export const reporteRouter = createTRPCRouter({
         }
       }
 
-      // Guest access (no session) is allowed for 'por-aula', 'por-laboratorio', 'por-ciclo', 'por-docente' (all)
-      // but if a specific docenteId is requested by a guest, it's also allowed as it's public info.
-
       try {
-        const periodo = await ctx.prisma.periodoAcademico.findUniqueOrThrow({
-          where: { id: input.periodoId },
-        });
+
+        const assignmentFilter = (!isPrivileged && !isPublished) ? { confirmado: true } : {};
 
         let html = '';
         const options = { landscape: true };
@@ -70,7 +78,7 @@ export const reporteRouter = createTRPCRouter({
           where: whereClause,
           include: {
             asignaciones: {
-              where: { periodoId: input.periodoId },
+              where: { periodoId: input.periodoId, ...assignmentFilter },
               include: {
                 grupo: { include: { curso: true } },
                 docente: true,
@@ -118,7 +126,7 @@ export const reporteRouter = createTRPCRouter({
         html = generateAulaReportHTML(reportData, periodo.nombre);
       } else if (input.tipo === 'por-ciclo') {
         const asignaciones = await ctx.prisma.asignacion.findMany({
-          where: { periodoId: input.periodoId },
+          where: { periodoId: input.periodoId, ...assignmentFilter },
           include: {
             grupo: { include: { curso: true } },
             docente: true,
@@ -133,7 +141,6 @@ export const reporteRouter = createTRPCRouter({
 
         const reportData: any[] = [];
         
-        // Group by Ciclo and then by Section (Grupo name)
         const uniqueCiclos = [...new Set(asignaciones.map(a => a.grupo.curso.ciclo))].sort((a, b) => a - b);
         
         for (const ciclo of uniqueCiclos) {
@@ -187,7 +194,7 @@ export const reporteRouter = createTRPCRouter({
           where: input.docenteId ? { id: input.docenteId } : { activo: true },
           include: {
             asignaciones: {
-              where: { periodoId: input.periodoId },
+              where: { periodoId: input.periodoId, ...assignmentFilter },
               include: {
                 grupo: { include: { curso: true } },
                 aula: true,
@@ -308,5 +315,38 @@ export const reporteRouter = createTRPCRouter({
           message: error.message || 'Error al generar el reporte PDF',
         });
       }
+    }),
+
+  porCiclo: baseProcedure
+    .input(z.object({ periodoId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const periodo = await ctx.prisma.periodoAcademico.findUnique({
+        where: { id: input.periodoId },
+        select: { estado: true }
+      });
+
+      const role = ctx.session?.role;
+      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+      const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
+
+      if (!isPrivileged && !isPublished) {
+        return [];
+      }
+
+      const assignmentFilter = (!isPrivileged && !isPublished) ? { confirmado: true } : {};
+
+      return ctx.prisma.asignacion.findMany({
+        where: { periodoId: input.periodoId, ...assignmentFilter },
+        include: {
+          docente: true,
+          aula: true,
+          grupo: { include: { curso: true } },
+          franjaHoraria: true,
+        },
+        orderBy: [
+          { franjaHoraria: { dia: 'asc' } },
+          { franjaHoraria: { horaInicio: 'asc' } }
+        ]
+      });
     }),
 });

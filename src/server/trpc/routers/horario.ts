@@ -27,16 +27,44 @@ export const horarioRouter = createTRPCRouter({
   // ─── Assignments ───────────────────────────────────
 
   list: baseProcedure
-    .input(z.object({ periodoId: z.string() }))
+    .input(z.object({
+      periodoId: z.string(),
+      docenteId: z.string().optional(),
+      aulaId: z.string().optional(),
+      cursoId: z.string().optional(),
+      diaSemana: z.number().min(1).max(7).optional()
+    }))
     .query(async ({ ctx, input }) => {
+      const periodo = await ctx.prisma.periodoAcademico.findUnique({
+        where: { id: input.periodoId },
+        select: { estado: true }
+      });
+
+      const role = ctx.session?.role;
+      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+      const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
+
+      if (!isPrivileged && !isPublished) {
+        return [];
+      }
+
       return ctx.prisma.asignacion.findMany({
-        where: { periodoId: input.periodoId },
+        where: {
+          periodoId: input.periodoId,
+          ...(input.docenteId ? { docenteId: input.docenteId } : {}),
+          ...(input.aulaId ? { aulaId: input.aulaId } : {}),
+          ...(input.diaSemana ? { diaSemana: input.diaSemana } : {}),
+        },
         include: {
-          grupo: { include: { curso: true } },
           docente: true,
           aula: true,
+          grupo: { include: { curso: true } },
           franjaHoraria: true,
         },
+        orderBy: [
+          { franjaHoraria: { dia: 'asc' } },
+          { franjaHoraria: { horaInicio: 'asc' } }
+        ]
       });
     }),
 
@@ -349,7 +377,7 @@ export const horarioRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.periodoAcademico.update({
         where: { id: input.periodoId },
-        data: { estado: 'REVISION' }
+        data: { estado: 'REVISION', comentariosDirector: null }
       });
     }),
 
@@ -363,23 +391,57 @@ export const horarioRouter = createTRPCRouter({
           estado: 'APROBADO',
           aprobadoPorId: ctx.session.id,
           fechaAprobacion: new Date(),
-          comentariosDirector: input.comentarios
+          comentariosDirector: input.comentarios || null
         }
       });
     }),
 
-  /** Reject schedule (Director only) */
+  /** Reject schedule (Director only) — sends back to secretary for corrections */
   rejectSchedule: directorProcedure
     .input(z.object({ periodoId: z.string(), comentarios: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.periodoAcademico.update({
         where: { id: input.periodoId },
         data: { 
-          estado: 'ASIGNACION', // Back to editable
+          estado: 'ASIGNACION',
           comentariosDirector: input.comentarios
         }
       });
     }),
+
+  /** Publish schedule (Director only) — makes it visible to all users */
+  publishSchedule: directorProcedure
+    .input(z.object({ periodoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.periodoAcademico.update({
+        where: { id: input.periodoId },
+        data: { estado: 'FINALIZADO' }
+      });
+    }),
+
+  /** Get approval info for the active period */
+  getApprovalInfo: baseProcedure.query(async ({ ctx }) => {
+    const activo = await ctx.prisma.periodoAcademico.findFirst({
+      where: { activo: true },
+      select: {
+        id: true,
+        nombre: true,
+        estado: true,
+        comentariosDirector: true,
+        aprobadoPor: { select: { nombre: true } },
+        fechaAprobacion: true,
+      }
+    });
+    if (!activo) return null;
+    const role = ctx.session?.role;
+    const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+    const isPublished = activo.estado === 'APROBADO' || activo.estado === 'FINALIZADO';
+    return {
+      ...activo,
+      isPublished,
+      canView: isPrivileged || isPublished,
+    };
+  }),
 
   /** Get docentes sorted by hierarchy for the secretary to process one by one */
   docentesByHierarchy: secretariaProcedure

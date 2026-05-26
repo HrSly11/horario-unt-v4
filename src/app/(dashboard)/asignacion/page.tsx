@@ -53,6 +53,10 @@ export default function AsignacionPage() {
   const [currentDocenteIdx, setCurrentDocenteIdx] = useState(0);
 
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
+  const { data: approvalInfo } = useQuery({
+    ...trpc.horario.getApprovalInfo.queryOptions(),
+    enabled: !!periodoActivo?.id,
+  });
   const { data: docentesHierarchy = [] } = useQuery({ 
     ...trpc.horario.docentesByHierarchy.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
     enabled: !!periodoActivo?.id
@@ -163,8 +167,63 @@ export default function AsignacionPage() {
 
   if (!periodoActivo) return <div className="p-8 text-gray-500">Cargando periodo activo...</div>;
 
+  const estado = periodoActivo?.estado ?? 'PLANIFICACION';
+  const canEdit = estado === 'PLANIFICACION' || estado === 'POSTULACION' || estado === 'ASIGNACION';
+
   return (
     <div className="space-y-6">
+      {/* ===== DIRECTOR REJECTION FEEDBACK ===== */}
+      {estado === 'ASIGNACION' && approvalInfo?.comentariosDirector && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
+            <div>
+              <h2 className="text-lg font-bold text-amber-200">Horario devuelto por el director</h2>
+              <p className="text-sm text-amber-300/70 mt-1">
+                El director ha solicitado modificaciones. Realice los ajustes necesarios y vuelva a enviar para revisión.
+              </p>
+              <div className="mt-3 rounded-lg border border-amber-500/20 bg-gray-950/50 p-4">
+                <p className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Observaciones del director:</p>
+                <p className="text-sm text-gray-200">{approvalInfo.comentariosDirector}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== ALREADY IN REVISION ===== */}
+      {estado === 'REVISION' && (
+        <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-5">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-purple-400 mt-0.5 shrink-0" />
+            <div>
+              <h2 className="text-lg font-bold text-purple-200">Horario en revisión</h2>
+              <p className="text-sm text-purple-300/70 mt-1">
+                La asignación ya fue enviada al director para su aprobación. No se pueden realizar modificaciones hasta que el director revise o devuelva el horario.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== APPROVED OR FINALIZED ===== */}
+      {(estado === 'APROBADO' || estado === 'FINALIZADO') && (
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-emerald-400 mt-0.5 shrink-0" />
+            <div>
+              <h2 className="text-lg font-bold text-emerald-200">
+                {estado === 'FINALIZADO' ? 'Horario publicado' : 'Horario aprobado'}
+              </h2>
+              <p className="text-sm text-emerald-300/70 mt-1">
+                {estado === 'FINALIZADO'
+                  ? 'El horario ya está publicado y visible para todos los usuarios.'
+                  : 'El director ha aprobado el horario. Ya no se pueden realizar modificaciones.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Módulo de Asignación de Horarios</h1>
@@ -179,10 +238,12 @@ export default function AsignacionPage() {
                 autoGenerateMutation.mutate({ periodoId: periodoActivo.id });
               }
             }}
-            className="rounded-lg border border-indigo-500/30 bg-indigo-500/5 px-4 py-2 text-xs font-bold text-indigo-400 hover:bg-indigo-500/10"
+            disabled={!canEdit}
+            className="rounded-lg border border-indigo-500/30 bg-indigo-500/5 px-4 py-2 text-xs font-bold text-indigo-400 hover:bg-indigo-500/10 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Autogenerar Todo
           </button>
+          {canEdit && (
           <button
             onClick={() => {
               if (confirm('¿Desea enviar todo el horario consolidado al Director para su aprobación final?')) {
@@ -193,6 +254,7 @@ export default function AsignacionPage() {
           >
             Enviar a Revisión Final
           </button>
+          )}
         </div>
       </div>
 
@@ -224,7 +286,7 @@ export default function AsignacionPage() {
                 if (!selectedDocenteId) return;
                 suggestAssignmentsMutation.mutate({ periodoId: periodoActivo.id, docenteId: selectedDocenteId });
               }}
-              disabled={!selectedDocenteId || suggestAssignmentsMutation.isPending}
+              disabled={!selectedDocenteId || !canEdit || suggestAssignmentsMutation.isPending}
               className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-indigo-500 disabled:opacity-50 transition-all"
             >
               <TrendingUp className="h-4 w-4" />
@@ -235,7 +297,7 @@ export default function AsignacionPage() {
                 if (!selectedDocenteId) return;
                 confirmTeacherScheduleMutation.mutate({ docenteId: selectedDocenteId, periodoId: periodoActivo.id });
               }}
-              disabled={!selectedDocenteId || confirmTeacherScheduleMutation.isPending || asignaciones.length === 0}
+              disabled={!selectedDocenteId || !canEdit || confirmTeacherScheduleMutation.isPending || asignaciones.length === 0}
               className="flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 disabled:opacity-50 transition-all"
             >
               <CheckCircle2 className="h-4 w-4" />
