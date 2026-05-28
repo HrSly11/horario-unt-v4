@@ -70,3 +70,24 @@ export const docenteProcedure = protectedProcedure.use(({ ctx, next }) => {
   }
   return next();
 });
+
+export const directorDepartamentoProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.session.role !== 'DIRECTOR_DEPARTAMENTO' && ctx.session.role !== 'ADMIN') {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+  return next();
+});
+
+export const secretariaDepartamentoProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.session.role !== 'SECRETARIA_DEPARTAMENTO' && ctx.session.role !== 'ADMIN') {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+  return next();
+});
+
+export const decanoProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.session.role !== 'DECANO' && ctx.session.role !== 'ADMIN') {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+  return next();
+});

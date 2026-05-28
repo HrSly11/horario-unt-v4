@@ -16,12 +16,17 @@ type FormData = {
   especialidad: string;
   experienciaAnios: number;
   perfilAcademico: string;
+  dni: string;
+  codigoIBM: string;
+  modalidad: 'TIEMPO_COMPLETO' | 'DEDICACION_EXCLUSIVA' | 'TIEMPO_PARCIAL';
+  horasContrato: number;
 };
 
 const emptyForm: FormData = {
   nombre: '', email: '', categoria: 'AUXILIAR',
   tipo: 'CONTRATADO', antiguedad: '', activo: true,
   gradoAcademico: '', especialidad: '', experienciaAnios: 0, perfilAcademico: '',
+  dni: '', codigoIBM: '', modalidad: 'TIEMPO_COMPLETO', horasContrato: 40,
 };
 
 const CATEGORIA_LABELS: Record<string, string> = {
@@ -94,6 +99,10 @@ export default function DocentesPage() {
       especialidad: d.especialidad || '',
       experienciaAnios: d.experienciaAnios || 0,
       perfilAcademico: d.perfilAcademico || '',
+      dni: (d as any).dni || '',
+      codigoIBM: (d as any).codigoIBM || '',
+      modalidad: (d as any).modalidad || 'TIEMPO_COMPLETO',
+      horasContrato: (d as any).horasContrato || 40,
     });
     setShowModal(true);
   }
@@ -152,15 +161,17 @@ export default function DocentesPage() {
               <th className="px-4 py-3 text-left font-medium text-gray-400">Email</th>
               <th className="px-4 py-3 text-left font-medium text-gray-400">Tipo</th>
               <th className="px-4 py-3 text-left font-medium text-gray-400">Categoría</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-400">Modalidad</th>
+              <th className="px-4 py-3 text-center font-medium text-gray-400">Contrato</th>
               <th className="px-4 py-3 text-left font-medium text-gray-400">Antigüedad</th>
               <th className="px-4 py-3 text-right font-medium text-gray-400">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-600">Cargando...</td></tr>
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-600">Cargando...</td></tr>
             ) : docentes.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-600">No se encontraron docentes</td></tr>
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-600">No se encontraron docentes</td></tr>
             ) : (
               docentes.map((d) => (
                 <tr key={d.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
@@ -172,6 +183,10 @@ export default function DocentesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-300">{CATEGORIA_LABELS[d.categoria]}</td>
+                  <td className="px-4 py-3">
+                    <span className="text-xs text-purple-400">{(d as any).modalidad?.replace(/_/g, ' ') || 'TC'}</span>
+                  </td>
+                  <td className="px-4 py-3 text-center text-gray-300">{(d as any).horasContrato || 40}h</td>
                   <td className="px-4 py-3 text-gray-400">
                     {new Date(d.antiguedad).toLocaleDateString('es-PE')}
                   </td>

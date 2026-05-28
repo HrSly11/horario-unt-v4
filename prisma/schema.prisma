@@ -1,6 +1,6 @@
-// Sistema de Horarios Académicos UNT
+// Sistema de Gestión de Carga Académica UNT
 // Escuela de Ingeniería de Sistemas
-// Flujo: Llenado Presencial Secuencial por Jerarquía
+// Flujo: Departamento asigna → Escuela declara → Docente completa
 
 generator client {
   provider        = "prisma-client-js"
@@ -26,6 +26,12 @@ enum TipoDocente {
   CONTRATADO
 }
 
+enum ModalidadDocente {
+  TIEMPO_COMPLETO
+  DEDICACION_EXCLUSIVA
+  TIEMPO_PARCIAL
+}
+
 enum TipoAula {
   TEORIA
   LABORATORIO
@@ -37,6 +43,7 @@ enum DiaSemana {
   MIERCOLES
   JUEVES
   VIERNES
+  SABADO
 }
 
 enum TipoAsignacion {
@@ -57,6 +64,9 @@ enum UserRole {
   INVITADO
   SECRETARIA_ACADEMICA
   DIRECTOR_ESCUELA
+  DIRECTOR_DEPARTAMENTO
+  SECRETARIA_DEPARTAMENTO
+  DECANO
 }
 
 enum EstadoPeriodo {
@@ -66,6 +76,112 @@ enum EstadoPeriodo {
   REVISION
   APROBADO
   FINALIZADO
+}
+
+enum EstadoDeclaracion {
+  BORRADOR
+  ENVIADA
+  APROBADA_DEPARTAMENTO
+  APROBADA_ESCUELA
+  RECHAZADA
+  FINALIZADA
+}
+
+enum TipoCargaNoLectiva {
+  PREPARACION_EVALUACION
+  CONSEJERIA
+  INVESTIGACION
+  CAPACITACION
+  GOBIERNO
+  ADMINISTRACION
+  ASESORIA_TESIS
+  RESPONSABILIDAD_SOCIAL
+  COMITES_COMISIONES
+}
+
+// ──── Models: Estructura Organizacional ────────────────
+
+model Facultad {
+  id        String   @id @default(cuid())
+  nombre    String   @unique
+  siglas    String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  departamentos Departamento[]
+  escuelas      Escuela[]
+
+  @@map("facultades")
+}
+
+model Departamento {
+  id               String    @id @default(cuid())
+  nombre           String
+  facultadId       String    @map("facultad_id")
+  directorId       String?   @unique @map("director_id")
+  secretariaId     String?   @unique @map("secretaria_id")
+  designadoPorId   String?   @map("designado_por_id")
+  fechaDesignacion DateTime? @map("fecha_designacion")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  facultad     Facultad @relation(fields: [facultadId], references: [id], onDelete: Cascade)
+  director     User?    @relation("DirectorDepartamento", fields: [directorId], references: [id], onDelete: SetNull)
+  secretaria   User?    @relation("SecretariaDepartamento", fields: [secretariaId], references: [id], onDelete: SetNull)
+  designadoPor User?    @relation("DesignadorDepartamento", fields: [designadoPorId], references: [id], onDelete: SetNull)
+  docentes     Docente[]
+
+  @@unique([nombre, facultadId])
+  @@map("departamentos")
+}
+
+model Escuela {
+  id               String    @id @default(cuid())
+  nombre           String
+  facultadId       String    @map("facultad_id")
+  directorId       String?   @unique @map("director_id")
+  designadoPorId   String?   @map("designado_por_id")
+  fechaDesignacion DateTime? @map("fecha_designacion")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  facultad     Facultad    @relation(fields: [facultadId], references: [id], onDelete: Cascade)
+  director     User?       @relation("DirectorEscuela", fields: [directorId], references: [id], onDelete: SetNull)
+  designadoPor User?       @relation("DesignadorEscuela", fields: [designadoPorId], references: [id], onDelete: SetNull)
+  curriculas   Curricula[]
+
+  @@unique([nombre, facultadId])
+  @@map("escuelas")
+}
+
+model Curricula {
+  id        String   @id @default(cuid())
+  codigo    String   // "2018", "2023"
+  escuelaId String   @map("escuela_id")
+  vigente   Boolean  @default(true)
+  anio      Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  escuela Escuela          @relation(fields: [escuelaId], references: [id], onDelete: Cascade)
+  cursos  CursoCurricula[]
+
+  @@unique([codigo, escuelaId])
+  @@map("curriculas")
+}
+
+model CursoCurricula {
+  id          String  @id @default(cuid())
+  cursoId     String  @map("curso_id")
+  curriculaId String  @map("curricula_id")
+  ciclo       Int
+  esElectivo  Boolean @default(false) @map("es_electivo")
+
+  curso     Curso     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  curricula Curricula @relation(fields: [curriculaId], references: [id], onDelete: Cascade)
+
+  @@unique([cursoId, curriculaId])
+  @@map("cursos_curriculas")
 }
 
 // ──── Models Base ──────────────────────────────────────
@@ -84,6 +200,18 @@ model User {
   docente Docente? @relation(fields: [docenteId], references: [id], onDelete: SetNull)
   logs    Log[]
   periodosAprobados PeriodoAcademico[] @relation("AprobadorPeriodo")
+
+  // Relaciones organizacionales (un user puede dirigir un departamento/escuela)
+  departamentoDirigido      Departamento?  @relation("DirectorDepartamento")
+  departamentoSecretaria    Departamento?  @relation("SecretariaDepartamento")
+  escuelaDirigida           Escuela?       @relation("DirectorEscuela")
+  designacionesDepartamento Departamento[] @relation("DesignadorDepartamento")
+  designacionesEscuela      Escuela[]      @relation("DesignadorEscuela")
+
+  // Aprobaciones de declaraciones
+  declaracionesAprobDepto  DeclaracionCarga[] @relation("AprobadorDepto")
+  declaracionesAprobEscuela DeclaracionCarga[] @relation("AprobadorEscuela")
+  declaracionesVBDecano    DeclaracionCarga[] @relation("VBDecano")
 
   @@map("users")
 }
@@ -109,15 +237,23 @@ model Docente {
   email             String            @unique
   categoria         CategoriaDocente
   tipo              TipoDocente
+  modalidad         ModalidadDocente  @default(TIEMPO_COMPLETO)
   antiguedad        DateTime
   activo            Boolean           @default(true)
   gradoAcademico    String?           @map("grado_academico")
   especialidad      String?
   experienciaAnios  Int               @default(0) @map("experiencia_anios")
   perfilAcademico   String?           @map("perfil_academico") @db.Text
+  // Nuevos campos
+  dni               String?           @unique
+  codigoIBM         String?           @unique @map("codigo_ibm")
+  departamentoId    String?           @map("departamento_id")
+  horasContrato     Int               @default(40) @map("horas_contrato")
+  dictaOtraUniversidad Boolean        @default(false) @map("dicta_otra_universidad")
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime          @updatedAt @map("updated_at")
 
+  departamento     Departamento?       @relation(fields: [departamentoId], references: [id], onDelete: SetNull)
   asignaciones     Asignacion[]
   restricciones    RestriccionDocente[]
   docenteGrupos    DocenteGrupo[]
@@ -126,6 +262,11 @@ model Docente {
   postulaciones    PostulacionCurso[]
   notificaciones   Notification[]
   user             User?
+  // Nuevas relaciones
+  asignacionesCarga  AsignacionCargaLectiva[]
+  asignacionesCargaCompartida AsignacionCargaLectiva[] @relation("DocenteCompartido")
+  cargasNoLectivas   CargaNoLectiva[]
+  declaraciones      DeclaracionCarga[]
 
   @@index([tipo, categoria, antiguedad])
   @@map("docentes")
@@ -152,6 +293,7 @@ model Curso {
   nombre              String
   creditos            Int
   horasTeoria         Int      @map("horas_teoria")
+  horasPractica       Int      @default(0) @map("horas_practica")
   horasLaboratorio    Int      @map("horas_laboratorio")
   ciclo               Int
   requiereLaboratorio Boolean  @default(false) @map("requiere_laboratorio")
@@ -163,8 +305,9 @@ model Curso {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  grupos        Grupo[]
-  postulaciones PostulacionCurso[]
+  grupos          Grupo[]
+  postulaciones   PostulacionCurso[]
+  cursoCurriculas CursoCurricula[]
 
   @@map("cursos")
 }
@@ -200,8 +343,10 @@ model PostulacionCurso {
 model Grupo {
   id                String           @id @default(cuid())
   nombre            String           // A, B, C
+  seccion           String?          // "A", "B" para la sección general
   cursoId           String           @map("curso_id")
   periodoAcademicoId String          @map("periodo_academico_id")
+  numAlumnos        Int              @default(0) @map("num_alumnos")
   createdAt         DateTime         @default(now()) @map("created_at")
   updatedAt         DateTime         @updatedAt @map("updated_at")
 
@@ -210,6 +355,7 @@ model Grupo {
   asignaciones      Asignacion[]
   docenteGrupos     DocenteGrupo[]
   preasignaciones   Preasignacion[]
+  asignacionesCarga AsignacionCargaLectiva[]
 
   @@unique([cursoId, nombre, periodoAcademicoId])
   @@map("grupos")
@@ -252,6 +398,10 @@ model PeriodoAcademico {
   asignaciones    Asignacion[]
   preasignaciones Preasignacion[]
   aprobadoPor     User?            @relation("AprobadorPeriodo", fields: [aprobadoPorId], references: [id])
+  // Nuevas relaciones
+  asignacionesCarga AsignacionCargaLectiva[]
+  cargasNoLectivas  CargaNoLectiva[]
+  declaraciones     DeclaracionCarga[]
 
   @@map("periodos_academicos")
 }
@@ -374,4 +524,90 @@ model Preasignacion {
 
   @@unique([aulaId, franjaHorariaId, periodoId])
   @@map("preasignaciones")
+}
+
+// ──── Nuevos Modelos: Carga Académica ───────────────────
+
+/// Asignación de carga lectiva por el Departamento
+model AsignacionCargaLectiva {
+  id                  String          @id @default(cuid())
+  docenteId           String          @map("docente_id")
+  grupoId             String          @map("grupo_id")
+  periodoId           String          @map("periodo_id")
+  tipo                TipoAsignacion  // TEORIA, PRACTICA, LABORATORIO
+  horasAsignadas      Int             @map("horas_asignadas")
+  compartido          Boolean         @default(false)
+  docenteCompartidoId String?         @map("docente_compartido_id")
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+
+  docente             Docente          @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  docenteCompartido   Docente?         @relation("DocenteCompartido", fields: [docenteCompartidoId], references: [id], onDelete: SetNull)
+  grupo               Grupo            @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+  periodo             PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
+
+  @@unique([docenteId, grupoId, periodoId, tipo])
+  @@map("asignaciones_carga_lectiva")
+}
+
+/// Carga no lectiva del docente
+model CargaNoLectiva {
+  id              String              @id @default(cuid())
+  docenteId       String              @map("docente_id")
+  periodoId       String              @map("periodo_id")
+  tipo            TipoCargaNoLectiva
+  horas           Int
+  descripcion     String?             @db.Text
+  // Campos específicos por tipo
+  codigoProyecto  String?             @map("codigo_proyecto")
+  nombreProyecto  String?             @map("nombre_proyecto")
+  numAlumnos      Int?                @map("num_alumnos")
+  cicloConsejeria String?             @map("ciclo_consejeria")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  docente         Docente             @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  periodo         PeriodoAcademico    @relation(fields: [periodoId], references: [id], onDelete: Cascade)
+
+  @@map("cargas_no_lectivas")
+}
+
+/// Declaración de carga horaria (Formato N°1 + control de flujo)
+model DeclaracionCarga {
+  id              String            @id @default(cuid())
+  docenteId       String            @map("docente_id")
+  periodoId       String            @map("periodo_id")
+  estado          EstadoDeclaracion @default(BORRADOR)
+
+  // Totales calculados
+  totalHorasLectivas   Int @default(0) @map("total_horas_lectivas")
+  totalHorasNoLectivas Int @default(0) @map("total_horas_no_lectivas")
+  totalHoras           Int @default(0) @map("total_horas")
+
+  // Aprobaciones
+  aprobadoDepartamentoId  String?   @map("aprobado_departamento_id")
+  fechaAprobacionDepto    DateTime? @map("fecha_aprobacion_depto")
+  aprobadoEscuelaId       String?   @map("aprobado_escuela_id")
+  fechaAprobacionEscuela  DateTime? @map("fecha_aprobacion_escuela")
+  vistoBuenoDecanoId      String?   @map("visto_bueno_decano_id")
+  fechaVistoBueno         DateTime? @map("fecha_visto_bueno")
+
+  // Observaciones
+  observaciones           String?   @db.Text
+
+  // Declaración jurada
+  declaracionJuradaFirmada Boolean  @default(false) @map("declaracion_jurada_firmada")
+  declaracionSedesFirmada  Boolean  @default(false) @map("declaracion_sedes_firmada")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  docente                Docente          @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  periodo                PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
+  aprobadorDepto         User?            @relation("AprobadorDepto", fields: [aprobadoDepartamentoId], references: [id], onDelete: SetNull)
+  aprobadorEscuela       User?            @relation("AprobadorEscuela", fields: [aprobadoEscuelaId], references: [id], onDelete: SetNull)
+  vbDecano               User?            @relation("VBDecano", fields: [vistoBuenoDecanoId], references: [id], onDelete: SetNull)
+
+  @@unique([docenteId, periodoId])
+  @@map("declaraciones_carga")
 }

@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Clock,
   ArrowRight,
+  FileText,
 } from 'lucide-react';
 import {
   BarChart,
@@ -76,6 +77,7 @@ export default function DashboardPage() {
   const isSecretaria = user?.role === 'SECRETARIA_ACADEMICA';
   const isDirector = user?.role === 'DIRECTOR_ESCUELA';
   const isAdmin = user?.role === 'ADMIN';
+  const isDecano = user?.role === 'DECANO';
 
   const horarioStats = useQuery({
     ...trpc.horario.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
@@ -432,6 +434,93 @@ export default function DashboardPage() {
           >
             Ver Programación Completa <ArrowRight className="h-4 w-4" />
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Dashboard para Decano ---
+  if (isDecano) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Panel del Decanato</h1>
+            <p className="text-sm text-gray-500 mt-1">Supervisión de cargas académicas</p>
+          </div>
+          <div className="flex gap-3">
+            <Link href="/declaraciones" className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-500 shadow-lg shadow-amber-600/25">
+              VB Pendientes
+            </Link>
+            <Link href="/reportes" className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700">
+              Reportes
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard title="Docentes Totales" value={docenteStats?.total ?? 0} subtitle="Plana completa" icon={Users} color="indigo" />
+          <StatCard title="Declaraciones Pendientes" value="—" subtitle="VB Decano" icon={FileText} color="amber" />
+          <StatCard title="Periodo Activo" value={periodoActivo?.nombre || '---'} subtitle={periodoActivo?.estado} icon={Calendar} color="emerald" />
+          <StatCard title="Cobertura Carga" value={stats?.totalGrupos ? `${Math.round((stats.gruposAsignados / stats.totalGrupos) * 100)}%` : '0%'} subtitle="Grupos asignados" icon={TrendingUp} color="cyan" />
+        </div>
+      </div>
+    );
+  }
+
+  const isDirectorDepto = user?.role === 'DIRECTOR_DEPARTAMENTO';
+  const isSecretariaDepto = user?.role === 'SECRETARIA_DEPARTAMENTO';
+
+  // --- Dashboard para Director de Departamento ---
+  if (isDirectorDepto) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Panel de Dirección de Departamento</h1>
+            <p className="text-sm text-gray-500 mt-1">Gestión de carga lectiva</p>
+          </div>
+          <div className="flex gap-3">
+            <Link href="/carga-lectiva" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-500">
+              Carga Lectiva
+            </Link>
+            <Link href="/declaraciones" className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700">
+              Declaraciones
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard title="Docentes Depto" value={docenteStats?.total ?? 0} subtitle="Asignados" icon={Users} color="indigo" />
+          <StatCard title="Carga Asignada" value={stats?.totalAsignaciones ?? 0} subtitle="Horas lectivas" icon={BookOpen} color="emerald" />
+          <StatCard title="Declaraciones Pendientes" value="—" subtitle="Por aprobar" icon={FileText} color="amber" />
+          <StatCard title="Cobertura" value={stats?.totalGrupos ? `${Math.round((stats.gruposAsignados / stats.totalGrupos) * 100)}%` : '0%'} subtitle="Grupos" icon={TrendingUp} color="cyan" />
+        </div>
+      </div>
+    );
+  }
+
+  // --- Dashboard para Secretaria de Departamento ---
+  if (isSecretariaDepto) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Panel de Secretaría de Departamento</h1>
+            <p className="text-sm text-gray-500 mt-1">Gestión de carga académica departamental</p>
+          </div>
+          <div className="flex gap-3">
+            <Link href="/carga-lectiva" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-500">
+              Asignar Carga
+            </Link>
+            <Link href="/asignacion" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-500">
+              Asignar Horarios
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard title="Docentes Activos" value={docenteStats?.total ?? 0} subtitle={docenteStats ? `${docenteStats.nombrados} nombrados · ${docenteStats.contratados} contratados` : ''} icon={Users} color="indigo" />
+          <StatCard title="Carga Asignada" value={stats?.totalAsignaciones ?? 0} subtitle="Asignaciones" icon={BookOpen} color="emerald" />
+          <StatCard title="Grupos Asignados" value={stats?.gruposAsignados ?? 0} subtitle={`de ${stats?.totalGrupos ?? 0}`} icon={Calendar} color="cyan" />
+          <StatCard title="Horas Totales" value={stats?.totalAsignaciones ?? 0} subtitle="Horas/semana" icon={Clock} color="amber" />
         </div>
       </div>
     );

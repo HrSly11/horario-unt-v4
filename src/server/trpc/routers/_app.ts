@@ -7,6 +7,13 @@ import { periodoRouter } from './periodo';
 import { horarioRouter } from './horario';
 import { reporteRouter } from './reporte';
 import { notificationRouter } from './notification';
+import { facultadRouter } from './facultad';
+import { departamentoRouter } from './departamento';
+import { escuelaRouter } from './escuela';
+import { cargaLectivaRouter } from './cargaLectiva';
+import { cargaNoLectivaRouter } from './cargaNoLectiva';
+import { declaracionRouter } from './declaracion';
+import { declaracionPDFRouter } from './declaracionPDF';
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
@@ -17,6 +24,13 @@ export const appRouter = createTRPCRouter({
   horario: horarioRouter,
   reporte: reporteRouter,
   notification: notificationRouter,
+  facultad: facultadRouter,
+  departamento: departamentoRouter,
+  escuela: escuelaRouter,
+  cargaLectiva: cargaLectivaRouter,
+  cargaNoLectiva: cargaNoLectivaRouter,
+  declaracion: declaracionRouter,
+  declaracionPDF: declaracionPDFRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -16,6 +16,7 @@ import {
   User as UserIcon,
   LogOut,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
 import { useTRPC } from '@/trpc/client';
 import { useRouter } from 'next/navigation';
@@ -38,59 +39,86 @@ export function Sidebar() {
 
   const role = user?.role;
 
-  const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  ];
-
-  // Logic based on requirements
-  if (role === 'ADMIN') {
-    navigation.push(
+  const ROLE_NAV_MAP: Record<string, { name: string; href: string; icon: React.ElementType }[]> = {
+    ADMIN: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Organización', href: '/organizacion', icon: Building2 },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
+      { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
       { name: 'Reportes', href: '/reportes', icon: FileText },
-      { name: 'Asignación de Horarios', href: '/asignacion', icon: Calendar },
+      { name: 'Asignación', href: '/asignacion', icon: Calendar },
       { name: 'Gestión Usuarios', href: '/usuarios', icon: ShieldCheck },
-      { name: 'Bitácora', href: '/bitacora', icon: History }
-    );
-  } else if (role === 'SECRETARIA_ACADEMICA') {
-    navigation.push(
+      { name: 'Bitácora', href: '/bitacora', icon: History },
+    ],
+    DECANO: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Organización', href: '/organizacion', icon: Building2 },
+      { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
+      { name: 'Formatos', href: '/formatos', icon: FileText },
+      { name: 'Reportes', href: '/reportes', icon: FileText },
+      { name: 'Docentes', href: '/docentes', icon: Users },
+    ],
+    DIRECTOR_DEPARTAMENTO: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
+      { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
+      { name: 'Docentes', href: '/docentes', icon: Users },
+      { name: 'Horarios', href: '/horarios', icon: Calendar },
+    ],
+    SECRETARIA_DEPARTAMENTO: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
+      { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
+      { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
+      { name: 'Docentes', href: '/docentes', icon: Users },
+      { name: 'Horarios', href: '/horarios', icon: Calendar },
+      { name: 'Reportes', href: '/reportes', icon: FileText },
+      { name: 'Asignación', href: '/asignacion', icon: Calendar },
+    ],
+    SECRETARIA_ACADEMICA: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
       { name: 'Reportes', href: '/reportes', icon: FileText },
-      { name: 'Asignación de Horarios', href: '/asignacion', icon: Calendar }
-    );
-  } else if (role === 'DIRECTOR_ESCUELA') {
-    navigation.push(
+      { name: 'Asignación', href: '/asignacion', icon: Calendar },
+    ],
+    DIRECTOR_ESCUELA: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
-      { name: 'Reportes', href: '/reportes', icon: FileText }
-    );
-  } else if (role === 'DOCENTE') {
-    navigation.push(
+      { name: 'Reportes', href: '/reportes', icon: FileText },
+    ],
+    DOCENTE: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Horario Personal', href: '/horario-personal', icon: Calendar },
+      { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
+      { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
-      { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
-      { name: 'Semestre', href: '/periodos', icon: CalendarDays },
-      { name: 'Mi Disponibilidad', href: '/disponibilidad', icon: Calendar }
-    );
-  } else { // Guest (Not logged in) or role === 'INVITADO'
-    navigation.push(
+      { name: 'Mi Disponibilidad', href: '/disponibilidad', icon: Calendar },
+    ],
+    INVITADO: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
-      { name: 'Horarios', href: '/horarios', icon: Calendar }
-    );
-  }
+      { name: 'Horarios', href: '/horarios', icon: Calendar },
+    ],
+  };
+
+  const navigation = role ? (ROLE_NAV_MAP[role] || ROLE_NAV_MAP.INVITADO!) : ROLE_NAV_MAP.INVITADO!;
 
   return (
     <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-gray-900 border-r border-gray-800">

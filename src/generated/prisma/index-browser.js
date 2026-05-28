@@ -120,6 +120,55 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.FacultadScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre',
+  siglas: 'siglas',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DepartamentoScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre',
+  facultadId: 'facultadId',
+  directorId: 'directorId',
+  secretariaId: 'secretariaId',
+  designadoPorId: 'designadoPorId',
+  fechaDesignacion: 'fechaDesignacion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EscuelaScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre',
+  facultadId: 'facultadId',
+  directorId: 'directorId',
+  designadoPorId: 'designadoPorId',
+  fechaDesignacion: 'fechaDesignacion',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CurriculaScalarFieldEnum = {
+  id: 'id',
+  codigo: 'codigo',
+  escuelaId: 'escuelaId',
+  vigente: 'vigente',
+  anio: 'anio',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CursoCurriculaScalarFieldEnum = {
+  id: 'id',
+  cursoId: 'cursoId',
+  curriculaId: 'curriculaId',
+  ciclo: 'ciclo',
+  esElectivo: 'esElectivo'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
@@ -144,16 +193,23 @@ exports.Prisma.LogScalarFieldEnum = {
 
 exports.Prisma.DocenteScalarFieldEnum = {
   id: 'id',
+  codigo: 'codigo',
   nombre: 'nombre',
   email: 'email',
   categoria: 'categoria',
   tipo: 'tipo',
+  modalidad: 'modalidad',
   antiguedad: 'antiguedad',
   activo: 'activo',
   gradoAcademico: 'gradoAcademico',
   especialidad: 'especialidad',
   experienciaAnios: 'experienciaAnios',
   perfilAcademico: 'perfilAcademico',
+  dni: 'dni',
+  codigoIBM: 'codigoIBM',
+  departamentoId: 'departamentoId',
+  horasContrato: 'horasContrato',
+  dictaOtraUniversidad: 'dictaOtraUniversidad',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -175,6 +231,7 @@ exports.Prisma.CursoScalarFieldEnum = {
   nombre: 'nombre',
   creditos: 'creditos',
   horasTeoria: 'horasTeoria',
+  horasPractica: 'horasPractica',
   horasLaboratorio: 'horasLaboratorio',
   ciclo: 'ciclo',
   requiereLaboratorio: 'requiereLaboratorio',
@@ -206,8 +263,10 @@ exports.Prisma.PostulacionCursoScalarFieldEnum = {
 exports.Prisma.GrupoScalarFieldEnum = {
   id: 'id',
   nombre: 'nombre',
+  seccion: 'seccion',
   cursoId: 'cursoId',
   periodoAcademicoId: 'periodoAcademicoId',
+  numAlumnos: 'numAlumnos',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -302,6 +361,55 @@ exports.Prisma.PreasignacionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AsignacionCargaLectivaScalarFieldEnum = {
+  id: 'id',
+  docenteId: 'docenteId',
+  grupoId: 'grupoId',
+  periodoId: 'periodoId',
+  tipo: 'tipo',
+  horasAsignadas: 'horasAsignadas',
+  compartido: 'compartido',
+  docenteCompartidoId: 'docenteCompartidoId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CargaNoLectivaScalarFieldEnum = {
+  id: 'id',
+  docenteId: 'docenteId',
+  periodoId: 'periodoId',
+  tipo: 'tipo',
+  horas: 'horas',
+  descripcion: 'descripcion',
+  codigoProyecto: 'codigoProyecto',
+  nombreProyecto: 'nombreProyecto',
+  numAlumnos: 'numAlumnos',
+  cicloConsejeria: 'cicloConsejeria',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DeclaracionCargaScalarFieldEnum = {
+  id: 'id',
+  docenteId: 'docenteId',
+  periodoId: 'periodoId',
+  estado: 'estado',
+  totalHorasLectivas: 'totalHorasLectivas',
+  totalHorasNoLectivas: 'totalHorasNoLectivas',
+  totalHoras: 'totalHoras',
+  aprobadoDepartamentoId: 'aprobadoDepartamentoId',
+  fechaAprobacionDepto: 'fechaAprobacionDepto',
+  aprobadoEscuelaId: 'aprobadoEscuelaId',
+  fechaAprobacionEscuela: 'fechaAprobacionEscuela',
+  vistoBuenoDecanoId: 'vistoBuenoDecanoId',
+  fechaVistoBueno: 'fechaVistoBueno',
+  observaciones: 'observaciones',
+  declaracionJuradaFirmada: 'declaracionJuradaFirmada',
+  declaracionSedesFirmada: 'declaracionSedesFirmada',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -322,7 +430,10 @@ exports.UserRole = exports.$Enums.UserRole = {
   ESTUDIANTE: 'ESTUDIANTE',
   INVITADO: 'INVITADO',
   SECRETARIA_ACADEMICA: 'SECRETARIA_ACADEMICA',
-  DIRECTOR_ESCUELA: 'DIRECTOR_ESCUELA'
+  DIRECTOR_ESCUELA: 'DIRECTOR_ESCUELA',
+  DIRECTOR_DEPARTAMENTO: 'DIRECTOR_DEPARTAMENTO',
+  SECRETARIA_DEPARTAMENTO: 'SECRETARIA_DEPARTAMENTO',
+  DECANO: 'DECANO'
 };
 
 exports.CategoriaDocente = exports.$Enums.CategoriaDocente = {
@@ -335,6 +446,12 @@ exports.CategoriaDocente = exports.$Enums.CategoriaDocente = {
 exports.TipoDocente = exports.$Enums.TipoDocente = {
   NOMBRADO: 'NOMBRADO',
   CONTRATADO: 'CONTRATADO'
+};
+
+exports.ModalidadDocente = exports.$Enums.ModalidadDocente = {
+  TIEMPO_COMPLETO: 'TIEMPO_COMPLETO',
+  DEDICACION_EXCLUSIVA: 'DEDICACION_EXCLUSIVA',
+  TIEMPO_PARCIAL: 'TIEMPO_PARCIAL'
 };
 
 exports.TipoAula = exports.$Enums.TipoAula = {
@@ -356,7 +473,8 @@ exports.DiaSemana = exports.$Enums.DiaSemana = {
   MARTES: 'MARTES',
   MIERCOLES: 'MIERCOLES',
   JUEVES: 'JUEVES',
-  VIERNES: 'VIERNES'
+  VIERNES: 'VIERNES',
+  SABADO: 'SABADO'
 };
 
 exports.TipoAsignacion = exports.$Enums.TipoAsignacion = {
@@ -370,7 +488,33 @@ exports.TipoRestriccion = exports.$Enums.TipoRestriccion = {
   PREFERENCIA: 'PREFERENCIA'
 };
 
+exports.TipoCargaNoLectiva = exports.$Enums.TipoCargaNoLectiva = {
+  PREPARACION_EVALUACION: 'PREPARACION_EVALUACION',
+  CONSEJERIA: 'CONSEJERIA',
+  INVESTIGACION: 'INVESTIGACION',
+  CAPACITACION: 'CAPACITACION',
+  GOBIERNO: 'GOBIERNO',
+  ADMINISTRACION: 'ADMINISTRACION',
+  ASESORIA_TESIS: 'ASESORIA_TESIS',
+  RESPONSABILIDAD_SOCIAL: 'RESPONSABILIDAD_SOCIAL',
+  COMITES_COMISIONES: 'COMITES_COMISIONES'
+};
+
+exports.EstadoDeclaracion = exports.$Enums.EstadoDeclaracion = {
+  BORRADOR: 'BORRADOR',
+  ENVIADA: 'ENVIADA',
+  APROBADA_DEPARTAMENTO: 'APROBADA_DEPARTAMENTO',
+  APROBADA_ESCUELA: 'APROBADA_ESCUELA',
+  RECHAZADA: 'RECHAZADA',
+  FINALIZADA: 'FINALIZADA'
+};
+
 exports.Prisma.ModelName = {
+  Facultad: 'Facultad',
+  Departamento: 'Departamento',
+  Escuela: 'Escuela',
+  Curricula: 'Curricula',
+  CursoCurricula: 'CursoCurricula',
   User: 'User',
   Log: 'Log',
   Docente: 'Docente',
@@ -387,7 +531,10 @@ exports.Prisma.ModelName = {
   DocenteGrupo: 'DocenteGrupo',
   Feriado: 'Feriado',
   MantenimientoAula: 'MantenimientoAula',
-  Preasignacion: 'Preasignacion'
+  Preasignacion: 'Preasignacion',
+  AsignacionCargaLectiva: 'AsignacionCargaLectiva',
+  CargaNoLectiva: 'CargaNoLectiva',
+  DeclaracionCarga: 'DeclaracionCarga'
 };
 
 /**
