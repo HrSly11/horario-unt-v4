@@ -26,7 +26,17 @@ import {
   Cell,
 } from 'recharts';
 
-const COLORS = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const COLORS = ['#4f46e5', '#0891b2', '#047857', '#b45309', '#dc2626', '#7e22ce'];
+const CHART_GRID_COLOR = '#d7dee8';
+const CHART_AXIS_COLOR = '#64748b';
+const CHART_TOOLTIP_STYLE = {
+  backgroundColor: '#ffffff',
+  border: '1px solid #d7dee8',
+  borderRadius: '10px',
+  boxShadow: '0 18px 40px rgb(15 23 42 / 0.08)',
+  color: '#0f172a',
+};
+const CHART_TOOLTIP_LABEL_STYLE = { color: '#334155' };
 
 function StatCard({
   title,
@@ -187,11 +197,12 @@ export default function DashboardPage() {
               {ocupacionData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={ocupacionData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="nombre" stroke="#6b7280" fontSize={11} />
-                    <YAxis stroke="#6b7280" fontSize={11} domain={[0, 100]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
+                    <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} />
+                    <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                      contentStyle={CHART_TOOLTIP_STYLE}
+                      labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                     />
                     <Bar dataKey="ocupacion" fill="#6366f1" radius={[4, 4, 0, 0]} />
                   </BarChart>
@@ -208,11 +219,12 @@ export default function DashboardPage() {
               {cargaDocenteData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={350}>
                   <BarChart data={cargaDocenteData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis type="number" stroke="#6b7280" fontSize={11} />
-                    <YAxis type="category" dataKey="nombre" stroke="#6b7280" fontSize={11} width={120} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
+                    <XAxis type="number" stroke={CHART_AXIS_COLOR} fontSize={11} />
+                    <YAxis type="category" dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} width={120} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                      contentStyle={CHART_TOOLTIP_STYLE}
+                      labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                     />
                     <Bar dataKey="horas" fill="#06b6d4" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -246,7 +258,8 @@ export default function DashboardPage() {
                       ))}
                     </Pie>
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                      contentStyle={CHART_TOOLTIP_STYLE}
+                      labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -352,11 +365,12 @@ export default function DashboardPage() {
             {ocupacionData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={ocupacionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="nombre" stroke="#6b7280" fontSize={11} />
-                  <YAxis stroke="#6b7280" fontSize={11} domain={[0, 100]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
+                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} />
+                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                    contentStyle={CHART_TOOLTIP_STYLE}
+                    labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                   />
                   <Bar dataKey="ocupacion" fill="#6366f1" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -388,7 +402,8 @@ export default function DashboardPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                    contentStyle={CHART_TOOLTIP_STYLE}
+                    labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -404,11 +419,12 @@ export default function DashboardPage() {
             {cargaDocenteData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={cargaDocenteData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="nombre" stroke="#6b7280" fontSize={10} angle={-45} textAnchor="end" height={60} />
-                  <YAxis stroke="#6b7280" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
+                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={10} angle={-45} textAnchor="end" height={60} />
+                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                    contentStyle={CHART_TOOLTIP_STYLE}
+                    labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                   />
                   <Bar dataKey="horas" fill="#10b981" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -793,8 +809,8 @@ export default function DashboardPage() {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-                  labelStyle={{ color: '#9ca3af' }}
+                  contentStyle={CHART_TOOLTIP_STYLE}
+                  labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -811,11 +827,12 @@ export default function DashboardPage() {
           {ocupacionData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={ocupacionData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="nombre" stroke="#6b7280" fontSize={11} />
-                <YAxis stroke="#6b7280" fontSize={11} domain={[0, 100]} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
+                <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} />
+                <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                  contentStyle={CHART_TOOLTIP_STYLE}
+                  labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                 />
                 <Bar dataKey="ocupacion" fill="#6366f1" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -835,11 +852,12 @@ export default function DashboardPage() {
           {cargaDocenteData.length > 0 ? (
             <ResponsiveContainer width="100%" height={isAdmin ? 400 : 300}>
               <BarChart data={cargaDocenteData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis type="number" stroke="#6b7280" fontSize={11} />
-                <YAxis type="category" dataKey="nombre" stroke="#6b7280" fontSize={11} width={120} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
+                <XAxis type="number" stroke={CHART_AXIS_COLOR} fontSize={11} />
+                <YAxis type="category" dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} width={120} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
+                  contentStyle={CHART_TOOLTIP_STYLE}
+                  labelStyle={CHART_TOOLTIP_LABEL_STYLE}
                 />
                 <Bar dataKey="horas" fill="#06b6d4" radius={[0, 4, 4, 0]} />
               </BarChart>

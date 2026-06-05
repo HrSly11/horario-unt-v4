@@ -134,6 +134,11 @@ export type AsignacionCargaLectiva = $Result.DefaultSelection<Prisma.$Asignacion
  */
 export type CargaNoLectiva = $Result.DefaultSelection<Prisma.$CargaNoLectivaPayload>
 /**
+ * Model HorarioCargaNoLectiva
+ * Bloques horarios de cada actividad no lectiva
+ */
+export type HorarioCargaNoLectiva = $Result.DefaultSelection<Prisma.$HorarioCargaNoLectivaPayload>
+/**
  * Model DeclaracionCarga
  * Declaración de carga horaria (Formato N°1 + control de flujo)
  */
@@ -668,6 +673,16 @@ export class PrismaClient<
   get cargaNoLectiva(): Prisma.CargaNoLectivaDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.horarioCargaNoLectiva`: Exposes CRUD operations for the **HorarioCargaNoLectiva** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more HorarioCargaNoLectivas
+    * const horarioCargaNoLectivas = await prisma.horarioCargaNoLectiva.findMany()
+    * ```
+    */
+  get horarioCargaNoLectiva(): Prisma.HorarioCargaNoLectivaDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.declaracionCarga`: Exposes CRUD operations for the **DeclaracionCarga** model.
     * Example usage:
     * ```ts
@@ -1134,6 +1149,7 @@ export namespace Prisma {
     Preasignacion: 'Preasignacion',
     AsignacionCargaLectiva: 'AsignacionCargaLectiva',
     CargaNoLectiva: 'CargaNoLectiva',
+    HorarioCargaNoLectiva: 'HorarioCargaNoLectiva',
     DeclaracionCarga: 'DeclaracionCarga'
   };
 
@@ -1150,7 +1166,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "facultad" | "departamento" | "escuela" | "curricula" | "cursoCurricula" | "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion" | "asignacionCargaLectiva" | "cargaNoLectiva" | "declaracionCarga"
+      modelProps: "facultad" | "departamento" | "escuela" | "curricula" | "cursoCurricula" | "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion" | "asignacionCargaLectiva" | "cargaNoLectiva" | "horarioCargaNoLectiva" | "declaracionCarga"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2930,6 +2946,80 @@ export namespace Prisma {
           }
         }
       }
+      HorarioCargaNoLectiva: {
+        payload: Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>
+        fields: Prisma.HorarioCargaNoLectivaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.HorarioCargaNoLectivaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.HorarioCargaNoLectivaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>
+          }
+          findFirst: {
+            args: Prisma.HorarioCargaNoLectivaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.HorarioCargaNoLectivaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>
+          }
+          findMany: {
+            args: Prisma.HorarioCargaNoLectivaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>[]
+          }
+          create: {
+            args: Prisma.HorarioCargaNoLectivaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>
+          }
+          createMany: {
+            args: Prisma.HorarioCargaNoLectivaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.HorarioCargaNoLectivaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>[]
+          }
+          delete: {
+            args: Prisma.HorarioCargaNoLectivaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>
+          }
+          update: {
+            args: Prisma.HorarioCargaNoLectivaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>
+          }
+          deleteMany: {
+            args: Prisma.HorarioCargaNoLectivaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.HorarioCargaNoLectivaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.HorarioCargaNoLectivaUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>[]
+          }
+          upsert: {
+            args: Prisma.HorarioCargaNoLectivaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioCargaNoLectivaPayload>
+          }
+          aggregate: {
+            args: Prisma.HorarioCargaNoLectivaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHorarioCargaNoLectiva>
+          }
+          groupBy: {
+            args: Prisma.HorarioCargaNoLectivaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HorarioCargaNoLectivaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.HorarioCargaNoLectivaCountArgs<ExtArgs>
+            result: $Utils.Optional<HorarioCargaNoLectivaCountAggregateOutputType> | number
+          }
+        }
+      }
       DeclaracionCarga: {
         payload: Prisma.$DeclaracionCargaPayload<ExtArgs>
         fields: Prisma.DeclaracionCargaFieldRefs
@@ -3136,6 +3226,7 @@ export namespace Prisma {
     preasignacion?: PreasignacionOmit
     asignacionCargaLectiva?: AsignacionCargaLectivaOmit
     cargaNoLectiva?: CargaNoLectivaOmit
+    horarioCargaNoLectiva?: HorarioCargaNoLectivaOmit
     declaracionCarga?: DeclaracionCargaOmit
   }
 
@@ -3838,6 +3929,37 @@ export namespace Prisma {
    */
   export type FranjaHorariaCountOutputTypeCountDisponibilidadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DisponibilidadDocenteWhereInput
+  }
+
+
+  /**
+   * Count Type CargaNoLectivaCountOutputType
+   */
+
+  export type CargaNoLectivaCountOutputType = {
+    horarios: number
+  }
+
+  export type CargaNoLectivaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    horarios?: boolean | CargaNoLectivaCountOutputTypeCountHorariosArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CargaNoLectivaCountOutputType without action
+   */
+  export type CargaNoLectivaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CargaNoLectivaCountOutputType
+     */
+    select?: CargaNoLectivaCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CargaNoLectivaCountOutputType without action
+   */
+  export type CargaNoLectivaCountOutputTypeCountHorariosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HorarioCargaNoLectivaWhereInput
   }
 
 
@@ -31351,6 +31473,8 @@ export namespace Prisma {
     updatedAt?: boolean
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+    horarios?: boolean | CargaNoLectiva$horariosArgs<ExtArgs>
+    _count?: boolean | CargaNoLectivaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cargaNoLectiva"]>
 
   export type CargaNoLectivaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -31406,6 +31530,8 @@ export namespace Prisma {
   export type CargaNoLectivaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+    horarios?: boolean | CargaNoLectiva$horariosArgs<ExtArgs>
+    _count?: boolean | CargaNoLectivaCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CargaNoLectivaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
@@ -31421,6 +31547,7 @@ export namespace Prisma {
     objects: {
       docente: Prisma.$DocentePayload<ExtArgs>
       periodo: Prisma.$PeriodoAcademicoPayload<ExtArgs>
+      horarios: Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -31831,6 +31958,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     docente<T extends DocenteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DocenteDefaultArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     periodo<T extends PeriodoAcademicoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademicoDefaultArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    horarios<T extends CargaNoLectiva$horariosArgs<ExtArgs> = {}>(args?: Subset<T, CargaNoLectiva$horariosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32273,6 +32401,30 @@ export namespace Prisma {
   }
 
   /**
+   * CargaNoLectiva.horarios
+   */
+  export type CargaNoLectiva$horariosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    where?: HorarioCargaNoLectivaWhereInput
+    orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
+    cursor?: HorarioCargaNoLectivaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HorarioCargaNoLectivaScalarFieldEnum | HorarioCargaNoLectivaScalarFieldEnum[]
+  }
+
+  /**
    * CargaNoLectiva without action
    */
   export type CargaNoLectivaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -32288,6 +32440,1108 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CargaNoLectivaInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model HorarioCargaNoLectiva
+   */
+
+  export type AggregateHorarioCargaNoLectiva = {
+    _count: HorarioCargaNoLectivaCountAggregateOutputType | null
+    _min: HorarioCargaNoLectivaMinAggregateOutputType | null
+    _max: HorarioCargaNoLectivaMaxAggregateOutputType | null
+  }
+
+  export type HorarioCargaNoLectivaMinAggregateOutputType = {
+    id: string | null
+    cargaNoLectivaId: string | null
+    dia: $Enums.DiaSemana | null
+    horaInicio: string | null
+    horaFin: string | null
+    lugar: string | null
+    aula: string | null
+    createdAt: Date | null
+  }
+
+  export type HorarioCargaNoLectivaMaxAggregateOutputType = {
+    id: string | null
+    cargaNoLectivaId: string | null
+    dia: $Enums.DiaSemana | null
+    horaInicio: string | null
+    horaFin: string | null
+    lugar: string | null
+    aula: string | null
+    createdAt: Date | null
+  }
+
+  export type HorarioCargaNoLectivaCountAggregateOutputType = {
+    id: number
+    cargaNoLectivaId: number
+    dia: number
+    horaInicio: number
+    horaFin: number
+    lugar: number
+    aula: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type HorarioCargaNoLectivaMinAggregateInputType = {
+    id?: true
+    cargaNoLectivaId?: true
+    dia?: true
+    horaInicio?: true
+    horaFin?: true
+    lugar?: true
+    aula?: true
+    createdAt?: true
+  }
+
+  export type HorarioCargaNoLectivaMaxAggregateInputType = {
+    id?: true
+    cargaNoLectivaId?: true
+    dia?: true
+    horaInicio?: true
+    horaFin?: true
+    lugar?: true
+    aula?: true
+    createdAt?: true
+  }
+
+  export type HorarioCargaNoLectivaCountAggregateInputType = {
+    id?: true
+    cargaNoLectivaId?: true
+    dia?: true
+    horaInicio?: true
+    horaFin?: true
+    lugar?: true
+    aula?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type HorarioCargaNoLectivaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HorarioCargaNoLectiva to aggregate.
+     */
+    where?: HorarioCargaNoLectivaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioCargaNoLectivas to fetch.
+     */
+    orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: HorarioCargaNoLectivaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioCargaNoLectivas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned HorarioCargaNoLectivas
+    **/
+    _count?: true | HorarioCargaNoLectivaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: HorarioCargaNoLectivaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: HorarioCargaNoLectivaMaxAggregateInputType
+  }
+
+  export type GetHorarioCargaNoLectivaAggregateType<T extends HorarioCargaNoLectivaAggregateArgs> = {
+        [P in keyof T & keyof AggregateHorarioCargaNoLectiva]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHorarioCargaNoLectiva[P]>
+      : GetScalarType<T[P], AggregateHorarioCargaNoLectiva[P]>
+  }
+
+
+
+
+  export type HorarioCargaNoLectivaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HorarioCargaNoLectivaWhereInput
+    orderBy?: HorarioCargaNoLectivaOrderByWithAggregationInput | HorarioCargaNoLectivaOrderByWithAggregationInput[]
+    by: HorarioCargaNoLectivaScalarFieldEnum[] | HorarioCargaNoLectivaScalarFieldEnum
+    having?: HorarioCargaNoLectivaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HorarioCargaNoLectivaCountAggregateInputType | true
+    _min?: HorarioCargaNoLectivaMinAggregateInputType
+    _max?: HorarioCargaNoLectivaMaxAggregateInputType
+  }
+
+  export type HorarioCargaNoLectivaGroupByOutputType = {
+    id: string
+    cargaNoLectivaId: string
+    dia: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    lugar: string | null
+    aula: string | null
+    createdAt: Date
+    _count: HorarioCargaNoLectivaCountAggregateOutputType | null
+    _min: HorarioCargaNoLectivaMinAggregateOutputType | null
+    _max: HorarioCargaNoLectivaMaxAggregateOutputType | null
+  }
+
+  type GetHorarioCargaNoLectivaGroupByPayload<T extends HorarioCargaNoLectivaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HorarioCargaNoLectivaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HorarioCargaNoLectivaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HorarioCargaNoLectivaGroupByOutputType[P]>
+            : GetScalarType<T[P], HorarioCargaNoLectivaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HorarioCargaNoLectivaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cargaNoLectivaId?: boolean
+    dia?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    lugar?: boolean
+    aula?: boolean
+    createdAt?: boolean
+    cargaNoLectiva?: boolean | CargaNoLectivaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioCargaNoLectiva"]>
+
+  export type HorarioCargaNoLectivaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cargaNoLectivaId?: boolean
+    dia?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    lugar?: boolean
+    aula?: boolean
+    createdAt?: boolean
+    cargaNoLectiva?: boolean | CargaNoLectivaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioCargaNoLectiva"]>
+
+  export type HorarioCargaNoLectivaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    cargaNoLectivaId?: boolean
+    dia?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    lugar?: boolean
+    aula?: boolean
+    createdAt?: boolean
+    cargaNoLectiva?: boolean | CargaNoLectivaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioCargaNoLectiva"]>
+
+  export type HorarioCargaNoLectivaSelectScalar = {
+    id?: boolean
+    cargaNoLectivaId?: boolean
+    dia?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    lugar?: boolean
+    aula?: boolean
+    createdAt?: boolean
+  }
+
+  export type HorarioCargaNoLectivaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "cargaNoLectivaId" | "dia" | "horaInicio" | "horaFin" | "lugar" | "aula" | "createdAt", ExtArgs["result"]["horarioCargaNoLectiva"]>
+  export type HorarioCargaNoLectivaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cargaNoLectiva?: boolean | CargaNoLectivaDefaultArgs<ExtArgs>
+  }
+  export type HorarioCargaNoLectivaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cargaNoLectiva?: boolean | CargaNoLectivaDefaultArgs<ExtArgs>
+  }
+  export type HorarioCargaNoLectivaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cargaNoLectiva?: boolean | CargaNoLectivaDefaultArgs<ExtArgs>
+  }
+
+  export type $HorarioCargaNoLectivaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "HorarioCargaNoLectiva"
+    objects: {
+      cargaNoLectiva: Prisma.$CargaNoLectivaPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      cargaNoLectivaId: string
+      dia: $Enums.DiaSemana
+      horaInicio: string
+      horaFin: string
+      lugar: string | null
+      aula: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["horarioCargaNoLectiva"]>
+    composites: {}
+  }
+
+  type HorarioCargaNoLectivaGetPayload<S extends boolean | null | undefined | HorarioCargaNoLectivaDefaultArgs> = $Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload, S>
+
+  type HorarioCargaNoLectivaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<HorarioCargaNoLectivaFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: HorarioCargaNoLectivaCountAggregateInputType | true
+    }
+
+  export interface HorarioCargaNoLectivaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['HorarioCargaNoLectiva'], meta: { name: 'HorarioCargaNoLectiva' } }
+    /**
+     * Find zero or one HorarioCargaNoLectiva that matches the filter.
+     * @param {HorarioCargaNoLectivaFindUniqueArgs} args - Arguments to find a HorarioCargaNoLectiva
+     * @example
+     * // Get one HorarioCargaNoLectiva
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HorarioCargaNoLectivaFindUniqueArgs>(args: SelectSubset<T, HorarioCargaNoLectivaFindUniqueArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one HorarioCargaNoLectiva that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {HorarioCargaNoLectivaFindUniqueOrThrowArgs} args - Arguments to find a HorarioCargaNoLectiva
+     * @example
+     * // Get one HorarioCargaNoLectiva
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HorarioCargaNoLectivaFindUniqueOrThrowArgs>(args: SelectSubset<T, HorarioCargaNoLectivaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HorarioCargaNoLectiva that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioCargaNoLectivaFindFirstArgs} args - Arguments to find a HorarioCargaNoLectiva
+     * @example
+     * // Get one HorarioCargaNoLectiva
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HorarioCargaNoLectivaFindFirstArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaFindFirstArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HorarioCargaNoLectiva that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioCargaNoLectivaFindFirstOrThrowArgs} args - Arguments to find a HorarioCargaNoLectiva
+     * @example
+     * // Get one HorarioCargaNoLectiva
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HorarioCargaNoLectivaFindFirstOrThrowArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaFindFirstOrThrowArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more HorarioCargaNoLectivas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioCargaNoLectivaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all HorarioCargaNoLectivas
+     * const horarioCargaNoLectivas = await prisma.horarioCargaNoLectiva.findMany()
+     * 
+     * // Get first 10 HorarioCargaNoLectivas
+     * const horarioCargaNoLectivas = await prisma.horarioCargaNoLectiva.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const horarioCargaNoLectivaWithIdOnly = await prisma.horarioCargaNoLectiva.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends HorarioCargaNoLectivaFindManyArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a HorarioCargaNoLectiva.
+     * @param {HorarioCargaNoLectivaCreateArgs} args - Arguments to create a HorarioCargaNoLectiva.
+     * @example
+     * // Create one HorarioCargaNoLectiva
+     * const HorarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.create({
+     *   data: {
+     *     // ... data to create a HorarioCargaNoLectiva
+     *   }
+     * })
+     * 
+     */
+    create<T extends HorarioCargaNoLectivaCreateArgs>(args: SelectSubset<T, HorarioCargaNoLectivaCreateArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many HorarioCargaNoLectivas.
+     * @param {HorarioCargaNoLectivaCreateManyArgs} args - Arguments to create many HorarioCargaNoLectivas.
+     * @example
+     * // Create many HorarioCargaNoLectivas
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends HorarioCargaNoLectivaCreateManyArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many HorarioCargaNoLectivas and returns the data saved in the database.
+     * @param {HorarioCargaNoLectivaCreateManyAndReturnArgs} args - Arguments to create many HorarioCargaNoLectivas.
+     * @example
+     * // Create many HorarioCargaNoLectivas
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many HorarioCargaNoLectivas and only return the `id`
+     * const horarioCargaNoLectivaWithIdOnly = await prisma.horarioCargaNoLectiva.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends HorarioCargaNoLectivaCreateManyAndReturnArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a HorarioCargaNoLectiva.
+     * @param {HorarioCargaNoLectivaDeleteArgs} args - Arguments to delete one HorarioCargaNoLectiva.
+     * @example
+     * // Delete one HorarioCargaNoLectiva
+     * const HorarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.delete({
+     *   where: {
+     *     // ... filter to delete one HorarioCargaNoLectiva
+     *   }
+     * })
+     * 
+     */
+    delete<T extends HorarioCargaNoLectivaDeleteArgs>(args: SelectSubset<T, HorarioCargaNoLectivaDeleteArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one HorarioCargaNoLectiva.
+     * @param {HorarioCargaNoLectivaUpdateArgs} args - Arguments to update one HorarioCargaNoLectiva.
+     * @example
+     * // Update one HorarioCargaNoLectiva
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends HorarioCargaNoLectivaUpdateArgs>(args: SelectSubset<T, HorarioCargaNoLectivaUpdateArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more HorarioCargaNoLectivas.
+     * @param {HorarioCargaNoLectivaDeleteManyArgs} args - Arguments to filter HorarioCargaNoLectivas to delete.
+     * @example
+     * // Delete a few HorarioCargaNoLectivas
+     * const { count } = await prisma.horarioCargaNoLectiva.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends HorarioCargaNoLectivaDeleteManyArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HorarioCargaNoLectivas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioCargaNoLectivaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many HorarioCargaNoLectivas
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends HorarioCargaNoLectivaUpdateManyArgs>(args: SelectSubset<T, HorarioCargaNoLectivaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HorarioCargaNoLectivas and returns the data updated in the database.
+     * @param {HorarioCargaNoLectivaUpdateManyAndReturnArgs} args - Arguments to update many HorarioCargaNoLectivas.
+     * @example
+     * // Update many HorarioCargaNoLectivas
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more HorarioCargaNoLectivas and only return the `id`
+     * const horarioCargaNoLectivaWithIdOnly = await prisma.horarioCargaNoLectiva.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends HorarioCargaNoLectivaUpdateManyAndReturnArgs>(args: SelectSubset<T, HorarioCargaNoLectivaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one HorarioCargaNoLectiva.
+     * @param {HorarioCargaNoLectivaUpsertArgs} args - Arguments to update or create a HorarioCargaNoLectiva.
+     * @example
+     * // Update or create a HorarioCargaNoLectiva
+     * const horarioCargaNoLectiva = await prisma.horarioCargaNoLectiva.upsert({
+     *   create: {
+     *     // ... data to create a HorarioCargaNoLectiva
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the HorarioCargaNoLectiva we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HorarioCargaNoLectivaUpsertArgs>(args: SelectSubset<T, HorarioCargaNoLectivaUpsertArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of HorarioCargaNoLectivas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioCargaNoLectivaCountArgs} args - Arguments to filter HorarioCargaNoLectivas to count.
+     * @example
+     * // Count the number of HorarioCargaNoLectivas
+     * const count = await prisma.horarioCargaNoLectiva.count({
+     *   where: {
+     *     // ... the filter for the HorarioCargaNoLectivas we want to count
+     *   }
+     * })
+    **/
+    count<T extends HorarioCargaNoLectivaCountArgs>(
+      args?: Subset<T, HorarioCargaNoLectivaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HorarioCargaNoLectivaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a HorarioCargaNoLectiva.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioCargaNoLectivaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HorarioCargaNoLectivaAggregateArgs>(args: Subset<T, HorarioCargaNoLectivaAggregateArgs>): Prisma.PrismaPromise<GetHorarioCargaNoLectivaAggregateType<T>>
+
+    /**
+     * Group by HorarioCargaNoLectiva.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioCargaNoLectivaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends HorarioCargaNoLectivaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HorarioCargaNoLectivaGroupByArgs['orderBy'] }
+        : { orderBy?: HorarioCargaNoLectivaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HorarioCargaNoLectivaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHorarioCargaNoLectivaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the HorarioCargaNoLectiva model
+   */
+  readonly fields: HorarioCargaNoLectivaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for HorarioCargaNoLectiva.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HorarioCargaNoLectivaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    cargaNoLectiva<T extends CargaNoLectivaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CargaNoLectivaDefaultArgs<ExtArgs>>): Prisma__CargaNoLectivaClient<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the HorarioCargaNoLectiva model
+   */
+  interface HorarioCargaNoLectivaFieldRefs {
+    readonly id: FieldRef<"HorarioCargaNoLectiva", 'String'>
+    readonly cargaNoLectivaId: FieldRef<"HorarioCargaNoLectiva", 'String'>
+    readonly dia: FieldRef<"HorarioCargaNoLectiva", 'DiaSemana'>
+    readonly horaInicio: FieldRef<"HorarioCargaNoLectiva", 'String'>
+    readonly horaFin: FieldRef<"HorarioCargaNoLectiva", 'String'>
+    readonly lugar: FieldRef<"HorarioCargaNoLectiva", 'String'>
+    readonly aula: FieldRef<"HorarioCargaNoLectiva", 'String'>
+    readonly createdAt: FieldRef<"HorarioCargaNoLectiva", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * HorarioCargaNoLectiva findUnique
+   */
+  export type HorarioCargaNoLectivaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioCargaNoLectiva to fetch.
+     */
+    where: HorarioCargaNoLectivaWhereUniqueInput
+  }
+
+  /**
+   * HorarioCargaNoLectiva findUniqueOrThrow
+   */
+  export type HorarioCargaNoLectivaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioCargaNoLectiva to fetch.
+     */
+    where: HorarioCargaNoLectivaWhereUniqueInput
+  }
+
+  /**
+   * HorarioCargaNoLectiva findFirst
+   */
+  export type HorarioCargaNoLectivaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioCargaNoLectiva to fetch.
+     */
+    where?: HorarioCargaNoLectivaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioCargaNoLectivas to fetch.
+     */
+    orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HorarioCargaNoLectivas.
+     */
+    cursor?: HorarioCargaNoLectivaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioCargaNoLectivas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HorarioCargaNoLectivas.
+     */
+    distinct?: HorarioCargaNoLectivaScalarFieldEnum | HorarioCargaNoLectivaScalarFieldEnum[]
+  }
+
+  /**
+   * HorarioCargaNoLectiva findFirstOrThrow
+   */
+  export type HorarioCargaNoLectivaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioCargaNoLectiva to fetch.
+     */
+    where?: HorarioCargaNoLectivaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioCargaNoLectivas to fetch.
+     */
+    orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HorarioCargaNoLectivas.
+     */
+    cursor?: HorarioCargaNoLectivaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioCargaNoLectivas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HorarioCargaNoLectivas.
+     */
+    distinct?: HorarioCargaNoLectivaScalarFieldEnum | HorarioCargaNoLectivaScalarFieldEnum[]
+  }
+
+  /**
+   * HorarioCargaNoLectiva findMany
+   */
+  export type HorarioCargaNoLectivaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioCargaNoLectivas to fetch.
+     */
+    where?: HorarioCargaNoLectivaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioCargaNoLectivas to fetch.
+     */
+    orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing HorarioCargaNoLectivas.
+     */
+    cursor?: HorarioCargaNoLectivaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioCargaNoLectivas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HorarioCargaNoLectivas.
+     */
+    distinct?: HorarioCargaNoLectivaScalarFieldEnum | HorarioCargaNoLectivaScalarFieldEnum[]
+  }
+
+  /**
+   * HorarioCargaNoLectiva create
+   */
+  export type HorarioCargaNoLectivaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a HorarioCargaNoLectiva.
+     */
+    data: XOR<HorarioCargaNoLectivaCreateInput, HorarioCargaNoLectivaUncheckedCreateInput>
+  }
+
+  /**
+   * HorarioCargaNoLectiva createMany
+   */
+  export type HorarioCargaNoLectivaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many HorarioCargaNoLectivas.
+     */
+    data: HorarioCargaNoLectivaCreateManyInput | HorarioCargaNoLectivaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * HorarioCargaNoLectiva createManyAndReturn
+   */
+  export type HorarioCargaNoLectivaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * The data used to create many HorarioCargaNoLectivas.
+     */
+    data: HorarioCargaNoLectivaCreateManyInput | HorarioCargaNoLectivaCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HorarioCargaNoLectiva update
+   */
+  export type HorarioCargaNoLectivaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a HorarioCargaNoLectiva.
+     */
+    data: XOR<HorarioCargaNoLectivaUpdateInput, HorarioCargaNoLectivaUncheckedUpdateInput>
+    /**
+     * Choose, which HorarioCargaNoLectiva to update.
+     */
+    where: HorarioCargaNoLectivaWhereUniqueInput
+  }
+
+  /**
+   * HorarioCargaNoLectiva updateMany
+   */
+  export type HorarioCargaNoLectivaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update HorarioCargaNoLectivas.
+     */
+    data: XOR<HorarioCargaNoLectivaUpdateManyMutationInput, HorarioCargaNoLectivaUncheckedUpdateManyInput>
+    /**
+     * Filter which HorarioCargaNoLectivas to update
+     */
+    where?: HorarioCargaNoLectivaWhereInput
+    /**
+     * Limit how many HorarioCargaNoLectivas to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * HorarioCargaNoLectiva updateManyAndReturn
+   */
+  export type HorarioCargaNoLectivaUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * The data used to update HorarioCargaNoLectivas.
+     */
+    data: XOR<HorarioCargaNoLectivaUpdateManyMutationInput, HorarioCargaNoLectivaUncheckedUpdateManyInput>
+    /**
+     * Filter which HorarioCargaNoLectivas to update
+     */
+    where?: HorarioCargaNoLectivaWhereInput
+    /**
+     * Limit how many HorarioCargaNoLectivas to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HorarioCargaNoLectiva upsert
+   */
+  export type HorarioCargaNoLectivaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the HorarioCargaNoLectiva to update in case it exists.
+     */
+    where: HorarioCargaNoLectivaWhereUniqueInput
+    /**
+     * In case the HorarioCargaNoLectiva found by the `where` argument doesn't exist, create a new HorarioCargaNoLectiva with this data.
+     */
+    create: XOR<HorarioCargaNoLectivaCreateInput, HorarioCargaNoLectivaUncheckedCreateInput>
+    /**
+     * In case the HorarioCargaNoLectiva was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HorarioCargaNoLectivaUpdateInput, HorarioCargaNoLectivaUncheckedUpdateInput>
+  }
+
+  /**
+   * HorarioCargaNoLectiva delete
+   */
+  export type HorarioCargaNoLectivaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
+    /**
+     * Filter which HorarioCargaNoLectiva to delete.
+     */
+    where: HorarioCargaNoLectivaWhereUniqueInput
+  }
+
+  /**
+   * HorarioCargaNoLectiva deleteMany
+   */
+  export type HorarioCargaNoLectivaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HorarioCargaNoLectivas to delete
+     */
+    where?: HorarioCargaNoLectivaWhereInput
+    /**
+     * Limit how many HorarioCargaNoLectivas to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * HorarioCargaNoLectiva without action
+   */
+  export type HorarioCargaNoLectivaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioCargaNoLectiva
+     */
+    select?: HorarioCargaNoLectivaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioCargaNoLectiva
+     */
+    omit?: HorarioCargaNoLectivaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioCargaNoLectivaInclude<ExtArgs> | null
   }
 
 
@@ -34007,6 +35261,20 @@ export namespace Prisma {
   };
 
   export type CargaNoLectivaScalarFieldEnum = (typeof CargaNoLectivaScalarFieldEnum)[keyof typeof CargaNoLectivaScalarFieldEnum]
+
+
+  export const HorarioCargaNoLectivaScalarFieldEnum: {
+    id: 'id',
+    cargaNoLectivaId: 'cargaNoLectivaId',
+    dia: 'dia',
+    horaInicio: 'horaInicio',
+    horaFin: 'horaFin',
+    lugar: 'lugar',
+    aula: 'aula',
+    createdAt: 'createdAt'
+  };
+
+  export type HorarioCargaNoLectivaScalarFieldEnum = (typeof HorarioCargaNoLectivaScalarFieldEnum)[keyof typeof HorarioCargaNoLectivaScalarFieldEnum]
 
 
   export const DeclaracionCargaScalarFieldEnum: {
@@ -36141,6 +37409,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"CargaNoLectiva"> | Date | string
     docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
+    horarios?: HorarioCargaNoLectivaListRelationFilter
   }
 
   export type CargaNoLectivaOrderByWithRelationInput = {
@@ -36158,6 +37427,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     docente?: DocenteOrderByWithRelationInput
     periodo?: PeriodoAcademicoOrderByWithRelationInput
+    horarios?: HorarioCargaNoLectivaOrderByRelationAggregateInput
   }
 
   export type CargaNoLectivaWhereUniqueInput = Prisma.AtLeast<{
@@ -36178,6 +37448,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"CargaNoLectiva"> | Date | string
     docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
+    horarios?: HorarioCargaNoLectivaListRelationFilter
   }, "id">
 
   export type CargaNoLectivaOrderByWithAggregationInput = {
@@ -36216,6 +37487,76 @@ export namespace Prisma {
     cicloConsejeria?: StringNullableWithAggregatesFilter<"CargaNoLectiva"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CargaNoLectiva"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CargaNoLectiva"> | Date | string
+  }
+
+  export type HorarioCargaNoLectivaWhereInput = {
+    AND?: HorarioCargaNoLectivaWhereInput | HorarioCargaNoLectivaWhereInput[]
+    OR?: HorarioCargaNoLectivaWhereInput[]
+    NOT?: HorarioCargaNoLectivaWhereInput | HorarioCargaNoLectivaWhereInput[]
+    id?: StringFilter<"HorarioCargaNoLectiva"> | string
+    cargaNoLectivaId?: StringFilter<"HorarioCargaNoLectiva"> | string
+    dia?: EnumDiaSemanaFilter<"HorarioCargaNoLectiva"> | $Enums.DiaSemana
+    horaInicio?: StringFilter<"HorarioCargaNoLectiva"> | string
+    horaFin?: StringFilter<"HorarioCargaNoLectiva"> | string
+    lugar?: StringNullableFilter<"HorarioCargaNoLectiva"> | string | null
+    aula?: StringNullableFilter<"HorarioCargaNoLectiva"> | string | null
+    createdAt?: DateTimeFilter<"HorarioCargaNoLectiva"> | Date | string
+    cargaNoLectiva?: XOR<CargaNoLectivaScalarRelationFilter, CargaNoLectivaWhereInput>
+  }
+
+  export type HorarioCargaNoLectivaOrderByWithRelationInput = {
+    id?: SortOrder
+    cargaNoLectivaId?: SortOrder
+    dia?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    lugar?: SortOrderInput | SortOrder
+    aula?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    cargaNoLectiva?: CargaNoLectivaOrderByWithRelationInput
+  }
+
+  export type HorarioCargaNoLectivaWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: HorarioCargaNoLectivaWhereInput | HorarioCargaNoLectivaWhereInput[]
+    OR?: HorarioCargaNoLectivaWhereInput[]
+    NOT?: HorarioCargaNoLectivaWhereInput | HorarioCargaNoLectivaWhereInput[]
+    cargaNoLectivaId?: StringFilter<"HorarioCargaNoLectiva"> | string
+    dia?: EnumDiaSemanaFilter<"HorarioCargaNoLectiva"> | $Enums.DiaSemana
+    horaInicio?: StringFilter<"HorarioCargaNoLectiva"> | string
+    horaFin?: StringFilter<"HorarioCargaNoLectiva"> | string
+    lugar?: StringNullableFilter<"HorarioCargaNoLectiva"> | string | null
+    aula?: StringNullableFilter<"HorarioCargaNoLectiva"> | string | null
+    createdAt?: DateTimeFilter<"HorarioCargaNoLectiva"> | Date | string
+    cargaNoLectiva?: XOR<CargaNoLectivaScalarRelationFilter, CargaNoLectivaWhereInput>
+  }, "id">
+
+  export type HorarioCargaNoLectivaOrderByWithAggregationInput = {
+    id?: SortOrder
+    cargaNoLectivaId?: SortOrder
+    dia?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    lugar?: SortOrderInput | SortOrder
+    aula?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: HorarioCargaNoLectivaCountOrderByAggregateInput
+    _max?: HorarioCargaNoLectivaMaxOrderByAggregateInput
+    _min?: HorarioCargaNoLectivaMinOrderByAggregateInput
+  }
+
+  export type HorarioCargaNoLectivaScalarWhereWithAggregatesInput = {
+    AND?: HorarioCargaNoLectivaScalarWhereWithAggregatesInput | HorarioCargaNoLectivaScalarWhereWithAggregatesInput[]
+    OR?: HorarioCargaNoLectivaScalarWhereWithAggregatesInput[]
+    NOT?: HorarioCargaNoLectivaScalarWhereWithAggregatesInput | HorarioCargaNoLectivaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"HorarioCargaNoLectiva"> | string
+    cargaNoLectivaId?: StringWithAggregatesFilter<"HorarioCargaNoLectiva"> | string
+    dia?: EnumDiaSemanaWithAggregatesFilter<"HorarioCargaNoLectiva"> | $Enums.DiaSemana
+    horaInicio?: StringWithAggregatesFilter<"HorarioCargaNoLectiva"> | string
+    horaFin?: StringWithAggregatesFilter<"HorarioCargaNoLectiva"> | string
+    lugar?: StringNullableWithAggregatesFilter<"HorarioCargaNoLectiva"> | string | null
+    aula?: StringNullableWithAggregatesFilter<"HorarioCargaNoLectiva"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"HorarioCargaNoLectiva"> | Date | string
   }
 
   export type DeclaracionCargaWhereInput = {
@@ -38292,6 +39633,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     docente: DocenteCreateNestedOneWithoutCargasNoLectivasInput
     periodo: PeriodoAcademicoCreateNestedOneWithoutCargasNoLectivasInput
+    horarios?: HorarioCargaNoLectivaCreateNestedManyWithoutCargaNoLectivaInput
   }
 
   export type CargaNoLectivaUncheckedCreateInput = {
@@ -38307,6 +39649,7 @@ export namespace Prisma {
     cicloConsejeria?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    horarios?: HorarioCargaNoLectivaUncheckedCreateNestedManyWithoutCargaNoLectivaInput
   }
 
   export type CargaNoLectivaUpdateInput = {
@@ -38322,6 +39665,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutCargasNoLectivasNestedInput
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutCargasNoLectivasNestedInput
+    horarios?: HorarioCargaNoLectivaUpdateManyWithoutCargaNoLectivaNestedInput
   }
 
   export type CargaNoLectivaUncheckedUpdateInput = {
@@ -38337,6 +39681,7 @@ export namespace Prisma {
     cicloConsejeria?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    horarios?: HorarioCargaNoLectivaUncheckedUpdateManyWithoutCargaNoLectivaNestedInput
   }
 
   export type CargaNoLectivaCreateManyInput = {
@@ -38380,6 +39725,82 @@ export namespace Prisma {
     cicloConsejeria?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioCargaNoLectivaCreateInput = {
+    id?: string
+    dia: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    lugar?: string | null
+    aula?: string | null
+    createdAt?: Date | string
+    cargaNoLectiva: CargaNoLectivaCreateNestedOneWithoutHorariosInput
+  }
+
+  export type HorarioCargaNoLectivaUncheckedCreateInput = {
+    id?: string
+    cargaNoLectivaId: string
+    dia: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    lugar?: string | null
+    aula?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HorarioCargaNoLectivaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dia?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    lugar?: NullableStringFieldUpdateOperationsInput | string | null
+    aula?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cargaNoLectiva?: CargaNoLectivaUpdateOneRequiredWithoutHorariosNestedInput
+  }
+
+  export type HorarioCargaNoLectivaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cargaNoLectivaId?: StringFieldUpdateOperationsInput | string
+    dia?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    lugar?: NullableStringFieldUpdateOperationsInput | string | null
+    aula?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioCargaNoLectivaCreateManyInput = {
+    id?: string
+    cargaNoLectivaId: string
+    dia: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    lugar?: string | null
+    aula?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HorarioCargaNoLectivaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dia?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    lugar?: NullableStringFieldUpdateOperationsInput | string | null
+    aula?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioCargaNoLectivaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cargaNoLectivaId?: StringFieldUpdateOperationsInput | string
+    dia?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    lugar?: NullableStringFieldUpdateOperationsInput | string | null
+    aula?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DeclaracionCargaCreateInput = {
@@ -40077,6 +41498,16 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type HorarioCargaNoLectivaListRelationFilter = {
+    every?: HorarioCargaNoLectivaWhereInput
+    some?: HorarioCargaNoLectivaWhereInput
+    none?: HorarioCargaNoLectivaWhereInput
+  }
+
+  export type HorarioCargaNoLectivaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type CargaNoLectivaCountOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
@@ -40156,6 +41587,44 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type CargaNoLectivaScalarRelationFilter = {
+    is?: CargaNoLectivaWhereInput
+    isNot?: CargaNoLectivaWhereInput
+  }
+
+  export type HorarioCargaNoLectivaCountOrderByAggregateInput = {
+    id?: SortOrder
+    cargaNoLectivaId?: SortOrder
+    dia?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    lugar?: SortOrder
+    aula?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type HorarioCargaNoLectivaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    cargaNoLectivaId?: SortOrder
+    dia?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    lugar?: SortOrder
+    aula?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type HorarioCargaNoLectivaMinOrderByAggregateInput = {
+    id?: SortOrder
+    cargaNoLectivaId?: SortOrder
+    dia?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    lugar?: SortOrder
+    aula?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type EnumEstadoDeclaracionFilter<$PrismaModel = never> = {
@@ -42853,6 +44322,20 @@ export namespace Prisma {
     connect?: PeriodoAcademicoWhereUniqueInput
   }
 
+  export type HorarioCargaNoLectivaCreateNestedManyWithoutCargaNoLectivaInput = {
+    create?: XOR<HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput> | HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput[] | HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput[]
+    connectOrCreate?: HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput | HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput[]
+    createMany?: HorarioCargaNoLectivaCreateManyCargaNoLectivaInputEnvelope
+    connect?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+  }
+
+  export type HorarioCargaNoLectivaUncheckedCreateNestedManyWithoutCargaNoLectivaInput = {
+    create?: XOR<HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput> | HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput[] | HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput[]
+    connectOrCreate?: HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput | HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput[]
+    createMany?: HorarioCargaNoLectivaCreateManyCargaNoLectivaInputEnvelope
+    connect?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+  }
+
   export type EnumTipoCargaNoLectivaFieldUpdateOperationsInput = {
     set?: $Enums.TipoCargaNoLectiva
   }
@@ -42879,6 +44362,48 @@ export namespace Prisma {
     upsert?: PeriodoAcademicoUpsertWithoutCargasNoLectivasInput
     connect?: PeriodoAcademicoWhereUniqueInput
     update?: XOR<XOR<PeriodoAcademicoUpdateToOneWithWhereWithoutCargasNoLectivasInput, PeriodoAcademicoUpdateWithoutCargasNoLectivasInput>, PeriodoAcademicoUncheckedUpdateWithoutCargasNoLectivasInput>
+  }
+
+  export type HorarioCargaNoLectivaUpdateManyWithoutCargaNoLectivaNestedInput = {
+    create?: XOR<HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput> | HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput[] | HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput[]
+    connectOrCreate?: HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput | HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput[]
+    upsert?: HorarioCargaNoLectivaUpsertWithWhereUniqueWithoutCargaNoLectivaInput | HorarioCargaNoLectivaUpsertWithWhereUniqueWithoutCargaNoLectivaInput[]
+    createMany?: HorarioCargaNoLectivaCreateManyCargaNoLectivaInputEnvelope
+    set?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    disconnect?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    delete?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    connect?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    update?: HorarioCargaNoLectivaUpdateWithWhereUniqueWithoutCargaNoLectivaInput | HorarioCargaNoLectivaUpdateWithWhereUniqueWithoutCargaNoLectivaInput[]
+    updateMany?: HorarioCargaNoLectivaUpdateManyWithWhereWithoutCargaNoLectivaInput | HorarioCargaNoLectivaUpdateManyWithWhereWithoutCargaNoLectivaInput[]
+    deleteMany?: HorarioCargaNoLectivaScalarWhereInput | HorarioCargaNoLectivaScalarWhereInput[]
+  }
+
+  export type HorarioCargaNoLectivaUncheckedUpdateManyWithoutCargaNoLectivaNestedInput = {
+    create?: XOR<HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput> | HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput[] | HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput[]
+    connectOrCreate?: HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput | HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput[]
+    upsert?: HorarioCargaNoLectivaUpsertWithWhereUniqueWithoutCargaNoLectivaInput | HorarioCargaNoLectivaUpsertWithWhereUniqueWithoutCargaNoLectivaInput[]
+    createMany?: HorarioCargaNoLectivaCreateManyCargaNoLectivaInputEnvelope
+    set?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    disconnect?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    delete?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    connect?: HorarioCargaNoLectivaWhereUniqueInput | HorarioCargaNoLectivaWhereUniqueInput[]
+    update?: HorarioCargaNoLectivaUpdateWithWhereUniqueWithoutCargaNoLectivaInput | HorarioCargaNoLectivaUpdateWithWhereUniqueWithoutCargaNoLectivaInput[]
+    updateMany?: HorarioCargaNoLectivaUpdateManyWithWhereWithoutCargaNoLectivaInput | HorarioCargaNoLectivaUpdateManyWithWhereWithoutCargaNoLectivaInput[]
+    deleteMany?: HorarioCargaNoLectivaScalarWhereInput | HorarioCargaNoLectivaScalarWhereInput[]
+  }
+
+  export type CargaNoLectivaCreateNestedOneWithoutHorariosInput = {
+    create?: XOR<CargaNoLectivaCreateWithoutHorariosInput, CargaNoLectivaUncheckedCreateWithoutHorariosInput>
+    connectOrCreate?: CargaNoLectivaCreateOrConnectWithoutHorariosInput
+    connect?: CargaNoLectivaWhereUniqueInput
+  }
+
+  export type CargaNoLectivaUpdateOneRequiredWithoutHorariosNestedInput = {
+    create?: XOR<CargaNoLectivaCreateWithoutHorariosInput, CargaNoLectivaUncheckedCreateWithoutHorariosInput>
+    connectOrCreate?: CargaNoLectivaCreateOrConnectWithoutHorariosInput
+    upsert?: CargaNoLectivaUpsertWithoutHorariosInput
+    connect?: CargaNoLectivaWhereUniqueInput
+    update?: XOR<XOR<CargaNoLectivaUpdateToOneWithWhereWithoutHorariosInput, CargaNoLectivaUpdateWithoutHorariosInput>, CargaNoLectivaUncheckedUpdateWithoutHorariosInput>
   }
 
   export type DocenteCreateNestedOneWithoutDeclaracionesInput = {
@@ -45784,6 +47309,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     periodo: PeriodoAcademicoCreateNestedOneWithoutCargasNoLectivasInput
+    horarios?: HorarioCargaNoLectivaCreateNestedManyWithoutCargaNoLectivaInput
   }
 
   export type CargaNoLectivaUncheckedCreateWithoutDocenteInput = {
@@ -45798,6 +47324,7 @@ export namespace Prisma {
     cicloConsejeria?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    horarios?: HorarioCargaNoLectivaUncheckedCreateNestedManyWithoutCargaNoLectivaInput
   }
 
   export type CargaNoLectivaCreateOrConnectWithoutDocenteInput = {
@@ -47692,6 +49219,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     docente: DocenteCreateNestedOneWithoutCargasNoLectivasInput
+    horarios?: HorarioCargaNoLectivaCreateNestedManyWithoutCargaNoLectivaInput
   }
 
   export type CargaNoLectivaUncheckedCreateWithoutPeriodoInput = {
@@ -47706,6 +49234,7 @@ export namespace Prisma {
     cicloConsejeria?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    horarios?: HorarioCargaNoLectivaUncheckedCreateNestedManyWithoutCargaNoLectivaInput
   }
 
   export type CargaNoLectivaCreateOrConnectWithoutPeriodoInput = {
@@ -50133,6 +51662,36 @@ export namespace Prisma {
     create: XOR<PeriodoAcademicoCreateWithoutCargasNoLectivasInput, PeriodoAcademicoUncheckedCreateWithoutCargasNoLectivasInput>
   }
 
+  export type HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput = {
+    id?: string
+    dia: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    lugar?: string | null
+    aula?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput = {
+    id?: string
+    dia: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    lugar?: string | null
+    aula?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HorarioCargaNoLectivaCreateOrConnectWithoutCargaNoLectivaInput = {
+    where: HorarioCargaNoLectivaWhereUniqueInput
+    create: XOR<HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput>
+  }
+
+  export type HorarioCargaNoLectivaCreateManyCargaNoLectivaInputEnvelope = {
+    data: HorarioCargaNoLectivaCreateManyCargaNoLectivaInput | HorarioCargaNoLectivaCreateManyCargaNoLectivaInput[]
+    skipDuplicates?: boolean
+  }
+
   export type DocenteUpsertWithoutCargasNoLectivasInput = {
     update: XOR<DocenteUpdateWithoutCargasNoLectivasInput, DocenteUncheckedUpdateWithoutCargasNoLectivasInput>
     create: XOR<DocenteCreateWithoutCargasNoLectivasInput, DocenteUncheckedCreateWithoutCargasNoLectivasInput>
@@ -50259,6 +51818,112 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+  }
+
+  export type HorarioCargaNoLectivaUpsertWithWhereUniqueWithoutCargaNoLectivaInput = {
+    where: HorarioCargaNoLectivaWhereUniqueInput
+    update: XOR<HorarioCargaNoLectivaUpdateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedUpdateWithoutCargaNoLectivaInput>
+    create: XOR<HorarioCargaNoLectivaCreateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedCreateWithoutCargaNoLectivaInput>
+  }
+
+  export type HorarioCargaNoLectivaUpdateWithWhereUniqueWithoutCargaNoLectivaInput = {
+    where: HorarioCargaNoLectivaWhereUniqueInput
+    data: XOR<HorarioCargaNoLectivaUpdateWithoutCargaNoLectivaInput, HorarioCargaNoLectivaUncheckedUpdateWithoutCargaNoLectivaInput>
+  }
+
+  export type HorarioCargaNoLectivaUpdateManyWithWhereWithoutCargaNoLectivaInput = {
+    where: HorarioCargaNoLectivaScalarWhereInput
+    data: XOR<HorarioCargaNoLectivaUpdateManyMutationInput, HorarioCargaNoLectivaUncheckedUpdateManyWithoutCargaNoLectivaInput>
+  }
+
+  export type HorarioCargaNoLectivaScalarWhereInput = {
+    AND?: HorarioCargaNoLectivaScalarWhereInput | HorarioCargaNoLectivaScalarWhereInput[]
+    OR?: HorarioCargaNoLectivaScalarWhereInput[]
+    NOT?: HorarioCargaNoLectivaScalarWhereInput | HorarioCargaNoLectivaScalarWhereInput[]
+    id?: StringFilter<"HorarioCargaNoLectiva"> | string
+    cargaNoLectivaId?: StringFilter<"HorarioCargaNoLectiva"> | string
+    dia?: EnumDiaSemanaFilter<"HorarioCargaNoLectiva"> | $Enums.DiaSemana
+    horaInicio?: StringFilter<"HorarioCargaNoLectiva"> | string
+    horaFin?: StringFilter<"HorarioCargaNoLectiva"> | string
+    lugar?: StringNullableFilter<"HorarioCargaNoLectiva"> | string | null
+    aula?: StringNullableFilter<"HorarioCargaNoLectiva"> | string | null
+    createdAt?: DateTimeFilter<"HorarioCargaNoLectiva"> | Date | string
+  }
+
+  export type CargaNoLectivaCreateWithoutHorariosInput = {
+    id?: string
+    tipo: $Enums.TipoCargaNoLectiva
+    horas: number
+    descripcion?: string | null
+    codigoProyecto?: string | null
+    nombreProyecto?: string | null
+    numAlumnos?: number | null
+    cicloConsejeria?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    docente: DocenteCreateNestedOneWithoutCargasNoLectivasInput
+    periodo: PeriodoAcademicoCreateNestedOneWithoutCargasNoLectivasInput
+  }
+
+  export type CargaNoLectivaUncheckedCreateWithoutHorariosInput = {
+    id?: string
+    docenteId: string
+    periodoId: string
+    tipo: $Enums.TipoCargaNoLectiva
+    horas: number
+    descripcion?: string | null
+    codigoProyecto?: string | null
+    nombreProyecto?: string | null
+    numAlumnos?: number | null
+    cicloConsejeria?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CargaNoLectivaCreateOrConnectWithoutHorariosInput = {
+    where: CargaNoLectivaWhereUniqueInput
+    create: XOR<CargaNoLectivaCreateWithoutHorariosInput, CargaNoLectivaUncheckedCreateWithoutHorariosInput>
+  }
+
+  export type CargaNoLectivaUpsertWithoutHorariosInput = {
+    update: XOR<CargaNoLectivaUpdateWithoutHorariosInput, CargaNoLectivaUncheckedUpdateWithoutHorariosInput>
+    create: XOR<CargaNoLectivaCreateWithoutHorariosInput, CargaNoLectivaUncheckedCreateWithoutHorariosInput>
+    where?: CargaNoLectivaWhereInput
+  }
+
+  export type CargaNoLectivaUpdateToOneWithWhereWithoutHorariosInput = {
+    where?: CargaNoLectivaWhereInput
+    data: XOR<CargaNoLectivaUpdateWithoutHorariosInput, CargaNoLectivaUncheckedUpdateWithoutHorariosInput>
+  }
+
+  export type CargaNoLectivaUpdateWithoutHorariosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoCargaNoLectivaFieldUpdateOperationsInput | $Enums.TipoCargaNoLectiva
+    horas?: IntFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoProyecto?: NullableStringFieldUpdateOperationsInput | string | null
+    nombreProyecto?: NullableStringFieldUpdateOperationsInput | string | null
+    numAlumnos?: NullableIntFieldUpdateOperationsInput | number | null
+    cicloConsejeria?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneRequiredWithoutCargasNoLectivasNestedInput
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutCargasNoLectivasNestedInput
+  }
+
+  export type CargaNoLectivaUncheckedUpdateWithoutHorariosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoCargaNoLectivaFieldUpdateOperationsInput | $Enums.TipoCargaNoLectiva
+    horas?: IntFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoProyecto?: NullableStringFieldUpdateOperationsInput | string | null
+    nombreProyecto?: NullableStringFieldUpdateOperationsInput | string | null
+    numAlumnos?: NullableIntFieldUpdateOperationsInput | number | null
+    cicloConsejeria?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DocenteCreateWithoutDeclaracionesInput = {
@@ -51877,6 +53542,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutCargasNoLectivasNestedInput
+    horarios?: HorarioCargaNoLectivaUpdateManyWithoutCargaNoLectivaNestedInput
   }
 
   export type CargaNoLectivaUncheckedUpdateWithoutDocenteInput = {
@@ -51891,6 +53557,7 @@ export namespace Prisma {
     cicloConsejeria?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    horarios?: HorarioCargaNoLectivaUncheckedUpdateManyWithoutCargaNoLectivaNestedInput
   }
 
   export type CargaNoLectivaUncheckedUpdateManyWithoutDocenteInput = {
@@ -52541,6 +54208,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutCargasNoLectivasNestedInput
+    horarios?: HorarioCargaNoLectivaUpdateManyWithoutCargaNoLectivaNestedInput
   }
 
   export type CargaNoLectivaUncheckedUpdateWithoutPeriodoInput = {
@@ -52555,6 +54223,7 @@ export namespace Prisma {
     cicloConsejeria?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    horarios?: HorarioCargaNoLectivaUncheckedUpdateManyWithoutCargaNoLectivaNestedInput
   }
 
   export type CargaNoLectivaUncheckedUpdateManyWithoutPeriodoInput = {
@@ -52800,6 +54469,46 @@ export namespace Prisma {
   export type DisponibilidadDocenteUncheckedUpdateManyWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioCargaNoLectivaCreateManyCargaNoLectivaInput = {
+    id?: string
+    dia: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    lugar?: string | null
+    aula?: string | null
+    createdAt?: Date | string
+  }
+
+  export type HorarioCargaNoLectivaUpdateWithoutCargaNoLectivaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dia?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    lugar?: NullableStringFieldUpdateOperationsInput | string | null
+    aula?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioCargaNoLectivaUncheckedUpdateWithoutCargaNoLectivaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dia?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    lugar?: NullableStringFieldUpdateOperationsInput | string | null
+    aula?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioCargaNoLectivaUncheckedUpdateManyWithoutCargaNoLectivaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dia?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    lugar?: NullableStringFieldUpdateOperationsInput | string | null
+    aula?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

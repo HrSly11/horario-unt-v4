@@ -38,6 +38,7 @@ function makeGrupo(id: string, overrides: Partial<GrupoForSchedule> = {}): Grupo
     cursoId: `curso-${id}`,
     cursoNombre: `Curso ${id}`,
     cursoCodigo: `IS-${id}`,
+    ciclo: 5,
     horasTeoria: 2,
     horasLaboratorio: 0,
     requiereLaboratorio: false,

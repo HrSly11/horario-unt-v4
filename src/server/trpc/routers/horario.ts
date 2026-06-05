@@ -82,9 +82,23 @@ export const horarioRouter = createTRPCRouter({
       });
     }),
 
-  byDocente: baseProcedure
+  byDocente: protectedProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
+      const role = ctx.session.role;
+      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA' || role === 'DIRECTOR_DEPARTAMENTO' || role === 'DECANO';
+      const isSelf = ctx.session.docenteId === input.docenteId;
+
+      const periodo = await ctx.prisma.periodoAcademico.findUnique({
+        where: { id: input.periodoId },
+        select: { estado: true }
+      });
+      const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
+
+      if (!isPrivileged && !isSelf && !isPublished) {
+        return [];
+      }
+
       return ctx.prisma.asignacion.findMany({
         where: { docenteId: input.docenteId, periodoId: input.periodoId },
         include: {

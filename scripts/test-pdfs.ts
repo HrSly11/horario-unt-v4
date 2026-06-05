@@ -1,11 +1,20 @@
 import 'dotenv/config';
-import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaClient, TipoAsignacion, TipoCargaNoLectiva } from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import { templateFormatoN1, templateFormatoN2, templateFormatoN3 } from '../src/server/services/reports/declaracion-templates';
 import { renderPDF } from '../src/server/services/reports';
 import * as fs from 'fs';
 import * as path from 'path';
+
+const formatDate = (date?: Date | null) => {
+  if (!date) return '';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 async function main() {
   const connectionString = process.env.DATABASE_URL!;
@@ -15,7 +24,7 @@ async function main() {
 
   const docente = await prisma.docente.findFirst({
     where: { email: 'cmendez@unitru.edu.pe' },
-    select: { id: true, nombre: true, dni: true, codigoIBM: true, categoria: true, modalidad: true },
+    select: { id: true, nombre: true, dni: true, codigoIBM: true, categoria: true, modalidad: true, tipo: true },
   });
 
   if (!docente) { console.log('Docente no encontrado'); return; }
@@ -29,11 +38,21 @@ async function main() {
     include: {
       docente: {
         select: {
-          nombre: true, dni: true, codigoIBM: true, categoria: true, modalidad: true,
-          departamento: { select: { nombre: true, facultad: { select: { nombre: true } } } },
+          nombre: true, dni: true, codigoIBM: true, categoria: true, modalidad: true, tipo: true,
+          departamento: {
+            select: {
+              nombre: true,
+              facultad: {
+                select: {
+                  nombre: true,
+                  escuelas: { select: { nombre: true } },
+                },
+              },
+            },
+          },
         },
       },
-      periodo: { select: { nombre: true } },
+      periodo: { select: { nombre: true, fechaInicio: true, fechaFin: true } },
     },
   });
 
@@ -43,11 +62,32 @@ async function main() {
   const [asignaciones, cargasNoLectivas] = await Promise.all([
     prisma.asignacionCargaLectiva.findMany({
       where: { docenteId: docente.id, periodoId: periodo.id },
-      include: { grupo: { include: { curso: { select: { codigo: true, nombre: true } } } } },
+      include: {
+        grupo: {
+          include: {
+            curso: {
+              include: {
+                cursoCurriculas: {
+                  include: {
+                    curricula: {
+                      include: {
+                        escuela: {
+                          select: { nombre: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       orderBy: { grupo: { curso: { codigo: 'asc' } } },
     }),
     prisma.cargaNoLectiva.findMany({
       where: { docenteId: docente.id, periodoId: periodo.id },
+      include: { horarios: true },
       orderBy: { tipo: 'asc' },
     }),
   ]);
@@ -56,20 +96,66 @@ async function main() {
   const totalNoLectivas = cargasNoLectivas.reduce((sum, c) => sum + c.horas, 0);
   const depto = declaracion.docente.departamento?.nombre || '';
   const facultad = declaracion.docente.departamento?.facultad?.nombre || '';
+  const docenteEscuela = declaracion.docente.departamento?.facultad?.escuelas[0]?.nombre || 'Ingeniería de Sistemas';
 
   const outputDir = path.join(__dirname, '..', 'pdfs-generados');
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+  const parts = declaracion.periodo.nombre.split('-');
+  const anioAcademico = parts[0] || new Date().getFullYear().toString();
+  const cicloSemestre = parts[1] || 'I';
 
   const formatos = [
     {
       key: 'N1',
       html: templateFormatoN1({
-        docente: { nombre: declaracion.docente.nombre, dni: declaracion.docente.dni, categoria: declaracion.docente.categoria, modalidad: declaracion.docente.modalidad },
-        periodo: declaracion.periodo.nombre,
+        docente: {
+          nombre: declaracion.docente.nombre,
+          dni: declaracion.docente.dni,
+          codigoIBM: declaracion.docente.codigoIBM,
+          categoria: declaracion.docente.categoria,
+          tipo: declaracion.docente.tipo,
+          modalidad: declaracion.docente.modalidad,
+        },
+        periodo: {
+          nombre: declaracion.periodo.nombre,
+          fechaInicio: formatDate(declaracion.periodo.fechaInicio),
+          fechaFin: formatDate(declaracion.periodo.fechaFin),
+        },
+        anioAcademico,
+        cicloSemestre,
         facultad,
         departamento: depto,
-        asignaciones: asignaciones.map((a) => ({ cursoCodigo: a.grupo.curso.codigo, cursoNombre: a.grupo.curso.nombre, grupo: a.grupo.nombre, tipo: a.tipo, horas: a.horasAsignadas })),
-        cargasNoLectivas: cargasNoLectivas.map((c) => ({ tipo: c.tipo, horas: c.horas, descripcion: c.descripcion })),
+        escuela: docenteEscuela,
+        asignaciones: asignaciones.map((a) => {
+          const escuelaProf = a.grupo.curso.cursoCurriculas[0]?.curricula?.escuela?.nombre || docenteEscuela;
+          return {
+            cursoCodigo: a.grupo.curso.codigo,
+            cursoNombre: a.grupo.curso.nombre,
+            grupo: a.grupo.nombre,
+            seccion: a.grupo.seccion || 'A',
+            escuelaProf,
+            ciclo: a.grupo.curso.ciclo,
+            numAlumnos: a.grupo.numAlumnos,
+            horasTeoria: a.tipo === 'TEORIA' ? a.horasAsignadas : 0,
+            horasPractica: a.tipo === 'PRACTICA' ? a.horasAsignadas : 0,
+            horasLaboratorio: a.tipo === 'LABORATORIO' ? a.horasAsignadas : 0,
+            tipo: a.tipo,
+            horas: a.horasAsignadas,
+          };
+        }),
+        cargasNoLectivas: cargasNoLectivas.map((c) => ({
+          tipo: c.tipo,
+          horas: c.horas,
+          descripcion: c.descripcion,
+          horarios: c.horarios.map((h) => ({
+            dia: h.dia,
+            horaInicio: h.horaInicio,
+            horaFin: h.horaFin,
+            lugar: h.lugar,
+            aula: h.aula,
+          })),
+        })),
         totalLectivas,
         totalNoLectivas,
       }),
@@ -78,16 +164,22 @@ async function main() {
       key: 'N2',
       html: templateFormatoN2({
         docente: { nombre: declaracion.docente.nombre, dni: declaracion.docente.dni, codigoIBM: declaracion.docente.codigoIBM },
-        periodo: declaracion.periodo.nombre, facultad, departamento: depto,
+        periodo: declaracion.periodo.nombre,
+        facultad,
+        departamento: depto,
         modalidad: declaracion.docente.modalidad,
+        tipo: declaracion.docente.tipo,
       }),
     },
     {
       key: 'N3',
       html: templateFormatoN3({
         docente: { nombre: declaracion.docente.nombre, dni: declaracion.docente.dni, codigoIBM: declaracion.docente.codigoIBM },
-        periodo: declaracion.periodo.nombre, facultad, departamento: depto,
+        periodo: declaracion.periodo.nombre,
+        facultad,
+        departamento: depto,
         modalidad: declaracion.docente.modalidad,
+        tipo: declaracion.docente.tipo,
       }),
     },
   ];

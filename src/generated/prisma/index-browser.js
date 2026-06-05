@@ -389,6 +389,17 @@ exports.Prisma.CargaNoLectivaScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.HorarioCargaNoLectivaScalarFieldEnum = {
+  id: 'id',
+  cargaNoLectivaId: 'cargaNoLectivaId',
+  dia: 'dia',
+  horaInicio: 'horaInicio',
+  horaFin: 'horaFin',
+  lugar: 'lugar',
+  aula: 'aula',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.DeclaracionCargaScalarFieldEnum = {
   id: 'id',
   docenteId: 'docenteId',
@@ -534,6 +545,7 @@ exports.Prisma.ModelName = {
   Preasignacion: 'Preasignacion',
   AsignacionCargaLectiva: 'AsignacionCargaLectiva',
   CargaNoLectiva: 'CargaNoLectiva',
+  HorarioCargaNoLectiva: 'HorarioCargaNoLectiva',
   DeclaracionCarga: 'DeclaracionCarga'
 };
 

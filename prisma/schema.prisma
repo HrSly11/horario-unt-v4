@@ -568,8 +568,25 @@ model CargaNoLectiva {
 
   docente         Docente             @relation(fields: [docenteId], references: [id], onDelete: Cascade)
   periodo         PeriodoAcademico    @relation(fields: [periodoId], references: [id], onDelete: Cascade)
+  horarios        HorarioCargaNoLectiva[]
 
   @@map("cargas_no_lectivas")
+}
+
+/// Bloques horarios de cada actividad no lectiva
+model HorarioCargaNoLectiva {
+  id                String          @id @default(cuid())
+  cargaNoLectivaId  String          @map("carga_no_lectiva_id")
+  dia               DiaSemana
+  horaInicio        String          @map("hora_inicio")  // "07:00"
+  horaFin           String          @map("hora_fin")      // "11:00"
+  lugar             String?                                // "F01", "F11"
+  aula              String?                                // "CUBICULO DOCENTE", "LAB 01"
+  createdAt         DateTime        @default(now()) @map("created_at")
+
+  cargaNoLectiva    CargaNoLectiva  @relation(fields: [cargaNoLectivaId], references: [id], onDelete: Cascade)
+
+  @@map("horarios_carga_no_lectiva")
 }
 
 /// Declaración de carga horaria (Formato N°1 + control de flujo)

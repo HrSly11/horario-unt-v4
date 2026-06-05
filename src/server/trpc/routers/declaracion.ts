@@ -20,7 +20,7 @@ const validTransitions: Record<string, string[]> = {
 };
 
 export const declaracionRouter = createTRPCRouter({
-  list: baseProcedure
+  list: protectedProcedure
     .input(
       z.object({
         periodoId: z.string().optional(),
@@ -29,11 +29,18 @@ export const declaracionRouter = createTRPCRouter({
       }).optional()
     )
     .query(async ({ ctx, input }) => {
-      const where: Record<string, unknown> = {};
+      const where: Record<string, any> = {};
       if (input?.periodoId) where.periodoId = input.periodoId;
       if (input?.estado) where.estado = input.estado;
       if (input?.departamentoId) {
         where.docente = { departamentoId: input.departamentoId };
+      }
+
+      if (ctx.session.role === 'DOCENTE') {
+        if (!ctx.session.docenteId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'El usuario docente no tiene un ID de docente asociado.' });
+        }
+        where.docenteId = ctx.session.docenteId;
       }
 
       return ctx.prisma.declaracionCarga.findMany({
@@ -52,7 +59,7 @@ export const declaracionRouter = createTRPCRouter({
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      return ctx.prisma.declaracionCarga.findUniqueOrThrow({
+      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({
         where: { id: input.id },
         include: {
           docente: {
@@ -68,11 +75,21 @@ export const declaracionRouter = createTRPCRouter({
           vbDecano: { select: { id: true, nombre: true } },
         },
       });
+
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para ver esta declaración.' });
+      }
+
+      return declaracion;
     }),
 
   byDocente: docenteProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== input.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para ver declaraciones de otro docente' });
+      }
+
       return ctx.prisma.declaracionCarga.findUnique({
         where: { docenteId_periodoId: { docenteId: input.docenteId, periodoId: input.periodoId } },
         include: {
@@ -88,6 +105,10 @@ export const declaracionRouter = createTRPCRouter({
   create: docenteProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== input.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para crear declaraciones para otro docente' });
+      }
+
       const existing = await ctx.prisma.declaracionCarga.findUnique({
         where: { docenteId_periodoId: { docenteId: input.docenteId, periodoId: input.periodoId } },
       });
@@ -109,6 +130,9 @@ export const declaracionRouter = createTRPCRouter({
       const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({ where: { id: input.id } });
       if (declaracion.estado !== 'BORRADOR' && declaracion.estado !== 'RECHAZADA') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Solo se puede enviar desde BORRADOR o RECHAZADA' });
+      }
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para enviar declaraciones de otro docente' });
       }
 
       const [asignaciones, cargas] = await Promise.all([
@@ -134,10 +158,23 @@ export const declaracionRouter = createTRPCRouter({
   aprobarDepto: directorDepartamentoProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({ where: { id: input.id } });
+      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({
+        where: { id: input.id },
+        include: { docente: true }
+      });
       if (declaracion.estado !== 'ENVIADA') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Solo se puede aprobar desde ENVIADA' });
       }
+
+      if (ctx.session.role === 'DIRECTOR_DEPARTAMENTO') {
+        const departamento = await ctx.prisma.departamento.findUnique({
+          where: { directorId: ctx.session.id }
+        });
+        if (!departamento || departamento.id !== declaracion.docente.departamentoId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para aprobar declaraciones de docentes fuera de su departamento' });
+        }
+      }
+
       return ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: {
@@ -188,10 +225,23 @@ export const declaracionRouter = createTRPCRouter({
   rechazar: protectedProcedure
     .input(z.object({ id: z.string(), observaciones: z.string().min(1, 'Debe indicar el motivo del rechazo') }))
     .mutation(async ({ ctx, input }) => {
-      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({ where: { id: input.id } });
+      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({
+        where: { id: input.id },
+        include: { docente: true }
+      });
       if (declaracion.estado === 'FINALIZADA') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'No se puede rechazar una declaración finalizada' });
       }
+
+      if (ctx.session.role === 'DIRECTOR_DEPARTAMENTO') {
+        const departamento = await ctx.prisma.departamento.findUnique({
+          where: { directorId: ctx.session.id }
+        });
+        if (!departamento || departamento.id !== declaracion.docente.departamentoId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para rechazar declaraciones de docentes fuera de su departamento' });
+        }
+      }
+
       return ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: { estado: 'RECHAZADA', observaciones: input.observaciones },
@@ -206,6 +256,10 @@ export const declaracionRouter = createTRPCRouter({
       if (declaracion.estado !== 'RECHAZADA') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Solo se puede reabrir una declaración rechazada' });
       }
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para reabrir declaraciones de otro docente' });
+      }
+
       return ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: { estado: 'BORRADOR', observaciones: null },

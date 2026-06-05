@@ -103,6 +103,7 @@ export function Sidebar() {
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Horario Personal', href: '/horario-personal', icon: Calendar },
       { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
+      { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
@@ -121,15 +122,15 @@ export function Sidebar() {
   const navigation = role ? (ROLE_NAV_MAP[role] || ROLE_NAV_MAP.INVITADO!) : ROLE_NAV_MAP.INVITADO!;
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-gray-900 border-r border-gray-800">
+    <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white shadow-sm">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-3 px-6 border-b border-gray-800">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600">
+      <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-6">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 shadow-sm">
           <GraduationCap className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="text-sm font-bold text-white tracking-tight">Horarios ISI</h1>
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest">UNT</p>
+          <h1 className="text-sm font-bold text-slate-950 tracking-tight">Horarios ISI</h1>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest">UNT</p>
         </div>
       </div>
 
@@ -148,17 +149,17 @@ export function Sidebar() {
                 group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium
                 transition-all duration-200
                 ${isActive
-                  ? 'bg-indigo-600/20 text-indigo-400 shadow-sm shadow-indigo-500/10'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                  ? 'bg-indigo-50 text-indigo-700 shadow-sm ring-1 ring-indigo-100'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
                 }
               `}
             >
               <Icon className={`h-4.5 w-4.5 shrink-0 ${
-                isActive ? 'text-indigo-400' : 'text-gray-500 group-hover:text-gray-400'
+                isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'
               }`} />
               {item.name}
               {isActive && (
-                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-400" />
+                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-600" />
               )}
             </Link>
           );
@@ -167,24 +168,24 @@ export function Sidebar() {
 
       {/* User Footer (Sólo si está logueado) */}
       {user && (
-        <div className="border-t border-gray-800 p-4">
+        <div className="border-t border-slate-200 p-4">
           <div className="space-y-3">
             <Link
               href="/perfil"
-              className="flex items-center gap-3 rounded-lg p-2 hover:bg-gray-800 transition-colors group"
+              className="flex items-center gap-3 rounded-lg p-2 hover:bg-slate-100 transition-colors group"
             >
-              <div className="h-8 w-8 rounded-full bg-indigo-600/20 flex items-center justify-center border border-indigo-500/30">
-                <UserIcon className="h-4 w-4 text-indigo-400" />
+              <div className="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
+                <UserIcon className="h-4 w-4 text-indigo-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{user.nombre}</p>
-                <p className="text-[10px] text-gray-500 uppercase">{user.role}</p>
+                <p className="text-sm font-medium text-slate-950 truncate">{user.nombre}</p>
+                <p className="text-[10px] text-slate-500 uppercase">{user.role}</p>
               </div>
-              <ChevronRight className="h-4 w-4 text-gray-600 group-hover:text-gray-400" />
+              <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-slate-600" />
             </Link>
             <button
               onClick={() => logoutMutation.mutate()}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
             >
               <LogOut className="h-4 w-4" />
               Cerrar Sesión

@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${inter.variable} h-full`}>
-      <body className="min-h-full bg-gray-950 text-gray-100 font-[family-name:var(--font-inter)]">
+      <body className="min-h-full bg-slate-100 text-slate-900 font-[family-name:var(--font-inter)]">
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>

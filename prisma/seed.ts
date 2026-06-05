@@ -461,16 +461,132 @@ async function main() {
 
   // ── Carga No Lectiva ────────────────────────────────
   const cargasNoLectivasData = [
-    { docenteId: docentes[0].id, periodoId: periodo.id, tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva, horas: 3, descripcion: 'Preparación de material didáctico y exámenes para BD I' },
-    { docenteId: docentes[0].id, periodoId: periodo.id, tipo: 'INVESTIGACION' as TipoCargaNoLectiva, horas: 6, descripcion: 'Proyecto de investigación en bases de datos espaciales', codigoProyecto: 'PI-2026-001', nombreProyecto: 'SpatialDB: Bases de Datos Espaciales' },
-    { docenteId: docentes[0].id, periodoId: periodo.id, tipo: 'COMITES_COMISIONES' as TipoCargaNoLectiva, horas: 2, descripcion: 'Comité de Curricula' },
-    { docenteId: docentes[1].id, periodoId: periodo.id, tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva, horas: 3, descripcion: 'Preparación de exámenes y laboratorios de IA' },
-    { docenteId: docentes[1].id, periodoId: periodo.id, tipo: 'ASESORIA_TESIS' as TipoCargaNoLectiva, horas: 4, descripcion: 'Asesoría de tesis de pregrado', numAlumnos: 2 },
-    { docenteId: docentes[1].id, periodoId: periodo.id, tipo: 'GOBIERNO' as TipoCargaNoLectiva, horas: 3, descripcion: 'Coordinación académica del departamento' },
-    { docenteId: docentes[2].id, periodoId: periodo.id, tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva, horas: 2, descripcion: 'Preparación de exámenes de Gestión de Proyectos y Redes' },
-    { docenteId: docentes[2].id, periodoId: periodo.id, tipo: 'CAPACITACION' as TipoCargaNoLectiva, horas: 3, descripcion: 'Certificación Cisco CCNA' },
-    { docenteId: docentes[4].id, periodoId: periodo.id, tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva, horas: 4, descripcion: 'Preparación de material para Redes y SO' },
-    { docenteId: docentes[4].id, periodoId: periodo.id, tipo: 'ADMINISTRACION' as TipoCargaNoLectiva, horas: 2, descripcion: 'Administración de laboratorio de redes' },
+    {
+      docenteId: docentes[0].id,
+      periodoId: periodo.id,
+      tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva,
+      horas: 3,
+      descripcion: 'Preparación de material didáctico y exámenes para BD I',
+      horarios: {
+        create: [
+          { dia: 'LUNES' as DiaSemana, horaInicio: '08:00', horaFin: '11:00', lugar: 'F11', aula: 'CUBICULO DOCENTE' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[0].id,
+      periodoId: periodo.id,
+      tipo: 'INVESTIGACION' as TipoCargaNoLectiva,
+      horas: 6,
+      descripcion: 'Proyecto de investigación en bases de datos espaciales',
+      codigoProyecto: 'PI-2026-001',
+      nombreProyecto: 'SpatialDB: Bases de Datos Espaciales',
+      horarios: {
+        create: [
+          { dia: 'MARTES' as DiaSemana, horaInicio: '08:00', horaFin: '11:00', lugar: 'F11', aula: 'LAB INVST' },
+          { dia: 'MIERCOLES' as DiaSemana, horaInicio: '14:00', horaFin: '17:00', lugar: 'F11', aula: 'LAB INVST' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[0].id,
+      periodoId: periodo.id,
+      tipo: 'COMITES_COMISIONES' as TipoCargaNoLectiva,
+      horas: 2,
+      descripcion: 'Comité de Curricula',
+      horarios: {
+        create: [
+          { dia: 'JUEVES' as DiaSemana, horaInicio: '10:00', horaFin: '12:00', lugar: 'F11', aula: 'SALA REUNIONES' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[1].id,
+      periodoId: periodo.id,
+      tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva,
+      horas: 3,
+      descripcion: 'Preparación de exámenes y laboratorios de IA',
+      horarios: {
+        create: [
+          { dia: 'LUNES' as DiaSemana, horaInicio: '09:00', horaFin: '12:00', lugar: 'F11', aula: 'CUBICULO' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[1].id,
+      periodoId: periodo.id,
+      tipo: 'ASESORIA_TESIS' as TipoCargaNoLectiva,
+      horas: 4,
+      descripcion: 'Asesoría de tesis de pregrado',
+      numAlumnos: 2,
+      horarios: {
+        create: [
+          { dia: 'MARTES' as DiaSemana, horaInicio: '14:00', horaFin: '16:00', lugar: 'F11', aula: 'CUBICULO' },
+          { dia: 'JUEVES' as DiaSemana, horaInicio: '14:00', horaFin: '16:00', lugar: 'F11', aula: 'CUBICULO' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[1].id,
+      periodoId: periodo.id,
+      tipo: 'GOBIERNO' as TipoCargaNoLectiva,
+      horas: 3,
+      descripcion: 'Coordinación académica del departamento',
+      horarios: {
+        create: [
+          { dia: 'MIERCOLES' as DiaSemana, horaInicio: '09:00', horaFin: '12:00', lugar: 'F11', aula: 'DEPTO' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[2].id,
+      periodoId: periodo.id,
+      tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva,
+      horas: 2,
+      descripcion: 'Preparación de exámenes de Gestión de Proyectos y Redes',
+      horarios: {
+        create: [
+          { dia: 'LUNES' as DiaSemana, horaInicio: '14:00', horaFin: '16:00', lugar: 'F11', aula: 'CUBICULO' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[2].id,
+      periodoId: periodo.id,
+      tipo: 'CAPACITACION' as TipoCargaNoLectiva,
+      horas: 3,
+      descripcion: 'Certificación Cisco CCNA',
+      horarios: {
+        create: [
+          { dia: 'JUEVES' as DiaSemana, horaInicio: '15:00', horaFin: '18:00', lugar: 'F11', aula: 'LAB REDES' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[4].id,
+      periodoId: periodo.id,
+      tipo: 'PREPARACION_EVALUACION' as TipoCargaNoLectiva,
+      horas: 4,
+      descripcion: 'Preparación de material para Redes y SO',
+      horarios: {
+        create: [
+          { dia: 'MARTES' as DiaSemana, horaInicio: '09:00', horaFin: '11:00', lugar: 'F11', aula: 'CUBICULO' },
+          { dia: 'JUEVES' as DiaSemana, horaInicio: '09:00', horaFin: '11:00', lugar: 'F11', aula: 'CUBICULO' },
+        ],
+      },
+    },
+    {
+      docenteId: docentes[4].id,
+      periodoId: periodo.id,
+      tipo: 'ADMINISTRACION' as TipoCargaNoLectiva,
+      horas: 2,
+      descripcion: 'Administración de laboratorio de redes',
+      horarios: {
+        create: [
+          { dia: 'MIERCOLES' as DiaSemana, horaInicio: '11:00', horaFin: '13:00', lugar: 'F11', aula: 'LAB REDES' },
+        ],
+      },
+    },
   ];
 
   let cargaNoLectivaCount = 0;

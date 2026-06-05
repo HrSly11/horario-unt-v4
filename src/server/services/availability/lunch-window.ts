@@ -6,22 +6,16 @@
  * they MUST have at least 1 hour free in that window.
  */
 export function getLunchBlockedHoras(scheduledHoras: string[]): string[] {
-  // Preferred lunch hour: 13:00 (1 PM)
-  const PREFERRED_LUNCH = '13:00';
-  
-  // If they already have assignments in the morning AND afternoon, 
-  // or if they have >= 4 hours in the morning, block the lunch hour.
-  const hasMorning = scheduledHoras.some(h => h < '12:00');
-  const hasAfternoon = scheduledHoras.some(h => h >= '14:00');
-  const morningCount = scheduledHoras.filter(h => h < '13:00').length;
+  // Sort and filter morning hours (before the lunch window, i.e., < 13:00)
+  const morningHoras = scheduledHoras.filter(h => h < '13:00').sort();
+  const maxContinuousMorning = countContinuousHours(morningHoras);
 
-  if ((hasMorning && hasAfternoon) || morningCount >= 4) {
-    if (!scheduledHoras.includes(PREFERRED_LUNCH)) {
-      return [PREFERRED_LUNCH];
-    }
-    // If 1 PM is somehow already taken, try to block 12 PM as alternative
+  if (maxContinuousMorning >= 4) {
     if (!scheduledHoras.includes('12:00')) {
       return ['12:00'];
+    }
+    if (!scheduledHoras.includes('13:00')) {
+      return ['13:00'];
     }
   }
 

@@ -20,7 +20,7 @@ const assignInput = z.object({
 });
 
 export const cargaLectivaRouter = createTRPCRouter({
-  list: baseProcedure
+  list: protectedProcedure
     .input(
       z.object({
         periodoId: z.string().optional(),
@@ -29,11 +29,18 @@ export const cargaLectivaRouter = createTRPCRouter({
       }).optional()
     )
     .query(async ({ ctx, input }) => {
-      const where: Record<string, unknown> = {};
+      const where: Record<string, any> = {};
       if (input?.periodoId) where.periodoId = input.periodoId;
       if (input?.docenteId) where.docenteId = input.docenteId;
       if (input?.departamentoId) {
         where.docente = { departamentoId: input.departamentoId };
+      }
+
+      if (ctx.session.role === 'DOCENTE') {
+        if (!ctx.session.docenteId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'El usuario docente no tiene un ID de docente asociado.' });
+        }
+        where.docenteId = ctx.session.docenteId;
       }
 
       return ctx.prisma.asignacionCargaLectiva.findMany({
@@ -51,6 +58,9 @@ export const cargaLectivaRouter = createTRPCRouter({
   byDocente: protectedProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== input.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para ver la carga lectiva de otro docente' });
+      }
       const [asignaciones, cargaNoLectiva] = await Promise.all([
         ctx.prisma.asignacionCargaLectiva.findMany({
           where: { docenteId: input.docenteId, periodoId: input.periodoId },
