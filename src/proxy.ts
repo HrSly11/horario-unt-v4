@@ -2,50 +2,82 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { decrypt } from './lib/auth';
 
-// Rutas que requieren autenticación
-const protectedRoutes = ['/perfil', '/asignacion', '/disponibilidad'];
-// Rutas que requieren ser Admin o Secretaria (Asignación)
-const assignmentRoutes = ['/asignacion'];
-// Rutas que requieren ser Admin, Secretaria o Director (Admin tools)
-const adminRoutes = ['/usuarios', '/bitacora'];
-// Rutas públicas que no deberían verse si ya estás logueado (ej: login, registro)
+type SessionUser = {
+  role?: string;
+};
+
 const authRoutes = ['/login', '/registro'];
+const dashboardRoutes = [
+  '/',
+  '/perfil',
+  '/organizacion',
+  '/docentes',
+  '/cursos',
+  '/aulas',
+  '/periodos',
+  '/carga-lectiva',
+  '/carga-no-lectiva',
+  '/declaraciones',
+  '/formatos',
+  '/horario-personal',
+  '/horarios',
+  '/disponibilidad',
+  '/reportes',
+  '/asignacion',
+  '/usuarios',
+  '/bitacora',
+];
+
+const routeRoles: Record<string, string[]> = {
+  '/organizacion': ['ADMIN'],
+  '/docentes': ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DECANO', 'DIRECTOR_DEPARTAMENTO', 'SECRETARIA_DEPARTAMENTO'],
+  '/usuarios': ['ADMIN'],
+  '/bitacora': ['ADMIN'],
+  '/asignacion': ['ADMIN', 'SECRETARIA_ACADEMICA', 'SECRETARIA_DEPARTAMENTO'],
+  '/reportes': ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DECANO', 'SECRETARIA_DEPARTAMENTO'],
+  '/carga-lectiva': ['ADMIN', 'DIRECTOR_DEPARTAMENTO', 'SECRETARIA_DEPARTAMENTO', 'DOCENTE'],
+  '/carga-no-lectiva': ['ADMIN', 'SECRETARIA_DEPARTAMENTO', 'DOCENTE'],
+  '/declaraciones': ['ADMIN', 'DIRECTOR_DEPARTAMENTO', 'DIRECTOR_ESCUELA', 'DECANO', 'DOCENTE', 'SECRETARIA_DEPARTAMENTO'],
+  '/formatos': ['ADMIN', 'DECANO', 'DOCENTE'],
+  '/horario-personal': ['DOCENTE'],
+  '/horarios': ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DIRECTOR_DEPARTAMENTO', 'SECRETARIA_DEPARTAMENTO', 'DOCENTE', 'INVITADO'],
+  '/disponibilidad': ['DOCENTE'],
+};
+
+function matchesRoute(path: string, route: string) {
+  return path === route || (route !== '/' && path.startsWith(route));
+}
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  // 1. Obtener sesión de la cookie
   const session = request.cookies.get('session')?.value;
-  let user = null;
+  let user: SessionUser | null = null;
 
   if (session) {
     try {
-      user = await decrypt(session);
-    } catch (e) {
-      // Token inválido o expirado
+      user = await decrypt(session) as SessionUser;
+    } catch {
+      user = null;
     }
   }
 
-  // 2. Redirección si intenta ir a login/registro ya logueado
   if (authRoutes.includes(path) && user) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 3. Redirección si intenta ir a ruta protegida sin estar logueado
-  if (protectedRoutes.some(route => path.startsWith(route)) && !user) {
+  const isDashboardRoute = dashboardRoutes.some((route) => matchesRoute(path, route));
+  if (isDashboardRoute && !user) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // 4. Redirección si intenta ir a ruta de asignación (Solo Admin y Secretaria)
-  if (assignmentRoutes.some(route => path.startsWith(route))) {
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'SECRETARIA_ACADEMICA')) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
+  const restrictedRoute = Object.keys(routeRoles)
+    .sort((a, b) => b.length - a.length)
+    .find((route) => matchesRoute(path, route));
 
-  // 5. Redirección si intenta ir a ruta de admin (Admin, Secretaria, Director)
-  if (adminRoutes.some(route => path.startsWith(route))) {
-    if (!user || (user.role !== 'ADMIN' && user.role !== 'SECRETARIA_ACADEMICA' && user.role !== 'DIRECTOR_ESCUELA')) {
+  if (restrictedRoute && user) {
+    const allowedRoles = routeRoles[restrictedRoute];
+    if (!user.role || !allowedRoles.includes(user.role)) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

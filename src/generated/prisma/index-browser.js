@@ -185,7 +185,13 @@ exports.Prisma.LogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   accion: 'accion',
+  entidad: 'entidad',
+  entidadId: 'entidadId',
   detalles: 'detalles',
+  antes: 'antes',
+  despues: 'despues',
+  motivo: 'motivo',
+  correlationId: 'correlationId',
   ip: 'ip',
   userAgent: 'userAgent',
   createdAt: 'createdAt'
@@ -247,6 +253,7 @@ exports.Prisma.CursoScalarFieldEnum = {
 exports.Prisma.DisponibilidadDocenteScalarFieldEnum = {
   id: 'id',
   docenteId: 'docenteId',
+  periodoId: 'periodoId',
   franjaHorariaId: 'franjaHorariaId',
   createdAt: 'createdAt'
 };
@@ -421,9 +428,30 @@ exports.Prisma.DeclaracionCargaScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.DocumentoFirmaDigitalScalarFieldEnum = {
+  id: 'id',
+  declaracionId: 'declaracionId',
+  tipo: 'tipo',
+  documentoHash: 'documentoHash',
+  algoritmoHash: 'algoritmoHash',
+  certificadoSerial: 'certificadoSerial',
+  certificadoEmisor: 'certificadoEmisor',
+  firmaPayload: 'firmaPayload',
+  firmadoPorId: 'firmadoPorId',
+  firmadoEn: 'firmadoEn',
+  version: 'version',
+  cadenaCustodia: 'cadenaCustodia',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -434,6 +462,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.UserRole = exports.$Enums.UserRole = {
   ADMIN: 'ADMIN',
@@ -520,6 +554,15 @@ exports.EstadoDeclaracion = exports.$Enums.EstadoDeclaracion = {
   FINALIZADA: 'FINALIZADA'
 };
 
+exports.TipoDocumentoFirma = exports.$Enums.TipoDocumentoFirma = {
+  DECLARACION_JURADA: 'DECLARACION_JURADA',
+  DECLARACION_SEDES: 'DECLARACION_SEDES',
+  APROBACION_DEPARTAMENTO: 'APROBACION_DEPARTAMENTO',
+  APROBACION_ESCUELA: 'APROBACION_ESCUELA',
+  VISTO_BUENO_DECANO: 'VISTO_BUENO_DECANO',
+  REPORTE_FINAL: 'REPORTE_FINAL'
+};
+
 exports.Prisma.ModelName = {
   Facultad: 'Facultad',
   Departamento: 'Departamento',
@@ -546,7 +589,8 @@ exports.Prisma.ModelName = {
   AsignacionCargaLectiva: 'AsignacionCargaLectiva',
   CargaNoLectiva: 'CargaNoLectiva',
   HorarioCargaNoLectiva: 'HorarioCargaNoLectiva',
-  DeclaracionCarga: 'DeclaracionCarga'
+  DeclaracionCarga: 'DeclaracionCarga',
+  DocumentoFirmaDigital: 'DocumentoFirmaDigital'
 };
 
 /**

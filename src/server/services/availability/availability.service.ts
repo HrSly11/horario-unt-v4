@@ -120,7 +120,7 @@ export class AvailabilityService {
         select: { franjaHorariaId: true },
       }),
       this.prisma.disponibilidadDocente.count({
-        where: { docenteId },
+        where: { docenteId, periodoId },
       }),
     ]);
 
@@ -129,7 +129,7 @@ export class AvailabilityService {
     
     if (hasAvailabilityDefined) {
       const disp = await this.prisma.disponibilidadDocente.findMany({
-        where: { docenteId },
+        where: { docenteId, periodoId },
         select: { franjaHorariaId: true },
       });
       registeredDisponibilidad = new Set(disp.map(d => d.franjaHorariaId));
@@ -203,9 +203,17 @@ export class AvailabilityService {
   ): Promise<ValidationResult> {
     const reasons: string[] = [];
 
-    const [franja, existingAsignaciones, docenteAsignaciones, restricciones, mantenimiento, disponibilidadCount] =
+    const [franja, aula, grupo, existingAsignaciones, docenteAsignaciones, restricciones, mantenimiento, disponibilidadCount] =
       await Promise.all([
         this.prisma.franjaHoraria.findUniqueOrThrow({ where: { id: franjaId } }),
+        this.prisma.aula.findUniqueOrThrow({
+          where: { id: aulaId },
+          select: { capacidad: true },
+        }),
+        this.prisma.grupo.findUniqueOrThrow({
+          where: { id: grupoId },
+          select: { numAlumnos: true },
+        }),
         // Check aula + grupo occupancy for this franja
         this.prisma.asignacion.findMany({
           where: {
@@ -226,14 +234,14 @@ export class AvailabilityService {
           where: { aulaId, franjaHorariaId: franjaId },
         }),
         this.prisma.disponibilidadDocente.count({
-          where: { docenteId },
+          where: { docenteId, periodoId },
         }),
       ]);
 
     // 0. Docente availability? (Requirement 4.3: Default to full availability if none registered)
     if (disponibilidadCount > 0) {
       const hasSpecificAvailability = await this.prisma.disponibilidadDocente.findFirst({
-        where: { docenteId, franjaHorariaId: franjaId },
+        where: { docenteId, periodoId, franjaHorariaId: franjaId },
       });
       if (!hasSpecificAvailability) {
         reasons.push('Usted no ha marcado esta franja como disponible');
@@ -265,7 +273,12 @@ export class AvailabilityService {
       reasons.push('El aula está en mantenimiento en esta franja');
     }
 
-    // 6. Continuous hours check
+    // 6. Capacity check
+    if (aula.capacidad < grupo.numAlumnos) {
+      reasons.push('El aula no tiene capacidad suficiente para el grupo');
+    }
+
+    // 7. Continuous hours check
     const diaHoras = docenteAsignaciones
       .filter((a) => a.franjaHoraria.dia === franja.dia)
       .map((a) => a.franjaHoraria.horaInicio);
@@ -274,7 +287,7 @@ export class AvailabilityService {
       reasons.push(`Excede el máximo de horas continuas por día`);
     }
 
-    // 7. Lunch window check
+    // 8. Lunch window check
     const lunchBlocked = getLunchBlockedHoras(diaHoras);
     if (lunchBlocked.includes(franja.horaInicio)) {
       reasons.push('Esta franja está bloqueada como ventana de almuerzo');
@@ -305,7 +318,7 @@ export class AvailabilityService {
     if (tipo === 'LABORATORIO') {
        // Just suggest the first available lab
        const lab = await this.prisma.aula.findFirst({
-         where: { tipo: 'LABORATORIO' },
+         where: { tipo: 'LABORATORIO', capacidad: { gte: grupo.numAlumnos } },
        });
        return lab?.id || null;
     }
@@ -327,7 +340,7 @@ export class AvailabilityService {
 
     // Default: suggest first theory aula
     const defaultAula = await this.prisma.aula.findFirst({
-      where: { tipo: 'TEORIA' },
+      where: { tipo: 'TEORIA', capacidad: { gte: grupo.numAlumnos } },
     });
     return defaultAula?.id || null;
   }

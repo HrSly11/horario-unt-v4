@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, decanoProcedure } from '../init';
+import { createTRPCRouter, adminProcedure, decanoProcedure, protectedProcedure } from '../init';
+import { assertActiveUserWithRole } from '../policy';
 
 const escuelaInput = z.object({
   nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
@@ -7,7 +8,7 @@ const escuelaInput = z.object({
 });
 
 export const escuelaRouter = createTRPCRouter({
-  list: baseProcedure
+  list: protectedProcedure
     .input(
       z.object({
         facultadId: z.string().optional(),
@@ -28,7 +29,7 @@ export const escuelaRouter = createTRPCRouter({
       });
     }),
 
-  byId: baseProcedure
+  byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       return ctx.prisma.escuela.findUniqueOrThrow({
@@ -71,7 +72,9 @@ export const escuelaRouter = createTRPCRouter({
         directorId: z.string(),
       })
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      await assertActiveUserWithRole(ctx.prisma, input.directorId, 'DIRECTOR_ESCUELA');
+
       return ctx.prisma.escuela.update({
         where: { id: input.id },
         data: {

@@ -1,6 +1,14 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { createTRPCRouter, baseProcedure, docenteProcedure, protectedProcedure } from '../init';
+import { createTRPCRouter, docenteProcedure, protectedProcedure } from '../init';
+import type { Prisma, PrismaClient } from '@/generated/prisma/client';
+import { academicManagerRoles, departmentScopedRoles, getManagedDepartamentoIds, hasRole } from '../policy';
+import {
+  calculateSlotHours,
+  validateNonLectiveSchedule,
+  validatePeriodMutable,
+  type HorarioSlot,
+} from '@/server/services/workload-validator';
 
 const horarioInput = z.object({
   dia: z.enum(['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO']),
@@ -33,6 +41,72 @@ const includeHorarios = {
   },
 };
 
+type HorarioInput = z.infer<typeof horarioInput>;
+
+function slotFromHorario(horario: Pick<HorarioSlot, 'dia' | 'horaInicio' | 'horaFin'>): HorarioSlot {
+  return {
+    dia: horario.dia,
+    horaInicio: horario.horaInicio,
+    horaFin: horario.horaFin,
+    horas: calculateSlotHours(horario),
+  };
+}
+
+function slotFromFranja(franja: { dia: string; horaInicio: string; horaFin: string }): HorarioSlot {
+  return {
+    dia: franja.dia,
+    horaInicio: franja.horaInicio,
+    horaFin: franja.horaFin,
+    horas: calculateSlotHours(franja),
+  };
+}
+
+async function assertPeriodoMutable(prisma: PrismaClient, periodoId: string) {
+  const periodo = await prisma.periodoAcademico.findUniqueOrThrow({
+    where: { id: periodoId },
+    select: { estado: true },
+  });
+  const result = validatePeriodMutable(periodo.estado);
+  if (!result.valid) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: result.message });
+  }
+}
+
+async function assertNonLectiveScheduleIntegrity(
+  prisma: PrismaClient,
+  docenteId: string,
+  periodoId: string,
+  horarios: HorarioInput[] | undefined,
+  excludeCargaNoLectivaId?: string
+) {
+  if (!horarios || horarios.length === 0) return;
+
+  const [lectiveAssignments, existingNonLectiveLoads] = await Promise.all([
+    prisma.asignacion.findMany({
+      where: { docenteId, periodoId },
+      include: { franjaHoraria: true },
+    }),
+    prisma.cargaNoLectiva.findMany({
+      where: {
+        docenteId,
+        periodoId,
+        ...(excludeCargaNoLectivaId ? { id: { not: excludeCargaNoLectivaId } } : {}),
+      },
+      include: { horarios: true },
+    }),
+  ]);
+
+  const existingSlots = [
+    ...lectiveAssignments.map((assignment) => slotFromFranja(assignment.franjaHoraria)),
+    ...existingNonLectiveLoads.flatMap((load) => load.horarios.map(slotFromHorario)),
+  ];
+  const result = validateNonLectiveSchedule(existingSlots, horarios.map(slotFromHorario));
+
+  if (!result.valid) {
+    throw new TRPCError({ code: 'BAD_REQUEST', message: result.message });
+  }
+}
+
 export const cargaNoLectivaRouter = createTRPCRouter({
   list: protectedProcedure
     .input(
@@ -42,7 +116,7 @@ export const cargaNoLectivaRouter = createTRPCRouter({
       }).optional()
     )
     .query(async ({ ctx, input }) => {
-      const where: Record<string, unknown> = {};
+      const where: Prisma.CargaNoLectivaWhereInput = {};
       if (input?.docenteId) where.docenteId = input.docenteId;
       if (input?.periodoId) where.periodoId = input.periodoId;
 
@@ -50,7 +124,15 @@ export const cargaNoLectivaRouter = createTRPCRouter({
         if (!ctx.session.docenteId) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'El usuario docente no tiene un ID de docente asociado.' });
         }
+        if (input?.docenteId && input.docenteId !== ctx.session.docenteId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para ver cargas no lectivas de otro docente' });
+        }
         where.docenteId = ctx.session.docenteId;
+      } else if (hasRole(ctx.session, departmentScopedRoles)) {
+        const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+        where.docente = { departamentoId: { in: managedDepartamentoIds ?? [] } };
+      } else if (!hasRole(ctx.session, academicManagerRoles)) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para listar cargas no lectivas' });
       }
 
       return ctx.prisma.cargaNoLectiva.findMany({
@@ -92,6 +174,8 @@ export const cargaNoLectivaRouter = createTRPCRouter({
       }
 
       const { horarios, ...cargaData } = input;
+      await assertPeriodoMutable(ctx.prisma, input.periodoId);
+      await assertNonLectiveScheduleIntegrity(ctx.prisma, input.docenteId, input.periodoId, horarios);
 
       if (input.tipo === 'PREPARACION_EVALUACION') {
         const asignacionesLectivas = await ctx.prisma.asignacionCargaLectiva.findMany({
@@ -140,6 +224,8 @@ export const cargaNoLectivaRouter = createTRPCRouter({
       if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== existing.docenteId) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para actualizar cargas no lectivas de otro docente' });
       }
+      await assertPeriodoMutable(ctx.prisma, existing.periodoId);
+      await assertNonLectiveScheduleIntegrity(ctx.prisma, existing.docenteId, existing.periodoId, horarios, id);
 
       if (existing.tipo === 'PREPARACION_EVALUACION' && data.horas) {
         const asignacionesLectivas = await ctx.prisma.asignacionCargaLectiva.findMany({
@@ -186,6 +272,7 @@ export const cargaNoLectivaRouter = createTRPCRouter({
       if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== existing.docenteId) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para eliminar cargas no lectivas de otro docente' });
       }
+      await assertPeriodoMutable(ctx.prisma, existing.periodoId);
       return ctx.prisma.cargaNoLectiva.delete({ where: { id: input.id } });
     }),
 });

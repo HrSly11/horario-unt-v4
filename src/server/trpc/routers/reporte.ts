@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { createTRPCRouter, adminProcedure, protectedProcedure, secretariaProcedure, directorProcedure, baseProcedure } from '../init';
+import { createHash } from 'node:crypto';
+import { createTRPCRouter, protectedProcedure } from '../init';
+import type { Prisma, UserRole } from '@/generated/prisma/client';
+import { academicManagerRoles, departmentScopedRoles, getManagedDepartamentoIds, hasRole } from '../policy';
+import { writeAuditLog } from '@/server/services/audit';
 import {
   renderPDF,
   generateAulaReportHTML,
@@ -9,9 +13,38 @@ import {
   generateCicloReportHTML,
 } from '@/server/services/reports';
 
+const reportRoles: UserRole[] = [...academicManagerRoles, ...departmentScopedRoles, 'DOCENTE'];
+
+function buildAssignmentWhere(
+  periodoId: string,
+  baseFilter: Prisma.AsignacionWhereInput,
+  managedDepartamentoIds: string[] | null
+): Prisma.AsignacionWhereInput {
+  return {
+    periodoId,
+    ...baseFilter,
+    ...(managedDepartamentoIds
+      ? { docente: { departamentoId: { in: managedDepartamentoIds } } }
+      : {}),
+  };
+}
+
+function buildActiveDocenteWhere(managedDepartamentoIds: string[] | null): Prisma.DocenteWhereInput {
+  return {
+    activo: true,
+    ...(managedDepartamentoIds
+      ? { departamentoId: { in: managedDepartamentoIds } }
+      : {}),
+  };
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Error al generar el reporte PDF';
+}
+
 export const reporteRouter = createTRPCRouter({
   /** Generate PDF report — returns base64-encoded PDF */
-  generatePDF: baseProcedure
+  generatePDF: protectedProcedure
     .input(z.object({
       periodoId: z.string(),
       tipo: z.enum(['por-aula', 'por-laboratorio', 'por-docente', 'por-ciclo', 'gestion']),
@@ -20,8 +53,14 @@ export const reporteRouter = createTRPCRouter({
       ciclo: z.number().optional(),      // For specific ciclo report
     }))
     .mutation(async ({ ctx, input }) => {
-      const role = ctx.session?.role;
-      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+      const role = ctx.session.role;
+      const isInstitutionalManager = hasRole(ctx.session, academicManagerRoles);
+      const isDepartmentManager = hasRole(ctx.session, departmentScopedRoles);
+      const isDocente = role === 'DOCENTE';
+
+      if (!hasRole(ctx.session, reportRoles)) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permisos para generar reportes' });
+      }
 
       const periodo = await ctx.prisma.periodoAcademico.findUniqueOrThrow({
         where: { id: input.periodoId },
@@ -29,22 +68,34 @@ export const reporteRouter = createTRPCRouter({
       });
 
       const isPublished = periodo.estado === 'APROBADO' || periodo.estado === 'FINALIZADO';
+      const canAccessDraftReports = isInstitutionalManager || isDepartmentManager;
 
-      if (!isPrivileged && !isPublished) {
+      if (!canAccessDraftReports && !isPublished) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'El horario aún no ha sido publicado',
         });
       }
 
-      if (input.tipo === 'gestion' && !isPrivileged) {
+      if (input.tipo === 'gestion' && !isInstitutionalManager && !isDepartmentManager) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'No tiene permisos para generar reportes de gestión',
         });
       }
 
-      if (!isPrivileged && role === 'DOCENTE') {
+      const managedDepartamentoIds = isDepartmentManager
+        ? await getManagedDepartamentoIds(ctx.prisma, ctx.session)
+        : null;
+      const docenteIdForReport = isDocente ? ctx.session.docenteId : input.docenteId;
+
+      if (isDocente) {
+        if (!ctx.session.docenteId) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'El usuario docente no tiene un ID de docente asociado',
+          });
+        }
         if (input.tipo !== 'por-docente') {
           throw new TRPCError({
             code: 'FORBIDDEN',
@@ -59,15 +110,32 @@ export const reporteRouter = createTRPCRouter({
         }
       }
 
+      if (isDepartmentManager && input.tipo === 'por-docente' && input.docenteId) {
+        const docente = await ctx.prisma.docente.findUniqueOrThrow({
+          where: { id: input.docenteId },
+          select: { departamentoId: true },
+        });
+
+        if (!docente.departamentoId || !(managedDepartamentoIds ?? []).includes(docente.departamentoId)) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'No tiene permiso para generar reportes de este docente',
+          });
+        }
+      }
+
       try {
 
-        const assignmentFilter = (!isPrivileged && !isPublished) ? { confirmado: true } : {};
+        const assignmentFilter: Prisma.AsignacionWhereInput = (!canAccessDraftReports && !isPublished)
+          ? { confirmado: true }
+          : {};
+        const assignmentWhere = buildAssignmentWhere(input.periodoId, assignmentFilter, managedDepartamentoIds);
 
         let html = '';
         const options = { landscape: true };
 
       if (input.tipo === 'por-aula' || input.tipo === 'por-laboratorio') {
-        const whereClause: any = {};
+        const whereClause: Prisma.AulaWhereInput = {};
         if (input.aulaId) {
           whereClause.id = input.aulaId;
         } else if (input.tipo === 'por-laboratorio') {
@@ -78,7 +146,7 @@ export const reporteRouter = createTRPCRouter({
           where: whereClause,
           include: {
             asignaciones: {
-              where: { periodoId: input.periodoId, ...assignmentFilter },
+              where: assignmentWhere,
               include: {
                 grupo: { include: { curso: true } },
                 docente: true,
@@ -115,10 +183,10 @@ export const reporteRouter = createTRPCRouter({
             docenteCodigo: a.docente.codigo || undefined,
             aulaCodigo: aula.codigo,
             aulaNombre: aula.nombre,
-            tipo: a.tipo as any,
+            tipo: a.tipo,
             ciclo: a.grupo.curso.ciclo,
             horasTeoria: a.grupo.curso.horasTeoria,
-            horasPractica: 0,
+            horasPractica: a.grupo.curso.horasPractica,
             horasLaboratorio: a.grupo.curso.horasLaboratorio,
           })),
         }));
@@ -126,7 +194,7 @@ export const reporteRouter = createTRPCRouter({
         html = generateAulaReportHTML(reportData, periodo.nombre);
       } else if (input.tipo === 'por-ciclo') {
         const asignaciones = await ctx.prisma.asignacion.findMany({
-          where: { periodoId: input.periodoId, ...assignmentFilter },
+          where: assignmentWhere,
           include: {
             grupo: { include: { curso: true } },
             docente: true,
@@ -139,7 +207,7 @@ export const reporteRouter = createTRPCRouter({
           ]
         });
 
-        const reportData: any[] = [];
+        const reportData: Parameters<typeof generateCicloReportHTML>[0] = [];
         
         const uniqueCiclos = [...new Set(asignaciones.map(a => a.grupo.curso.ciclo))].sort((a, b) => a - b);
         
@@ -164,7 +232,7 @@ export const reporteRouter = createTRPCRouter({
                 tipo: a.tipo,
                 ciclo: ciclo,
                 horasTeoria: a.grupo.curso.horasTeoria,
-                horasPractica: 0,
+                horasPractica: a.grupo.curso.horasPractica,
                 horasLaboratorio: a.grupo.curso.horasLaboratorio,
               }));
 
@@ -190,11 +258,15 @@ export const reporteRouter = createTRPCRouter({
 
         html = generateCicloReportHTML(reportData, periodo.nombre);
       } else if (input.tipo === 'por-docente') {
+        const docenteWhere: Prisma.DocenteWhereInput = docenteIdForReport
+          ? { id: docenteIdForReport }
+          : buildActiveDocenteWhere(managedDepartamentoIds);
+
         const docentes = await ctx.prisma.docente.findMany({
-          where: input.docenteId ? { id: input.docenteId } : { activo: true },
+          where: docenteWhere,
           include: {
             asignaciones: {
-              where: { periodoId: input.periodoId, ...assignmentFilter },
+              where: assignmentWhere,
               include: {
                 grupo: { include: { curso: true } },
                 aula: true,
@@ -235,10 +307,10 @@ export const reporteRouter = createTRPCRouter({
                 docenteNombre: d.nombre,
                 aulaCodigo: a.aula.codigo,
                 aulaNombre: a.aula.nombre,
-                tipo: a.tipo as any,
+                tipo: a.tipo,
                 ciclo: a.grupo.curso.ciclo,
                 horasTeoria: a.grupo.curso.horasTeoria,
-                horasPractica: 0,
+                horasPractica: a.grupo.curso.horasPractica,
                 horasLaboratorio: a.grupo.curso.horasLaboratorio,
               })),
             };
@@ -246,25 +318,37 @@ export const reporteRouter = createTRPCRouter({
 
         html = generateDocenteReportHTML(reportData, periodo.nombre);
       } else if (input.tipo === 'gestion') {
+        const activeDocenteWhere = buildActiveDocenteWhere(managedDepartamentoIds);
+        const grupoWhere: Prisma.GrupoWhereInput = {
+          periodoAcademicoId: input.periodoId,
+          ...(managedDepartamentoIds
+            ? { asignaciones: { some: assignmentWhere } }
+            : {}),
+        };
+        const aulaWhere: Prisma.AulaWhereInput | undefined = managedDepartamentoIds
+          ? { asignaciones: { some: assignmentWhere } }
+          : undefined;
+
         const [totalDocentes, docentesConCarga, totalGrupos, gruposAsignados, asignaciones, aulas, franjasCount] = await Promise.all([
-          ctx.prisma.docente.count({ where: { activo: true } }),
+          ctx.prisma.docente.count({ where: activeDocenteWhere }),
           ctx.prisma.asignacion.groupBy({
             by: ['docenteId'],
-            where: { periodoId: input.periodoId },
+            where: assignmentWhere,
           }),
-          ctx.prisma.grupo.count({ where: { periodoAcademicoId: input.periodoId } }),
+          ctx.prisma.grupo.count({ where: grupoWhere }),
           ctx.prisma.asignacion.groupBy({
             by: ['grupoId'],
-            where: { periodoId: input.periodoId },
+            where: assignmentWhere,
           }),
           ctx.prisma.asignacion.findMany({
-            where: { periodoId: input.periodoId },
+            where: assignmentWhere,
             include: { docente: true, aula: true },
           }),
           ctx.prisma.aula.findMany({
+            where: aulaWhere,
             include: {
               asignaciones: {
-                where: { periodoId: input.periodoId },
+                where: assignmentWhere,
               },
             },
           }),
@@ -272,10 +356,10 @@ export const reporteRouter = createTRPCRouter({
         ]);
 
         const cargaDocente = await ctx.prisma.docente.findMany({
-          where: { activo: true },
+          where: activeDocenteWhere,
           include: {
             asignaciones: {
-              where: { periodoId: input.periodoId },
+              where: assignmentWhere,
             },
           },
         });
@@ -307,17 +391,40 @@ export const reporteRouter = createTRPCRouter({
       }
 
       const pdfBuffer = await renderPDF(html, options);
-        return { pdf: pdfBuffer.toString('base64'), filename: `reporte-${input.tipo}.pdf` };
-      } catch (error: any) {
+      const pdfHash = createHash('sha256').update(pdfBuffer).digest('hex');
+      const filename = `reporte-${input.tipo}.pdf`;
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'REPORTE_PDF_GENERADO',
+        entidad: 'ReportePDF',
+        entidadId: pdfHash,
+        despues: {
+          periodoId: input.periodoId,
+          tipo: input.tipo,
+          docenteId: input.docenteId,
+          aulaId: input.aulaId,
+          ciclo: input.ciclo,
+          filename,
+          documentoHash: pdfHash,
+        },
+      });
+
+        return { pdf: pdfBuffer.toString('base64'), filename, documentoHash: pdfHash };
+      } catch (error: unknown) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
         console.error('Error generating PDF:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: error.message || 'Error al generar el reporte PDF',
+          message: getErrorMessage(error),
         });
       }
     }),
 
-  porCiclo: baseProcedure
+  porCiclo: protectedProcedure
     .input(z.object({ periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
       const periodo = await ctx.prisma.periodoAcademico.findUnique({
@@ -325,18 +432,28 @@ export const reporteRouter = createTRPCRouter({
         select: { estado: true }
       });
 
-      const role = ctx.session?.role;
-      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+      const role = ctx.session.role;
+      const isInstitutionalManager = hasRole(ctx.session, academicManagerRoles);
+      const isDepartmentManager = hasRole(ctx.session, departmentScopedRoles);
+      if (!isInstitutionalManager && !isDepartmentManager) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permisos para consultar reportes por ciclo' });
+      }
+
+      const managedDepartamentoIds = isDepartmentManager
+        ? await getManagedDepartamentoIds(ctx.prisma, ctx.session)
+        : null;
       const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
 
-      if (!isPrivileged && !isPublished) {
+      if (!isInstitutionalManager && !isDepartmentManager && !isPublished) {
         return [];
       }
 
-      const assignmentFilter = (!isPrivileged && !isPublished) ? { confirmado: true } : {};
+      const assignmentFilter: Prisma.AsignacionWhereInput = (!isInstitutionalManager && !isDepartmentManager && !isPublished)
+        ? { confirmado: true }
+        : {};
 
       return ctx.prisma.asignacion.findMany({
-        where: { periodoId: input.periodoId, ...assignmentFilter },
+        where: buildAssignmentWhere(input.periodoId, assignmentFilter, managedDepartamentoIds),
         include: {
           docente: true,
           aula: true,

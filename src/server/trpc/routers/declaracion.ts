@@ -1,14 +1,23 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import type { Prisma } from '@/generated/prisma/client';
 import {
   createTRPCRouter,
-  baseProcedure,
   protectedProcedure,
   docenteProcedure,
   directorDepartamentoProcedure,
   directorProcedure,
   decanoProcedure,
 } from '../init';
+import {
+  assertCanAccessDepartamento,
+  assertCanAccessDocenteDepartamento,
+  assertDocenteSelfOrRole,
+  getManagedDepartamentoIds,
+  hasRole,
+} from '../policy';
+import { validateCargaCompleta } from '@/server/services/workload-validator';
+import { writeAuditLog } from '@/server/services/audit';
 
 const validTransitions: Record<string, string[]> = {
   BORRADOR: ['ENVIADA'],
@@ -18,6 +27,32 @@ const validTransitions: Record<string, string[]> = {
   RECHAZADA: ['BORRADOR'],
   FINALIZADA: [],
 };
+
+const signatureTypeInput = z.enum([
+  'DECLARACION_JURADA',
+  'DECLARACION_SEDES',
+  'APROBACION_DEPARTAMENTO',
+  'APROBACION_ESCUELA',
+  'VISTO_BUENO_DECANO',
+  'REPORTE_FINAL',
+]);
+
+const signatureInput = z.object({
+  declaracionId: z.string(),
+  tipo: signatureTypeInput,
+  documentoHash: z.string().regex(/^[a-f0-9]{64}$/i, 'Debe ser un hash SHA-256 hexadecimal'),
+  algoritmoHash: z.string().default('SHA-256'),
+  certificadoSerial: z.string().min(1),
+  certificadoEmisor: z.string().min(1),
+  firmaPayload: z.string().min(1),
+  cadenaCustodia: z.record(z.string(), z.unknown()).optional(),
+});
+
+function legacySignatureFlag(tipo: z.infer<typeof signatureTypeInput>) {
+  if (tipo === 'DECLARACION_JURADA') return { declaracionJuradaFirmada: true };
+  if (tipo === 'DECLARACION_SEDES') return { declaracionSedesFirmada: true };
+  return {};
+}
 
 export const declaracionRouter = createTRPCRouter({
   list: protectedProcedure
@@ -29,10 +64,11 @@ export const declaracionRouter = createTRPCRouter({
       }).optional()
     )
     .query(async ({ ctx, input }) => {
-      const where: Record<string, any> = {};
+      const where: Prisma.DeclaracionCargaWhereInput = {};
       if (input?.periodoId) where.periodoId = input.periodoId;
       if (input?.estado) where.estado = input.estado;
       if (input?.departamentoId) {
+        await assertCanAccessDepartamento(ctx.prisma, ctx.session, input.departamentoId);
         where.docente = { departamentoId: input.departamentoId };
       }
 
@@ -41,6 +77,11 @@ export const declaracionRouter = createTRPCRouter({
           throw new TRPCError({ code: 'FORBIDDEN', message: 'El usuario docente no tiene un ID de docente asociado.' });
         }
         where.docenteId = ctx.session.docenteId;
+      } else if (!input?.departamentoId) {
+        const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+        if (managedDepartamentoIds !== null) {
+          where.docente = { departamentoId: { in: managedDepartamentoIds } };
+        }
       }
 
       return ctx.prisma.declaracionCarga.findMany({
@@ -79,15 +120,19 @@ export const declaracionRouter = createTRPCRouter({
       if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para ver esta declaración.' });
       }
+      if (ctx.session.role !== 'DOCENTE') {
+        await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, declaracion.docenteId);
+      }
 
       return declaracion;
     }),
 
-  byDocente: docenteProcedure
+  byDocente: protectedProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== input.docenteId) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para ver declaraciones de otro docente' });
+      assertDocenteSelfOrRole(ctx.session, input.docenteId);
+      if (ctx.session.role !== 'DOCENTE') {
+        await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, input.docenteId);
       }
 
       return ctx.prisma.declaracionCarga.findUnique({
@@ -105,9 +150,7 @@ export const declaracionRouter = createTRPCRouter({
   create: docenteProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== input.docenteId) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para crear declaraciones para otro docente' });
-      }
+      assertDocenteSelfOrRole(ctx.session, input.docenteId, ['ADMIN']);
 
       const existing = await ctx.prisma.declaracionCarga.findUnique({
         where: { docenteId_periodoId: { docenteId: input.docenteId, periodoId: input.periodoId } },
@@ -134,16 +177,25 @@ export const declaracionRouter = createTRPCRouter({
       if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para enviar declaraciones de otro docente' });
       }
+      assertDocenteSelfOrRole(ctx.session, declaracion.docenteId, ['ADMIN']);
 
-      const [asignaciones, cargas] = await Promise.all([
+      const [asignaciones, cargas, docente] = await Promise.all([
         ctx.prisma.asignacionCargaLectiva.findMany({ where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId } }),
         ctx.prisma.cargaNoLectiva.findMany({ where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId } }),
+        ctx.prisma.docente.findUniqueOrThrow({
+          where: { id: declaracion.docenteId },
+          select: { horasContrato: true },
+        }),
       ]);
 
       const totalLectivas = asignaciones.reduce((sum, a) => sum + a.horasAsignadas, 0);
       const totalNoLectivas = cargas.reduce((sum, c) => sum + c.horas, 0);
+      const completeResult = validateCargaCompleta(totalLectivas, totalNoLectivas, docente.horasContrato);
+      if (!completeResult.valid) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: completeResult.message });
+      }
 
-      return ctx.prisma.declaracionCarga.update({
+      const updated = await ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: {
           estado: 'ENVIADA',
@@ -153,6 +205,23 @@ export const declaracionRouter = createTRPCRouter({
         },
         include: { docente: { select: { id: true, nombre: true } } },
       });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'DECLARACION_ENVIADA',
+        entidad: 'DeclaracionCarga',
+        entidadId: input.id,
+        antes: { estado: declaracion.estado },
+        despues: {
+          estado: updated.estado,
+          totalHorasLectivas: totalLectivas,
+          totalHorasNoLectivas: totalNoLectivas,
+          totalHoras: totalLectivas + totalNoLectivas,
+        },
+      });
+
+      return updated;
     }),
 
   aprobarDepto: directorDepartamentoProcedure
@@ -175,7 +244,7 @@ export const declaracionRouter = createTRPCRouter({
         }
       }
 
-      return ctx.prisma.declaracionCarga.update({
+      const updated = await ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: {
           estado: 'APROBADA_DEPARTAMENTO',
@@ -184,6 +253,18 @@ export const declaracionRouter = createTRPCRouter({
         },
         include: { docente: { select: { id: true, nombre: true } } },
       });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'DECLARACION_APROBADA_DEPARTAMENTO',
+        entidad: 'DeclaracionCarga',
+        entidadId: input.id,
+        antes: { estado: declaracion.estado },
+        despues: { estado: updated.estado, aprobadoDepartamentoId: ctx.session.id },
+      });
+
+      return updated;
     }),
 
   aprobarEscuela: directorProcedure
@@ -193,7 +274,7 @@ export const declaracionRouter = createTRPCRouter({
       if (declaracion.estado !== 'APROBADA_DEPARTAMENTO') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Debe estar aprobada por departamento primero' });
       }
-      return ctx.prisma.declaracionCarga.update({
+      const updated = await ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: {
           estado: 'APROBADA_ESCUELA',
@@ -202,6 +283,18 @@ export const declaracionRouter = createTRPCRouter({
         },
         include: { docente: { select: { id: true, nombre: true } } },
       });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'DECLARACION_APROBADA_ESCUELA',
+        entidad: 'DeclaracionCarga',
+        entidadId: input.id,
+        antes: { estado: declaracion.estado },
+        despues: { estado: updated.estado, aprobadoEscuelaId: ctx.session.id },
+      });
+
+      return updated;
     }),
 
   vbDecano: decanoProcedure
@@ -211,7 +304,7 @@ export const declaracionRouter = createTRPCRouter({
       if (declaracion.estado !== 'APROBADA_ESCUELA') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Debe estar aprobada por escuela primero' });
       }
-      return ctx.prisma.declaracionCarga.update({
+      const updated = await ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: {
           estado: 'FINALIZADA',
@@ -220,17 +313,46 @@ export const declaracionRouter = createTRPCRouter({
         },
         include: { docente: { select: { id: true, nombre: true } } },
       });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'DECLARACION_FINALIZADA_DECANO',
+        entidad: 'DeclaracionCarga',
+        entidadId: input.id,
+        antes: { estado: declaracion.estado },
+        despues: { estado: updated.estado, vistoBuenoDecanoId: ctx.session.id },
+      });
+
+      return updated;
     }),
 
   rechazar: protectedProcedure
     .input(z.object({ id: z.string(), observaciones: z.string().min(1, 'Debe indicar el motivo del rechazo') }))
     .mutation(async ({ ctx, input }) => {
+      if (!hasRole(ctx.session, ['ADMIN', 'DIRECTOR_DEPARTAMENTO', 'DIRECTOR_ESCUELA', 'DECANO'])) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para rechazar declaraciones' });
+      }
+
       const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({
         where: { id: input.id },
         include: { docente: true }
       });
       if (declaracion.estado === 'FINALIZADA') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'No se puede rechazar una declaración finalizada' });
+      }
+      if (!['ENVIADA', 'APROBADA_DEPARTAMENTO', 'APROBADA_ESCUELA'].includes(declaracion.estado)) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'La declaración no está en un estado rechazable' });
+      }
+
+      if (ctx.session.role === 'DIRECTOR_DEPARTAMENTO' && declaracion.estado !== 'ENVIADA') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'El director de departamento solo rechaza declaraciones enviadas' });
+      }
+      if (ctx.session.role === 'DIRECTOR_ESCUELA' && declaracion.estado !== 'APROBADA_DEPARTAMENTO') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'El director de escuela solo rechaza declaraciones aprobadas por departamento' });
+      }
+      if (ctx.session.role === 'DECANO' && declaracion.estado !== 'APROBADA_ESCUELA') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'El decano solo rechaza declaraciones aprobadas por escuela' });
       }
 
       if (ctx.session.role === 'DIRECTOR_DEPARTAMENTO') {
@@ -242,11 +364,24 @@ export const declaracionRouter = createTRPCRouter({
         }
       }
 
-      return ctx.prisma.declaracionCarga.update({
+      const updated = await ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: { estado: 'RECHAZADA', observaciones: input.observaciones },
         include: { docente: { select: { id: true, nombre: true } } },
       });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'DECLARACION_RECHAZADA',
+        entidad: 'DeclaracionCarga',
+        entidadId: input.id,
+        antes: { estado: declaracion.estado },
+        despues: { estado: updated.estado, observaciones: input.observaciones },
+        motivo: input.observaciones,
+      });
+
+      return updated;
     }),
 
   reabrir: docenteProcedure
@@ -259,11 +394,134 @@ export const declaracionRouter = createTRPCRouter({
       if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para reabrir declaraciones de otro docente' });
       }
+      assertDocenteSelfOrRole(ctx.session, declaracion.docenteId, ['ADMIN']);
 
-      return ctx.prisma.declaracionCarga.update({
+      const updated = await ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: { estado: 'BORRADOR', observaciones: null },
         include: { docente: { select: { id: true, nombre: true } } },
+      });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'DECLARACION_REABIERTA',
+        entidad: 'DeclaracionCarga',
+        entidadId: input.id,
+        antes: { estado: declaracion.estado, observaciones: declaracion.observaciones },
+        despues: { estado: updated.estado, observaciones: null },
+      });
+
+      return updated;
+    }),
+
+  registrarFirma: protectedProcedure
+    .input(signatureInput)
+    .mutation(async ({ ctx, input }) => {
+      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({
+        where: { id: input.declaracionId },
+        include: { docente: true },
+      });
+
+      if (input.tipo === 'DECLARACION_JURADA' || input.tipo === 'DECLARACION_SEDES') {
+        assertDocenteSelfOrRole(ctx.session, declaracion.docenteId, ['ADMIN']);
+      } else if (input.tipo === 'APROBACION_DEPARTAMENTO') {
+        if (!hasRole(ctx.session, ['ADMIN', 'DIRECTOR_DEPARTAMENTO'])) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para firmar aprobación de departamento' });
+        }
+        if (ctx.session.role === 'DIRECTOR_DEPARTAMENTO') {
+          const departamento = await ctx.prisma.departamento.findUnique({
+            where: { directorId: ctx.session.id },
+          });
+          if (!departamento || departamento.id !== declaracion.docente.departamentoId) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'No puede firmar declaraciones fuera de su departamento' });
+          }
+        }
+      } else if (input.tipo === 'APROBACION_ESCUELA') {
+        if (!hasRole(ctx.session, ['ADMIN', 'DIRECTOR_ESCUELA'])) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para firmar aprobación de escuela' });
+        }
+      } else if (input.tipo === 'VISTO_BUENO_DECANO') {
+        if (!hasRole(ctx.session, ['ADMIN', 'DECANO'])) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para firmar visto bueno de decano' });
+        }
+      } else if (!hasRole(ctx.session, ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DECANO'])) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para firmar reportes finales' });
+      }
+
+      const latest = await ctx.prisma.documentoFirmaDigital.findFirst({
+        where: { declaracionId: input.declaracionId, tipo: input.tipo },
+        select: { version: true },
+        orderBy: { version: 'desc' },
+      });
+      const version = (latest?.version ?? 0) + 1;
+
+      const firma = await ctx.prisma.$transaction(async (tx) => {
+        const firma = await tx.documentoFirmaDigital.create({
+          data: {
+            declaracionId: input.declaracionId,
+            tipo: input.tipo,
+            documentoHash: input.documentoHash.toLowerCase(),
+            algoritmoHash: input.algoritmoHash,
+            certificadoSerial: input.certificadoSerial,
+            certificadoEmisor: input.certificadoEmisor,
+            firmaPayload: input.firmaPayload,
+            firmadoPorId: ctx.session.id,
+            version,
+            cadenaCustodia: input.cadenaCustodia as Prisma.InputJsonValue | undefined,
+          },
+          include: {
+            firmadoPor: { select: { id: true, nombre: true, role: true } },
+          },
+        });
+
+        const legacyFlags = legacySignatureFlag(input.tipo);
+        if (Object.keys(legacyFlags).length > 0) {
+          await tx.declaracionCarga.update({
+            where: { id: input.declaracionId },
+            data: legacyFlags,
+          });
+        }
+
+        return firma;
+      });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'FIRMA_DIGITAL_REGISTRADA',
+        entidad: 'DocumentoFirmaDigital',
+        entidadId: firma.id,
+        despues: {
+          declaracionId: input.declaracionId,
+          tipo: input.tipo,
+          documentoHash: input.documentoHash.toLowerCase(),
+          version,
+          firmadoPorId: ctx.session.id,
+        },
+      });
+
+      return firma;
+    }),
+
+  firmas: protectedProcedure
+    .input(z.object({ declaracionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({
+        where: { id: input.declaracionId },
+        select: { docenteId: true },
+      });
+      await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, declaracion.docenteId);
+
+      return ctx.prisma.documentoFirmaDigital.findMany({
+        where: { declaracionId: input.declaracionId },
+        include: {
+          firmadoPor: { select: { id: true, nombre: true, role: true } },
+        },
+        orderBy: [
+          { tipo: 'asc' },
+          { version: 'desc' },
+        ],
       });
     }),
 
@@ -271,8 +529,9 @@ export const declaracionRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       const role = ctx.session.role;
       if (role === 'DIRECTOR_DEPARTAMENTO') {
+        const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
         return ctx.prisma.declaracionCarga.findMany({
-          where: { estado: 'ENVIADA' },
+          where: { estado: 'ENVIADA', docente: { departamentoId: { in: managedDepartamentoIds ?? [] } } },
           include: {
             docente: { select: { id: true, nombre: true, email: true } },
             periodo: { select: { id: true, nombre: true } },

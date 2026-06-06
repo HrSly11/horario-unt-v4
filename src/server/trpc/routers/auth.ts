@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { baseProcedure, createTRPCRouter, protectedProcedure, adminProcedure, secretariaProcedure } from '../init';
+import { baseProcedure, createTRPCRouter, protectedProcedure, adminProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
 import { encrypt } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { writeAuditLog } from '@/server/services/audit';
 
 export const authRouter = createTRPCRouter({
   login: baseProcedure
@@ -47,13 +48,13 @@ export const authRouter = createTRPCRouter({
         maxAge: 60 * 60 * 24, // 1 day
       });
 
-      // Log login
-      await ctx.prisma.log.create({
-        data: {
-          userId: user.id,
-          accion: 'LOGIN',
-          detalles: `Usuario ${user.email} inició sesión`,
-        }
+      await writeAuditLog(ctx.prisma, {
+        session: { id: user.id },
+        headers: ctx.headers,
+        accion: 'LOGIN',
+        entidad: 'User',
+        entidadId: user.id,
+        detalles: `Usuario ${user.email} inició sesión`,
       });
 
       return { success: true, user: { id: user.id, email: user.email, role: user.role, nombre: user.nombre } };
@@ -63,17 +64,11 @@ export const authRouter = createTRPCRouter({
     .input(z.object({
       nombreCompleto: z.string(),
       email: z.string().email(),
-      password: z.string().min(6),
+      password: z.string().min(8),
     }))
     .mutation(async ({ ctx, input }) => {
-      // 1. Verify if docente exists by email or name
-      const docente = await ctx.prisma.docente.findFirst({
-        where: {
-          OR: [
-            { email: input.email },
-            { nombre: { contains: input.nombreCompleto, mode: 'insensitive' } }
-          ]
-        }
+      const docente = await ctx.prisma.docente.findUnique({
+        where: { email: input.email },
       });
 
       if (!docente) {
@@ -83,7 +78,13 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      // 2. Check if user already exists
+      if (docente.nombre.trim().toLowerCase() !== input.nombreCompleto.trim().toLowerCase()) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Los datos ingresados no coinciden con el registro docente',
+        });
+      }
+
       const existingUser = await ctx.prisma.user.findUnique({
         where: { email: input.email }
       });
@@ -95,7 +96,6 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      // 3. Check if docente already has a user
       const docHasUser = await ctx.prisma.user.findUnique({
         where: { docenteId: docente.id }
       });
@@ -107,7 +107,6 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      // 4. Create user
       const hashedPassword = await bcrypt.hash(input.password, 10);
       const user = await ctx.prisma.user.create({
         data: {
@@ -128,13 +127,44 @@ export const authRouter = createTRPCRouter({
   }),
 
   me: baseProcedure.query(async ({ ctx }) => {
-    return ctx.session;
+    if (!ctx.session) return null;
+
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: ctx.session.id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        nombre: true,
+        docenteId: true,
+        activo: true,
+      },
+    });
+
+    if (!user?.activo) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      nombre: user.nombre,
+      docenteId: user.docenteId,
+    };
   }),
 
   getProfile: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.prisma.user.findUnique({
       where: { id: ctx.session.id },
-      include: { docente: true }
+      select: {
+        id: true,
+        email: true,
+        nombre: true,
+        role: true,
+        activo: true,
+        docenteId: true,
+        createdAt: true,
+        updatedAt: true,
+        docente: true,
+      },
     });
     if (!user) throw new TRPCError({ code: 'NOT_FOUND' });
     return user;
@@ -143,12 +173,26 @@ export const authRouter = createTRPCRouter({
   updateProfile: protectedProcedure
     .input(z.object({
       nombre: z.string().optional(),
-      password: z.string().min(6).optional(),
+      password: z.string().min(8).optional(),
+      currentPassword: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const data: { nombre?: string; password?: string } = {};
       if (input.nombre) data.nombre = input.nombre;
       if (input.password) {
+        if (!input.currentPassword) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Debe ingresar su contraseña actual' });
+        }
+
+        const user = await ctx.prisma.user.findUniqueOrThrow({
+          where: { id: ctx.session.id },
+          select: { password: true },
+        });
+        const validCurrentPassword = await bcrypt.compare(input.currentPassword, user.password);
+        if (!validCurrentPassword) {
+          throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Contraseña actual incorrecta' });
+        }
+
         data.password = await bcrypt.hash(input.password, 10);
       }
 
@@ -160,25 +204,60 @@ export const authRouter = createTRPCRouter({
       return { success: true, user: { id: user.id, nombre: user.nombre } };
     }),
 
-  // Admin only: Users management
-  listUsers: secretariaProcedure.query(async ({ ctx }) => {
+  listUsers: adminProcedure.query(async ({ ctx }) => {
     return ctx.prisma.user.findMany({
-      include: { docente: true },
+      select: {
+        id: true,
+        email: true,
+        nombre: true,
+        role: true,
+        activo: true,
+        docenteId: true,
+        createdAt: true,
+        updatedAt: true,
+        docente: {
+          select: { id: true, nombre: true, email: true, codigo: true },
+        },
+      },
       orderBy: { createdAt: 'desc' }
     });
   }),
 
-  toggleUserStatus: secretariaProcedure
+  toggleUserStatus: adminProcedure
     .input(z.object({ userId: z.string(), activo: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.user.update({
+      if (ctx.session.id === input.userId && !input.activo) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'No puede desactivar su propia cuenta' });
+      }
+
+      const target = await ctx.prisma.user.findUniqueOrThrow({
+        where: { id: input.userId },
+        select: { id: true, email: true, role: true, activo: true },
+      });
+      if (target.role === 'ADMIN' && ctx.session.id !== input.userId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No puede modificar otra cuenta administradora' });
+      }
+
+      const updated = await ctx.prisma.user.update({
         where: { id: input.userId },
         data: { activo: input.activo }
       });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'USER_STATUS_CHANGED',
+        entidad: 'User',
+        entidadId: input.userId,
+        antes: { activo: target.activo, role: target.role, email: target.email },
+        despues: { activo: updated.activo, role: updated.role, email: updated.email },
+        motivo: input.activo ? 'Cuenta activada' : 'Cuenta desactivada',
+      });
+
+      return updated;
     }),
 
-  // Admin only: Bitacora
-  getLogs: secretariaProcedure.query(async ({ ctx }) => {
+  getLogs: adminProcedure.query(async ({ ctx }) => {
     return ctx.prisma.log.findMany({
       include: { user: { select: { nombre: true, email: true, role: true } } },
       orderBy: { createdAt: 'desc' },

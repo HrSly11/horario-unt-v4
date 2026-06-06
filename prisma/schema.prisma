@@ -99,6 +99,15 @@ enum TipoCargaNoLectiva {
   COMITES_COMISIONES
 }
 
+enum TipoDocumentoFirma {
+  DECLARACION_JURADA
+  DECLARACION_SEDES
+  APROBACION_DEPARTAMENTO
+  APROBACION_ESCUELA
+  VISTO_BUENO_DECANO
+  REPORTE_FINAL
+}
+
 // ──── Models: Estructura Organizacional ────────────────
 
 model Facultad {
@@ -212,21 +221,30 @@ model User {
   declaracionesAprobDepto  DeclaracionCarga[] @relation("AprobadorDepto")
   declaracionesAprobEscuela DeclaracionCarga[] @relation("AprobadorEscuela")
   declaracionesVBDecano    DeclaracionCarga[] @relation("VBDecano")
+  firmasDigitales          DocumentoFirmaDigital[] @relation("FirmanteDocumento")
 
   @@map("users")
 }
 
 model Log {
-  id        String   @id @default(cuid())
-  userId    String?  @map("user_id")
-  accion    String   // "LOGIN", "CREATE_AULA", etc.
-  detalles  String?  @db.Text
-  ip        String?
-  userAgent String?  @map("user_agent")
-  createdAt DateTime @default(now()) @map("created_at")
+  id            String   @id @default(cuid())
+  userId        String?  @map("user_id")
+  accion        String   // "LOGIN", "CREATE_AULA", etc.
+  entidad       String?
+  entidadId     String?  @map("entidad_id")
+  detalles      String?  @db.Text
+  antes         Json?
+  despues       Json?
+  motivo        String?  @db.Text
+  correlationId String?  @map("correlation_id")
+  ip            String?
+  userAgent     String?  @map("user_agent")
+  createdAt     DateTime @default(now()) @map("created_at")
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  @@index([entidad, entidadId])
+  @@index([correlationId])
   @@map("logs")
 }
 
@@ -315,13 +333,15 @@ model Curso {
 model DisponibilidadDocente {
   id              String        @id @default(cuid())
   docenteId       String        @map("docente_id")
+  periodoId       String        @map("periodo_id")
   franjaHorariaId String        @map("franja_horaria_id")
   createdAt       DateTime      @default(now()) @map("created_at")
 
   docente         Docente       @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  periodo         PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
   franjaHoraria   FranjaHoraria @relation(fields: [franjaHorariaId], references: [id], onDelete: Cascade)
 
-  @@unique([docenteId, franjaHorariaId])
+  @@unique([docenteId, periodoId, franjaHorariaId])
   @@map("disponibilidades_docentes")
 }
 
@@ -402,6 +422,7 @@ model PeriodoAcademico {
   asignacionesCarga AsignacionCargaLectiva[]
   cargasNoLectivas  CargaNoLectiva[]
   declaraciones     DeclaracionCarga[]
+  disponibilidades  DisponibilidadDocente[]
 
   @@map("periodos_academicos")
 }
@@ -547,6 +568,7 @@ model AsignacionCargaLectiva {
   periodo             PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
 
   @@unique([docenteId, grupoId, periodoId, tipo])
+  @@unique([grupoId, periodoId, tipo])
   @@map("asignaciones_carga_lectiva")
 }
 
@@ -624,7 +646,31 @@ model DeclaracionCarga {
   aprobadorDepto         User?            @relation("AprobadorDepto", fields: [aprobadoDepartamentoId], references: [id], onDelete: SetNull)
   aprobadorEscuela       User?            @relation("AprobadorEscuela", fields: [aprobadoEscuelaId], references: [id], onDelete: SetNull)
   vbDecano               User?            @relation("VBDecano", fields: [vistoBuenoDecanoId], references: [id], onDelete: SetNull)
+  firmasDigitales        DocumentoFirmaDigital[]
 
   @@unique([docenteId, periodoId])
   @@map("declaraciones_carga")
+}
+
+model DocumentoFirmaDigital {
+  id                String             @id @default(cuid())
+  declaracionId     String             @map("declaracion_id")
+  tipo              TipoDocumentoFirma
+  documentoHash     String             @map("documento_hash")
+  algoritmoHash     String             @default("SHA-256") @map("algoritmo_hash")
+  certificadoSerial String             @map("certificado_serial")
+  certificadoEmisor String             @map("certificado_emisor")
+  firmaPayload      String             @map("firma_payload") @db.Text
+  firmadoPorId      String             @map("firmado_por_id")
+  firmadoEn         DateTime           @default(now()) @map("firmado_en")
+  version           Int                @default(1)
+  cadenaCustodia    Json?              @map("cadena_custodia")
+  createdAt         DateTime           @default(now()) @map("created_at")
+
+  declaracion       DeclaracionCarga   @relation(fields: [declaracionId], references: [id], onDelete: Cascade)
+  firmadoPor        User               @relation("FirmanteDocumento", fields: [firmadoPorId], references: [id], onDelete: Restrict)
+
+  @@unique([declaracionId, tipo, version])
+  @@index([documentoHash])
+  @@map("documentos_firmas_digitales")
 }

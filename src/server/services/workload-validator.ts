@@ -1,4 +1,4 @@
-import { type PrismaClient, ModalidadDocente, TipoCargaNoLectiva, EstadoDeclaracion } from '@/generated/prisma/client';
+import { type PrismaClient, ModalidadDocente, type TipoAsignacion } from '@/generated/prisma/client';
 
 export interface HorarioSlot {
   dia: string;
@@ -22,6 +22,10 @@ export interface CargaNoLectivaSummary {
   docenteId: string;
   totalNoLectivas: number;
   cargas: { id: string; tipo: string; horas: number; horarios?: HorarioSlot[] }[];
+}
+
+export interface ValidateAllOptions {
+  excludeAsignacionId?: string;
 }
 
 function ok(): ValidationResult {
@@ -65,6 +69,49 @@ export function validateNoOverlap(
         return fail(`Conflicto de horario: ${existing.dia} ${existing.horaInicio}-${existing.horaFin}`);
       }
     }
+  }
+  return ok();
+}
+
+export function calculateSlotHours(slot: Pick<HorarioSlot, 'horaInicio' | 'horaFin'>): number {
+  return (timeToMinutes(slot.horaFin) - timeToMinutes(slot.horaInicio)) / 60;
+}
+
+export function validateNonLectiveSchedule(
+  existingSlots: HorarioSlot[],
+  newSlots: HorarioSlot[]
+): ValidationResult {
+  for (let i = 0; i < newSlots.length; i++) {
+    const current = newSlots[i];
+    const currentHours = calculateSlotHours(current);
+    if (currentHours <= 0) {
+      return fail(`Horario invÃ¡lido: ${current.dia} ${current.horaInicio}-${current.horaFin}`);
+    }
+
+    const overlapResult = validateNoOverlap(newSlots.slice(0, i), [current]);
+    if (!overlapResult.valid) return overlapResult;
+  }
+
+  const overlapWithExisting = validateNoOverlap(existingSlots, newSlots);
+  if (!overlapWithExisting.valid) return overlapWithExisting;
+
+  const hoursByDay = new Map<string, number>();
+  for (const slot of [...existingSlots, ...newSlots]) {
+    const hours = slot.horas ?? calculateSlotHours(slot);
+    hoursByDay.set(slot.dia, (hoursByDay.get(slot.dia) ?? 0) + hours);
+  }
+
+  for (const [dia, horas] of hoursByDay.entries()) {
+    const daily = validateDailyLimit(horas);
+    if (!daily.valid) return fail(`${dia}: ${daily.message}`);
+  }
+
+  return ok();
+}
+
+export function validatePeriodMutable(estado: string, subject = 'carga no lectiva'): ValidationResult {
+  if (!['PLANIFICACION', 'POSTULACION', 'ASIGNACION'].includes(estado)) {
+    return fail(`El periodo académico no permite modificar ${subject} en estado ${estado}`);
   }
   return ok();
 }
@@ -114,7 +161,8 @@ export async function validateAll(
   docenteId: string,
   periodoId: string,
   nuevasHorasLectivas: number,
-  nuevoTipo: string
+  _nuevoTipo: TipoAsignacion,
+  options: ValidateAllOptions = {}
 ): Promise<ValidationResult> {
   const docente = await prisma.docente.findUniqueOrThrow({
     where: { id: docenteId },
@@ -125,7 +173,11 @@ export async function validateAll(
   if (!result.valid) return result;
 
   const asignacionesExistentes = await prisma.asignacionCargaLectiva.findMany({
-    where: { docenteId, periodoId, tipo: { not: nuevoTipo as 'TEORIA' | 'PRACTICA' | 'LABORATORIO' } },
+    where: {
+      docenteId,
+      periodoId,
+      ...(options.excludeAsignacionId ? { id: { not: options.excludeAsignacionId } } : {}),
+    },
   });
 
   const cargasNoLectivas = await prisma.cargaNoLectiva.findMany({

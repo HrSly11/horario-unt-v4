@@ -15,92 +15,92 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 /**
  * Model Facultad
- * 
+ *
  */
 export type Facultad = $Result.DefaultSelection<Prisma.$FacultadPayload>
 /**
  * Model Departamento
- * 
+ *
  */
 export type Departamento = $Result.DefaultSelection<Prisma.$DepartamentoPayload>
 /**
  * Model Escuela
- * 
+ *
  */
 export type Escuela = $Result.DefaultSelection<Prisma.$EscuelaPayload>
 /**
  * Model Curricula
- * 
+ *
  */
 export type Curricula = $Result.DefaultSelection<Prisma.$CurriculaPayload>
 /**
  * Model CursoCurricula
- * 
+ *
  */
 export type CursoCurricula = $Result.DefaultSelection<Prisma.$CursoCurriculaPayload>
 /**
  * Model User
- * 
+ *
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
  * Model Log
- * 
+ *
  */
 export type Log = $Result.DefaultSelection<Prisma.$LogPayload>
 /**
  * Model Docente
- * 
+ *
  */
 export type Docente = $Result.DefaultSelection<Prisma.$DocentePayload>
 /**
  * Model Notification
- * 
+ *
  */
 export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
 /**
  * Model Curso
- * 
+ *
  */
 export type Curso = $Result.DefaultSelection<Prisma.$CursoPayload>
 /**
  * Model DisponibilidadDocente
- * 
+ *
  */
 export type DisponibilidadDocente = $Result.DefaultSelection<Prisma.$DisponibilidadDocentePayload>
 /**
  * Model PostulacionCurso
- * 
+ *
  */
 export type PostulacionCurso = $Result.DefaultSelection<Prisma.$PostulacionCursoPayload>
 /**
  * Model Grupo
- * 
+ *
  */
 export type Grupo = $Result.DefaultSelection<Prisma.$GrupoPayload>
 /**
  * Model Aula
- * 
+ *
  */
 export type Aula = $Result.DefaultSelection<Prisma.$AulaPayload>
 /**
  * Model PeriodoAcademico
- * 
+ *
  */
 export type PeriodoAcademico = $Result.DefaultSelection<Prisma.$PeriodoAcademicoPayload>
 /**
  * Model FranjaHoraria
- * 
+ *
  */
 export type FranjaHoraria = $Result.DefaultSelection<Prisma.$FranjaHorariaPayload>
 /**
  * Model Asignacion
- * 
+ *
  */
 export type Asignacion = $Result.DefaultSelection<Prisma.$AsignacionPayload>
 /**
  * Model RestriccionDocente
- * 
+ *
  */
 export type RestriccionDocente = $Result.DefaultSelection<Prisma.$RestriccionDocentePayload>
 /**
@@ -143,6 +143,11 @@ export type HorarioCargaNoLectiva = $Result.DefaultSelection<Prisma.$HorarioCarg
  * Declaración de carga horaria (Formato N°1 + control de flujo)
  */
 export type DeclaracionCarga = $Result.DefaultSelection<Prisma.$DeclaracionCargaPayload>
+/**
+ * Model DocumentoFirmaDigital
+ *
+ */
+export type DocumentoFirmaDigital = $Result.DefaultSelection<Prisma.$DocumentoFirmaDigitalPayload>
 
 /**
  * Enums
@@ -265,6 +270,18 @@ export const TipoCargaNoLectiva: {
 
 export type TipoCargaNoLectiva = (typeof TipoCargaNoLectiva)[keyof typeof TipoCargaNoLectiva]
 
+
+export const TipoDocumentoFirma: {
+  DECLARACION_JURADA: 'DECLARACION_JURADA',
+  DECLARACION_SEDES: 'DECLARACION_SEDES',
+  APROBACION_DEPARTAMENTO: 'APROBACION_DEPARTAMENTO',
+  APROBACION_ESCUELA: 'APROBACION_ESCUELA',
+  VISTO_BUENO_DECANO: 'VISTO_BUENO_DECANO',
+  REPORTE_FINAL: 'REPORTE_FINAL'
+};
+
+export type TipoDocumentoFirma = (typeof TipoDocumentoFirma)[keyof typeof TipoDocumentoFirma]
+
 }
 
 export type CategoriaDocente = $Enums.CategoriaDocente
@@ -310,6 +327,10 @@ export const EstadoDeclaracion: typeof $Enums.EstadoDeclaracion
 export type TipoCargaNoLectiva = $Enums.TipoCargaNoLectiva
 
 export const TipoCargaNoLectiva: typeof $Enums.TipoCargaNoLectiva
+
+export type TipoDocumentoFirma = $Enums.TipoDocumentoFirma
+
+export const TipoDocumentoFirma: typeof $Enums.TipoDocumentoFirma
 
 /**
  * ##  Prisma Client ʲˢ
@@ -421,7 +442,7 @@ export class PrismaClient<
    *   prisma.user.create({ data: { name: 'Alice' } }),
    * ])
    * ```
-   * 
+   *
    * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
   $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
@@ -691,6 +712,16 @@ export class PrismaClient<
     * ```
     */
   get declaracionCarga(): Prisma.DeclaracionCargaDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.documentoFirmaDigital`: Exposes CRUD operations for the **DocumentoFirmaDigital** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DocumentoFirmaDigitals
+    * const documentoFirmaDigitals = await prisma.documentoFirmaDigital.findMany()
+    * ```
+    */
+  get documentoFirmaDigital(): Prisma.DocumentoFirmaDigitalDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1150,7 +1181,8 @@ export namespace Prisma {
     AsignacionCargaLectiva: 'AsignacionCargaLectiva',
     CargaNoLectiva: 'CargaNoLectiva',
     HorarioCargaNoLectiva: 'HorarioCargaNoLectiva',
-    DeclaracionCarga: 'DeclaracionCarga'
+    DeclaracionCarga: 'DeclaracionCarga',
+    DocumentoFirmaDigital: 'DocumentoFirmaDigital'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1166,7 +1198,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "facultad" | "departamento" | "escuela" | "curricula" | "cursoCurricula" | "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion" | "asignacionCargaLectiva" | "cargaNoLectiva" | "horarioCargaNoLectiva" | "declaracionCarga"
+      modelProps: "facultad" | "departamento" | "escuela" | "curricula" | "cursoCurricula" | "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion" | "asignacionCargaLectiva" | "cargaNoLectiva" | "horarioCargaNoLectiva" | "declaracionCarga" | "documentoFirmaDigital"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3094,6 +3126,80 @@ export namespace Prisma {
           }
         }
       }
+      DocumentoFirmaDigital: {
+        payload: Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>
+        fields: Prisma.DocumentoFirmaDigitalFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DocumentoFirmaDigitalFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DocumentoFirmaDigitalFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>
+          }
+          findFirst: {
+            args: Prisma.DocumentoFirmaDigitalFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DocumentoFirmaDigitalFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>
+          }
+          findMany: {
+            args: Prisma.DocumentoFirmaDigitalFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>[]
+          }
+          create: {
+            args: Prisma.DocumentoFirmaDigitalCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>
+          }
+          createMany: {
+            args: Prisma.DocumentoFirmaDigitalCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DocumentoFirmaDigitalCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>[]
+          }
+          delete: {
+            args: Prisma.DocumentoFirmaDigitalDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>
+          }
+          update: {
+            args: Prisma.DocumentoFirmaDigitalUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>
+          }
+          deleteMany: {
+            args: Prisma.DocumentoFirmaDigitalDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DocumentoFirmaDigitalUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DocumentoFirmaDigitalUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>[]
+          }
+          upsert: {
+            args: Prisma.DocumentoFirmaDigitalUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DocumentoFirmaDigitalPayload>
+          }
+          aggregate: {
+            args: Prisma.DocumentoFirmaDigitalAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDocumentoFirmaDigital>
+          }
+          groupBy: {
+            args: Prisma.DocumentoFirmaDigitalGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DocumentoFirmaDigitalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DocumentoFirmaDigitalCountArgs<ExtArgs>
+            result: $Utils.Optional<DocumentoFirmaDigitalCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3131,7 +3237,7 @@ export namespace Prisma {
      * ```
      * // Shorthand for `emit: 'stdout'`
      * log: ['query', 'info', 'warn', 'error']
-     * 
+     *
      * // Emit as events only
      * log: [
      *   { emit: 'event', level: 'query' },
@@ -3139,14 +3245,14 @@ export namespace Prisma {
      *   { emit: 'event', level: 'warn' }
      *   { emit: 'event', level: 'error' }
      * ]
-     * 
+     *
      * / Emit as events and log to stdout
      * og: [
      *  { emit: 'stdout', level: 'query' },
      *  { emit: 'stdout', level: 'info' },
      *  { emit: 'stdout', level: 'warn' }
      *  { emit: 'stdout', level: 'error' }
-     * 
+     *
      * ```
      * Read more in our [docs](https://pris.ly/d/logging).
      */
@@ -3171,7 +3277,7 @@ export namespace Prisma {
     accelerateUrl?: string
     /**
      * Global configuration for omitting model fields by default.
-     * 
+     *
      * @example
      * ```
      * const prisma = new PrismaClient({
@@ -3187,7 +3293,7 @@ export namespace Prisma {
     /**
      * SQL commenter plugins that add metadata to SQL queries as comments.
      * Comments follow the sqlcommenter format: https://google.github.io/sqlcommenter/
-     * 
+     *
      * @example
      * ```
      * const prisma = new PrismaClient({
@@ -3228,6 +3334,7 @@ export namespace Prisma {
     cargaNoLectiva?: CargaNoLectivaOmit
     horarioCargaNoLectiva?: HorarioCargaNoLectivaOmit
     declaracionCarga?: DeclaracionCargaOmit
+    documentoFirmaDigital?: DocumentoFirmaDigitalOmit
   }
 
   /* Types for Logging */
@@ -3448,6 +3555,7 @@ export namespace Prisma {
     declaracionesAprobDepto: number
     declaracionesAprobEscuela: number
     declaracionesVBDecano: number
+    firmasDigitales: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3458,6 +3566,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: boolean | UserCountOutputTypeCountDeclaracionesAprobDeptoArgs
     declaracionesAprobEscuela?: boolean | UserCountOutputTypeCountDeclaracionesAprobEscuelaArgs
     declaracionesVBDecano?: boolean | UserCountOutputTypeCountDeclaracionesVBDecanoArgs
+    firmasDigitales?: boolean | UserCountOutputTypeCountFirmasDigitalesArgs
   }
 
   // Custom InputTypes
@@ -3518,6 +3627,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountDeclaracionesVBDecanoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DeclaracionCargaWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFirmasDigitalesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DocumentoFirmaDigitalWhereInput
   }
 
 
@@ -3800,6 +3916,7 @@ export namespace Prisma {
     asignacionesCarga: number
     cargasNoLectivas: number
     declaraciones: number
+    disponibilidades: number
   }
 
   export type PeriodoAcademicoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3809,6 +3926,7 @@ export namespace Prisma {
     asignacionesCarga?: boolean | PeriodoAcademicoCountOutputTypeCountAsignacionesCargaArgs
     cargasNoLectivas?: boolean | PeriodoAcademicoCountOutputTypeCountCargasNoLectivasArgs
     declaraciones?: boolean | PeriodoAcademicoCountOutputTypeCountDeclaracionesArgs
+    disponibilidades?: boolean | PeriodoAcademicoCountOutputTypeCountDisponibilidadesArgs
   }
 
   // Custom InputTypes
@@ -3862,6 +3980,13 @@ export namespace Prisma {
    */
   export type PeriodoAcademicoCountOutputTypeCountDeclaracionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DeclaracionCargaWhereInput
+  }
+
+  /**
+   * PeriodoAcademicoCountOutputType without action
+   */
+  export type PeriodoAcademicoCountOutputTypeCountDisponibilidadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DisponibilidadDocenteWhereInput
   }
 
 
@@ -3964,6 +4089,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type DeclaracionCargaCountOutputType
+   */
+
+  export type DeclaracionCargaCountOutputType = {
+    firmasDigitales: number
+  }
+
+  export type DeclaracionCargaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    firmasDigitales?: boolean | DeclaracionCargaCountOutputTypeCountFirmasDigitalesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DeclaracionCargaCountOutputType without action
+   */
+  export type DeclaracionCargaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeclaracionCargaCountOutputType
+     */
+    select?: DeclaracionCargaCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DeclaracionCargaCountOutputType without action
+   */
+  export type DeclaracionCargaCountOutputTypeCountFirmasDigitalesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DocumentoFirmaDigitalWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -4035,43 +4191,43 @@ export namespace Prisma {
     where?: FacultadWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Facultads to fetch.
      */
     orderBy?: FacultadOrderByWithRelationInput | FacultadOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: FacultadWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Facultads from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Facultads.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Facultads
     **/
     _count?: true | FacultadCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: FacultadMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: FacultadMaxAggregateInputType
@@ -4260,13 +4416,13 @@ export namespace Prisma {
      * @example
      * // Get all Facultads
      * const facultads = await prisma.facultad.findMany()
-     * 
+     *
      * // Get first 10 Facultads
      * const facultads = await prisma.facultad.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const facultadWithIdOnly = await prisma.facultad.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends FacultadFindManyArgs>(args?: SelectSubset<T, FacultadFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FacultadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -4280,7 +4436,7 @@ export namespace Prisma {
      *     // ... data to create a Facultad
      *   }
      * })
-     * 
+     *
      */
     create<T extends FacultadCreateArgs>(args: SelectSubset<T, FacultadCreateArgs<ExtArgs>>): Prisma__FacultadClient<$Result.GetResult<Prisma.$FacultadPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -4294,7 +4450,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends FacultadCreateManyArgs>(args?: SelectSubset<T, FacultadCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -4308,7 +4464,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Facultads and only return the `id`
      * const facultadWithIdOnly = await prisma.facultad.createManyAndReturn({
      *   select: { id: true },
@@ -4318,7 +4474,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends FacultadCreateManyAndReturnArgs>(args?: SelectSubset<T, FacultadCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FacultadPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -4332,7 +4488,7 @@ export namespace Prisma {
      *     // ... filter to delete one Facultad
      *   }
      * })
-     * 
+     *
      */
     delete<T extends FacultadDeleteArgs>(args: SelectSubset<T, FacultadDeleteArgs<ExtArgs>>): Prisma__FacultadClient<$Result.GetResult<Prisma.$FacultadPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -4349,7 +4505,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends FacultadUpdateArgs>(args: SelectSubset<T, FacultadUpdateArgs<ExtArgs>>): Prisma__FacultadClient<$Result.GetResult<Prisma.$FacultadPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -4363,7 +4519,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends FacultadDeleteManyArgs>(args?: SelectSubset<T, FacultadDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -4382,7 +4538,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends FacultadUpdateManyArgs>(args: SelectSubset<T, FacultadUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -4399,7 +4555,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Facultads and only return the `id`
      * const facultadWithIdOnly = await prisma.facultad.updateManyAndReturn({
      *   select: { id: true },
@@ -4412,7 +4568,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends FacultadUpdateManyAndReturnArgs>(args: SelectSubset<T, FacultadUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FacultadPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -4501,7 +4657,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends FacultadGroupByArgs,
@@ -4612,7 +4768,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Facultad", 'DateTime'>
     readonly updatedAt: FieldRef<"Facultad", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -4681,31 +4837,31 @@ export namespace Prisma {
     where?: FacultadWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Facultads to fetch.
      */
     orderBy?: FacultadOrderByWithRelationInput | FacultadOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Facultads.
      */
     cursor?: FacultadWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Facultads from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Facultads.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Facultads.
      */
     distinct?: FacultadScalarFieldEnum | FacultadScalarFieldEnum[]
@@ -4733,31 +4889,31 @@ export namespace Prisma {
     where?: FacultadWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Facultads to fetch.
      */
     orderBy?: FacultadOrderByWithRelationInput | FacultadOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Facultads.
      */
     cursor?: FacultadWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Facultads from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Facultads.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Facultads.
      */
     distinct?: FacultadScalarFieldEnum | FacultadScalarFieldEnum[]
@@ -4785,31 +4941,31 @@ export namespace Prisma {
     where?: FacultadWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Facultads to fetch.
      */
     orderBy?: FacultadOrderByWithRelationInput | FacultadOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Facultads.
      */
     cursor?: FacultadWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Facultads from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Facultads.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Facultads.
      */
     distinct?: FacultadScalarFieldEnum | FacultadScalarFieldEnum[]
@@ -5162,43 +5318,43 @@ export namespace Prisma {
     where?: DepartamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Departamentos to fetch.
      */
     orderBy?: DepartamentoOrderByWithRelationInput | DepartamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: DepartamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Departamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Departamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Departamentos
     **/
     _count?: true | DepartamentoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: DepartamentoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: DepartamentoMaxAggregateInputType
@@ -5438,13 +5594,13 @@ export namespace Prisma {
      * @example
      * // Get all Departamentos
      * const departamentos = await prisma.departamento.findMany()
-     * 
+     *
      * // Get first 10 Departamentos
      * const departamentos = await prisma.departamento.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const departamentoWithIdOnly = await prisma.departamento.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends DepartamentoFindManyArgs>(args?: SelectSubset<T, DepartamentoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartamentoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -5458,7 +5614,7 @@ export namespace Prisma {
      *     // ... data to create a Departamento
      *   }
      * })
-     * 
+     *
      */
     create<T extends DepartamentoCreateArgs>(args: SelectSubset<T, DepartamentoCreateArgs<ExtArgs>>): Prisma__DepartamentoClient<$Result.GetResult<Prisma.$DepartamentoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -5472,7 +5628,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends DepartamentoCreateManyArgs>(args?: SelectSubset<T, DepartamentoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -5486,7 +5642,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Departamentos and only return the `id`
      * const departamentoWithIdOnly = await prisma.departamento.createManyAndReturn({
      *   select: { id: true },
@@ -5496,7 +5652,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends DepartamentoCreateManyAndReturnArgs>(args?: SelectSubset<T, DepartamentoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartamentoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -5510,7 +5666,7 @@ export namespace Prisma {
      *     // ... filter to delete one Departamento
      *   }
      * })
-     * 
+     *
      */
     delete<T extends DepartamentoDeleteArgs>(args: SelectSubset<T, DepartamentoDeleteArgs<ExtArgs>>): Prisma__DepartamentoClient<$Result.GetResult<Prisma.$DepartamentoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -5527,7 +5683,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends DepartamentoUpdateArgs>(args: SelectSubset<T, DepartamentoUpdateArgs<ExtArgs>>): Prisma__DepartamentoClient<$Result.GetResult<Prisma.$DepartamentoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -5541,7 +5697,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends DepartamentoDeleteManyArgs>(args?: SelectSubset<T, DepartamentoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -5560,7 +5716,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends DepartamentoUpdateManyArgs>(args: SelectSubset<T, DepartamentoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -5577,7 +5733,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Departamentos and only return the `id`
      * const departamentoWithIdOnly = await prisma.departamento.updateManyAndReturn({
      *   select: { id: true },
@@ -5590,7 +5746,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends DepartamentoUpdateManyAndReturnArgs>(args: SelectSubset<T, DepartamentoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartamentoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -5679,7 +5835,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends DepartamentoGroupByArgs,
@@ -5797,7 +5953,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Departamento", 'DateTime'>
     readonly updatedAt: FieldRef<"Departamento", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -5866,31 +6022,31 @@ export namespace Prisma {
     where?: DepartamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Departamentos to fetch.
      */
     orderBy?: DepartamentoOrderByWithRelationInput | DepartamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Departamentos.
      */
     cursor?: DepartamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Departamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Departamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Departamentos.
      */
     distinct?: DepartamentoScalarFieldEnum | DepartamentoScalarFieldEnum[]
@@ -5918,31 +6074,31 @@ export namespace Prisma {
     where?: DepartamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Departamentos to fetch.
      */
     orderBy?: DepartamentoOrderByWithRelationInput | DepartamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Departamentos.
      */
     cursor?: DepartamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Departamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Departamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Departamentos.
      */
     distinct?: DepartamentoScalarFieldEnum | DepartamentoScalarFieldEnum[]
@@ -5970,31 +6126,31 @@ export namespace Prisma {
     where?: DepartamentoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Departamentos to fetch.
      */
     orderBy?: DepartamentoOrderByWithRelationInput | DepartamentoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Departamentos.
      */
     cursor?: DepartamentoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Departamentos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Departamentos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Departamentos.
      */
     distinct?: DepartamentoScalarFieldEnum | DepartamentoScalarFieldEnum[]
@@ -6382,43 +6538,43 @@ export namespace Prisma {
     where?: EscuelaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Escuelas to fetch.
      */
     orderBy?: EscuelaOrderByWithRelationInput | EscuelaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: EscuelaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Escuelas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Escuelas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Escuelas
     **/
     _count?: true | EscuelaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: EscuelaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: EscuelaMaxAggregateInputType
@@ -6645,13 +6801,13 @@ export namespace Prisma {
      * @example
      * // Get all Escuelas
      * const escuelas = await prisma.escuela.findMany()
-     * 
+     *
      * // Get first 10 Escuelas
      * const escuelas = await prisma.escuela.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const escuelaWithIdOnly = await prisma.escuela.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends EscuelaFindManyArgs>(args?: SelectSubset<T, EscuelaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EscuelaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -6665,7 +6821,7 @@ export namespace Prisma {
      *     // ... data to create a Escuela
      *   }
      * })
-     * 
+     *
      */
     create<T extends EscuelaCreateArgs>(args: SelectSubset<T, EscuelaCreateArgs<ExtArgs>>): Prisma__EscuelaClient<$Result.GetResult<Prisma.$EscuelaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -6679,7 +6835,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends EscuelaCreateManyArgs>(args?: SelectSubset<T, EscuelaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -6693,7 +6849,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Escuelas and only return the `id`
      * const escuelaWithIdOnly = await prisma.escuela.createManyAndReturn({
      *   select: { id: true },
@@ -6703,7 +6859,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends EscuelaCreateManyAndReturnArgs>(args?: SelectSubset<T, EscuelaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EscuelaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -6717,7 +6873,7 @@ export namespace Prisma {
      *     // ... filter to delete one Escuela
      *   }
      * })
-     * 
+     *
      */
     delete<T extends EscuelaDeleteArgs>(args: SelectSubset<T, EscuelaDeleteArgs<ExtArgs>>): Prisma__EscuelaClient<$Result.GetResult<Prisma.$EscuelaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -6734,7 +6890,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends EscuelaUpdateArgs>(args: SelectSubset<T, EscuelaUpdateArgs<ExtArgs>>): Prisma__EscuelaClient<$Result.GetResult<Prisma.$EscuelaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -6748,7 +6904,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends EscuelaDeleteManyArgs>(args?: SelectSubset<T, EscuelaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -6767,7 +6923,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends EscuelaUpdateManyArgs>(args: SelectSubset<T, EscuelaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -6784,7 +6940,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Escuelas and only return the `id`
      * const escuelaWithIdOnly = await prisma.escuela.updateManyAndReturn({
      *   select: { id: true },
@@ -6797,7 +6953,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends EscuelaUpdateManyAndReturnArgs>(args: SelectSubset<T, EscuelaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EscuelaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -6886,7 +7042,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends EscuelaGroupByArgs,
@@ -7002,7 +7158,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Escuela", 'DateTime'>
     readonly updatedAt: FieldRef<"Escuela", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -7071,31 +7227,31 @@ export namespace Prisma {
     where?: EscuelaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Escuelas to fetch.
      */
     orderBy?: EscuelaOrderByWithRelationInput | EscuelaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Escuelas.
      */
     cursor?: EscuelaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Escuelas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Escuelas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Escuelas.
      */
     distinct?: EscuelaScalarFieldEnum | EscuelaScalarFieldEnum[]
@@ -7123,31 +7279,31 @@ export namespace Prisma {
     where?: EscuelaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Escuelas to fetch.
      */
     orderBy?: EscuelaOrderByWithRelationInput | EscuelaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Escuelas.
      */
     cursor?: EscuelaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Escuelas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Escuelas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Escuelas.
      */
     distinct?: EscuelaScalarFieldEnum | EscuelaScalarFieldEnum[]
@@ -7175,31 +7331,31 @@ export namespace Prisma {
     where?: EscuelaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Escuelas to fetch.
      */
     orderBy?: EscuelaOrderByWithRelationInput | EscuelaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Escuelas.
      */
     cursor?: EscuelaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Escuelas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Escuelas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Escuelas.
      */
     distinct?: EscuelaScalarFieldEnum | EscuelaScalarFieldEnum[]
@@ -7580,55 +7736,55 @@ export namespace Prisma {
     where?: CurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Curricula to fetch.
      */
     orderBy?: CurriculaOrderByWithRelationInput | CurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: CurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Curricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Curricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Curricula
     **/
     _count?: true | CurriculaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: CurriculaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: CurriculaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: CurriculaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: CurriculaMaxAggregateInputType
@@ -7839,13 +7995,13 @@ export namespace Prisma {
      * @example
      * // Get all Curricula
      * const curricula = await prisma.curricula.findMany()
-     * 
+     *
      * // Get first 10 Curricula
      * const curricula = await prisma.curricula.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const curriculaWithIdOnly = await prisma.curricula.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends CurriculaFindManyArgs>(args?: SelectSubset<T, CurriculaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurriculaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -7859,7 +8015,7 @@ export namespace Prisma {
      *     // ... data to create a Curricula
      *   }
      * })
-     * 
+     *
      */
     create<T extends CurriculaCreateArgs>(args: SelectSubset<T, CurriculaCreateArgs<ExtArgs>>): Prisma__CurriculaClient<$Result.GetResult<Prisma.$CurriculaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -7873,7 +8029,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends CurriculaCreateManyArgs>(args?: SelectSubset<T, CurriculaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -7887,7 +8043,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Curricula and only return the `id`
      * const curriculaWithIdOnly = await prisma.curricula.createManyAndReturn({
      *   select: { id: true },
@@ -7897,7 +8053,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends CurriculaCreateManyAndReturnArgs>(args?: SelectSubset<T, CurriculaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurriculaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -7911,7 +8067,7 @@ export namespace Prisma {
      *     // ... filter to delete one Curricula
      *   }
      * })
-     * 
+     *
      */
     delete<T extends CurriculaDeleteArgs>(args: SelectSubset<T, CurriculaDeleteArgs<ExtArgs>>): Prisma__CurriculaClient<$Result.GetResult<Prisma.$CurriculaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -7928,7 +8084,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends CurriculaUpdateArgs>(args: SelectSubset<T, CurriculaUpdateArgs<ExtArgs>>): Prisma__CurriculaClient<$Result.GetResult<Prisma.$CurriculaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -7942,7 +8098,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends CurriculaDeleteManyArgs>(args?: SelectSubset<T, CurriculaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -7961,7 +8117,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends CurriculaUpdateManyArgs>(args: SelectSubset<T, CurriculaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -7978,7 +8134,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Curricula and only return the `id`
      * const curriculaWithIdOnly = await prisma.curricula.updateManyAndReturn({
      *   select: { id: true },
@@ -7991,7 +8147,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends CurriculaUpdateManyAndReturnArgs>(args: SelectSubset<T, CurriculaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CurriculaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -8080,7 +8236,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends CurriculaGroupByArgs,
@@ -8193,7 +8349,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Curricula", 'DateTime'>
     readonly updatedAt: FieldRef<"Curricula", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -8262,31 +8418,31 @@ export namespace Prisma {
     where?: CurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Curricula to fetch.
      */
     orderBy?: CurriculaOrderByWithRelationInput | CurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Curricula.
      */
     cursor?: CurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Curricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Curricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Curricula.
      */
     distinct?: CurriculaScalarFieldEnum | CurriculaScalarFieldEnum[]
@@ -8314,31 +8470,31 @@ export namespace Prisma {
     where?: CurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Curricula to fetch.
      */
     orderBy?: CurriculaOrderByWithRelationInput | CurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Curricula.
      */
     cursor?: CurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Curricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Curricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Curricula.
      */
     distinct?: CurriculaScalarFieldEnum | CurriculaScalarFieldEnum[]
@@ -8366,31 +8522,31 @@ export namespace Prisma {
     where?: CurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Curricula to fetch.
      */
     orderBy?: CurriculaOrderByWithRelationInput | CurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Curricula.
      */
     cursor?: CurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Curricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Curricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Curricula.
      */
     distinct?: CurriculaScalarFieldEnum | CurriculaScalarFieldEnum[]
@@ -8721,55 +8877,55 @@ export namespace Prisma {
     where?: CursoCurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CursoCurricula to fetch.
      */
     orderBy?: CursoCurriculaOrderByWithRelationInput | CursoCurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: CursoCurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CursoCurricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CursoCurricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned CursoCurricula
     **/
     _count?: true | CursoCurriculaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: CursoCurriculaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: CursoCurriculaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: CursoCurriculaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: CursoCurriculaMaxAggregateInputType
@@ -8970,13 +9126,13 @@ export namespace Prisma {
      * @example
      * // Get all CursoCurricula
      * const cursoCurricula = await prisma.cursoCurricula.findMany()
-     * 
+     *
      * // Get first 10 CursoCurricula
      * const cursoCurricula = await prisma.cursoCurricula.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const cursoCurriculaWithIdOnly = await prisma.cursoCurricula.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends CursoCurriculaFindManyArgs>(args?: SelectSubset<T, CursoCurriculaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CursoCurriculaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -8990,7 +9146,7 @@ export namespace Prisma {
      *     // ... data to create a CursoCurricula
      *   }
      * })
-     * 
+     *
      */
     create<T extends CursoCurriculaCreateArgs>(args: SelectSubset<T, CursoCurriculaCreateArgs<ExtArgs>>): Prisma__CursoCurriculaClient<$Result.GetResult<Prisma.$CursoCurriculaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -9004,7 +9160,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends CursoCurriculaCreateManyArgs>(args?: SelectSubset<T, CursoCurriculaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -9018,7 +9174,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many CursoCurricula and only return the `id`
      * const cursoCurriculaWithIdOnly = await prisma.cursoCurricula.createManyAndReturn({
      *   select: { id: true },
@@ -9028,7 +9184,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends CursoCurriculaCreateManyAndReturnArgs>(args?: SelectSubset<T, CursoCurriculaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CursoCurriculaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -9042,7 +9198,7 @@ export namespace Prisma {
      *     // ... filter to delete one CursoCurricula
      *   }
      * })
-     * 
+     *
      */
     delete<T extends CursoCurriculaDeleteArgs>(args: SelectSubset<T, CursoCurriculaDeleteArgs<ExtArgs>>): Prisma__CursoCurriculaClient<$Result.GetResult<Prisma.$CursoCurriculaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -9059,7 +9215,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends CursoCurriculaUpdateArgs>(args: SelectSubset<T, CursoCurriculaUpdateArgs<ExtArgs>>): Prisma__CursoCurriculaClient<$Result.GetResult<Prisma.$CursoCurriculaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -9073,7 +9229,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends CursoCurriculaDeleteManyArgs>(args?: SelectSubset<T, CursoCurriculaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -9092,7 +9248,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends CursoCurriculaUpdateManyArgs>(args: SelectSubset<T, CursoCurriculaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -9109,7 +9265,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more CursoCurricula and only return the `id`
      * const cursoCurriculaWithIdOnly = await prisma.cursoCurricula.updateManyAndReturn({
      *   select: { id: true },
@@ -9122,7 +9278,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends CursoCurriculaUpdateManyAndReturnArgs>(args: SelectSubset<T, CursoCurriculaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CursoCurriculaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -9211,7 +9367,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends CursoCurriculaGroupByArgs,
@@ -9322,7 +9478,7 @@ export namespace Prisma {
     readonly ciclo: FieldRef<"CursoCurricula", 'Int'>
     readonly esElectivo: FieldRef<"CursoCurricula", 'Boolean'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -9391,31 +9547,31 @@ export namespace Prisma {
     where?: CursoCurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CursoCurricula to fetch.
      */
     orderBy?: CursoCurriculaOrderByWithRelationInput | CursoCurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for CursoCurricula.
      */
     cursor?: CursoCurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CursoCurricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CursoCurricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of CursoCurricula.
      */
     distinct?: CursoCurriculaScalarFieldEnum | CursoCurriculaScalarFieldEnum[]
@@ -9443,31 +9599,31 @@ export namespace Prisma {
     where?: CursoCurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CursoCurricula to fetch.
      */
     orderBy?: CursoCurriculaOrderByWithRelationInput | CursoCurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for CursoCurricula.
      */
     cursor?: CursoCurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CursoCurricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CursoCurricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of CursoCurricula.
      */
     distinct?: CursoCurriculaScalarFieldEnum | CursoCurriculaScalarFieldEnum[]
@@ -9495,31 +9651,31 @@ export namespace Prisma {
     where?: CursoCurriculaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CursoCurricula to fetch.
      */
     orderBy?: CursoCurriculaOrderByWithRelationInput | CursoCurriculaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing CursoCurricula.
      */
     cursor?: CursoCurriculaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CursoCurricula from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CursoCurricula.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of CursoCurricula.
      */
     distinct?: CursoCurriculaScalarFieldEnum | CursoCurriculaScalarFieldEnum[]
@@ -9832,43 +9988,43 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Users
     **/
     _count?: true | UserCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: UserMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: UserMaxAggregateInputType
@@ -9947,6 +10103,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: boolean | User$declaracionesAprobDeptoArgs<ExtArgs>
     declaracionesAprobEscuela?: boolean | User$declaracionesAprobEscuelaArgs<ExtArgs>
     declaracionesVBDecano?: boolean | User$declaracionesVBDecanoArgs<ExtArgs>
+    firmasDigitales?: boolean | User$firmasDigitalesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -10001,6 +10158,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: boolean | User$declaracionesAprobDeptoArgs<ExtArgs>
     declaracionesAprobEscuela?: boolean | User$declaracionesAprobEscuelaArgs<ExtArgs>
     declaracionesVBDecano?: boolean | User$declaracionesVBDecanoArgs<ExtArgs>
+    firmasDigitales?: boolean | User$firmasDigitalesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10024,6 +10182,7 @@ export namespace Prisma {
       declaracionesAprobDepto: Prisma.$DeclaracionCargaPayload<ExtArgs>[]
       declaracionesAprobEscuela: Prisma.$DeclaracionCargaPayload<ExtArgs>[]
       declaracionesVBDecano: Prisma.$DeclaracionCargaPayload<ExtArgs>[]
+      firmasDigitales: Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10114,13 +10273,13 @@ export namespace Prisma {
      * @example
      * // Get all Users
      * const users = await prisma.user.findMany()
-     * 
+     *
      * // Get first 10 Users
      * const users = await prisma.user.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -10134,7 +10293,7 @@ export namespace Prisma {
      *     // ... data to create a User
      *   }
      * })
-     * 
+     *
      */
     create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -10148,7 +10307,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends UserCreateManyArgs>(args?: SelectSubset<T, UserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -10162,7 +10321,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Users and only return the `id`
      * const userWithIdOnly = await prisma.user.createManyAndReturn({
      *   select: { id: true },
@@ -10172,7 +10331,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -10186,7 +10345,7 @@ export namespace Prisma {
      *     // ... filter to delete one User
      *   }
      * })
-     * 
+     *
      */
     delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -10203,7 +10362,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -10217,7 +10376,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends UserDeleteManyArgs>(args?: SelectSubset<T, UserDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -10236,7 +10395,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -10253,7 +10412,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Users and only return the `id`
      * const userWithIdOnly = await prisma.user.updateManyAndReturn({
      *   select: { id: true },
@@ -10266,7 +10425,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -10355,7 +10514,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends UserGroupByArgs,
@@ -10440,6 +10599,7 @@ export namespace Prisma {
     declaracionesAprobDepto<T extends User$declaracionesAprobDeptoArgs<ExtArgs> = {}>(args?: Subset<T, User$declaracionesAprobDeptoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     declaracionesAprobEscuela<T extends User$declaracionesAprobEscuelaArgs<ExtArgs> = {}>(args?: Subset<T, User$declaracionesAprobEscuelaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     declaracionesVBDecano<T extends User$declaracionesVBDecanoArgs<ExtArgs> = {}>(args?: Subset<T, User$declaracionesVBDecanoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    firmasDigitales<T extends User$firmasDigitalesArgs<ExtArgs> = {}>(args?: Subset<T, User$firmasDigitalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10479,7 +10639,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -10548,31 +10708,31 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Users.
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Users.
      */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
@@ -10600,31 +10760,31 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Users.
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Users.
      */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
@@ -10652,31 +10812,31 @@ export namespace Prisma {
     where?: UserWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Users to fetch.
      */
     orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Users.
      */
     cursor?: UserWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Users from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Users.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Users.
      */
     distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
@@ -11123,6 +11283,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.firmasDigitales
+   */
+  export type User$firmasDigitalesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    where?: DocumentoFirmaDigitalWhereInput
+    orderBy?: DocumentoFirmaDigitalOrderByWithRelationInput | DocumentoFirmaDigitalOrderByWithRelationInput[]
+    cursor?: DocumentoFirmaDigitalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DocumentoFirmaDigitalScalarFieldEnum | DocumentoFirmaDigitalScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11155,7 +11339,11 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     accion: string | null
+    entidad: string | null
+    entidadId: string | null
     detalles: string | null
+    motivo: string | null
+    correlationId: string | null
     ip: string | null
     userAgent: string | null
     createdAt: Date | null
@@ -11165,7 +11353,11 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     accion: string | null
+    entidad: string | null
+    entidadId: string | null
     detalles: string | null
+    motivo: string | null
+    correlationId: string | null
     ip: string | null
     userAgent: string | null
     createdAt: Date | null
@@ -11175,7 +11367,13 @@ export namespace Prisma {
     id: number
     userId: number
     accion: number
+    entidad: number
+    entidadId: number
     detalles: number
+    antes: number
+    despues: number
+    motivo: number
+    correlationId: number
     ip: number
     userAgent: number
     createdAt: number
@@ -11187,7 +11385,11 @@ export namespace Prisma {
     id?: true
     userId?: true
     accion?: true
+    entidad?: true
+    entidadId?: true
     detalles?: true
+    motivo?: true
+    correlationId?: true
     ip?: true
     userAgent?: true
     createdAt?: true
@@ -11197,7 +11399,11 @@ export namespace Prisma {
     id?: true
     userId?: true
     accion?: true
+    entidad?: true
+    entidadId?: true
     detalles?: true
+    motivo?: true
+    correlationId?: true
     ip?: true
     userAgent?: true
     createdAt?: true
@@ -11207,7 +11413,13 @@ export namespace Prisma {
     id?: true
     userId?: true
     accion?: true
+    entidad?: true
+    entidadId?: true
     detalles?: true
+    antes?: true
+    despues?: true
+    motivo?: true
+    correlationId?: true
     ip?: true
     userAgent?: true
     createdAt?: true
@@ -11221,43 +11433,43 @@ export namespace Prisma {
     where?: LogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Logs to fetch.
      */
     orderBy?: LogOrderByWithRelationInput | LogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: LogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Logs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Logs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Logs
     **/
     _count?: true | LogCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: LogMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: LogMaxAggregateInputType
@@ -11290,7 +11502,13 @@ export namespace Prisma {
     id: string
     userId: string | null
     accion: string
+    entidad: string | null
+    entidadId: string | null
     detalles: string | null
+    antes: JsonValue | null
+    despues: JsonValue | null
+    motivo: string | null
+    correlationId: string | null
     ip: string | null
     userAgent: string | null
     createdAt: Date
@@ -11317,7 +11535,13 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     accion?: boolean
+    entidad?: boolean
+    entidadId?: boolean
     detalles?: boolean
+    antes?: boolean
+    despues?: boolean
+    motivo?: boolean
+    correlationId?: boolean
     ip?: boolean
     userAgent?: boolean
     createdAt?: boolean
@@ -11328,7 +11552,13 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     accion?: boolean
+    entidad?: boolean
+    entidadId?: boolean
     detalles?: boolean
+    antes?: boolean
+    despues?: boolean
+    motivo?: boolean
+    correlationId?: boolean
     ip?: boolean
     userAgent?: boolean
     createdAt?: boolean
@@ -11339,7 +11569,13 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     accion?: boolean
+    entidad?: boolean
+    entidadId?: boolean
     detalles?: boolean
+    antes?: boolean
+    despues?: boolean
+    motivo?: boolean
+    correlationId?: boolean
     ip?: boolean
     userAgent?: boolean
     createdAt?: boolean
@@ -11350,13 +11586,19 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     accion?: boolean
+    entidad?: boolean
+    entidadId?: boolean
     detalles?: boolean
+    antes?: boolean
+    despues?: boolean
+    motivo?: boolean
+    correlationId?: boolean
     ip?: boolean
     userAgent?: boolean
     createdAt?: boolean
   }
 
-  export type LogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "accion" | "detalles" | "ip" | "userAgent" | "createdAt", ExtArgs["result"]["log"]>
+  export type LogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "accion" | "entidad" | "entidadId" | "detalles" | "antes" | "despues" | "motivo" | "correlationId" | "ip" | "userAgent" | "createdAt", ExtArgs["result"]["log"]>
   export type LogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | Log$userArgs<ExtArgs>
   }
@@ -11376,7 +11618,13 @@ export namespace Prisma {
       id: string
       userId: string | null
       accion: string
+      entidad: string | null
+      entidadId: string | null
       detalles: string | null
+      antes: Prisma.JsonValue | null
+      despues: Prisma.JsonValue | null
+      motivo: string | null
+      correlationId: string | null
       ip: string | null
       userAgent: string | null
       createdAt: Date
@@ -11459,13 +11707,13 @@ export namespace Prisma {
      * @example
      * // Get all Logs
      * const logs = await prisma.log.findMany()
-     * 
+     *
      * // Get first 10 Logs
      * const logs = await prisma.log.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const logWithIdOnly = await prisma.log.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends LogFindManyArgs>(args?: SelectSubset<T, LogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -11479,7 +11727,7 @@ export namespace Prisma {
      *     // ... data to create a Log
      *   }
      * })
-     * 
+     *
      */
     create<T extends LogCreateArgs>(args: SelectSubset<T, LogCreateArgs<ExtArgs>>): Prisma__LogClient<$Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -11493,7 +11741,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends LogCreateManyArgs>(args?: SelectSubset<T, LogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -11507,7 +11755,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Logs and only return the `id`
      * const logWithIdOnly = await prisma.log.createManyAndReturn({
      *   select: { id: true },
@@ -11517,7 +11765,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends LogCreateManyAndReturnArgs>(args?: SelectSubset<T, LogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -11531,7 +11779,7 @@ export namespace Prisma {
      *     // ... filter to delete one Log
      *   }
      * })
-     * 
+     *
      */
     delete<T extends LogDeleteArgs>(args: SelectSubset<T, LogDeleteArgs<ExtArgs>>): Prisma__LogClient<$Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -11548,7 +11796,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends LogUpdateArgs>(args: SelectSubset<T, LogUpdateArgs<ExtArgs>>): Prisma__LogClient<$Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -11562,7 +11810,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends LogDeleteManyArgs>(args?: SelectSubset<T, LogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -11581,7 +11829,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends LogUpdateManyArgs>(args: SelectSubset<T, LogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -11598,7 +11846,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Logs and only return the `id`
      * const logWithIdOnly = await prisma.log.updateManyAndReturn({
      *   select: { id: true },
@@ -11611,7 +11859,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends LogUpdateManyAndReturnArgs>(args: SelectSubset<T, LogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -11700,7 +11948,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends LogGroupByArgs,
@@ -11807,12 +12055,18 @@ export namespace Prisma {
     readonly id: FieldRef<"Log", 'String'>
     readonly userId: FieldRef<"Log", 'String'>
     readonly accion: FieldRef<"Log", 'String'>
+    readonly entidad: FieldRef<"Log", 'String'>
+    readonly entidadId: FieldRef<"Log", 'String'>
     readonly detalles: FieldRef<"Log", 'String'>
+    readonly antes: FieldRef<"Log", 'Json'>
+    readonly despues: FieldRef<"Log", 'Json'>
+    readonly motivo: FieldRef<"Log", 'String'>
+    readonly correlationId: FieldRef<"Log", 'String'>
     readonly ip: FieldRef<"Log", 'String'>
     readonly userAgent: FieldRef<"Log", 'String'>
     readonly createdAt: FieldRef<"Log", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -11881,31 +12135,31 @@ export namespace Prisma {
     where?: LogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Logs to fetch.
      */
     orderBy?: LogOrderByWithRelationInput | LogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Logs.
      */
     cursor?: LogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Logs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Logs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Logs.
      */
     distinct?: LogScalarFieldEnum | LogScalarFieldEnum[]
@@ -11933,31 +12187,31 @@ export namespace Prisma {
     where?: LogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Logs to fetch.
      */
     orderBy?: LogOrderByWithRelationInput | LogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Logs.
      */
     cursor?: LogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Logs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Logs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Logs.
      */
     distinct?: LogScalarFieldEnum | LogScalarFieldEnum[]
@@ -11985,31 +12239,31 @@ export namespace Prisma {
     where?: LogWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Logs to fetch.
      */
     orderBy?: LogOrderByWithRelationInput | LogOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Logs.
      */
     cursor?: LogWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Logs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Logs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Logs.
      */
     distinct?: LogScalarFieldEnum | LogScalarFieldEnum[]
@@ -12429,55 +12683,55 @@ export namespace Prisma {
     where?: DocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Docentes to fetch.
      */
     orderBy?: DocenteOrderByWithRelationInput | DocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: DocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Docentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Docentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Docentes
     **/
     _count?: true | DocenteCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: DocenteAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: DocenteSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: DocenteMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: DocenteMaxAggregateInputType
@@ -12799,13 +13053,13 @@ export namespace Prisma {
      * @example
      * // Get all Docentes
      * const docentes = await prisma.docente.findMany()
-     * 
+     *
      * // Get first 10 Docentes
      * const docentes = await prisma.docente.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const docenteWithIdOnly = await prisma.docente.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends DocenteFindManyArgs>(args?: SelectSubset<T, DocenteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -12819,7 +13073,7 @@ export namespace Prisma {
      *     // ... data to create a Docente
      *   }
      * })
-     * 
+     *
      */
     create<T extends DocenteCreateArgs>(args: SelectSubset<T, DocenteCreateArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -12833,7 +13087,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends DocenteCreateManyArgs>(args?: SelectSubset<T, DocenteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -12847,7 +13101,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Docentes and only return the `id`
      * const docenteWithIdOnly = await prisma.docente.createManyAndReturn({
      *   select: { id: true },
@@ -12857,7 +13111,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends DocenteCreateManyAndReturnArgs>(args?: SelectSubset<T, DocenteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -12871,7 +13125,7 @@ export namespace Prisma {
      *     // ... filter to delete one Docente
      *   }
      * })
-     * 
+     *
      */
     delete<T extends DocenteDeleteArgs>(args: SelectSubset<T, DocenteDeleteArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -12888,7 +13142,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends DocenteUpdateArgs>(args: SelectSubset<T, DocenteUpdateArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -12902,7 +13156,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends DocenteDeleteManyArgs>(args?: SelectSubset<T, DocenteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -12921,7 +13175,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends DocenteUpdateManyArgs>(args: SelectSubset<T, DocenteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -12938,7 +13192,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Docentes and only return the `id`
      * const docenteWithIdOnly = await prisma.docente.updateManyAndReturn({
      *   select: { id: true },
@@ -12951,7 +13205,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends DocenteUpdateManyAndReturnArgs>(args: SelectSubset<T, DocenteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -13040,7 +13294,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends DocenteGroupByArgs,
@@ -13177,7 +13431,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Docente", 'DateTime'>
     readonly updatedAt: FieldRef<"Docente", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -13246,31 +13500,31 @@ export namespace Prisma {
     where?: DocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Docentes to fetch.
      */
     orderBy?: DocenteOrderByWithRelationInput | DocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Docentes.
      */
     cursor?: DocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Docentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Docentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Docentes.
      */
     distinct?: DocenteScalarFieldEnum | DocenteScalarFieldEnum[]
@@ -13298,31 +13552,31 @@ export namespace Prisma {
     where?: DocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Docentes to fetch.
      */
     orderBy?: DocenteOrderByWithRelationInput | DocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Docentes.
      */
     cursor?: DocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Docentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Docentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Docentes.
      */
     distinct?: DocenteScalarFieldEnum | DocenteScalarFieldEnum[]
@@ -13350,31 +13604,31 @@ export namespace Prisma {
     where?: DocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Docentes to fetch.
      */
     orderBy?: DocenteOrderByWithRelationInput | DocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Docentes.
      */
     cursor?: DocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Docentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Docentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Docentes.
      */
     distinct?: DocenteScalarFieldEnum | DocenteScalarFieldEnum[]
@@ -13983,43 +14237,43 @@ export namespace Prisma {
     where?: NotificationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Notifications to fetch.
      */
     orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: NotificationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Notifications from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Notifications.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Notifications
     **/
     _count?: true | NotificationCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: NotificationMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: NotificationMaxAggregateInputType
@@ -14227,13 +14481,13 @@ export namespace Prisma {
      * @example
      * // Get all Notifications
      * const notifications = await prisma.notification.findMany()
-     * 
+     *
      * // Get first 10 Notifications
      * const notifications = await prisma.notification.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const notificationWithIdOnly = await prisma.notification.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -14247,7 +14501,7 @@ export namespace Prisma {
      *     // ... data to create a Notification
      *   }
      * })
-     * 
+     *
      */
     create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -14261,7 +14515,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends NotificationCreateManyArgs>(args?: SelectSubset<T, NotificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -14275,7 +14529,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Notifications and only return the `id`
      * const notificationWithIdOnly = await prisma.notification.createManyAndReturn({
      *   select: { id: true },
@@ -14285,7 +14539,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends NotificationCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -14299,7 +14553,7 @@ export namespace Prisma {
      *     // ... filter to delete one Notification
      *   }
      * })
-     * 
+     *
      */
     delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -14316,7 +14570,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -14330,7 +14584,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends NotificationDeleteManyArgs>(args?: SelectSubset<T, NotificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -14349,7 +14603,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends NotificationUpdateManyArgs>(args: SelectSubset<T, NotificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -14366,7 +14620,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Notifications and only return the `id`
      * const notificationWithIdOnly = await prisma.notification.updateManyAndReturn({
      *   select: { id: true },
@@ -14379,7 +14633,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends NotificationUpdateManyAndReturnArgs>(args: SelectSubset<T, NotificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -14468,7 +14722,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends NotificationGroupByArgs,
@@ -14581,7 +14835,7 @@ export namespace Prisma {
     readonly link: FieldRef<"Notification", 'String'>
     readonly createdAt: FieldRef<"Notification", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -14650,31 +14904,31 @@ export namespace Prisma {
     where?: NotificationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Notifications to fetch.
      */
     orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Notifications.
      */
     cursor?: NotificationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Notifications from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Notifications.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Notifications.
      */
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
@@ -14702,31 +14956,31 @@ export namespace Prisma {
     where?: NotificationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Notifications to fetch.
      */
     orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Notifications.
      */
     cursor?: NotificationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Notifications from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Notifications.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Notifications.
      */
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
@@ -14754,31 +15008,31 @@ export namespace Prisma {
     where?: NotificationWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Notifications to fetch.
      */
     orderBy?: NotificationOrderByWithRelationInput | NotificationOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Notifications.
      */
     cursor?: NotificationWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Notifications from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Notifications.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Notifications.
      */
     distinct?: NotificationScalarFieldEnum | NotificationScalarFieldEnum[]
@@ -15171,55 +15425,55 @@ export namespace Prisma {
     where?: CursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Cursos to fetch.
      */
     orderBy?: CursoOrderByWithRelationInput | CursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: CursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Cursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Cursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Cursos
     **/
     _count?: true | CursoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: CursoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: CursoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: CursoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: CursoMaxAggregateInputType
@@ -15481,13 +15735,13 @@ export namespace Prisma {
      * @example
      * // Get all Cursos
      * const cursos = await prisma.curso.findMany()
-     * 
+     *
      * // Get first 10 Cursos
      * const cursos = await prisma.curso.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const cursoWithIdOnly = await prisma.curso.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends CursoFindManyArgs>(args?: SelectSubset<T, CursoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CursoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -15501,7 +15755,7 @@ export namespace Prisma {
      *     // ... data to create a Curso
      *   }
      * })
-     * 
+     *
      */
     create<T extends CursoCreateArgs>(args: SelectSubset<T, CursoCreateArgs<ExtArgs>>): Prisma__CursoClient<$Result.GetResult<Prisma.$CursoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -15515,7 +15769,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends CursoCreateManyArgs>(args?: SelectSubset<T, CursoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -15529,7 +15783,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Cursos and only return the `id`
      * const cursoWithIdOnly = await prisma.curso.createManyAndReturn({
      *   select: { id: true },
@@ -15539,7 +15793,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends CursoCreateManyAndReturnArgs>(args?: SelectSubset<T, CursoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CursoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -15553,7 +15807,7 @@ export namespace Prisma {
      *     // ... filter to delete one Curso
      *   }
      * })
-     * 
+     *
      */
     delete<T extends CursoDeleteArgs>(args: SelectSubset<T, CursoDeleteArgs<ExtArgs>>): Prisma__CursoClient<$Result.GetResult<Prisma.$CursoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -15570,7 +15824,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends CursoUpdateArgs>(args: SelectSubset<T, CursoUpdateArgs<ExtArgs>>): Prisma__CursoClient<$Result.GetResult<Prisma.$CursoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -15584,7 +15838,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends CursoDeleteManyArgs>(args?: SelectSubset<T, CursoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -15603,7 +15857,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends CursoUpdateManyArgs>(args: SelectSubset<T, CursoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -15620,7 +15874,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Cursos and only return the `id`
      * const cursoWithIdOnly = await prisma.curso.updateManyAndReturn({
      *   select: { id: true },
@@ -15633,7 +15887,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends CursoUpdateManyAndReturnArgs>(args: SelectSubset<T, CursoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CursoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -15722,7 +15976,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends CursoGroupByArgs,
@@ -15845,7 +16099,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Curso", 'DateTime'>
     readonly updatedAt: FieldRef<"Curso", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -15914,31 +16168,31 @@ export namespace Prisma {
     where?: CursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Cursos to fetch.
      */
     orderBy?: CursoOrderByWithRelationInput | CursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Cursos.
      */
     cursor?: CursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Cursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Cursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Cursos.
      */
     distinct?: CursoScalarFieldEnum | CursoScalarFieldEnum[]
@@ -15966,31 +16220,31 @@ export namespace Prisma {
     where?: CursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Cursos to fetch.
      */
     orderBy?: CursoOrderByWithRelationInput | CursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Cursos.
      */
     cursor?: CursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Cursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Cursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Cursos.
      */
     distinct?: CursoScalarFieldEnum | CursoScalarFieldEnum[]
@@ -16018,31 +16272,31 @@ export namespace Prisma {
     where?: CursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Cursos to fetch.
      */
     orderBy?: CursoOrderByWithRelationInput | CursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Cursos.
      */
     cursor?: CursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Cursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Cursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Cursos.
      */
     distinct?: CursoScalarFieldEnum | CursoScalarFieldEnum[]
@@ -16340,6 +16594,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteMinAggregateOutputType = {
     id: string | null
     docenteId: string | null
+    periodoId: string | null
     franjaHorariaId: string | null
     createdAt: Date | null
   }
@@ -16347,6 +16602,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteMaxAggregateOutputType = {
     id: string | null
     docenteId: string | null
+    periodoId: string | null
     franjaHorariaId: string | null
     createdAt: Date | null
   }
@@ -16354,6 +16610,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCountAggregateOutputType = {
     id: number
     docenteId: number
+    periodoId: number
     franjaHorariaId: number
     createdAt: number
     _all: number
@@ -16363,6 +16620,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteMinAggregateInputType = {
     id?: true
     docenteId?: true
+    periodoId?: true
     franjaHorariaId?: true
     createdAt?: true
   }
@@ -16370,6 +16628,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteMaxAggregateInputType = {
     id?: true
     docenteId?: true
+    periodoId?: true
     franjaHorariaId?: true
     createdAt?: true
   }
@@ -16377,6 +16636,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCountAggregateInputType = {
     id?: true
     docenteId?: true
+    periodoId?: true
     franjaHorariaId?: true
     createdAt?: true
     _all?: true
@@ -16389,43 +16649,43 @@ export namespace Prisma {
     where?: DisponibilidadDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DisponibilidadDocentes to fetch.
      */
     orderBy?: DisponibilidadDocenteOrderByWithRelationInput | DisponibilidadDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: DisponibilidadDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DisponibilidadDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DisponibilidadDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned DisponibilidadDocentes
     **/
     _count?: true | DisponibilidadDocenteCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: DisponibilidadDocenteMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: DisponibilidadDocenteMaxAggregateInputType
@@ -16457,6 +16717,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteGroupByOutputType = {
     id: string
     docenteId: string
+    periodoId: string
     franjaHorariaId: string
     createdAt: Date
     _count: DisponibilidadDocenteCountAggregateOutputType | null
@@ -16481,48 +16742,58 @@ export namespace Prisma {
   export type DisponibilidadDocenteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     docenteId?: boolean
+    periodoId?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadDocente"]>
 
   export type DisponibilidadDocenteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     docenteId?: boolean
+    periodoId?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadDocente"]>
 
   export type DisponibilidadDocenteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     docenteId?: boolean
+    periodoId?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadDocente"]>
 
   export type DisponibilidadDocenteSelectScalar = {
     id?: boolean
     docenteId?: boolean
+    periodoId?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
   }
 
-  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "franjaHorariaId" | "createdAt", ExtArgs["result"]["disponibilidadDocente"]>
+  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "periodoId" | "franjaHorariaId" | "createdAt", ExtArgs["result"]["disponibilidadDocente"]>
   export type DisponibilidadDocenteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
   }
   export type DisponibilidadDocenteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
   }
   export type DisponibilidadDocenteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
   }
 
@@ -16530,11 +16801,13 @@ export namespace Prisma {
     name: "DisponibilidadDocente"
     objects: {
       docente: Prisma.$DocentePayload<ExtArgs>
+      periodo: Prisma.$PeriodoAcademicoPayload<ExtArgs>
       franjaHoraria: Prisma.$FranjaHorariaPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       docenteId: string
+      periodoId: string
       franjaHorariaId: string
       createdAt: Date
     }, ExtArgs["result"]["disponibilidadDocente"]>
@@ -16616,13 +16889,13 @@ export namespace Prisma {
      * @example
      * // Get all DisponibilidadDocentes
      * const disponibilidadDocentes = await prisma.disponibilidadDocente.findMany()
-     * 
+     *
      * // Get first 10 DisponibilidadDocentes
      * const disponibilidadDocentes = await prisma.disponibilidadDocente.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const disponibilidadDocenteWithIdOnly = await prisma.disponibilidadDocente.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends DisponibilidadDocenteFindManyArgs>(args?: SelectSubset<T, DisponibilidadDocenteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -16636,7 +16909,7 @@ export namespace Prisma {
      *     // ... data to create a DisponibilidadDocente
      *   }
      * })
-     * 
+     *
      */
     create<T extends DisponibilidadDocenteCreateArgs>(args: SelectSubset<T, DisponibilidadDocenteCreateArgs<ExtArgs>>): Prisma__DisponibilidadDocenteClient<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -16650,7 +16923,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends DisponibilidadDocenteCreateManyArgs>(args?: SelectSubset<T, DisponibilidadDocenteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -16664,7 +16937,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many DisponibilidadDocentes and only return the `id`
      * const disponibilidadDocenteWithIdOnly = await prisma.disponibilidadDocente.createManyAndReturn({
      *   select: { id: true },
@@ -16674,7 +16947,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends DisponibilidadDocenteCreateManyAndReturnArgs>(args?: SelectSubset<T, DisponibilidadDocenteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -16688,7 +16961,7 @@ export namespace Prisma {
      *     // ... filter to delete one DisponibilidadDocente
      *   }
      * })
-     * 
+     *
      */
     delete<T extends DisponibilidadDocenteDeleteArgs>(args: SelectSubset<T, DisponibilidadDocenteDeleteArgs<ExtArgs>>): Prisma__DisponibilidadDocenteClient<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -16705,7 +16978,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends DisponibilidadDocenteUpdateArgs>(args: SelectSubset<T, DisponibilidadDocenteUpdateArgs<ExtArgs>>): Prisma__DisponibilidadDocenteClient<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -16719,7 +16992,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends DisponibilidadDocenteDeleteManyArgs>(args?: SelectSubset<T, DisponibilidadDocenteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -16738,7 +17011,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends DisponibilidadDocenteUpdateManyArgs>(args: SelectSubset<T, DisponibilidadDocenteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -16755,7 +17028,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more DisponibilidadDocentes and only return the `id`
      * const disponibilidadDocenteWithIdOnly = await prisma.disponibilidadDocente.updateManyAndReturn({
      *   select: { id: true },
@@ -16768,7 +17041,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends DisponibilidadDocenteUpdateManyAndReturnArgs>(args: SelectSubset<T, DisponibilidadDocenteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -16857,7 +17130,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends DisponibilidadDocenteGroupByArgs,
@@ -16932,6 +17205,7 @@ export namespace Prisma {
   export interface Prisma__DisponibilidadDocenteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     docente<T extends DocenteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DocenteDefaultArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    periodo<T extends PeriodoAcademicoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademicoDefaultArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     franjaHoraria<T extends FranjaHorariaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FranjaHorariaDefaultArgs<ExtArgs>>): Prisma__FranjaHorariaClient<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -16964,10 +17238,11 @@ export namespace Prisma {
   interface DisponibilidadDocenteFieldRefs {
     readonly id: FieldRef<"DisponibilidadDocente", 'String'>
     readonly docenteId: FieldRef<"DisponibilidadDocente", 'String'>
+    readonly periodoId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly franjaHorariaId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly createdAt: FieldRef<"DisponibilidadDocente", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -17036,31 +17311,31 @@ export namespace Prisma {
     where?: DisponibilidadDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DisponibilidadDocentes to fetch.
      */
     orderBy?: DisponibilidadDocenteOrderByWithRelationInput | DisponibilidadDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for DisponibilidadDocentes.
      */
     cursor?: DisponibilidadDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DisponibilidadDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DisponibilidadDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DisponibilidadDocentes.
      */
     distinct?: DisponibilidadDocenteScalarFieldEnum | DisponibilidadDocenteScalarFieldEnum[]
@@ -17088,31 +17363,31 @@ export namespace Prisma {
     where?: DisponibilidadDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DisponibilidadDocentes to fetch.
      */
     orderBy?: DisponibilidadDocenteOrderByWithRelationInput | DisponibilidadDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for DisponibilidadDocentes.
      */
     cursor?: DisponibilidadDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DisponibilidadDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DisponibilidadDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DisponibilidadDocentes.
      */
     distinct?: DisponibilidadDocenteScalarFieldEnum | DisponibilidadDocenteScalarFieldEnum[]
@@ -17140,31 +17415,31 @@ export namespace Prisma {
     where?: DisponibilidadDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DisponibilidadDocentes to fetch.
      */
     orderBy?: DisponibilidadDocenteOrderByWithRelationInput | DisponibilidadDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing DisponibilidadDocentes.
      */
     cursor?: DisponibilidadDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DisponibilidadDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DisponibilidadDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DisponibilidadDocentes.
      */
     distinct?: DisponibilidadDocenteScalarFieldEnum | DisponibilidadDocenteScalarFieldEnum[]
@@ -17481,55 +17756,55 @@ export namespace Prisma {
     where?: PostulacionCursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PostulacionCursos to fetch.
      */
     orderBy?: PostulacionCursoOrderByWithRelationInput | PostulacionCursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: PostulacionCursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PostulacionCursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PostulacionCursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned PostulacionCursos
     **/
     _count?: true | PostulacionCursoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: PostulacionCursoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: PostulacionCursoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: PostulacionCursoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: PostulacionCursoMaxAggregateInputType
@@ -17736,13 +18011,13 @@ export namespace Prisma {
      * @example
      * // Get all PostulacionCursos
      * const postulacionCursos = await prisma.postulacionCurso.findMany()
-     * 
+     *
      * // Get first 10 PostulacionCursos
      * const postulacionCursos = await prisma.postulacionCurso.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const postulacionCursoWithIdOnly = await prisma.postulacionCurso.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends PostulacionCursoFindManyArgs>(args?: SelectSubset<T, PostulacionCursoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostulacionCursoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -17756,7 +18031,7 @@ export namespace Prisma {
      *     // ... data to create a PostulacionCurso
      *   }
      * })
-     * 
+     *
      */
     create<T extends PostulacionCursoCreateArgs>(args: SelectSubset<T, PostulacionCursoCreateArgs<ExtArgs>>): Prisma__PostulacionCursoClient<$Result.GetResult<Prisma.$PostulacionCursoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -17770,7 +18045,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends PostulacionCursoCreateManyArgs>(args?: SelectSubset<T, PostulacionCursoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -17784,7 +18059,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many PostulacionCursos and only return the `id`
      * const postulacionCursoWithIdOnly = await prisma.postulacionCurso.createManyAndReturn({
      *   select: { id: true },
@@ -17794,7 +18069,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends PostulacionCursoCreateManyAndReturnArgs>(args?: SelectSubset<T, PostulacionCursoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostulacionCursoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -17808,7 +18083,7 @@ export namespace Prisma {
      *     // ... filter to delete one PostulacionCurso
      *   }
      * })
-     * 
+     *
      */
     delete<T extends PostulacionCursoDeleteArgs>(args: SelectSubset<T, PostulacionCursoDeleteArgs<ExtArgs>>): Prisma__PostulacionCursoClient<$Result.GetResult<Prisma.$PostulacionCursoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -17825,7 +18100,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends PostulacionCursoUpdateArgs>(args: SelectSubset<T, PostulacionCursoUpdateArgs<ExtArgs>>): Prisma__PostulacionCursoClient<$Result.GetResult<Prisma.$PostulacionCursoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -17839,7 +18114,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends PostulacionCursoDeleteManyArgs>(args?: SelectSubset<T, PostulacionCursoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -17858,7 +18133,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends PostulacionCursoUpdateManyArgs>(args: SelectSubset<T, PostulacionCursoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -17875,7 +18150,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more PostulacionCursos and only return the `id`
      * const postulacionCursoWithIdOnly = await prisma.postulacionCurso.updateManyAndReturn({
      *   select: { id: true },
@@ -17888,7 +18163,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends PostulacionCursoUpdateManyAndReturnArgs>(args: SelectSubset<T, PostulacionCursoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostulacionCursoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -17977,7 +18252,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends PostulacionCursoGroupByArgs,
@@ -18089,7 +18364,7 @@ export namespace Prisma {
     readonly compatibilidad: FieldRef<"PostulacionCurso", 'Float'>
     readonly createdAt: FieldRef<"PostulacionCurso", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -18158,31 +18433,31 @@ export namespace Prisma {
     where?: PostulacionCursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PostulacionCursos to fetch.
      */
     orderBy?: PostulacionCursoOrderByWithRelationInput | PostulacionCursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for PostulacionCursos.
      */
     cursor?: PostulacionCursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PostulacionCursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PostulacionCursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of PostulacionCursos.
      */
     distinct?: PostulacionCursoScalarFieldEnum | PostulacionCursoScalarFieldEnum[]
@@ -18210,31 +18485,31 @@ export namespace Prisma {
     where?: PostulacionCursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PostulacionCursos to fetch.
      */
     orderBy?: PostulacionCursoOrderByWithRelationInput | PostulacionCursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for PostulacionCursos.
      */
     cursor?: PostulacionCursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PostulacionCursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PostulacionCursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of PostulacionCursos.
      */
     distinct?: PostulacionCursoScalarFieldEnum | PostulacionCursoScalarFieldEnum[]
@@ -18262,31 +18537,31 @@ export namespace Prisma {
     where?: PostulacionCursoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PostulacionCursos to fetch.
      */
     orderBy?: PostulacionCursoOrderByWithRelationInput | PostulacionCursoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing PostulacionCursos.
      */
     cursor?: PostulacionCursoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PostulacionCursos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PostulacionCursos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of PostulacionCursos.
      */
     distinct?: PostulacionCursoScalarFieldEnum | PostulacionCursoScalarFieldEnum[]
@@ -18611,55 +18886,55 @@ export namespace Prisma {
     where?: GrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Grupos to fetch.
      */
     orderBy?: GrupoOrderByWithRelationInput | GrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: GrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Grupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Grupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Grupos
     **/
     _count?: true | GrupoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: GrupoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: GrupoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: GrupoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: GrupoMaxAggregateInputType
@@ -18892,13 +19167,13 @@ export namespace Prisma {
      * @example
      * // Get all Grupos
      * const grupos = await prisma.grupo.findMany()
-     * 
+     *
      * // Get first 10 Grupos
      * const grupos = await prisma.grupo.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const grupoWithIdOnly = await prisma.grupo.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends GrupoFindManyArgs>(args?: SelectSubset<T, GrupoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -18912,7 +19187,7 @@ export namespace Prisma {
      *     // ... data to create a Grupo
      *   }
      * })
-     * 
+     *
      */
     create<T extends GrupoCreateArgs>(args: SelectSubset<T, GrupoCreateArgs<ExtArgs>>): Prisma__GrupoClient<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -18926,7 +19201,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends GrupoCreateManyArgs>(args?: SelectSubset<T, GrupoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -18940,7 +19215,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Grupos and only return the `id`
      * const grupoWithIdOnly = await prisma.grupo.createManyAndReturn({
      *   select: { id: true },
@@ -18950,7 +19225,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends GrupoCreateManyAndReturnArgs>(args?: SelectSubset<T, GrupoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -18964,7 +19239,7 @@ export namespace Prisma {
      *     // ... filter to delete one Grupo
      *   }
      * })
-     * 
+     *
      */
     delete<T extends GrupoDeleteArgs>(args: SelectSubset<T, GrupoDeleteArgs<ExtArgs>>): Prisma__GrupoClient<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -18981,7 +19256,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends GrupoUpdateArgs>(args: SelectSubset<T, GrupoUpdateArgs<ExtArgs>>): Prisma__GrupoClient<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -18995,7 +19270,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends GrupoDeleteManyArgs>(args?: SelectSubset<T, GrupoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -19014,7 +19289,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends GrupoUpdateManyArgs>(args: SelectSubset<T, GrupoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -19031,7 +19306,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Grupos and only return the `id`
      * const grupoWithIdOnly = await prisma.grupo.updateManyAndReturn({
      *   select: { id: true },
@@ -19044,7 +19319,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends GrupoUpdateManyAndReturnArgs>(args: SelectSubset<T, GrupoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -19133,7 +19408,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends GrupoGroupByArgs,
@@ -19251,7 +19526,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Grupo", 'DateTime'>
     readonly updatedAt: FieldRef<"Grupo", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -19320,31 +19595,31 @@ export namespace Prisma {
     where?: GrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Grupos to fetch.
      */
     orderBy?: GrupoOrderByWithRelationInput | GrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Grupos.
      */
     cursor?: GrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Grupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Grupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Grupos.
      */
     distinct?: GrupoScalarFieldEnum | GrupoScalarFieldEnum[]
@@ -19372,31 +19647,31 @@ export namespace Prisma {
     where?: GrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Grupos to fetch.
      */
     orderBy?: GrupoOrderByWithRelationInput | GrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Grupos.
      */
     cursor?: GrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Grupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Grupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Grupos.
      */
     distinct?: GrupoScalarFieldEnum | GrupoScalarFieldEnum[]
@@ -19424,31 +19699,31 @@ export namespace Prisma {
     where?: GrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Grupos to fetch.
      */
     orderBy?: GrupoOrderByWithRelationInput | GrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Grupos.
      */
     cursor?: GrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Grupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Grupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Grupos.
      */
     distinct?: GrupoScalarFieldEnum | GrupoScalarFieldEnum[]
@@ -19879,55 +20154,55 @@ export namespace Prisma {
     where?: AulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Aulas to fetch.
      */
     orderBy?: AulaOrderByWithRelationInput | AulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: AulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Aulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Aulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Aulas
     **/
     _count?: true | AulaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: AulaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: AulaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: AulaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: AulaMaxAggregateInputType
@@ -20144,13 +20419,13 @@ export namespace Prisma {
      * @example
      * // Get all Aulas
      * const aulas = await prisma.aula.findMany()
-     * 
+     *
      * // Get first 10 Aulas
      * const aulas = await prisma.aula.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const aulaWithIdOnly = await prisma.aula.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends AulaFindManyArgs>(args?: SelectSubset<T, AulaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AulaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -20164,7 +20439,7 @@ export namespace Prisma {
      *     // ... data to create a Aula
      *   }
      * })
-     * 
+     *
      */
     create<T extends AulaCreateArgs>(args: SelectSubset<T, AulaCreateArgs<ExtArgs>>): Prisma__AulaClient<$Result.GetResult<Prisma.$AulaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -20178,7 +20453,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends AulaCreateManyArgs>(args?: SelectSubset<T, AulaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -20192,7 +20467,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Aulas and only return the `id`
      * const aulaWithIdOnly = await prisma.aula.createManyAndReturn({
      *   select: { id: true },
@@ -20202,7 +20477,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends AulaCreateManyAndReturnArgs>(args?: SelectSubset<T, AulaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AulaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -20216,7 +20491,7 @@ export namespace Prisma {
      *     // ... filter to delete one Aula
      *   }
      * })
-     * 
+     *
      */
     delete<T extends AulaDeleteArgs>(args: SelectSubset<T, AulaDeleteArgs<ExtArgs>>): Prisma__AulaClient<$Result.GetResult<Prisma.$AulaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -20233,7 +20508,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends AulaUpdateArgs>(args: SelectSubset<T, AulaUpdateArgs<ExtArgs>>): Prisma__AulaClient<$Result.GetResult<Prisma.$AulaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -20247,7 +20522,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends AulaDeleteManyArgs>(args?: SelectSubset<T, AulaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -20266,7 +20541,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends AulaUpdateManyArgs>(args: SelectSubset<T, AulaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -20283,7 +20558,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Aulas and only return the `id`
      * const aulaWithIdOnly = await prisma.aula.updateManyAndReturn({
      *   select: { id: true },
@@ -20296,7 +20571,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends AulaUpdateManyAndReturnArgs>(args: SelectSubset<T, AulaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AulaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -20385,7 +20660,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends AulaGroupByArgs,
@@ -20500,7 +20775,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Aula", 'DateTime'>
     readonly updatedAt: FieldRef<"Aula", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -20569,31 +20844,31 @@ export namespace Prisma {
     where?: AulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Aulas to fetch.
      */
     orderBy?: AulaOrderByWithRelationInput | AulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Aulas.
      */
     cursor?: AulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Aulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Aulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Aulas.
      */
     distinct?: AulaScalarFieldEnum | AulaScalarFieldEnum[]
@@ -20621,31 +20896,31 @@ export namespace Prisma {
     where?: AulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Aulas to fetch.
      */
     orderBy?: AulaOrderByWithRelationInput | AulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Aulas.
      */
     cursor?: AulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Aulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Aulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Aulas.
      */
     distinct?: AulaScalarFieldEnum | AulaScalarFieldEnum[]
@@ -20673,31 +20948,31 @@ export namespace Prisma {
     where?: AulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Aulas to fetch.
      */
     orderBy?: AulaOrderByWithRelationInput | AulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Aulas.
      */
     cursor?: AulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Aulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Aulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Aulas.
      */
     distinct?: AulaScalarFieldEnum | AulaScalarFieldEnum[]
@@ -21062,43 +21337,43 @@ export namespace Prisma {
     where?: PeriodoAcademicoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PeriodoAcademicos to fetch.
      */
     orderBy?: PeriodoAcademicoOrderByWithRelationInput | PeriodoAcademicoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: PeriodoAcademicoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PeriodoAcademicos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PeriodoAcademicos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned PeriodoAcademicos
     **/
     _count?: true | PeriodoAcademicoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: PeriodoAcademicoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: PeriodoAcademicoMaxAggregateInputType
@@ -21177,6 +21452,7 @@ export namespace Prisma {
     asignacionesCarga?: boolean | PeriodoAcademico$asignacionesCargaArgs<ExtArgs>
     cargasNoLectivas?: boolean | PeriodoAcademico$cargasNoLectivasArgs<ExtArgs>
     declaraciones?: boolean | PeriodoAcademico$declaracionesArgs<ExtArgs>
+    disponibilidades?: boolean | PeriodoAcademico$disponibilidadesArgs<ExtArgs>
     _count?: boolean | PeriodoAcademicoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["periodoAcademico"]>
 
@@ -21233,6 +21509,7 @@ export namespace Prisma {
     asignacionesCarga?: boolean | PeriodoAcademico$asignacionesCargaArgs<ExtArgs>
     cargasNoLectivas?: boolean | PeriodoAcademico$cargasNoLectivasArgs<ExtArgs>
     declaraciones?: boolean | PeriodoAcademico$declaracionesArgs<ExtArgs>
+    disponibilidades?: boolean | PeriodoAcademico$disponibilidadesArgs<ExtArgs>
     _count?: boolean | PeriodoAcademicoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PeriodoAcademicoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -21252,6 +21529,7 @@ export namespace Prisma {
       asignacionesCarga: Prisma.$AsignacionCargaLectivaPayload<ExtArgs>[]
       cargasNoLectivas: Prisma.$CargaNoLectivaPayload<ExtArgs>[]
       declaraciones: Prisma.$DeclaracionCargaPayload<ExtArgs>[]
+      disponibilidades: Prisma.$DisponibilidadDocentePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -21344,13 +21622,13 @@ export namespace Prisma {
      * @example
      * // Get all PeriodoAcademicos
      * const periodoAcademicos = await prisma.periodoAcademico.findMany()
-     * 
+     *
      * // Get first 10 PeriodoAcademicos
      * const periodoAcademicos = await prisma.periodoAcademico.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const periodoAcademicoWithIdOnly = await prisma.periodoAcademico.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends PeriodoAcademicoFindManyArgs>(args?: SelectSubset<T, PeriodoAcademicoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -21364,7 +21642,7 @@ export namespace Prisma {
      *     // ... data to create a PeriodoAcademico
      *   }
      * })
-     * 
+     *
      */
     create<T extends PeriodoAcademicoCreateArgs>(args: SelectSubset<T, PeriodoAcademicoCreateArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -21378,7 +21656,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends PeriodoAcademicoCreateManyArgs>(args?: SelectSubset<T, PeriodoAcademicoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -21392,7 +21670,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many PeriodoAcademicos and only return the `id`
      * const periodoAcademicoWithIdOnly = await prisma.periodoAcademico.createManyAndReturn({
      *   select: { id: true },
@@ -21402,7 +21680,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends PeriodoAcademicoCreateManyAndReturnArgs>(args?: SelectSubset<T, PeriodoAcademicoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -21416,7 +21694,7 @@ export namespace Prisma {
      *     // ... filter to delete one PeriodoAcademico
      *   }
      * })
-     * 
+     *
      */
     delete<T extends PeriodoAcademicoDeleteArgs>(args: SelectSubset<T, PeriodoAcademicoDeleteArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -21433,7 +21711,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends PeriodoAcademicoUpdateArgs>(args: SelectSubset<T, PeriodoAcademicoUpdateArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -21447,7 +21725,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends PeriodoAcademicoDeleteManyArgs>(args?: SelectSubset<T, PeriodoAcademicoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -21466,7 +21744,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends PeriodoAcademicoUpdateManyArgs>(args: SelectSubset<T, PeriodoAcademicoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -21483,7 +21761,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more PeriodoAcademicos and only return the `id`
      * const periodoAcademicoWithIdOnly = await prisma.periodoAcademico.updateManyAndReturn({
      *   select: { id: true },
@@ -21496,7 +21774,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends PeriodoAcademicoUpdateManyAndReturnArgs>(args: SelectSubset<T, PeriodoAcademicoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -21585,7 +21863,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends PeriodoAcademicoGroupByArgs,
@@ -21666,6 +21944,7 @@ export namespace Prisma {
     asignacionesCarga<T extends PeriodoAcademico$asignacionesCargaArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$asignacionesCargaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     cargasNoLectivas<T extends PeriodoAcademico$cargasNoLectivasArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$cargasNoLectivasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     declaraciones<T extends PeriodoAcademico$declaracionesArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$declaracionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    disponibilidades<T extends PeriodoAcademico$disponibilidadesArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$disponibilidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -21707,7 +21986,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"PeriodoAcademico", 'DateTime'>
     readonly updatedAt: FieldRef<"PeriodoAcademico", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -21776,31 +22055,31 @@ export namespace Prisma {
     where?: PeriodoAcademicoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PeriodoAcademicos to fetch.
      */
     orderBy?: PeriodoAcademicoOrderByWithRelationInput | PeriodoAcademicoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for PeriodoAcademicos.
      */
     cursor?: PeriodoAcademicoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PeriodoAcademicos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PeriodoAcademicos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of PeriodoAcademicos.
      */
     distinct?: PeriodoAcademicoScalarFieldEnum | PeriodoAcademicoScalarFieldEnum[]
@@ -21828,31 +22107,31 @@ export namespace Prisma {
     where?: PeriodoAcademicoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PeriodoAcademicos to fetch.
      */
     orderBy?: PeriodoAcademicoOrderByWithRelationInput | PeriodoAcademicoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for PeriodoAcademicos.
      */
     cursor?: PeriodoAcademicoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PeriodoAcademicos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PeriodoAcademicos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of PeriodoAcademicos.
      */
     distinct?: PeriodoAcademicoScalarFieldEnum | PeriodoAcademicoScalarFieldEnum[]
@@ -21880,31 +22159,31 @@ export namespace Prisma {
     where?: PeriodoAcademicoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of PeriodoAcademicos to fetch.
      */
     orderBy?: PeriodoAcademicoOrderByWithRelationInput | PeriodoAcademicoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing PeriodoAcademicos.
      */
     cursor?: PeriodoAcademicoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` PeriodoAcademicos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` PeriodoAcademicos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of PeriodoAcademicos.
      */
     distinct?: PeriodoAcademicoScalarFieldEnum | PeriodoAcademicoScalarFieldEnum[]
@@ -22270,6 +22549,30 @@ export namespace Prisma {
   }
 
   /**
+   * PeriodoAcademico.disponibilidades
+   */
+  export type PeriodoAcademico$disponibilidadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisponibilidadDocente
+     */
+    select?: DisponibilidadDocenteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisponibilidadDocente
+     */
+    omit?: DisponibilidadDocenteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DisponibilidadDocenteInclude<ExtArgs> | null
+    where?: DisponibilidadDocenteWhereInput
+    orderBy?: DisponibilidadDocenteOrderByWithRelationInput | DisponibilidadDocenteOrderByWithRelationInput[]
+    cursor?: DisponibilidadDocenteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DisponibilidadDocenteScalarFieldEnum | DisponibilidadDocenteScalarFieldEnum[]
+  }
+
+  /**
    * PeriodoAcademico without action
    */
   export type PeriodoAcademicoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -22380,55 +22683,55 @@ export namespace Prisma {
     where?: FranjaHorariaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of FranjaHorarias to fetch.
      */
     orderBy?: FranjaHorariaOrderByWithRelationInput | FranjaHorariaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: FranjaHorariaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` FranjaHorarias from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` FranjaHorarias.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned FranjaHorarias
     **/
     _count?: true | FranjaHorariaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: FranjaHorariaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: FranjaHorariaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: FranjaHorariaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: FranjaHorariaMaxAggregateInputType
@@ -22636,13 +22939,13 @@ export namespace Prisma {
      * @example
      * // Get all FranjaHorarias
      * const franjaHorarias = await prisma.franjaHoraria.findMany()
-     * 
+     *
      * // Get first 10 FranjaHorarias
      * const franjaHorarias = await prisma.franjaHoraria.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const franjaHorariaWithIdOnly = await prisma.franjaHoraria.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends FranjaHorariaFindManyArgs>(args?: SelectSubset<T, FranjaHorariaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -22656,7 +22959,7 @@ export namespace Prisma {
      *     // ... data to create a FranjaHoraria
      *   }
      * })
-     * 
+     *
      */
     create<T extends FranjaHorariaCreateArgs>(args: SelectSubset<T, FranjaHorariaCreateArgs<ExtArgs>>): Prisma__FranjaHorariaClient<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -22670,7 +22973,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends FranjaHorariaCreateManyArgs>(args?: SelectSubset<T, FranjaHorariaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -22684,7 +22987,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many FranjaHorarias and only return the `id`
      * const franjaHorariaWithIdOnly = await prisma.franjaHoraria.createManyAndReturn({
      *   select: { id: true },
@@ -22694,7 +22997,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends FranjaHorariaCreateManyAndReturnArgs>(args?: SelectSubset<T, FranjaHorariaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -22708,7 +23011,7 @@ export namespace Prisma {
      *     // ... filter to delete one FranjaHoraria
      *   }
      * })
-     * 
+     *
      */
     delete<T extends FranjaHorariaDeleteArgs>(args: SelectSubset<T, FranjaHorariaDeleteArgs<ExtArgs>>): Prisma__FranjaHorariaClient<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -22725,7 +23028,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends FranjaHorariaUpdateArgs>(args: SelectSubset<T, FranjaHorariaUpdateArgs<ExtArgs>>): Prisma__FranjaHorariaClient<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -22739,7 +23042,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends FranjaHorariaDeleteManyArgs>(args?: SelectSubset<T, FranjaHorariaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -22758,7 +23061,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends FranjaHorariaUpdateManyArgs>(args: SelectSubset<T, FranjaHorariaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -22775,7 +23078,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more FranjaHorarias and only return the `id`
      * const franjaHorariaWithIdOnly = await prisma.franjaHoraria.updateManyAndReturn({
      *   select: { id: true },
@@ -22788,7 +23091,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends FranjaHorariaUpdateManyAndReturnArgs>(args: SelectSubset<T, FranjaHorariaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -22877,7 +23180,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends FranjaHorariaGroupByArgs,
@@ -22992,7 +23295,7 @@ export namespace Prisma {
     readonly numeroBloque: FieldRef<"FranjaHoraria", 'Int'>
     readonly createdAt: FieldRef<"FranjaHoraria", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -23061,31 +23364,31 @@ export namespace Prisma {
     where?: FranjaHorariaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of FranjaHorarias to fetch.
      */
     orderBy?: FranjaHorariaOrderByWithRelationInput | FranjaHorariaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for FranjaHorarias.
      */
     cursor?: FranjaHorariaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` FranjaHorarias from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` FranjaHorarias.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of FranjaHorarias.
      */
     distinct?: FranjaHorariaScalarFieldEnum | FranjaHorariaScalarFieldEnum[]
@@ -23113,31 +23416,31 @@ export namespace Prisma {
     where?: FranjaHorariaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of FranjaHorarias to fetch.
      */
     orderBy?: FranjaHorariaOrderByWithRelationInput | FranjaHorariaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for FranjaHorarias.
      */
     cursor?: FranjaHorariaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` FranjaHorarias from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` FranjaHorarias.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of FranjaHorarias.
      */
     distinct?: FranjaHorariaScalarFieldEnum | FranjaHorariaScalarFieldEnum[]
@@ -23165,31 +23468,31 @@ export namespace Prisma {
     where?: FranjaHorariaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of FranjaHorarias to fetch.
      */
     orderBy?: FranjaHorariaOrderByWithRelationInput | FranjaHorariaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing FranjaHorarias.
      */
     cursor?: FranjaHorariaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` FranjaHorarias from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` FranjaHorarias.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of FranjaHorarias.
      */
     distinct?: FranjaHorariaScalarFieldEnum | FranjaHorariaScalarFieldEnum[]
@@ -23614,43 +23917,43 @@ export namespace Prisma {
     where?: AsignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Asignacions to fetch.
      */
     orderBy?: AsignacionOrderByWithRelationInput | AsignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: AsignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Asignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Asignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Asignacions
     **/
     _count?: true | AsignacionCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: AsignacionMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: AsignacionMaxAggregateInputType
@@ -23892,13 +24195,13 @@ export namespace Prisma {
      * @example
      * // Get all Asignacions
      * const asignacions = await prisma.asignacion.findMany()
-     * 
+     *
      * // Get first 10 Asignacions
      * const asignacions = await prisma.asignacion.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const asignacionWithIdOnly = await prisma.asignacion.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends AsignacionFindManyArgs>(args?: SelectSubset<T, AsignacionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -23912,7 +24215,7 @@ export namespace Prisma {
      *     // ... data to create a Asignacion
      *   }
      * })
-     * 
+     *
      */
     create<T extends AsignacionCreateArgs>(args: SelectSubset<T, AsignacionCreateArgs<ExtArgs>>): Prisma__AsignacionClient<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -23926,7 +24229,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends AsignacionCreateManyArgs>(args?: SelectSubset<T, AsignacionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -23940,7 +24243,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Asignacions and only return the `id`
      * const asignacionWithIdOnly = await prisma.asignacion.createManyAndReturn({
      *   select: { id: true },
@@ -23950,7 +24253,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends AsignacionCreateManyAndReturnArgs>(args?: SelectSubset<T, AsignacionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -23964,7 +24267,7 @@ export namespace Prisma {
      *     // ... filter to delete one Asignacion
      *   }
      * })
-     * 
+     *
      */
     delete<T extends AsignacionDeleteArgs>(args: SelectSubset<T, AsignacionDeleteArgs<ExtArgs>>): Prisma__AsignacionClient<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -23981,7 +24284,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends AsignacionUpdateArgs>(args: SelectSubset<T, AsignacionUpdateArgs<ExtArgs>>): Prisma__AsignacionClient<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -23995,7 +24298,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends AsignacionDeleteManyArgs>(args?: SelectSubset<T, AsignacionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -24014,7 +24317,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends AsignacionUpdateManyArgs>(args: SelectSubset<T, AsignacionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -24031,7 +24334,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Asignacions and only return the `id`
      * const asignacionWithIdOnly = await prisma.asignacion.updateManyAndReturn({
      *   select: { id: true },
@@ -24044,7 +24347,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends AsignacionUpdateManyAndReturnArgs>(args: SelectSubset<T, AsignacionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -24133,7 +24436,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends AsignacionGroupByArgs,
@@ -24251,7 +24554,7 @@ export namespace Prisma {
     readonly confirmado: FieldRef<"Asignacion", 'Boolean'>
     readonly createdAt: FieldRef<"Asignacion", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -24320,31 +24623,31 @@ export namespace Prisma {
     where?: AsignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Asignacions to fetch.
      */
     orderBy?: AsignacionOrderByWithRelationInput | AsignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Asignacions.
      */
     cursor?: AsignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Asignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Asignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Asignacions.
      */
     distinct?: AsignacionScalarFieldEnum | AsignacionScalarFieldEnum[]
@@ -24372,31 +24675,31 @@ export namespace Prisma {
     where?: AsignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Asignacions to fetch.
      */
     orderBy?: AsignacionOrderByWithRelationInput | AsignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Asignacions.
      */
     cursor?: AsignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Asignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Asignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Asignacions.
      */
     distinct?: AsignacionScalarFieldEnum | AsignacionScalarFieldEnum[]
@@ -24424,31 +24727,31 @@ export namespace Prisma {
     where?: AsignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Asignacions to fetch.
      */
     orderBy?: AsignacionOrderByWithRelationInput | AsignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Asignacions.
      */
     cursor?: AsignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Asignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Asignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Asignacions.
      */
     distinct?: AsignacionScalarFieldEnum | AsignacionScalarFieldEnum[]
@@ -24737,43 +25040,43 @@ export namespace Prisma {
     where?: RestriccionDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RestriccionDocentes to fetch.
      */
     orderBy?: RestriccionDocenteOrderByWithRelationInput | RestriccionDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: RestriccionDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RestriccionDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RestriccionDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned RestriccionDocentes
     **/
     _count?: true | RestriccionDocenteCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: RestriccionDocenteMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: RestriccionDocenteMaxAggregateInputType
@@ -24970,13 +25273,13 @@ export namespace Prisma {
      * @example
      * // Get all RestriccionDocentes
      * const restriccionDocentes = await prisma.restriccionDocente.findMany()
-     * 
+     *
      * // Get first 10 RestriccionDocentes
      * const restriccionDocentes = await prisma.restriccionDocente.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const restriccionDocenteWithIdOnly = await prisma.restriccionDocente.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends RestriccionDocenteFindManyArgs>(args?: SelectSubset<T, RestriccionDocenteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -24990,7 +25293,7 @@ export namespace Prisma {
      *     // ... data to create a RestriccionDocente
      *   }
      * })
-     * 
+     *
      */
     create<T extends RestriccionDocenteCreateArgs>(args: SelectSubset<T, RestriccionDocenteCreateArgs<ExtArgs>>): Prisma__RestriccionDocenteClient<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -25004,7 +25307,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends RestriccionDocenteCreateManyArgs>(args?: SelectSubset<T, RestriccionDocenteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -25018,7 +25321,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many RestriccionDocentes and only return the `id`
      * const restriccionDocenteWithIdOnly = await prisma.restriccionDocente.createManyAndReturn({
      *   select: { id: true },
@@ -25028,7 +25331,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends RestriccionDocenteCreateManyAndReturnArgs>(args?: SelectSubset<T, RestriccionDocenteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -25042,7 +25345,7 @@ export namespace Prisma {
      *     // ... filter to delete one RestriccionDocente
      *   }
      * })
-     * 
+     *
      */
     delete<T extends RestriccionDocenteDeleteArgs>(args: SelectSubset<T, RestriccionDocenteDeleteArgs<ExtArgs>>): Prisma__RestriccionDocenteClient<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -25059,7 +25362,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends RestriccionDocenteUpdateArgs>(args: SelectSubset<T, RestriccionDocenteUpdateArgs<ExtArgs>>): Prisma__RestriccionDocenteClient<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -25073,7 +25376,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends RestriccionDocenteDeleteManyArgs>(args?: SelectSubset<T, RestriccionDocenteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -25092,7 +25395,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends RestriccionDocenteUpdateManyArgs>(args: SelectSubset<T, RestriccionDocenteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -25109,7 +25412,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more RestriccionDocentes and only return the `id`
      * const restriccionDocenteWithIdOnly = await prisma.restriccionDocente.updateManyAndReturn({
      *   select: { id: true },
@@ -25122,7 +25425,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends RestriccionDocenteUpdateManyAndReturnArgs>(args: SelectSubset<T, RestriccionDocenteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -25211,7 +25514,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends RestriccionDocenteGroupByArgs,
@@ -25322,7 +25625,7 @@ export namespace Prisma {
     readonly tipo: FieldRef<"RestriccionDocente", 'TipoRestriccion'>
     readonly createdAt: FieldRef<"RestriccionDocente", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -25391,31 +25694,31 @@ export namespace Prisma {
     where?: RestriccionDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RestriccionDocentes to fetch.
      */
     orderBy?: RestriccionDocenteOrderByWithRelationInput | RestriccionDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for RestriccionDocentes.
      */
     cursor?: RestriccionDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RestriccionDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RestriccionDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of RestriccionDocentes.
      */
     distinct?: RestriccionDocenteScalarFieldEnum | RestriccionDocenteScalarFieldEnum[]
@@ -25443,31 +25746,31 @@ export namespace Prisma {
     where?: RestriccionDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RestriccionDocentes to fetch.
      */
     orderBy?: RestriccionDocenteOrderByWithRelationInput | RestriccionDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for RestriccionDocentes.
      */
     cursor?: RestriccionDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RestriccionDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RestriccionDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of RestriccionDocentes.
      */
     distinct?: RestriccionDocenteScalarFieldEnum | RestriccionDocenteScalarFieldEnum[]
@@ -25495,31 +25798,31 @@ export namespace Prisma {
     where?: RestriccionDocenteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of RestriccionDocentes to fetch.
      */
     orderBy?: RestriccionDocenteOrderByWithRelationInput | RestriccionDocenteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing RestriccionDocentes.
      */
     cursor?: RestriccionDocenteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` RestriccionDocentes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` RestriccionDocentes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of RestriccionDocentes.
      */
     distinct?: RestriccionDocenteScalarFieldEnum | RestriccionDocenteScalarFieldEnum[]
@@ -25802,43 +26105,43 @@ export namespace Prisma {
     where?: DocenteGrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DocenteGrupos to fetch.
      */
     orderBy?: DocenteGrupoOrderByWithRelationInput | DocenteGrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: DocenteGrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DocenteGrupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DocenteGrupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned DocenteGrupos
     **/
     _count?: true | DocenteGrupoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: DocenteGrupoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: DocenteGrupoMaxAggregateInputType
@@ -26029,13 +26332,13 @@ export namespace Prisma {
      * @example
      * // Get all DocenteGrupos
      * const docenteGrupos = await prisma.docenteGrupo.findMany()
-     * 
+     *
      * // Get first 10 DocenteGrupos
      * const docenteGrupos = await prisma.docenteGrupo.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const docenteGrupoWithIdOnly = await prisma.docenteGrupo.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends DocenteGrupoFindManyArgs>(args?: SelectSubset<T, DocenteGrupoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -26049,7 +26352,7 @@ export namespace Prisma {
      *     // ... data to create a DocenteGrupo
      *   }
      * })
-     * 
+     *
      */
     create<T extends DocenteGrupoCreateArgs>(args: SelectSubset<T, DocenteGrupoCreateArgs<ExtArgs>>): Prisma__DocenteGrupoClient<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -26063,7 +26366,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends DocenteGrupoCreateManyArgs>(args?: SelectSubset<T, DocenteGrupoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -26077,7 +26380,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many DocenteGrupos and only return the `id`
      * const docenteGrupoWithIdOnly = await prisma.docenteGrupo.createManyAndReturn({
      *   select: { id: true },
@@ -26087,7 +26390,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends DocenteGrupoCreateManyAndReturnArgs>(args?: SelectSubset<T, DocenteGrupoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -26101,7 +26404,7 @@ export namespace Prisma {
      *     // ... filter to delete one DocenteGrupo
      *   }
      * })
-     * 
+     *
      */
     delete<T extends DocenteGrupoDeleteArgs>(args: SelectSubset<T, DocenteGrupoDeleteArgs<ExtArgs>>): Prisma__DocenteGrupoClient<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -26118,7 +26421,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends DocenteGrupoUpdateArgs>(args: SelectSubset<T, DocenteGrupoUpdateArgs<ExtArgs>>): Prisma__DocenteGrupoClient<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -26132,7 +26435,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends DocenteGrupoDeleteManyArgs>(args?: SelectSubset<T, DocenteGrupoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -26151,7 +26454,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends DocenteGrupoUpdateManyArgs>(args: SelectSubset<T, DocenteGrupoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -26168,7 +26471,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more DocenteGrupos and only return the `id`
      * const docenteGrupoWithIdOnly = await prisma.docenteGrupo.updateManyAndReturn({
      *   select: { id: true },
@@ -26181,7 +26484,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends DocenteGrupoUpdateManyAndReturnArgs>(args: SelectSubset<T, DocenteGrupoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -26270,7 +26573,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends DocenteGrupoGroupByArgs,
@@ -26380,7 +26683,7 @@ export namespace Prisma {
     readonly grupoId: FieldRef<"DocenteGrupo", 'String'>
     readonly createdAt: FieldRef<"DocenteGrupo", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -26449,31 +26752,31 @@ export namespace Prisma {
     where?: DocenteGrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DocenteGrupos to fetch.
      */
     orderBy?: DocenteGrupoOrderByWithRelationInput | DocenteGrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for DocenteGrupos.
      */
     cursor?: DocenteGrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DocenteGrupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DocenteGrupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DocenteGrupos.
      */
     distinct?: DocenteGrupoScalarFieldEnum | DocenteGrupoScalarFieldEnum[]
@@ -26501,31 +26804,31 @@ export namespace Prisma {
     where?: DocenteGrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DocenteGrupos to fetch.
      */
     orderBy?: DocenteGrupoOrderByWithRelationInput | DocenteGrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for DocenteGrupos.
      */
     cursor?: DocenteGrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DocenteGrupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DocenteGrupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DocenteGrupos.
      */
     distinct?: DocenteGrupoScalarFieldEnum | DocenteGrupoScalarFieldEnum[]
@@ -26553,31 +26856,31 @@ export namespace Prisma {
     where?: DocenteGrupoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DocenteGrupos to fetch.
      */
     orderBy?: DocenteGrupoOrderByWithRelationInput | DocenteGrupoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing DocenteGrupos.
      */
     cursor?: DocenteGrupoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DocenteGrupos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DocenteGrupos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DocenteGrupos.
      */
     distinct?: DocenteGrupoScalarFieldEnum | DocenteGrupoScalarFieldEnum[]
@@ -26860,43 +27163,43 @@ export namespace Prisma {
     where?: FeriadoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Feriados to fetch.
      */
     orderBy?: FeriadoOrderByWithRelationInput | FeriadoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: FeriadoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Feriados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Feriados.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Feriados
     **/
     _count?: true | FeriadoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: FeriadoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: FeriadoMaxAggregateInputType
@@ -27066,13 +27369,13 @@ export namespace Prisma {
      * @example
      * // Get all Feriados
      * const feriados = await prisma.feriado.findMany()
-     * 
+     *
      * // Get first 10 Feriados
      * const feriados = await prisma.feriado.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const feriadoWithIdOnly = await prisma.feriado.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends FeriadoFindManyArgs>(args?: SelectSubset<T, FeriadoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeriadoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -27086,7 +27389,7 @@ export namespace Prisma {
      *     // ... data to create a Feriado
      *   }
      * })
-     * 
+     *
      */
     create<T extends FeriadoCreateArgs>(args: SelectSubset<T, FeriadoCreateArgs<ExtArgs>>): Prisma__FeriadoClient<$Result.GetResult<Prisma.$FeriadoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -27100,7 +27403,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends FeriadoCreateManyArgs>(args?: SelectSubset<T, FeriadoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -27114,7 +27417,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Feriados and only return the `id`
      * const feriadoWithIdOnly = await prisma.feriado.createManyAndReturn({
      *   select: { id: true },
@@ -27124,7 +27427,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends FeriadoCreateManyAndReturnArgs>(args?: SelectSubset<T, FeriadoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeriadoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -27138,7 +27441,7 @@ export namespace Prisma {
      *     // ... filter to delete one Feriado
      *   }
      * })
-     * 
+     *
      */
     delete<T extends FeriadoDeleteArgs>(args: SelectSubset<T, FeriadoDeleteArgs<ExtArgs>>): Prisma__FeriadoClient<$Result.GetResult<Prisma.$FeriadoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -27155,7 +27458,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends FeriadoUpdateArgs>(args: SelectSubset<T, FeriadoUpdateArgs<ExtArgs>>): Prisma__FeriadoClient<$Result.GetResult<Prisma.$FeriadoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -27169,7 +27472,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends FeriadoDeleteManyArgs>(args?: SelectSubset<T, FeriadoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -27188,7 +27491,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends FeriadoUpdateManyArgs>(args: SelectSubset<T, FeriadoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -27205,7 +27508,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Feriados and only return the `id`
      * const feriadoWithIdOnly = await prisma.feriado.updateManyAndReturn({
      *   select: { id: true },
@@ -27218,7 +27521,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends FeriadoUpdateManyAndReturnArgs>(args: SelectSubset<T, FeriadoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeriadoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -27307,7 +27610,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends FeriadoGroupByArgs,
@@ -27415,7 +27718,7 @@ export namespace Prisma {
     readonly nombre: FieldRef<"Feriado", 'String'>
     readonly createdAt: FieldRef<"Feriado", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -27472,31 +27775,31 @@ export namespace Prisma {
     where?: FeriadoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Feriados to fetch.
      */
     orderBy?: FeriadoOrderByWithRelationInput | FeriadoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Feriados.
      */
     cursor?: FeriadoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Feriados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Feriados.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Feriados.
      */
     distinct?: FeriadoScalarFieldEnum | FeriadoScalarFieldEnum[]
@@ -27520,31 +27823,31 @@ export namespace Prisma {
     where?: FeriadoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Feriados to fetch.
      */
     orderBy?: FeriadoOrderByWithRelationInput | FeriadoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Feriados.
      */
     cursor?: FeriadoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Feriados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Feriados.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Feriados.
      */
     distinct?: FeriadoScalarFieldEnum | FeriadoScalarFieldEnum[]
@@ -27568,31 +27871,31 @@ export namespace Prisma {
     where?: FeriadoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Feriados to fetch.
      */
     orderBy?: FeriadoOrderByWithRelationInput | FeriadoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Feriados.
      */
     cursor?: FeriadoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Feriados from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Feriados.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Feriados.
      */
     distinct?: FeriadoScalarFieldEnum | FeriadoScalarFieldEnum[]
@@ -27859,43 +28162,43 @@ export namespace Prisma {
     where?: MantenimientoAulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MantenimientoAulas to fetch.
      */
     orderBy?: MantenimientoAulaOrderByWithRelationInput | MantenimientoAulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: MantenimientoAulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MantenimientoAulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MantenimientoAulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned MantenimientoAulas
     **/
     _count?: true | MantenimientoAulaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: MantenimientoAulaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: MantenimientoAulaMaxAggregateInputType
@@ -28098,13 +28401,13 @@ export namespace Prisma {
      * @example
      * // Get all MantenimientoAulas
      * const mantenimientoAulas = await prisma.mantenimientoAula.findMany()
-     * 
+     *
      * // Get first 10 MantenimientoAulas
      * const mantenimientoAulas = await prisma.mantenimientoAula.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const mantenimientoAulaWithIdOnly = await prisma.mantenimientoAula.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends MantenimientoAulaFindManyArgs>(args?: SelectSubset<T, MantenimientoAulaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MantenimientoAulaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -28118,7 +28421,7 @@ export namespace Prisma {
      *     // ... data to create a MantenimientoAula
      *   }
      * })
-     * 
+     *
      */
     create<T extends MantenimientoAulaCreateArgs>(args: SelectSubset<T, MantenimientoAulaCreateArgs<ExtArgs>>): Prisma__MantenimientoAulaClient<$Result.GetResult<Prisma.$MantenimientoAulaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -28132,7 +28435,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends MantenimientoAulaCreateManyArgs>(args?: SelectSubset<T, MantenimientoAulaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -28146,7 +28449,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many MantenimientoAulas and only return the `id`
      * const mantenimientoAulaWithIdOnly = await prisma.mantenimientoAula.createManyAndReturn({
      *   select: { id: true },
@@ -28156,7 +28459,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends MantenimientoAulaCreateManyAndReturnArgs>(args?: SelectSubset<T, MantenimientoAulaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MantenimientoAulaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -28170,7 +28473,7 @@ export namespace Prisma {
      *     // ... filter to delete one MantenimientoAula
      *   }
      * })
-     * 
+     *
      */
     delete<T extends MantenimientoAulaDeleteArgs>(args: SelectSubset<T, MantenimientoAulaDeleteArgs<ExtArgs>>): Prisma__MantenimientoAulaClient<$Result.GetResult<Prisma.$MantenimientoAulaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -28187,7 +28490,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends MantenimientoAulaUpdateArgs>(args: SelectSubset<T, MantenimientoAulaUpdateArgs<ExtArgs>>): Prisma__MantenimientoAulaClient<$Result.GetResult<Prisma.$MantenimientoAulaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -28201,7 +28504,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends MantenimientoAulaDeleteManyArgs>(args?: SelectSubset<T, MantenimientoAulaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -28220,7 +28523,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends MantenimientoAulaUpdateManyArgs>(args: SelectSubset<T, MantenimientoAulaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -28237,7 +28540,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more MantenimientoAulas and only return the `id`
      * const mantenimientoAulaWithIdOnly = await prisma.mantenimientoAula.updateManyAndReturn({
      *   select: { id: true },
@@ -28250,7 +28553,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends MantenimientoAulaUpdateManyAndReturnArgs>(args: SelectSubset<T, MantenimientoAulaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MantenimientoAulaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -28339,7 +28642,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends MantenimientoAulaGroupByArgs,
@@ -28451,7 +28754,7 @@ export namespace Prisma {
     readonly motivo: FieldRef<"MantenimientoAula", 'String'>
     readonly createdAt: FieldRef<"MantenimientoAula", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -28520,31 +28823,31 @@ export namespace Prisma {
     where?: MantenimientoAulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MantenimientoAulas to fetch.
      */
     orderBy?: MantenimientoAulaOrderByWithRelationInput | MantenimientoAulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for MantenimientoAulas.
      */
     cursor?: MantenimientoAulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MantenimientoAulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MantenimientoAulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of MantenimientoAulas.
      */
     distinct?: MantenimientoAulaScalarFieldEnum | MantenimientoAulaScalarFieldEnum[]
@@ -28572,31 +28875,31 @@ export namespace Prisma {
     where?: MantenimientoAulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MantenimientoAulas to fetch.
      */
     orderBy?: MantenimientoAulaOrderByWithRelationInput | MantenimientoAulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for MantenimientoAulas.
      */
     cursor?: MantenimientoAulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MantenimientoAulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MantenimientoAulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of MantenimientoAulas.
      */
     distinct?: MantenimientoAulaScalarFieldEnum | MantenimientoAulaScalarFieldEnum[]
@@ -28624,31 +28927,31 @@ export namespace Prisma {
     where?: MantenimientoAulaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of MantenimientoAulas to fetch.
      */
     orderBy?: MantenimientoAulaOrderByWithRelationInput | MantenimientoAulaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing MantenimientoAulas.
      */
     cursor?: MantenimientoAulaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` MantenimientoAulas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` MantenimientoAulas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of MantenimientoAulas.
      */
     distinct?: MantenimientoAulaScalarFieldEnum | MantenimientoAulaScalarFieldEnum[]
@@ -28961,43 +29264,43 @@ export namespace Prisma {
     where?: PreasignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Preasignacions to fetch.
      */
     orderBy?: PreasignacionOrderByWithRelationInput | PreasignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: PreasignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Preasignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Preasignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned Preasignacions
     **/
     _count?: true | PreasignacionCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: PreasignacionMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: PreasignacionMaxAggregateInputType
@@ -29232,13 +29535,13 @@ export namespace Prisma {
      * @example
      * // Get all Preasignacions
      * const preasignacions = await prisma.preasignacion.findMany()
-     * 
+     *
      * // Get first 10 Preasignacions
      * const preasignacions = await prisma.preasignacion.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const preasignacionWithIdOnly = await prisma.preasignacion.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends PreasignacionFindManyArgs>(args?: SelectSubset<T, PreasignacionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -29252,7 +29555,7 @@ export namespace Prisma {
      *     // ... data to create a Preasignacion
      *   }
      * })
-     * 
+     *
      */
     create<T extends PreasignacionCreateArgs>(args: SelectSubset<T, PreasignacionCreateArgs<ExtArgs>>): Prisma__PreasignacionClient<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -29266,7 +29569,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends PreasignacionCreateManyArgs>(args?: SelectSubset<T, PreasignacionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -29280,7 +29583,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many Preasignacions and only return the `id`
      * const preasignacionWithIdOnly = await prisma.preasignacion.createManyAndReturn({
      *   select: { id: true },
@@ -29290,7 +29593,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends PreasignacionCreateManyAndReturnArgs>(args?: SelectSubset<T, PreasignacionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -29304,7 +29607,7 @@ export namespace Prisma {
      *     // ... filter to delete one Preasignacion
      *   }
      * })
-     * 
+     *
      */
     delete<T extends PreasignacionDeleteArgs>(args: SelectSubset<T, PreasignacionDeleteArgs<ExtArgs>>): Prisma__PreasignacionClient<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -29321,7 +29624,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends PreasignacionUpdateArgs>(args: SelectSubset<T, PreasignacionUpdateArgs<ExtArgs>>): Prisma__PreasignacionClient<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -29335,7 +29638,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends PreasignacionDeleteManyArgs>(args?: SelectSubset<T, PreasignacionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -29354,7 +29657,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends PreasignacionUpdateManyArgs>(args: SelectSubset<T, PreasignacionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -29371,7 +29674,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more Preasignacions and only return the `id`
      * const preasignacionWithIdOnly = await prisma.preasignacion.updateManyAndReturn({
      *   select: { id: true },
@@ -29384,7 +29687,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends PreasignacionUpdateManyAndReturnArgs>(args: SelectSubset<T, PreasignacionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -29473,7 +29776,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends PreasignacionGroupByArgs,
@@ -29590,7 +29893,7 @@ export namespace Prisma {
     readonly motivo: FieldRef<"Preasignacion", 'String'>
     readonly createdAt: FieldRef<"Preasignacion", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -29659,31 +29962,31 @@ export namespace Prisma {
     where?: PreasignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Preasignacions to fetch.
      */
     orderBy?: PreasignacionOrderByWithRelationInput | PreasignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Preasignacions.
      */
     cursor?: PreasignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Preasignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Preasignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Preasignacions.
      */
     distinct?: PreasignacionScalarFieldEnum | PreasignacionScalarFieldEnum[]
@@ -29711,31 +30014,31 @@ export namespace Prisma {
     where?: PreasignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Preasignacions to fetch.
      */
     orderBy?: PreasignacionOrderByWithRelationInput | PreasignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for Preasignacions.
      */
     cursor?: PreasignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Preasignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Preasignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Preasignacions.
      */
     distinct?: PreasignacionScalarFieldEnum | PreasignacionScalarFieldEnum[]
@@ -29763,31 +30066,31 @@ export namespace Prisma {
     where?: PreasignacionWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of Preasignacions to fetch.
      */
     orderBy?: PreasignacionOrderByWithRelationInput | PreasignacionOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing Preasignacions.
      */
     cursor?: PreasignacionWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` Preasignacions from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` Preasignacions.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of Preasignacions.
      */
     distinct?: PreasignacionScalarFieldEnum | PreasignacionScalarFieldEnum[]
@@ -30124,55 +30427,55 @@ export namespace Prisma {
     where?: AsignacionCargaLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AsignacionCargaLectivas to fetch.
      */
     orderBy?: AsignacionCargaLectivaOrderByWithRelationInput | AsignacionCargaLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: AsignacionCargaLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AsignacionCargaLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AsignacionCargaLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned AsignacionCargaLectivas
     **/
     _count?: true | AsignacionCargaLectivaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: AsignacionCargaLectivaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: AsignacionCargaLectivaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: AsignacionCargaLectivaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: AsignacionCargaLectivaMaxAggregateInputType
@@ -30417,13 +30720,13 @@ export namespace Prisma {
      * @example
      * // Get all AsignacionCargaLectivas
      * const asignacionCargaLectivas = await prisma.asignacionCargaLectiva.findMany()
-     * 
+     *
      * // Get first 10 AsignacionCargaLectivas
      * const asignacionCargaLectivas = await prisma.asignacionCargaLectiva.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const asignacionCargaLectivaWithIdOnly = await prisma.asignacionCargaLectiva.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends AsignacionCargaLectivaFindManyArgs>(args?: SelectSubset<T, AsignacionCargaLectivaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -30437,7 +30740,7 @@ export namespace Prisma {
      *     // ... data to create a AsignacionCargaLectiva
      *   }
      * })
-     * 
+     *
      */
     create<T extends AsignacionCargaLectivaCreateArgs>(args: SelectSubset<T, AsignacionCargaLectivaCreateArgs<ExtArgs>>): Prisma__AsignacionCargaLectivaClient<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -30451,7 +30754,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends AsignacionCargaLectivaCreateManyArgs>(args?: SelectSubset<T, AsignacionCargaLectivaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -30465,7 +30768,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many AsignacionCargaLectivas and only return the `id`
      * const asignacionCargaLectivaWithIdOnly = await prisma.asignacionCargaLectiva.createManyAndReturn({
      *   select: { id: true },
@@ -30475,7 +30778,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends AsignacionCargaLectivaCreateManyAndReturnArgs>(args?: SelectSubset<T, AsignacionCargaLectivaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -30489,7 +30792,7 @@ export namespace Prisma {
      *     // ... filter to delete one AsignacionCargaLectiva
      *   }
      * })
-     * 
+     *
      */
     delete<T extends AsignacionCargaLectivaDeleteArgs>(args: SelectSubset<T, AsignacionCargaLectivaDeleteArgs<ExtArgs>>): Prisma__AsignacionCargaLectivaClient<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -30506,7 +30809,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends AsignacionCargaLectivaUpdateArgs>(args: SelectSubset<T, AsignacionCargaLectivaUpdateArgs<ExtArgs>>): Prisma__AsignacionCargaLectivaClient<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -30520,7 +30823,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends AsignacionCargaLectivaDeleteManyArgs>(args?: SelectSubset<T, AsignacionCargaLectivaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -30539,7 +30842,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends AsignacionCargaLectivaUpdateManyArgs>(args: SelectSubset<T, AsignacionCargaLectivaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -30556,7 +30859,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more AsignacionCargaLectivas and only return the `id`
      * const asignacionCargaLectivaWithIdOnly = await prisma.asignacionCargaLectiva.updateManyAndReturn({
      *   select: { id: true },
@@ -30569,7 +30872,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends AsignacionCargaLectivaUpdateManyAndReturnArgs>(args: SelectSubset<T, AsignacionCargaLectivaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -30658,7 +30961,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends AsignacionCargaLectivaGroupByArgs,
@@ -30776,7 +31079,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"AsignacionCargaLectiva", 'DateTime'>
     readonly updatedAt: FieldRef<"AsignacionCargaLectiva", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -30845,31 +31148,31 @@ export namespace Prisma {
     where?: AsignacionCargaLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AsignacionCargaLectivas to fetch.
      */
     orderBy?: AsignacionCargaLectivaOrderByWithRelationInput | AsignacionCargaLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for AsignacionCargaLectivas.
      */
     cursor?: AsignacionCargaLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AsignacionCargaLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AsignacionCargaLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of AsignacionCargaLectivas.
      */
     distinct?: AsignacionCargaLectivaScalarFieldEnum | AsignacionCargaLectivaScalarFieldEnum[]
@@ -30897,31 +31200,31 @@ export namespace Prisma {
     where?: AsignacionCargaLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AsignacionCargaLectivas to fetch.
      */
     orderBy?: AsignacionCargaLectivaOrderByWithRelationInput | AsignacionCargaLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for AsignacionCargaLectivas.
      */
     cursor?: AsignacionCargaLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AsignacionCargaLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AsignacionCargaLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of AsignacionCargaLectivas.
      */
     distinct?: AsignacionCargaLectivaScalarFieldEnum | AsignacionCargaLectivaScalarFieldEnum[]
@@ -30949,31 +31252,31 @@ export namespace Prisma {
     where?: AsignacionCargaLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of AsignacionCargaLectivas to fetch.
      */
     orderBy?: AsignacionCargaLectivaOrderByWithRelationInput | AsignacionCargaLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing AsignacionCargaLectivas.
      */
     cursor?: AsignacionCargaLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` AsignacionCargaLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` AsignacionCargaLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of AsignacionCargaLectivas.
      */
     distinct?: AsignacionCargaLectivaScalarFieldEnum | AsignacionCargaLectivaScalarFieldEnum[]
@@ -31345,55 +31648,55 @@ export namespace Prisma {
     where?: CargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CargaNoLectivas to fetch.
      */
     orderBy?: CargaNoLectivaOrderByWithRelationInput | CargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: CargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned CargaNoLectivas
     **/
     _count?: true | CargaNoLectivaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: CargaNoLectivaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: CargaNoLectivaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: CargaNoLectivaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: CargaNoLectivaMaxAggregateInputType
@@ -31641,13 +31944,13 @@ export namespace Prisma {
      * @example
      * // Get all CargaNoLectivas
      * const cargaNoLectivas = await prisma.cargaNoLectiva.findMany()
-     * 
+     *
      * // Get first 10 CargaNoLectivas
      * const cargaNoLectivas = await prisma.cargaNoLectiva.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const cargaNoLectivaWithIdOnly = await prisma.cargaNoLectiva.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends CargaNoLectivaFindManyArgs>(args?: SelectSubset<T, CargaNoLectivaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -31661,7 +31964,7 @@ export namespace Prisma {
      *     // ... data to create a CargaNoLectiva
      *   }
      * })
-     * 
+     *
      */
     create<T extends CargaNoLectivaCreateArgs>(args: SelectSubset<T, CargaNoLectivaCreateArgs<ExtArgs>>): Prisma__CargaNoLectivaClient<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -31675,7 +31978,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends CargaNoLectivaCreateManyArgs>(args?: SelectSubset<T, CargaNoLectivaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -31689,7 +31992,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many CargaNoLectivas and only return the `id`
      * const cargaNoLectivaWithIdOnly = await prisma.cargaNoLectiva.createManyAndReturn({
      *   select: { id: true },
@@ -31699,7 +32002,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends CargaNoLectivaCreateManyAndReturnArgs>(args?: SelectSubset<T, CargaNoLectivaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -31713,7 +32016,7 @@ export namespace Prisma {
      *     // ... filter to delete one CargaNoLectiva
      *   }
      * })
-     * 
+     *
      */
     delete<T extends CargaNoLectivaDeleteArgs>(args: SelectSubset<T, CargaNoLectivaDeleteArgs<ExtArgs>>): Prisma__CargaNoLectivaClient<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -31730,7 +32033,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends CargaNoLectivaUpdateArgs>(args: SelectSubset<T, CargaNoLectivaUpdateArgs<ExtArgs>>): Prisma__CargaNoLectivaClient<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -31744,7 +32047,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends CargaNoLectivaDeleteManyArgs>(args?: SelectSubset<T, CargaNoLectivaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -31763,7 +32066,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends CargaNoLectivaUpdateManyArgs>(args: SelectSubset<T, CargaNoLectivaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -31780,7 +32083,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more CargaNoLectivas and only return the `id`
      * const cargaNoLectivaWithIdOnly = await prisma.cargaNoLectiva.updateManyAndReturn({
      *   select: { id: true },
@@ -31793,7 +32096,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends CargaNoLectivaUpdateManyAndReturnArgs>(args: SelectSubset<T, CargaNoLectivaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CargaNoLectivaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -31882,7 +32185,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends CargaNoLectivaGroupByArgs,
@@ -32001,7 +32304,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"CargaNoLectiva", 'DateTime'>
     readonly updatedAt: FieldRef<"CargaNoLectiva", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -32070,31 +32373,31 @@ export namespace Prisma {
     where?: CargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CargaNoLectivas to fetch.
      */
     orderBy?: CargaNoLectivaOrderByWithRelationInput | CargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for CargaNoLectivas.
      */
     cursor?: CargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of CargaNoLectivas.
      */
     distinct?: CargaNoLectivaScalarFieldEnum | CargaNoLectivaScalarFieldEnum[]
@@ -32122,31 +32425,31 @@ export namespace Prisma {
     where?: CargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CargaNoLectivas to fetch.
      */
     orderBy?: CargaNoLectivaOrderByWithRelationInput | CargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for CargaNoLectivas.
      */
     cursor?: CargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of CargaNoLectivas.
      */
     distinct?: CargaNoLectivaScalarFieldEnum | CargaNoLectivaScalarFieldEnum[]
@@ -32174,31 +32477,31 @@ export namespace Prisma {
     where?: CargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of CargaNoLectivas to fetch.
      */
     orderBy?: CargaNoLectivaOrderByWithRelationInput | CargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing CargaNoLectivas.
      */
     cursor?: CargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` CargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` CargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of CargaNoLectivas.
      */
     distinct?: CargaNoLectivaScalarFieldEnum | CargaNoLectivaScalarFieldEnum[]
@@ -32529,43 +32832,43 @@ export namespace Prisma {
     where?: HorarioCargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of HorarioCargaNoLectivas to fetch.
      */
     orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: HorarioCargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` HorarioCargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned HorarioCargaNoLectivas
     **/
     _count?: true | HorarioCargaNoLectivaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: HorarioCargaNoLectivaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: HorarioCargaNoLectivaMaxAggregateInputType
@@ -32773,13 +33076,13 @@ export namespace Prisma {
      * @example
      * // Get all HorarioCargaNoLectivas
      * const horarioCargaNoLectivas = await prisma.horarioCargaNoLectiva.findMany()
-     * 
+     *
      * // Get first 10 HorarioCargaNoLectivas
      * const horarioCargaNoLectivas = await prisma.horarioCargaNoLectiva.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const horarioCargaNoLectivaWithIdOnly = await prisma.horarioCargaNoLectiva.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends HorarioCargaNoLectivaFindManyArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -32793,7 +33096,7 @@ export namespace Prisma {
      *     // ... data to create a HorarioCargaNoLectiva
      *   }
      * })
-     * 
+     *
      */
     create<T extends HorarioCargaNoLectivaCreateArgs>(args: SelectSubset<T, HorarioCargaNoLectivaCreateArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -32807,7 +33110,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends HorarioCargaNoLectivaCreateManyArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -32821,7 +33124,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many HorarioCargaNoLectivas and only return the `id`
      * const horarioCargaNoLectivaWithIdOnly = await prisma.horarioCargaNoLectiva.createManyAndReturn({
      *   select: { id: true },
@@ -32831,7 +33134,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends HorarioCargaNoLectivaCreateManyAndReturnArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -32845,7 +33148,7 @@ export namespace Prisma {
      *     // ... filter to delete one HorarioCargaNoLectiva
      *   }
      * })
-     * 
+     *
      */
     delete<T extends HorarioCargaNoLectivaDeleteArgs>(args: SelectSubset<T, HorarioCargaNoLectivaDeleteArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -32862,7 +33165,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends HorarioCargaNoLectivaUpdateArgs>(args: SelectSubset<T, HorarioCargaNoLectivaUpdateArgs<ExtArgs>>): Prisma__HorarioCargaNoLectivaClient<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -32876,7 +33179,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends HorarioCargaNoLectivaDeleteManyArgs>(args?: SelectSubset<T, HorarioCargaNoLectivaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -32895,7 +33198,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends HorarioCargaNoLectivaUpdateManyArgs>(args: SelectSubset<T, HorarioCargaNoLectivaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -32912,7 +33215,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more HorarioCargaNoLectivas and only return the `id`
      * const horarioCargaNoLectivaWithIdOnly = await prisma.horarioCargaNoLectiva.updateManyAndReturn({
      *   select: { id: true },
@@ -32925,7 +33228,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends HorarioCargaNoLectivaUpdateManyAndReturnArgs>(args: SelectSubset<T, HorarioCargaNoLectivaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioCargaNoLectivaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -33014,7 +33317,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends HorarioCargaNoLectivaGroupByArgs,
@@ -33127,7 +33430,7 @@ export namespace Prisma {
     readonly aula: FieldRef<"HorarioCargaNoLectiva", 'String'>
     readonly createdAt: FieldRef<"HorarioCargaNoLectiva", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -33196,31 +33499,31 @@ export namespace Prisma {
     where?: HorarioCargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of HorarioCargaNoLectivas to fetch.
      */
     orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for HorarioCargaNoLectivas.
      */
     cursor?: HorarioCargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` HorarioCargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of HorarioCargaNoLectivas.
      */
     distinct?: HorarioCargaNoLectivaScalarFieldEnum | HorarioCargaNoLectivaScalarFieldEnum[]
@@ -33248,31 +33551,31 @@ export namespace Prisma {
     where?: HorarioCargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of HorarioCargaNoLectivas to fetch.
      */
     orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for HorarioCargaNoLectivas.
      */
     cursor?: HorarioCargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` HorarioCargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of HorarioCargaNoLectivas.
      */
     distinct?: HorarioCargaNoLectivaScalarFieldEnum | HorarioCargaNoLectivaScalarFieldEnum[]
@@ -33300,31 +33603,31 @@ export namespace Prisma {
     where?: HorarioCargaNoLectivaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of HorarioCargaNoLectivas to fetch.
      */
     orderBy?: HorarioCargaNoLectivaOrderByWithRelationInput | HorarioCargaNoLectivaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing HorarioCargaNoLectivas.
      */
     cursor?: HorarioCargaNoLectivaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` HorarioCargaNoLectivas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` HorarioCargaNoLectivas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of HorarioCargaNoLectivas.
      */
     distinct?: HorarioCargaNoLectivaScalarFieldEnum | HorarioCargaNoLectivaScalarFieldEnum[]
@@ -33717,55 +34020,55 @@ export namespace Prisma {
     where?: DeclaracionCargaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DeclaracionCargas to fetch.
      */
     orderBy?: DeclaracionCargaOrderByWithRelationInput | DeclaracionCargaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the start position
      */
     cursor?: DeclaracionCargaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DeclaracionCargas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DeclaracionCargas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Count returned DeclaracionCargas
     **/
     _count?: true | DeclaracionCargaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to average
     **/
     _avg?: DeclaracionCargaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to sum
     **/
     _sum?: DeclaracionCargaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the minimum value
     **/
     _min?: DeclaracionCargaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
+     *
      * Select which fields to find the maximum value
     **/
     _max?: DeclaracionCargaMaxAggregateInputType
@@ -33860,6 +34163,8 @@ export namespace Prisma {
     aprobadorDepto?: boolean | DeclaracionCarga$aprobadorDeptoArgs<ExtArgs>
     aprobadorEscuela?: boolean | DeclaracionCarga$aprobadorEscuelaArgs<ExtArgs>
     vbDecano?: boolean | DeclaracionCarga$vbDecanoArgs<ExtArgs>
+    firmasDigitales?: boolean | DeclaracionCarga$firmasDigitalesArgs<ExtArgs>
+    _count?: boolean | DeclaracionCargaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["declaracionCarga"]>
 
   export type DeclaracionCargaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -33942,6 +34247,8 @@ export namespace Prisma {
     aprobadorDepto?: boolean | DeclaracionCarga$aprobadorDeptoArgs<ExtArgs>
     aprobadorEscuela?: boolean | DeclaracionCarga$aprobadorEscuelaArgs<ExtArgs>
     vbDecano?: boolean | DeclaracionCarga$vbDecanoArgs<ExtArgs>
+    firmasDigitales?: boolean | DeclaracionCarga$firmasDigitalesArgs<ExtArgs>
+    _count?: boolean | DeclaracionCargaCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DeclaracionCargaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
@@ -33966,6 +34273,7 @@ export namespace Prisma {
       aprobadorDepto: Prisma.$UserPayload<ExtArgs> | null
       aprobadorEscuela: Prisma.$UserPayload<ExtArgs> | null
       vbDecano: Prisma.$UserPayload<ExtArgs> | null
+      firmasDigitales: Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -34065,13 +34373,13 @@ export namespace Prisma {
      * @example
      * // Get all DeclaracionCargas
      * const declaracionCargas = await prisma.declaracionCarga.findMany()
-     * 
+     *
      * // Get first 10 DeclaracionCargas
      * const declaracionCargas = await prisma.declaracionCarga.findMany({ take: 10 })
-     * 
+     *
      * // Only select the `id`
      * const declaracionCargaWithIdOnly = await prisma.declaracionCarga.findMany({ select: { id: true } })
-     * 
+     *
      */
     findMany<T extends DeclaracionCargaFindManyArgs>(args?: SelectSubset<T, DeclaracionCargaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
@@ -34085,7 +34393,7 @@ export namespace Prisma {
      *     // ... data to create a DeclaracionCarga
      *   }
      * })
-     * 
+     *
      */
     create<T extends DeclaracionCargaCreateArgs>(args: SelectSubset<T, DeclaracionCargaCreateArgs<ExtArgs>>): Prisma__DeclaracionCargaClient<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -34099,7 +34407,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     *     
+     *
      */
     createMany<T extends DeclaracionCargaCreateManyArgs>(args?: SelectSubset<T, DeclaracionCargaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -34113,7 +34421,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Create many DeclaracionCargas and only return the `id`
      * const declaracionCargaWithIdOnly = await prisma.declaracionCarga.createManyAndReturn({
      *   select: { id: true },
@@ -34123,7 +34431,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     createManyAndReturn<T extends DeclaracionCargaCreateManyAndReturnArgs>(args?: SelectSubset<T, DeclaracionCargaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
@@ -34137,7 +34445,7 @@ export namespace Prisma {
      *     // ... filter to delete one DeclaracionCarga
      *   }
      * })
-     * 
+     *
      */
     delete<T extends DeclaracionCargaDeleteArgs>(args: SelectSubset<T, DeclaracionCargaDeleteArgs<ExtArgs>>): Prisma__DeclaracionCargaClient<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -34154,7 +34462,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     update<T extends DeclaracionCargaUpdateArgs>(args: SelectSubset<T, DeclaracionCargaUpdateArgs<ExtArgs>>): Prisma__DeclaracionCargaClient<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
@@ -34168,7 +34476,7 @@ export namespace Prisma {
      *     // ... provide filter here
      *   }
      * })
-     * 
+     *
      */
     deleteMany<T extends DeclaracionCargaDeleteManyArgs>(args?: SelectSubset<T, DeclaracionCargaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -34187,7 +34495,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   }
      * })
-     * 
+     *
      */
     updateMany<T extends DeclaracionCargaUpdateManyArgs>(args: SelectSubset<T, DeclaracionCargaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
@@ -34204,7 +34512,7 @@ export namespace Prisma {
      *     // ... provide data here
      *   ]
      * })
-     * 
+     *
      * // Update zero or more DeclaracionCargas and only return the `id`
      * const declaracionCargaWithIdOnly = await prisma.declaracionCarga.updateManyAndReturn({
      *   select: { id: true },
@@ -34217,7 +34525,7 @@ export namespace Prisma {
      * })
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * 
+     *
      */
     updateManyAndReturn<T extends DeclaracionCargaUpdateManyAndReturnArgs>(args: SelectSubset<T, DeclaracionCargaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
@@ -34306,7 +34614,7 @@ export namespace Prisma {
      *     _all: true
      *   },
      * })
-     * 
+     *
     **/
     groupBy<
       T extends DeclaracionCargaGroupByArgs,
@@ -34385,6 +34693,7 @@ export namespace Prisma {
     aprobadorDepto<T extends DeclaracionCarga$aprobadorDeptoArgs<ExtArgs> = {}>(args?: Subset<T, DeclaracionCarga$aprobadorDeptoArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     aprobadorEscuela<T extends DeclaracionCarga$aprobadorEscuelaArgs<ExtArgs> = {}>(args?: Subset<T, DeclaracionCarga$aprobadorEscuelaArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     vbDecano<T extends DeclaracionCarga$vbDecanoArgs<ExtArgs> = {}>(args?: Subset<T, DeclaracionCarga$vbDecanoArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    firmasDigitales<T extends DeclaracionCarga$firmasDigitalesArgs<ExtArgs> = {}>(args?: Subset<T, DeclaracionCarga$firmasDigitalesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -34433,7 +34742,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"DeclaracionCarga", 'DateTime'>
     readonly updatedAt: FieldRef<"DeclaracionCarga", 'DateTime'>
   }
-    
+
 
   // Custom InputTypes
   /**
@@ -34502,31 +34811,31 @@ export namespace Prisma {
     where?: DeclaracionCargaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DeclaracionCargas to fetch.
      */
     orderBy?: DeclaracionCargaOrderByWithRelationInput | DeclaracionCargaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for DeclaracionCargas.
      */
     cursor?: DeclaracionCargaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DeclaracionCargas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DeclaracionCargas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DeclaracionCargas.
      */
     distinct?: DeclaracionCargaScalarFieldEnum | DeclaracionCargaScalarFieldEnum[]
@@ -34554,31 +34863,31 @@ export namespace Prisma {
     where?: DeclaracionCargaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DeclaracionCargas to fetch.
      */
     orderBy?: DeclaracionCargaOrderByWithRelationInput | DeclaracionCargaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for searching for DeclaracionCargas.
      */
     cursor?: DeclaracionCargaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DeclaracionCargas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DeclaracionCargas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DeclaracionCargas.
      */
     distinct?: DeclaracionCargaScalarFieldEnum | DeclaracionCargaScalarFieldEnum[]
@@ -34606,31 +34915,31 @@ export namespace Prisma {
     where?: DeclaracionCargaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
+     *
      * Determine the order of DeclaracionCargas to fetch.
      */
     orderBy?: DeclaracionCargaOrderByWithRelationInput | DeclaracionCargaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
+     *
      * Sets the position for listing DeclaracionCargas.
      */
     cursor?: DeclaracionCargaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Take `±n` DeclaracionCargas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
+     *
      * Skip the first `n` DeclaracionCargas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
+     *
      * Filter by unique combinations of DeclaracionCargas.
      */
     distinct?: DeclaracionCargaScalarFieldEnum | DeclaracionCargaScalarFieldEnum[]
@@ -34890,6 +35199,30 @@ export namespace Prisma {
   }
 
   /**
+   * DeclaracionCarga.firmasDigitales
+   */
+  export type DeclaracionCarga$firmasDigitalesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    where?: DocumentoFirmaDigitalWhereInput
+    orderBy?: DocumentoFirmaDigitalOrderByWithRelationInput | DocumentoFirmaDigitalOrderByWithRelationInput[]
+    cursor?: DocumentoFirmaDigitalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DocumentoFirmaDigitalScalarFieldEnum | DocumentoFirmaDigitalScalarFieldEnum[]
+  }
+
+  /**
    * DeclaracionCarga without action
    */
   export type DeclaracionCargaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -34905,6 +35238,1211 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: DeclaracionCargaInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DocumentoFirmaDigital
+   */
+
+  export type AggregateDocumentoFirmaDigital = {
+    _count: DocumentoFirmaDigitalCountAggregateOutputType | null
+    _avg: DocumentoFirmaDigitalAvgAggregateOutputType | null
+    _sum: DocumentoFirmaDigitalSumAggregateOutputType | null
+    _min: DocumentoFirmaDigitalMinAggregateOutputType | null
+    _max: DocumentoFirmaDigitalMaxAggregateOutputType | null
+  }
+
+  export type DocumentoFirmaDigitalAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type DocumentoFirmaDigitalSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type DocumentoFirmaDigitalMinAggregateOutputType = {
+    id: string | null
+    declaracionId: string | null
+    tipo: $Enums.TipoDocumentoFirma | null
+    documentoHash: string | null
+    algoritmoHash: string | null
+    certificadoSerial: string | null
+    certificadoEmisor: string | null
+    firmaPayload: string | null
+    firmadoPorId: string | null
+    firmadoEn: Date | null
+    version: number | null
+    createdAt: Date | null
+  }
+
+  export type DocumentoFirmaDigitalMaxAggregateOutputType = {
+    id: string | null
+    declaracionId: string | null
+    tipo: $Enums.TipoDocumentoFirma | null
+    documentoHash: string | null
+    algoritmoHash: string | null
+    certificadoSerial: string | null
+    certificadoEmisor: string | null
+    firmaPayload: string | null
+    firmadoPorId: string | null
+    firmadoEn: Date | null
+    version: number | null
+    createdAt: Date | null
+  }
+
+  export type DocumentoFirmaDigitalCountAggregateOutputType = {
+    id: number
+    declaracionId: number
+    tipo: number
+    documentoHash: number
+    algoritmoHash: number
+    certificadoSerial: number
+    certificadoEmisor: number
+    firmaPayload: number
+    firmadoPorId: number
+    firmadoEn: number
+    version: number
+    cadenaCustodia: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type DocumentoFirmaDigitalAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type DocumentoFirmaDigitalSumAggregateInputType = {
+    version?: true
+  }
+
+  export type DocumentoFirmaDigitalMinAggregateInputType = {
+    id?: true
+    declaracionId?: true
+    tipo?: true
+    documentoHash?: true
+    algoritmoHash?: true
+    certificadoSerial?: true
+    certificadoEmisor?: true
+    firmaPayload?: true
+    firmadoPorId?: true
+    firmadoEn?: true
+    version?: true
+    createdAt?: true
+  }
+
+  export type DocumentoFirmaDigitalMaxAggregateInputType = {
+    id?: true
+    declaracionId?: true
+    tipo?: true
+    documentoHash?: true
+    algoritmoHash?: true
+    certificadoSerial?: true
+    certificadoEmisor?: true
+    firmaPayload?: true
+    firmadoPorId?: true
+    firmadoEn?: true
+    version?: true
+    createdAt?: true
+  }
+
+  export type DocumentoFirmaDigitalCountAggregateInputType = {
+    id?: true
+    declaracionId?: true
+    tipo?: true
+    documentoHash?: true
+    algoritmoHash?: true
+    certificadoSerial?: true
+    certificadoEmisor?: true
+    firmaPayload?: true
+    firmadoPorId?: true
+    firmadoEn?: true
+    version?: true
+    cadenaCustodia?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type DocumentoFirmaDigitalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DocumentoFirmaDigital to aggregate.
+     */
+    where?: DocumentoFirmaDigitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of DocumentoFirmaDigitals to fetch.
+     */
+    orderBy?: DocumentoFirmaDigitalOrderByWithRelationInput | DocumentoFirmaDigitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the start position
+     */
+    cursor?: DocumentoFirmaDigitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` DocumentoFirmaDigitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` DocumentoFirmaDigitals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Count returned DocumentoFirmaDigitals
+    **/
+    _count?: true | DocumentoFirmaDigitalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to average
+    **/
+    _avg?: DocumentoFirmaDigitalAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to sum
+    **/
+    _sum?: DocumentoFirmaDigitalSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the minimum value
+    **/
+    _min?: DocumentoFirmaDigitalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     *
+     * Select which fields to find the maximum value
+    **/
+    _max?: DocumentoFirmaDigitalMaxAggregateInputType
+  }
+
+  export type GetDocumentoFirmaDigitalAggregateType<T extends DocumentoFirmaDigitalAggregateArgs> = {
+        [P in keyof T & keyof AggregateDocumentoFirmaDigital]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDocumentoFirmaDigital[P]>
+      : GetScalarType<T[P], AggregateDocumentoFirmaDigital[P]>
+  }
+
+
+
+
+  export type DocumentoFirmaDigitalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DocumentoFirmaDigitalWhereInput
+    orderBy?: DocumentoFirmaDigitalOrderByWithAggregationInput | DocumentoFirmaDigitalOrderByWithAggregationInput[]
+    by: DocumentoFirmaDigitalScalarFieldEnum[] | DocumentoFirmaDigitalScalarFieldEnum
+    having?: DocumentoFirmaDigitalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DocumentoFirmaDigitalCountAggregateInputType | true
+    _avg?: DocumentoFirmaDigitalAvgAggregateInputType
+    _sum?: DocumentoFirmaDigitalSumAggregateInputType
+    _min?: DocumentoFirmaDigitalMinAggregateInputType
+    _max?: DocumentoFirmaDigitalMaxAggregateInputType
+  }
+
+  export type DocumentoFirmaDigitalGroupByOutputType = {
+    id: string
+    declaracionId: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoPorId: string
+    firmadoEn: Date
+    version: number
+    cadenaCustodia: JsonValue | null
+    createdAt: Date
+    _count: DocumentoFirmaDigitalCountAggregateOutputType | null
+    _avg: DocumentoFirmaDigitalAvgAggregateOutputType | null
+    _sum: DocumentoFirmaDigitalSumAggregateOutputType | null
+    _min: DocumentoFirmaDigitalMinAggregateOutputType | null
+    _max: DocumentoFirmaDigitalMaxAggregateOutputType | null
+  }
+
+  type GetDocumentoFirmaDigitalGroupByPayload<T extends DocumentoFirmaDigitalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DocumentoFirmaDigitalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DocumentoFirmaDigitalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DocumentoFirmaDigitalGroupByOutputType[P]>
+            : GetScalarType<T[P], DocumentoFirmaDigitalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DocumentoFirmaDigitalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    declaracionId?: boolean
+    tipo?: boolean
+    documentoHash?: boolean
+    algoritmoHash?: boolean
+    certificadoSerial?: boolean
+    certificadoEmisor?: boolean
+    firmaPayload?: boolean
+    firmadoPorId?: boolean
+    firmadoEn?: boolean
+    version?: boolean
+    cadenaCustodia?: boolean
+    createdAt?: boolean
+    declaracion?: boolean | DeclaracionCargaDefaultArgs<ExtArgs>
+    firmadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["documentoFirmaDigital"]>
+
+  export type DocumentoFirmaDigitalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    declaracionId?: boolean
+    tipo?: boolean
+    documentoHash?: boolean
+    algoritmoHash?: boolean
+    certificadoSerial?: boolean
+    certificadoEmisor?: boolean
+    firmaPayload?: boolean
+    firmadoPorId?: boolean
+    firmadoEn?: boolean
+    version?: boolean
+    cadenaCustodia?: boolean
+    createdAt?: boolean
+    declaracion?: boolean | DeclaracionCargaDefaultArgs<ExtArgs>
+    firmadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["documentoFirmaDigital"]>
+
+  export type DocumentoFirmaDigitalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    declaracionId?: boolean
+    tipo?: boolean
+    documentoHash?: boolean
+    algoritmoHash?: boolean
+    certificadoSerial?: boolean
+    certificadoEmisor?: boolean
+    firmaPayload?: boolean
+    firmadoPorId?: boolean
+    firmadoEn?: boolean
+    version?: boolean
+    cadenaCustodia?: boolean
+    createdAt?: boolean
+    declaracion?: boolean | DeclaracionCargaDefaultArgs<ExtArgs>
+    firmadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["documentoFirmaDigital"]>
+
+  export type DocumentoFirmaDigitalSelectScalar = {
+    id?: boolean
+    declaracionId?: boolean
+    tipo?: boolean
+    documentoHash?: boolean
+    algoritmoHash?: boolean
+    certificadoSerial?: boolean
+    certificadoEmisor?: boolean
+    firmaPayload?: boolean
+    firmadoPorId?: boolean
+    firmadoEn?: boolean
+    version?: boolean
+    cadenaCustodia?: boolean
+    createdAt?: boolean
+  }
+
+  export type DocumentoFirmaDigitalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "declaracionId" | "tipo" | "documentoHash" | "algoritmoHash" | "certificadoSerial" | "certificadoEmisor" | "firmaPayload" | "firmadoPorId" | "firmadoEn" | "version" | "cadenaCustodia" | "createdAt", ExtArgs["result"]["documentoFirmaDigital"]>
+  export type DocumentoFirmaDigitalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    declaracion?: boolean | DeclaracionCargaDefaultArgs<ExtArgs>
+    firmadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type DocumentoFirmaDigitalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    declaracion?: boolean | DeclaracionCargaDefaultArgs<ExtArgs>
+    firmadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type DocumentoFirmaDigitalIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    declaracion?: boolean | DeclaracionCargaDefaultArgs<ExtArgs>
+    firmadoPor?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $DocumentoFirmaDigitalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DocumentoFirmaDigital"
+    objects: {
+      declaracion: Prisma.$DeclaracionCargaPayload<ExtArgs>
+      firmadoPor: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      declaracionId: string
+      tipo: $Enums.TipoDocumentoFirma
+      documentoHash: string
+      algoritmoHash: string
+      certificadoSerial: string
+      certificadoEmisor: string
+      firmaPayload: string
+      firmadoPorId: string
+      firmadoEn: Date
+      version: number
+      cadenaCustodia: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["documentoFirmaDigital"]>
+    composites: {}
+  }
+
+  type DocumentoFirmaDigitalGetPayload<S extends boolean | null | undefined | DocumentoFirmaDigitalDefaultArgs> = $Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload, S>
+
+  type DocumentoFirmaDigitalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DocumentoFirmaDigitalFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DocumentoFirmaDigitalCountAggregateInputType | true
+    }
+
+  export interface DocumentoFirmaDigitalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DocumentoFirmaDigital'], meta: { name: 'DocumentoFirmaDigital' } }
+    /**
+     * Find zero or one DocumentoFirmaDigital that matches the filter.
+     * @param {DocumentoFirmaDigitalFindUniqueArgs} args - Arguments to find a DocumentoFirmaDigital
+     * @example
+     * // Get one DocumentoFirmaDigital
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DocumentoFirmaDigitalFindUniqueArgs>(args: SelectSubset<T, DocumentoFirmaDigitalFindUniqueArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DocumentoFirmaDigital that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DocumentoFirmaDigitalFindUniqueOrThrowArgs} args - Arguments to find a DocumentoFirmaDigital
+     * @example
+     * // Get one DocumentoFirmaDigital
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DocumentoFirmaDigitalFindUniqueOrThrowArgs>(args: SelectSubset<T, DocumentoFirmaDigitalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DocumentoFirmaDigital that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFirmaDigitalFindFirstArgs} args - Arguments to find a DocumentoFirmaDigital
+     * @example
+     * // Get one DocumentoFirmaDigital
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DocumentoFirmaDigitalFindFirstArgs>(args?: SelectSubset<T, DocumentoFirmaDigitalFindFirstArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DocumentoFirmaDigital that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFirmaDigitalFindFirstOrThrowArgs} args - Arguments to find a DocumentoFirmaDigital
+     * @example
+     * // Get one DocumentoFirmaDigital
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DocumentoFirmaDigitalFindFirstOrThrowArgs>(args?: SelectSubset<T, DocumentoFirmaDigitalFindFirstOrThrowArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DocumentoFirmaDigitals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFirmaDigitalFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DocumentoFirmaDigitals
+     * const documentoFirmaDigitals = await prisma.documentoFirmaDigital.findMany()
+     *
+     * // Get first 10 DocumentoFirmaDigitals
+     * const documentoFirmaDigitals = await prisma.documentoFirmaDigital.findMany({ take: 10 })
+     *
+     * // Only select the `id`
+     * const documentoFirmaDigitalWithIdOnly = await prisma.documentoFirmaDigital.findMany({ select: { id: true } })
+     *
+     */
+    findMany<T extends DocumentoFirmaDigitalFindManyArgs>(args?: SelectSubset<T, DocumentoFirmaDigitalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DocumentoFirmaDigital.
+     * @param {DocumentoFirmaDigitalCreateArgs} args - Arguments to create a DocumentoFirmaDigital.
+     * @example
+     * // Create one DocumentoFirmaDigital
+     * const DocumentoFirmaDigital = await prisma.documentoFirmaDigital.create({
+     *   data: {
+     *     // ... data to create a DocumentoFirmaDigital
+     *   }
+     * })
+     *
+     */
+    create<T extends DocumentoFirmaDigitalCreateArgs>(args: SelectSubset<T, DocumentoFirmaDigitalCreateArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DocumentoFirmaDigitals.
+     * @param {DocumentoFirmaDigitalCreateManyArgs} args - Arguments to create many DocumentoFirmaDigitals.
+     * @example
+     * // Create many DocumentoFirmaDigitals
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     */
+    createMany<T extends DocumentoFirmaDigitalCreateManyArgs>(args?: SelectSubset<T, DocumentoFirmaDigitalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DocumentoFirmaDigitals and returns the data saved in the database.
+     * @param {DocumentoFirmaDigitalCreateManyAndReturnArgs} args - Arguments to create many DocumentoFirmaDigitals.
+     * @example
+     * // Create many DocumentoFirmaDigitals
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Create many DocumentoFirmaDigitals and only return the `id`
+     * const documentoFirmaDigitalWithIdOnly = await prisma.documentoFirmaDigital.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    createManyAndReturn<T extends DocumentoFirmaDigitalCreateManyAndReturnArgs>(args?: SelectSubset<T, DocumentoFirmaDigitalCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DocumentoFirmaDigital.
+     * @param {DocumentoFirmaDigitalDeleteArgs} args - Arguments to delete one DocumentoFirmaDigital.
+     * @example
+     * // Delete one DocumentoFirmaDigital
+     * const DocumentoFirmaDigital = await prisma.documentoFirmaDigital.delete({
+     *   where: {
+     *     // ... filter to delete one DocumentoFirmaDigital
+     *   }
+     * })
+     *
+     */
+    delete<T extends DocumentoFirmaDigitalDeleteArgs>(args: SelectSubset<T, DocumentoFirmaDigitalDeleteArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DocumentoFirmaDigital.
+     * @param {DocumentoFirmaDigitalUpdateArgs} args - Arguments to update one DocumentoFirmaDigital.
+     * @example
+     * // Update one DocumentoFirmaDigital
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    update<T extends DocumentoFirmaDigitalUpdateArgs>(args: SelectSubset<T, DocumentoFirmaDigitalUpdateArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DocumentoFirmaDigitals.
+     * @param {DocumentoFirmaDigitalDeleteManyArgs} args - Arguments to filter DocumentoFirmaDigitals to delete.
+     * @example
+     * // Delete a few DocumentoFirmaDigitals
+     * const { count } = await prisma.documentoFirmaDigital.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     *
+     */
+    deleteMany<T extends DocumentoFirmaDigitalDeleteManyArgs>(args?: SelectSubset<T, DocumentoFirmaDigitalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DocumentoFirmaDigitals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFirmaDigitalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DocumentoFirmaDigitals
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     *
+     */
+    updateMany<T extends DocumentoFirmaDigitalUpdateManyArgs>(args: SelectSubset<T, DocumentoFirmaDigitalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DocumentoFirmaDigitals and returns the data updated in the database.
+     * @param {DocumentoFirmaDigitalUpdateManyAndReturnArgs} args - Arguments to update many DocumentoFirmaDigitals.
+     * @example
+     * // Update many DocumentoFirmaDigitals
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *
+     * // Update zero or more DocumentoFirmaDigitals and only return the `id`
+     * const documentoFirmaDigitalWithIdOnly = await prisma.documentoFirmaDigital.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     *
+     */
+    updateManyAndReturn<T extends DocumentoFirmaDigitalUpdateManyAndReturnArgs>(args: SelectSubset<T, DocumentoFirmaDigitalUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DocumentoFirmaDigital.
+     * @param {DocumentoFirmaDigitalUpsertArgs} args - Arguments to update or create a DocumentoFirmaDigital.
+     * @example
+     * // Update or create a DocumentoFirmaDigital
+     * const documentoFirmaDigital = await prisma.documentoFirmaDigital.upsert({
+     *   create: {
+     *     // ... data to create a DocumentoFirmaDigital
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DocumentoFirmaDigital we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DocumentoFirmaDigitalUpsertArgs>(args: SelectSubset<T, DocumentoFirmaDigitalUpsertArgs<ExtArgs>>): Prisma__DocumentoFirmaDigitalClient<$Result.GetResult<Prisma.$DocumentoFirmaDigitalPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DocumentoFirmaDigitals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFirmaDigitalCountArgs} args - Arguments to filter DocumentoFirmaDigitals to count.
+     * @example
+     * // Count the number of DocumentoFirmaDigitals
+     * const count = await prisma.documentoFirmaDigital.count({
+     *   where: {
+     *     // ... the filter for the DocumentoFirmaDigitals we want to count
+     *   }
+     * })
+    **/
+    count<T extends DocumentoFirmaDigitalCountArgs>(
+      args?: Subset<T, DocumentoFirmaDigitalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DocumentoFirmaDigitalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DocumentoFirmaDigital.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFirmaDigitalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DocumentoFirmaDigitalAggregateArgs>(args: Subset<T, DocumentoFirmaDigitalAggregateArgs>): Prisma.PrismaPromise<GetDocumentoFirmaDigitalAggregateType<T>>
+
+    /**
+     * Group by DocumentoFirmaDigital.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFirmaDigitalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     *
+    **/
+    groupBy<
+      T extends DocumentoFirmaDigitalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DocumentoFirmaDigitalGroupByArgs['orderBy'] }
+        : { orderBy?: DocumentoFirmaDigitalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DocumentoFirmaDigitalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDocumentoFirmaDigitalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DocumentoFirmaDigital model
+   */
+  readonly fields: DocumentoFirmaDigitalFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DocumentoFirmaDigital.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DocumentoFirmaDigitalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    declaracion<T extends DeclaracionCargaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DeclaracionCargaDefaultArgs<ExtArgs>>): Prisma__DeclaracionCargaClient<$Result.GetResult<Prisma.$DeclaracionCargaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    firmadoPor<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DocumentoFirmaDigital model
+   */
+  interface DocumentoFirmaDigitalFieldRefs {
+    readonly id: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly declaracionId: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly tipo: FieldRef<"DocumentoFirmaDigital", 'TipoDocumentoFirma'>
+    readonly documentoHash: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly algoritmoHash: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly certificadoSerial: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly certificadoEmisor: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly firmaPayload: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly firmadoPorId: FieldRef<"DocumentoFirmaDigital", 'String'>
+    readonly firmadoEn: FieldRef<"DocumentoFirmaDigital", 'DateTime'>
+    readonly version: FieldRef<"DocumentoFirmaDigital", 'Int'>
+    readonly cadenaCustodia: FieldRef<"DocumentoFirmaDigital", 'Json'>
+    readonly createdAt: FieldRef<"DocumentoFirmaDigital", 'DateTime'>
+  }
+
+
+  // Custom InputTypes
+  /**
+   * DocumentoFirmaDigital findUnique
+   */
+  export type DocumentoFirmaDigitalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * Filter, which DocumentoFirmaDigital to fetch.
+     */
+    where: DocumentoFirmaDigitalWhereUniqueInput
+  }
+
+  /**
+   * DocumentoFirmaDigital findUniqueOrThrow
+   */
+  export type DocumentoFirmaDigitalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * Filter, which DocumentoFirmaDigital to fetch.
+     */
+    where: DocumentoFirmaDigitalWhereUniqueInput
+  }
+
+  /**
+   * DocumentoFirmaDigital findFirst
+   */
+  export type DocumentoFirmaDigitalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * Filter, which DocumentoFirmaDigital to fetch.
+     */
+    where?: DocumentoFirmaDigitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of DocumentoFirmaDigitals to fetch.
+     */
+    orderBy?: DocumentoFirmaDigitalOrderByWithRelationInput | DocumentoFirmaDigitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for DocumentoFirmaDigitals.
+     */
+    cursor?: DocumentoFirmaDigitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` DocumentoFirmaDigitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` DocumentoFirmaDigitals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of DocumentoFirmaDigitals.
+     */
+    distinct?: DocumentoFirmaDigitalScalarFieldEnum | DocumentoFirmaDigitalScalarFieldEnum[]
+  }
+
+  /**
+   * DocumentoFirmaDigital findFirstOrThrow
+   */
+  export type DocumentoFirmaDigitalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * Filter, which DocumentoFirmaDigital to fetch.
+     */
+    where?: DocumentoFirmaDigitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of DocumentoFirmaDigitals to fetch.
+     */
+    orderBy?: DocumentoFirmaDigitalOrderByWithRelationInput | DocumentoFirmaDigitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for searching for DocumentoFirmaDigitals.
+     */
+    cursor?: DocumentoFirmaDigitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` DocumentoFirmaDigitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` DocumentoFirmaDigitals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of DocumentoFirmaDigitals.
+     */
+    distinct?: DocumentoFirmaDigitalScalarFieldEnum | DocumentoFirmaDigitalScalarFieldEnum[]
+  }
+
+  /**
+   * DocumentoFirmaDigital findMany
+   */
+  export type DocumentoFirmaDigitalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * Filter, which DocumentoFirmaDigitals to fetch.
+     */
+    where?: DocumentoFirmaDigitalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     *
+     * Determine the order of DocumentoFirmaDigitals to fetch.
+     */
+    orderBy?: DocumentoFirmaDigitalOrderByWithRelationInput | DocumentoFirmaDigitalOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     *
+     * Sets the position for listing DocumentoFirmaDigitals.
+     */
+    cursor?: DocumentoFirmaDigitalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Take `±n` DocumentoFirmaDigitals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     *
+     * Skip the first `n` DocumentoFirmaDigitals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     *
+     * Filter by unique combinations of DocumentoFirmaDigitals.
+     */
+    distinct?: DocumentoFirmaDigitalScalarFieldEnum | DocumentoFirmaDigitalScalarFieldEnum[]
+  }
+
+  /**
+   * DocumentoFirmaDigital create
+   */
+  export type DocumentoFirmaDigitalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DocumentoFirmaDigital.
+     */
+    data: XOR<DocumentoFirmaDigitalCreateInput, DocumentoFirmaDigitalUncheckedCreateInput>
+  }
+
+  /**
+   * DocumentoFirmaDigital createMany
+   */
+  export type DocumentoFirmaDigitalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DocumentoFirmaDigitals.
+     */
+    data: DocumentoFirmaDigitalCreateManyInput | DocumentoFirmaDigitalCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DocumentoFirmaDigital createManyAndReturn
+   */
+  export type DocumentoFirmaDigitalCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * The data used to create many DocumentoFirmaDigitals.
+     */
+    data: DocumentoFirmaDigitalCreateManyInput | DocumentoFirmaDigitalCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DocumentoFirmaDigital update
+   */
+  export type DocumentoFirmaDigitalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DocumentoFirmaDigital.
+     */
+    data: XOR<DocumentoFirmaDigitalUpdateInput, DocumentoFirmaDigitalUncheckedUpdateInput>
+    /**
+     * Choose, which DocumentoFirmaDigital to update.
+     */
+    where: DocumentoFirmaDigitalWhereUniqueInput
+  }
+
+  /**
+   * DocumentoFirmaDigital updateMany
+   */
+  export type DocumentoFirmaDigitalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DocumentoFirmaDigitals.
+     */
+    data: XOR<DocumentoFirmaDigitalUpdateManyMutationInput, DocumentoFirmaDigitalUncheckedUpdateManyInput>
+    /**
+     * Filter which DocumentoFirmaDigitals to update
+     */
+    where?: DocumentoFirmaDigitalWhereInput
+    /**
+     * Limit how many DocumentoFirmaDigitals to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DocumentoFirmaDigital updateManyAndReturn
+   */
+  export type DocumentoFirmaDigitalUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * The data used to update DocumentoFirmaDigitals.
+     */
+    data: XOR<DocumentoFirmaDigitalUpdateManyMutationInput, DocumentoFirmaDigitalUncheckedUpdateManyInput>
+    /**
+     * Filter which DocumentoFirmaDigitals to update
+     */
+    where?: DocumentoFirmaDigitalWhereInput
+    /**
+     * Limit how many DocumentoFirmaDigitals to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DocumentoFirmaDigital upsert
+   */
+  export type DocumentoFirmaDigitalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DocumentoFirmaDigital to update in case it exists.
+     */
+    where: DocumentoFirmaDigitalWhereUniqueInput
+    /**
+     * In case the DocumentoFirmaDigital found by the `where` argument doesn't exist, create a new DocumentoFirmaDigital with this data.
+     */
+    create: XOR<DocumentoFirmaDigitalCreateInput, DocumentoFirmaDigitalUncheckedCreateInput>
+    /**
+     * In case the DocumentoFirmaDigital was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DocumentoFirmaDigitalUpdateInput, DocumentoFirmaDigitalUncheckedUpdateInput>
+  }
+
+  /**
+   * DocumentoFirmaDigital delete
+   */
+  export type DocumentoFirmaDigitalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
+    /**
+     * Filter which DocumentoFirmaDigital to delete.
+     */
+    where: DocumentoFirmaDigitalWhereUniqueInput
+  }
+
+  /**
+   * DocumentoFirmaDigital deleteMany
+   */
+  export type DocumentoFirmaDigitalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DocumentoFirmaDigitals to delete
+     */
+    where?: DocumentoFirmaDigitalWhereInput
+    /**
+     * Limit how many DocumentoFirmaDigitals to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DocumentoFirmaDigital without action
+   */
+  export type DocumentoFirmaDigitalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DocumentoFirmaDigital
+     */
+    select?: DocumentoFirmaDigitalSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DocumentoFirmaDigital
+     */
+    omit?: DocumentoFirmaDigitalOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DocumentoFirmaDigitalInclude<ExtArgs> | null
   }
 
 
@@ -35005,7 +36543,13 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     accion: 'accion',
+    entidad: 'entidad',
+    entidadId: 'entidadId',
     detalles: 'detalles',
+    antes: 'antes',
+    despues: 'despues',
+    motivo: 'motivo',
+    correlationId: 'correlationId',
     ip: 'ip',
     userAgent: 'userAgent',
     createdAt: 'createdAt'
@@ -35079,6 +36623,7 @@ export namespace Prisma {
   export const DisponibilidadDocenteScalarFieldEnum: {
     id: 'id',
     docenteId: 'docenteId',
+    periodoId: 'periodoId',
     franjaHorariaId: 'franjaHorariaId',
     createdAt: 'createdAt'
   };
@@ -35301,12 +36846,39 @@ export namespace Prisma {
   export type DeclaracionCargaScalarFieldEnum = (typeof DeclaracionCargaScalarFieldEnum)[keyof typeof DeclaracionCargaScalarFieldEnum]
 
 
+  export const DocumentoFirmaDigitalScalarFieldEnum: {
+    id: 'id',
+    declaracionId: 'declaracionId',
+    tipo: 'tipo',
+    documentoHash: 'documentoHash',
+    algoritmoHash: 'algoritmoHash',
+    certificadoSerial: 'certificadoSerial',
+    certificadoEmisor: 'certificadoEmisor',
+    firmaPayload: 'firmaPayload',
+    firmadoPorId: 'firmadoPorId',
+    firmadoEn: 'firmadoEn',
+    version: 'version',
+    cadenaCustodia: 'cadenaCustodia',
+    createdAt: 'createdAt'
+  };
+
+  export type DocumentoFirmaDigitalScalarFieldEnum = (typeof DocumentoFirmaDigitalScalarFieldEnum)[keyof typeof DocumentoFirmaDigitalScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -35325,6 +36897,15 @@ export namespace Prisma {
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
   /**
    * Field references
    */
@@ -35334,217 +36915,245 @@ export namespace Prisma {
    * Reference to a field of type 'String'
    */
   export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
-    
+
 
 
   /**
    * Reference to a field of type 'String[]'
    */
   export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
+
 
 
   /**
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
+
 
 
   /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
+
 
 
   /**
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'UserRole'
    */
   export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
-    
+
 
 
   /**
    * Reference to a field of type 'UserRole[]'
    */
   export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
-    
+
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+
 
 
   /**
    * Reference to a field of type 'CategoriaDocente'
    */
   export type EnumCategoriaDocenteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoriaDocente'>
-    
+
 
 
   /**
    * Reference to a field of type 'CategoriaDocente[]'
    */
   export type ListEnumCategoriaDocenteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoriaDocente[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoDocente'
    */
   export type EnumTipoDocenteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoDocente'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoDocente[]'
    */
   export type ListEnumTipoDocenteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoDocente[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'ModalidadDocente'
    */
   export type EnumModalidadDocenteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModalidadDocente'>
-    
+
 
 
   /**
    * Reference to a field of type 'ModalidadDocente[]'
    */
   export type ListEnumModalidadDocenteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModalidadDocente[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
+
 
 
   /**
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoAula'
    */
   export type EnumTipoAulaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAula'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoAula[]'
    */
   export type ListEnumTipoAulaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAula[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'EstadoPeriodo'
    */
   export type EnumEstadoPeriodoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoPeriodo'>
-    
+
 
 
   /**
    * Reference to a field of type 'EstadoPeriodo[]'
    */
   export type ListEnumEstadoPeriodoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoPeriodo[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'DiaSemana'
    */
   export type EnumDiaSemanaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiaSemana'>
-    
+
 
 
   /**
    * Reference to a field of type 'DiaSemana[]'
    */
   export type ListEnumDiaSemanaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiaSemana[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoAsignacion'
    */
   export type EnumTipoAsignacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAsignacion'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoAsignacion[]'
    */
   export type ListEnumTipoAsignacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAsignacion[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoRestriccion'
    */
   export type EnumTipoRestriccionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoRestriccion'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoRestriccion[]'
    */
   export type ListEnumTipoRestriccionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoRestriccion[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoCargaNoLectiva'
    */
   export type EnumTipoCargaNoLectivaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCargaNoLectiva'>
-    
+
 
 
   /**
    * Reference to a field of type 'TipoCargaNoLectiva[]'
    */
   export type ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCargaNoLectiva[]'>
-    
+
 
 
   /**
    * Reference to a field of type 'EstadoDeclaracion'
    */
   export type EnumEstadoDeclaracionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoDeclaracion'>
-    
+
 
 
   /**
    * Reference to a field of type 'EstadoDeclaracion[]'
    */
   export type ListEnumEstadoDeclaracionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoDeclaracion[]'>
-    
+
+
+
+  /**
+   * Reference to a field of type 'TipoDocumentoFirma'
+   */
+  export type EnumTipoDocumentoFirmaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoDocumentoFirma'>
+
+
+
+  /**
+   * Reference to a field of type 'TipoDocumentoFirma[]'
+   */
+  export type ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoDocumentoFirma[]'>
+
   /**
    * Deep Input Types
    */
@@ -35932,6 +37541,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaListRelationFilter
     declaracionesAprobEscuela?: DeclaracionCargaListRelationFilter
     declaracionesVBDecano?: DeclaracionCargaListRelationFilter
+    firmasDigitales?: DocumentoFirmaDigitalListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -35955,6 +37565,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaOrderByRelationAggregateInput
     declaracionesAprobEscuela?: DeclaracionCargaOrderByRelationAggregateInput
     declaracionesVBDecano?: DeclaracionCargaOrderByRelationAggregateInput
+    firmasDigitales?: DocumentoFirmaDigitalOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -35981,6 +37592,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaListRelationFilter
     declaracionesAprobEscuela?: DeclaracionCargaListRelationFilter
     declaracionesVBDecano?: DeclaracionCargaListRelationFilter
+    firmasDigitales?: DocumentoFirmaDigitalListRelationFilter
   }, "id" | "email" | "docenteId">
 
   export type UserOrderByWithAggregationInput = {
@@ -36020,7 +37632,13 @@ export namespace Prisma {
     id?: StringFilter<"Log"> | string
     userId?: StringNullableFilter<"Log"> | string | null
     accion?: StringFilter<"Log"> | string
+    entidad?: StringNullableFilter<"Log"> | string | null
+    entidadId?: StringNullableFilter<"Log"> | string | null
     detalles?: StringNullableFilter<"Log"> | string | null
+    antes?: JsonNullableFilter<"Log">
+    despues?: JsonNullableFilter<"Log">
+    motivo?: StringNullableFilter<"Log"> | string | null
+    correlationId?: StringNullableFilter<"Log"> | string | null
     ip?: StringNullableFilter<"Log"> | string | null
     userAgent?: StringNullableFilter<"Log"> | string | null
     createdAt?: DateTimeFilter<"Log"> | Date | string
@@ -36031,7 +37649,13 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
     accion?: SortOrder
+    entidad?: SortOrderInput | SortOrder
+    entidadId?: SortOrderInput | SortOrder
     detalles?: SortOrderInput | SortOrder
+    antes?: SortOrderInput | SortOrder
+    despues?: SortOrderInput | SortOrder
+    motivo?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
     ip?: SortOrderInput | SortOrder
     userAgent?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -36045,7 +37669,13 @@ export namespace Prisma {
     NOT?: LogWhereInput | LogWhereInput[]
     userId?: StringNullableFilter<"Log"> | string | null
     accion?: StringFilter<"Log"> | string
+    entidad?: StringNullableFilter<"Log"> | string | null
+    entidadId?: StringNullableFilter<"Log"> | string | null
     detalles?: StringNullableFilter<"Log"> | string | null
+    antes?: JsonNullableFilter<"Log">
+    despues?: JsonNullableFilter<"Log">
+    motivo?: StringNullableFilter<"Log"> | string | null
+    correlationId?: StringNullableFilter<"Log"> | string | null
     ip?: StringNullableFilter<"Log"> | string | null
     userAgent?: StringNullableFilter<"Log"> | string | null
     createdAt?: DateTimeFilter<"Log"> | Date | string
@@ -36056,7 +37686,13 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
     accion?: SortOrder
+    entidad?: SortOrderInput | SortOrder
+    entidadId?: SortOrderInput | SortOrder
     detalles?: SortOrderInput | SortOrder
+    antes?: SortOrderInput | SortOrder
+    despues?: SortOrderInput | SortOrder
+    motivo?: SortOrderInput | SortOrder
+    correlationId?: SortOrderInput | SortOrder
     ip?: SortOrderInput | SortOrder
     userAgent?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -36072,7 +37708,13 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Log"> | string
     userId?: StringNullableWithAggregatesFilter<"Log"> | string | null
     accion?: StringWithAggregatesFilter<"Log"> | string
+    entidad?: StringNullableWithAggregatesFilter<"Log"> | string | null
+    entidadId?: StringNullableWithAggregatesFilter<"Log"> | string | null
     detalles?: StringNullableWithAggregatesFilter<"Log"> | string | null
+    antes?: JsonNullableWithAggregatesFilter<"Log">
+    despues?: JsonNullableWithAggregatesFilter<"Log">
+    motivo?: StringNullableWithAggregatesFilter<"Log"> | string | null
+    correlationId?: StringNullableWithAggregatesFilter<"Log"> | string | null
     ip?: StringNullableWithAggregatesFilter<"Log"> | string | null
     userAgent?: StringNullableWithAggregatesFilter<"Log"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Log"> | Date | string
@@ -36440,37 +38082,44 @@ export namespace Prisma {
     NOT?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     id?: StringFilter<"DisponibilidadDocente"> | string
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
+    periodoId?: StringFilter<"DisponibilidadDocente"> | string
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
+    periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
     franjaHoraria?: XOR<FranjaHorariaScalarRelationFilter, FranjaHorariaWhereInput>
   }
 
   export type DisponibilidadDocenteOrderByWithRelationInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    periodoId?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     docente?: DocenteOrderByWithRelationInput
+    periodo?: PeriodoAcademicoOrderByWithRelationInput
     franjaHoraria?: FranjaHorariaOrderByWithRelationInput
   }
 
   export type DisponibilidadDocenteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    docenteId_franjaHorariaId?: DisponibilidadDocenteDocenteIdFranjaHorariaIdCompoundUniqueInput
+    docenteId_periodoId_franjaHorariaId?: DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdCompoundUniqueInput
     AND?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     OR?: DisponibilidadDocenteWhereInput[]
     NOT?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
+    periodoId?: StringFilter<"DisponibilidadDocente"> | string
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
+    periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
     franjaHoraria?: XOR<FranjaHorariaScalarRelationFilter, FranjaHorariaWhereInput>
-  }, "id" | "docenteId_franjaHorariaId">
+  }, "id" | "docenteId_periodoId_franjaHorariaId">
 
   export type DisponibilidadDocenteOrderByWithAggregationInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    periodoId?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     _count?: DisponibilidadDocenteCountOrderByAggregateInput
@@ -36484,6 +38133,7 @@ export namespace Prisma {
     NOT?: DisponibilidadDocenteScalarWhereWithAggregatesInput | DisponibilidadDocenteScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     docenteId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
+    periodoId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     franjaHorariaId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeWithAggregatesFilter<"DisponibilidadDocente"> | Date | string
   }
@@ -36744,6 +38394,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaListRelationFilter
     cargasNoLectivas?: CargaNoLectivaListRelationFilter
     declaraciones?: DeclaracionCargaListRelationFilter
+    disponibilidades?: DisponibilidadDocenteListRelationFilter
   }
 
   export type PeriodoAcademicoOrderByWithRelationInput = {
@@ -36765,6 +38416,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaOrderByRelationAggregateInput
     cargasNoLectivas?: CargaNoLectivaOrderByRelationAggregateInput
     declaraciones?: DeclaracionCargaOrderByRelationAggregateInput
+    disponibilidades?: DisponibilidadDocenteOrderByRelationAggregateInput
   }
 
   export type PeriodoAcademicoWhereUniqueInput = Prisma.AtLeast<{
@@ -36789,6 +38441,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaListRelationFilter
     cargasNoLectivas?: CargaNoLectivaListRelationFilter
     declaraciones?: DeclaracionCargaListRelationFilter
+    disponibilidades?: DisponibilidadDocenteListRelationFilter
   }, "id" | "nombre">
 
   export type PeriodoAcademicoOrderByWithAggregationInput = {
@@ -37339,6 +38992,7 @@ export namespace Prisma {
   export type AsignacionCargaLectivaWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     docenteId_grupoId_periodoId_tipo?: AsignacionCargaLectivaDocenteIdGrupoIdPeriodoIdTipoCompoundUniqueInput
+    grupoId_periodoId_tipo?: AsignacionCargaLectivaGrupoIdPeriodoIdTipoCompoundUniqueInput
     AND?: AsignacionCargaLectivaWhereInput | AsignacionCargaLectivaWhereInput[]
     OR?: AsignacionCargaLectivaWhereInput[]
     NOT?: AsignacionCargaLectivaWhereInput | AsignacionCargaLectivaWhereInput[]
@@ -37355,7 +39009,7 @@ export namespace Prisma {
     docenteCompartido?: XOR<DocenteNullableScalarRelationFilter, DocenteWhereInput> | null
     grupo?: XOR<GrupoScalarRelationFilter, GrupoWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
-  }, "id" | "docenteId_grupoId_periodoId_tipo">
+  }, "id" | "docenteId_grupoId_periodoId_tipo" | "grupoId_periodoId_tipo">
 
   export type AsignacionCargaLectivaOrderByWithAggregationInput = {
     id?: SortOrder
@@ -37586,6 +39240,7 @@ export namespace Prisma {
     aprobadorDepto?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     aprobadorEscuela?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     vbDecano?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    firmasDigitales?: DocumentoFirmaDigitalListRelationFilter
   }
 
   export type DeclaracionCargaOrderByWithRelationInput = {
@@ -37612,6 +39267,7 @@ export namespace Prisma {
     aprobadorDepto?: UserOrderByWithRelationInput
     aprobadorEscuela?: UserOrderByWithRelationInput
     vbDecano?: UserOrderByWithRelationInput
+    firmasDigitales?: DocumentoFirmaDigitalOrderByRelationAggregateInput
   }
 
   export type DeclaracionCargaWhereUniqueInput = Prisma.AtLeast<{
@@ -37642,6 +39298,7 @@ export namespace Prisma {
     aprobadorDepto?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     aprobadorEscuela?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     vbDecano?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    firmasDigitales?: DocumentoFirmaDigitalListRelationFilter
   }, "id" | "docenteId_periodoId">
 
   export type DeclaracionCargaOrderByWithAggregationInput = {
@@ -37692,6 +39349,107 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolWithAggregatesFilter<"DeclaracionCarga"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"DeclaracionCarga"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"DeclaracionCarga"> | Date | string
+  }
+
+  export type DocumentoFirmaDigitalWhereInput = {
+    AND?: DocumentoFirmaDigitalWhereInput | DocumentoFirmaDigitalWhereInput[]
+    OR?: DocumentoFirmaDigitalWhereInput[]
+    NOT?: DocumentoFirmaDigitalWhereInput | DocumentoFirmaDigitalWhereInput[]
+    id?: StringFilter<"DocumentoFirmaDigital"> | string
+    declaracionId?: StringFilter<"DocumentoFirmaDigital"> | string
+    tipo?: EnumTipoDocumentoFirmaFilter<"DocumentoFirmaDigital"> | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFilter<"DocumentoFirmaDigital"> | string
+    algoritmoHash?: StringFilter<"DocumentoFirmaDigital"> | string
+    certificadoSerial?: StringFilter<"DocumentoFirmaDigital"> | string
+    certificadoEmisor?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmaPayload?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmadoPorId?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmadoEn?: DateTimeFilter<"DocumentoFirmaDigital"> | Date | string
+    version?: IntFilter<"DocumentoFirmaDigital"> | number
+    cadenaCustodia?: JsonNullableFilter<"DocumentoFirmaDigital">
+    createdAt?: DateTimeFilter<"DocumentoFirmaDigital"> | Date | string
+    declaracion?: XOR<DeclaracionCargaScalarRelationFilter, DeclaracionCargaWhereInput>
+    firmadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type DocumentoFirmaDigitalOrderByWithRelationInput = {
+    id?: SortOrder
+    declaracionId?: SortOrder
+    tipo?: SortOrder
+    documentoHash?: SortOrder
+    algoritmoHash?: SortOrder
+    certificadoSerial?: SortOrder
+    certificadoEmisor?: SortOrder
+    firmaPayload?: SortOrder
+    firmadoPorId?: SortOrder
+    firmadoEn?: SortOrder
+    version?: SortOrder
+    cadenaCustodia?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    declaracion?: DeclaracionCargaOrderByWithRelationInput
+    firmadoPor?: UserOrderByWithRelationInput
+  }
+
+  export type DocumentoFirmaDigitalWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    declaracionId_tipo_version?: DocumentoFirmaDigitalDeclaracionIdTipoVersionCompoundUniqueInput
+    AND?: DocumentoFirmaDigitalWhereInput | DocumentoFirmaDigitalWhereInput[]
+    OR?: DocumentoFirmaDigitalWhereInput[]
+    NOT?: DocumentoFirmaDigitalWhereInput | DocumentoFirmaDigitalWhereInput[]
+    declaracionId?: StringFilter<"DocumentoFirmaDigital"> | string
+    tipo?: EnumTipoDocumentoFirmaFilter<"DocumentoFirmaDigital"> | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFilter<"DocumentoFirmaDigital"> | string
+    algoritmoHash?: StringFilter<"DocumentoFirmaDigital"> | string
+    certificadoSerial?: StringFilter<"DocumentoFirmaDigital"> | string
+    certificadoEmisor?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmaPayload?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmadoPorId?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmadoEn?: DateTimeFilter<"DocumentoFirmaDigital"> | Date | string
+    version?: IntFilter<"DocumentoFirmaDigital"> | number
+    cadenaCustodia?: JsonNullableFilter<"DocumentoFirmaDigital">
+    createdAt?: DateTimeFilter<"DocumentoFirmaDigital"> | Date | string
+    declaracion?: XOR<DeclaracionCargaScalarRelationFilter, DeclaracionCargaWhereInput>
+    firmadoPor?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "declaracionId_tipo_version">
+
+  export type DocumentoFirmaDigitalOrderByWithAggregationInput = {
+    id?: SortOrder
+    declaracionId?: SortOrder
+    tipo?: SortOrder
+    documentoHash?: SortOrder
+    algoritmoHash?: SortOrder
+    certificadoSerial?: SortOrder
+    certificadoEmisor?: SortOrder
+    firmaPayload?: SortOrder
+    firmadoPorId?: SortOrder
+    firmadoEn?: SortOrder
+    version?: SortOrder
+    cadenaCustodia?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: DocumentoFirmaDigitalCountOrderByAggregateInput
+    _avg?: DocumentoFirmaDigitalAvgOrderByAggregateInput
+    _max?: DocumentoFirmaDigitalMaxOrderByAggregateInput
+    _min?: DocumentoFirmaDigitalMinOrderByAggregateInput
+    _sum?: DocumentoFirmaDigitalSumOrderByAggregateInput
+  }
+
+  export type DocumentoFirmaDigitalScalarWhereWithAggregatesInput = {
+    AND?: DocumentoFirmaDigitalScalarWhereWithAggregatesInput | DocumentoFirmaDigitalScalarWhereWithAggregatesInput[]
+    OR?: DocumentoFirmaDigitalScalarWhereWithAggregatesInput[]
+    NOT?: DocumentoFirmaDigitalScalarWhereWithAggregatesInput | DocumentoFirmaDigitalScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    declaracionId?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    tipo?: EnumTipoDocumentoFirmaWithAggregatesFilter<"DocumentoFirmaDigital"> | $Enums.TipoDocumentoFirma
+    documentoHash?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    algoritmoHash?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    certificadoSerial?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    certificadoEmisor?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    firmaPayload?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    firmadoPorId?: StringWithAggregatesFilter<"DocumentoFirmaDigital"> | string
+    firmadoEn?: DateTimeWithAggregatesFilter<"DocumentoFirmaDigital"> | Date | string
+    version?: IntWithAggregatesFilter<"DocumentoFirmaDigital"> | number
+    cadenaCustodia?: JsonNullableWithAggregatesFilter<"DocumentoFirmaDigital">
+    createdAt?: DateTimeWithAggregatesFilter<"DocumentoFirmaDigital"> | Date | string
   }
 
   export type FacultadCreateInput = {
@@ -38067,6 +39825,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -38089,6 +39848,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUpdateInput = {
@@ -38111,6 +39871,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -38133,6 +39894,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -38173,7 +39935,13 @@ export namespace Prisma {
   export type LogCreateInput = {
     id?: string
     accion: string
+    entidad?: string | null
+    entidadId?: string | null
     detalles?: string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: string | null
+    correlationId?: string | null
     ip?: string | null
     userAgent?: string | null
     createdAt?: Date | string
@@ -38184,7 +39952,13 @@ export namespace Prisma {
     id?: string
     userId?: string | null
     accion: string
+    entidad?: string | null
+    entidadId?: string | null
     detalles?: string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: string | null
+    correlationId?: string | null
     ip?: string | null
     userAgent?: string | null
     createdAt?: Date | string
@@ -38193,7 +39967,13 @@ export namespace Prisma {
   export type LogUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     accion?: StringFieldUpdateOperationsInput | string
+    entidad?: NullableStringFieldUpdateOperationsInput | string | null
+    entidadId?: NullableStringFieldUpdateOperationsInput | string | null
     detalles?: NullableStringFieldUpdateOperationsInput | string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38204,7 +39984,13 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     accion?: StringFieldUpdateOperationsInput | string
+    entidad?: NullableStringFieldUpdateOperationsInput | string | null
+    entidadId?: NullableStringFieldUpdateOperationsInput | string | null
     detalles?: NullableStringFieldUpdateOperationsInput | string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38214,7 +40000,13 @@ export namespace Prisma {
     id?: string
     userId?: string | null
     accion: string
+    entidad?: string | null
+    entidadId?: string | null
     detalles?: string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: string | null
+    correlationId?: string | null
     ip?: string | null
     userAgent?: string | null
     createdAt?: Date | string
@@ -38223,7 +40015,13 @@ export namespace Prisma {
   export type LogUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     accion?: StringFieldUpdateOperationsInput | string
+    entidad?: NullableStringFieldUpdateOperationsInput | string | null
+    entidadId?: NullableStringFieldUpdateOperationsInput | string | null
     detalles?: NullableStringFieldUpdateOperationsInput | string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38233,7 +40031,13 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     accion?: StringFieldUpdateOperationsInput | string
+    entidad?: NullableStringFieldUpdateOperationsInput | string | null
+    entidadId?: NullableStringFieldUpdateOperationsInput | string | null
     detalles?: NullableStringFieldUpdateOperationsInput | string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38672,12 +40476,14 @@ export namespace Prisma {
     id?: string
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
+    periodo: PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
   }
 
   export type DisponibilidadDocenteUncheckedCreateInput = {
     id?: string
     docenteId: string
+    periodoId: string
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -38686,12 +40492,14 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
   }
 
   export type DisponibilidadDocenteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -38699,6 +40507,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateManyInput = {
     id?: string
     docenteId: string
+    periodoId: string
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -38711,6 +40520,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -38977,6 +40787,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateInput = {
@@ -38997,6 +40808,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUpdateInput = {
@@ -39017,6 +40829,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateInput = {
@@ -39037,6 +40850,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoCreateManyInput = {
@@ -39822,6 +41636,7 @@ export namespace Prisma {
     aprobadorDepto?: UserCreateNestedOneWithoutDeclaracionesAprobDeptoInput
     aprobadorEscuela?: UserCreateNestedOneWithoutDeclaracionesAprobEscuelaInput
     vbDecano?: UserCreateNestedOneWithoutDeclaracionesVBDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaUncheckedCreateInput = {
@@ -39843,6 +41658,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaUpdateInput = {
@@ -39864,6 +41680,7 @@ export namespace Prisma {
     aprobadorDepto?: UserUpdateOneWithoutDeclaracionesAprobDeptoNestedInput
     aprobadorEscuela?: UserUpdateOneWithoutDeclaracionesAprobEscuelaNestedInput
     vbDecano?: UserUpdateOneWithoutDeclaracionesVBDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateInput = {
@@ -39885,6 +41702,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaCreateManyInput = {
@@ -39943,6 +41761,116 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoFirmaDigitalCreateInput = {
+    id?: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    declaracion: DeclaracionCargaCreateNestedOneWithoutFirmasDigitalesInput
+    firmadoPor: UserCreateNestedOneWithoutFirmasDigitalesInput
+  }
+
+  export type DocumentoFirmaDigitalUncheckedCreateInput = {
+    id?: string
+    declaracionId: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoPorId: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DocumentoFirmaDigitalUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    declaracion?: DeclaracionCargaUpdateOneRequiredWithoutFirmasDigitalesNestedInput
+    firmadoPor?: UserUpdateOneRequiredWithoutFirmasDigitalesNestedInput
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    declaracionId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoPorId?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoFirmaDigitalCreateManyInput = {
+    id?: string
+    declaracionId: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoPorId: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DocumentoFirmaDigitalUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    declaracionId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoPorId?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -40404,6 +42332,12 @@ export namespace Prisma {
     none?: DeclaracionCargaWhereInput
   }
 
+  export type DocumentoFirmaDigitalListRelationFilter = {
+    every?: DocumentoFirmaDigitalWhereInput
+    some?: DocumentoFirmaDigitalWhereInput
+    none?: DocumentoFirmaDigitalWhereInput
+  }
+
   export type LogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -40413,6 +42347,10 @@ export namespace Prisma {
   }
 
   export type DeclaracionCargaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DocumentoFirmaDigitalOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -40461,12 +42399,41 @@ export namespace Prisma {
     _min?: NestedEnumUserRoleFilter<$PrismaModel>
     _max?: NestedEnumUserRoleFilter<$PrismaModel>
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type LogCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     accion?: SortOrder
+    entidad?: SortOrder
+    entidadId?: SortOrder
     detalles?: SortOrder
+    antes?: SortOrder
+    despues?: SortOrder
+    motivo?: SortOrder
+    correlationId?: SortOrder
     ip?: SortOrder
     userAgent?: SortOrder
     createdAt?: SortOrder
@@ -40476,7 +42443,11 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     accion?: SortOrder
+    entidad?: SortOrder
+    entidadId?: SortOrder
     detalles?: SortOrder
+    motivo?: SortOrder
+    correlationId?: SortOrder
     ip?: SortOrder
     userAgent?: SortOrder
     createdAt?: SortOrder
@@ -40486,10 +42457,40 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     accion?: SortOrder
+    entidad?: SortOrder
+    entidadId?: SortOrder
     detalles?: SortOrder
+    motivo?: SortOrder
+    correlationId?: SortOrder
     ip?: SortOrder
     userAgent?: SortOrder
     createdAt?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumCategoriaDocenteFilter<$PrismaModel = never> = {
@@ -40835,19 +42836,26 @@ export namespace Prisma {
     experienciaMinima?: SortOrder
   }
 
+  export type PeriodoAcademicoScalarRelationFilter = {
+    is?: PeriodoAcademicoWhereInput
+    isNot?: PeriodoAcademicoWhereInput
+  }
+
   export type FranjaHorariaScalarRelationFilter = {
     is?: FranjaHorariaWhereInput
     isNot?: FranjaHorariaWhereInput
   }
 
-  export type DisponibilidadDocenteDocenteIdFranjaHorariaIdCompoundUniqueInput = {
+  export type DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdCompoundUniqueInput = {
     docenteId: string
+    periodoId: string
     franjaHorariaId: string
   }
 
   export type DisponibilidadDocenteCountOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    periodoId?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
   }
@@ -40855,6 +42863,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteMaxOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    periodoId?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
   }
@@ -40862,6 +42871,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteMinOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    periodoId?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
   }
@@ -40933,11 +42943,6 @@ export namespace Prisma {
     _sum?: NestedFloatFilter<$PrismaModel>
     _min?: NestedFloatFilter<$PrismaModel>
     _max?: NestedFloatFilter<$PrismaModel>
-  }
-
-  export type PeriodoAcademicoScalarRelationFilter = {
-    is?: PeriodoAcademicoWhereInput
-    isNot?: PeriodoAcademicoWhereInput
   }
 
   export type GrupoCursoIdNombrePeriodoAcademicoIdCompoundUniqueInput = {
@@ -41433,6 +43438,12 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
   }
 
+  export type AsignacionCargaLectivaGrupoIdPeriodoIdTipoCompoundUniqueInput = {
+    grupoId: string
+    periodoId: string
+    tipo: $Enums.TipoAsignacion
+  }
+
   export type AsignacionCargaLectivaCountOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
@@ -41722,6 +43733,93 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEstadoDeclaracionFilter<$PrismaModel>
     _max?: NestedEnumEstadoDeclaracionFilter<$PrismaModel>
+  }
+
+  export type EnumTipoDocumentoFirmaFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFirma | EnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFirmaFilter<$PrismaModel> | $Enums.TipoDocumentoFirma
+  }
+
+  export type DeclaracionCargaScalarRelationFilter = {
+    is?: DeclaracionCargaWhereInput
+    isNot?: DeclaracionCargaWhereInput
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type DocumentoFirmaDigitalDeclaracionIdTipoVersionCompoundUniqueInput = {
+    declaracionId: string
+    tipo: $Enums.TipoDocumentoFirma
+    version: number
+  }
+
+  export type DocumentoFirmaDigitalCountOrderByAggregateInput = {
+    id?: SortOrder
+    declaracionId?: SortOrder
+    tipo?: SortOrder
+    documentoHash?: SortOrder
+    algoritmoHash?: SortOrder
+    certificadoSerial?: SortOrder
+    certificadoEmisor?: SortOrder
+    firmaPayload?: SortOrder
+    firmadoPorId?: SortOrder
+    firmadoEn?: SortOrder
+    version?: SortOrder
+    cadenaCustodia?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DocumentoFirmaDigitalAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type DocumentoFirmaDigitalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    declaracionId?: SortOrder
+    tipo?: SortOrder
+    documentoHash?: SortOrder
+    algoritmoHash?: SortOrder
+    certificadoSerial?: SortOrder
+    certificadoEmisor?: SortOrder
+    firmaPayload?: SortOrder
+    firmadoPorId?: SortOrder
+    firmadoEn?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DocumentoFirmaDigitalMinOrderByAggregateInput = {
+    id?: SortOrder
+    declaracionId?: SortOrder
+    tipo?: SortOrder
+    documentoHash?: SortOrder
+    algoritmoHash?: SortOrder
+    certificadoSerial?: SortOrder
+    certificadoEmisor?: SortOrder
+    firmaPayload?: SortOrder
+    firmadoPorId?: SortOrder
+    firmadoEn?: SortOrder
+    version?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DocumentoFirmaDigitalSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type EnumTipoDocumentoFirmaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFirma | EnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFirmaWithAggregatesFilter<$PrismaModel> | $Enums.TipoDocumentoFirma
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoDocumentoFirmaFilter<$PrismaModel>
+    _max?: NestedEnumTipoDocumentoFirmaFilter<$PrismaModel>
   }
 
   export type DepartamentoCreateNestedManyWithoutFacultadInput = {
@@ -42185,6 +44283,13 @@ export namespace Prisma {
     connect?: DeclaracionCargaWhereUniqueInput | DeclaracionCargaWhereUniqueInput[]
   }
 
+  export type DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput> | DocumentoFirmaDigitalCreateWithoutFirmadoPorInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput | DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyFirmadoPorInputEnvelope
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+  }
+
   export type LogUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<LogCreateWithoutUserInput, LogUncheckedCreateWithoutUserInput> | LogCreateWithoutUserInput[] | LogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: LogCreateOrConnectWithoutUserInput | LogCreateOrConnectWithoutUserInput[]
@@ -42250,6 +44355,13 @@ export namespace Prisma {
     connectOrCreate?: DeclaracionCargaCreateOrConnectWithoutVbDecanoInput | DeclaracionCargaCreateOrConnectWithoutVbDecanoInput[]
     createMany?: DeclaracionCargaCreateManyVbDecanoInputEnvelope
     connect?: DeclaracionCargaWhereUniqueInput | DeclaracionCargaWhereUniqueInput[]
+  }
+
+  export type DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput> | DocumentoFirmaDigitalCreateWithoutFirmadoPorInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput | DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyFirmadoPorInputEnvelope
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
   }
 
   export type EnumUserRoleFieldUpdateOperationsInput = {
@@ -42394,6 +44506,20 @@ export namespace Prisma {
     deleteMany?: DeclaracionCargaScalarWhereInput | DeclaracionCargaScalarWhereInput[]
   }
 
+  export type DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput> | DocumentoFirmaDigitalCreateWithoutFirmadoPorInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput | DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput[]
+    upsert?: DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutFirmadoPorInput | DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutFirmadoPorInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyFirmadoPorInputEnvelope
+    set?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    disconnect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    delete?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    update?: DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutFirmadoPorInput | DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutFirmadoPorInput[]
+    updateMany?: DocumentoFirmaDigitalUpdateManyWithWhereWithoutFirmadoPorInput | DocumentoFirmaDigitalUpdateManyWithWhereWithoutFirmadoPorInput[]
+    deleteMany?: DocumentoFirmaDigitalScalarWhereInput | DocumentoFirmaDigitalScalarWhereInput[]
+  }
+
   export type LogUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<LogCreateWithoutUserInput, LogUncheckedCreateWithoutUserInput> | LogCreateWithoutUserInput[] | LogUncheckedCreateWithoutUserInput[]
     connectOrCreate?: LogCreateOrConnectWithoutUserInput | LogCreateOrConnectWithoutUserInput[]
@@ -42520,6 +44646,20 @@ export namespace Prisma {
     update?: DeclaracionCargaUpdateWithWhereUniqueWithoutVbDecanoInput | DeclaracionCargaUpdateWithWhereUniqueWithoutVbDecanoInput[]
     updateMany?: DeclaracionCargaUpdateManyWithWhereWithoutVbDecanoInput | DeclaracionCargaUpdateManyWithWhereWithoutVbDecanoInput[]
     deleteMany?: DeclaracionCargaScalarWhereInput | DeclaracionCargaScalarWhereInput[]
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput> | DocumentoFirmaDigitalCreateWithoutFirmadoPorInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput | DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput[]
+    upsert?: DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutFirmadoPorInput | DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutFirmadoPorInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyFirmadoPorInputEnvelope
+    set?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    disconnect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    delete?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    update?: DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutFirmadoPorInput | DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutFirmadoPorInput[]
+    updateMany?: DocumentoFirmaDigitalUpdateManyWithWhereWithoutFirmadoPorInput | DocumentoFirmaDigitalUpdateManyWithWhereWithoutFirmadoPorInput[]
+    deleteMany?: DocumentoFirmaDigitalScalarWhereInput | DocumentoFirmaDigitalScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutLogsInput = {
@@ -43206,6 +45346,12 @@ export namespace Prisma {
     connect?: DocenteWhereUniqueInput
   }
 
+  export type PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutDisponibilidadesInput, PeriodoAcademicoUncheckedCreateWithoutDisponibilidadesInput>
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutDisponibilidadesInput
+    connect?: PeriodoAcademicoWhereUniqueInput
+  }
+
   export type FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput = {
     create?: XOR<FranjaHorariaCreateWithoutDisponibilidadesInput, FranjaHorariaUncheckedCreateWithoutDisponibilidadesInput>
     connectOrCreate?: FranjaHorariaCreateOrConnectWithoutDisponibilidadesInput
@@ -43218,6 +45364,14 @@ export namespace Prisma {
     upsert?: DocenteUpsertWithoutDisponibilidadesInput
     connect?: DocenteWhereUniqueInput
     update?: XOR<XOR<DocenteUpdateToOneWithWhereWithoutDisponibilidadesInput, DocenteUpdateWithoutDisponibilidadesInput>, DocenteUncheckedUpdateWithoutDisponibilidadesInput>
+  }
+
+  export type PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutDisponibilidadesInput, PeriodoAcademicoUncheckedCreateWithoutDisponibilidadesInput>
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutDisponibilidadesInput
+    upsert?: PeriodoAcademicoUpsertWithoutDisponibilidadesInput
+    connect?: PeriodoAcademicoWhereUniqueInput
+    update?: XOR<XOR<PeriodoAcademicoUpdateToOneWithWhereWithoutDisponibilidadesInput, PeriodoAcademicoUpdateWithoutDisponibilidadesInput>, PeriodoAcademicoUncheckedUpdateWithoutDisponibilidadesInput>
   }
 
   export type FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput = {
@@ -43596,6 +45750,13 @@ export namespace Prisma {
     connect?: DeclaracionCargaWhereUniqueInput | DeclaracionCargaWhereUniqueInput[]
   }
 
+  export type DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutPeriodoInput, DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput> | DisponibilidadDocenteCreateWithoutPeriodoInput[] | DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput | DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput[]
+    createMany?: DisponibilidadDocenteCreateManyPeriodoInputEnvelope
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+  }
+
   export type GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput = {
     create?: XOR<GrupoCreateWithoutPeriodoAcademicoInput, GrupoUncheckedCreateWithoutPeriodoAcademicoInput> | GrupoCreateWithoutPeriodoAcademicoInput[] | GrupoUncheckedCreateWithoutPeriodoAcademicoInput[]
     connectOrCreate?: GrupoCreateOrConnectWithoutPeriodoAcademicoInput | GrupoCreateOrConnectWithoutPeriodoAcademicoInput[]
@@ -43636,6 +45797,13 @@ export namespace Prisma {
     connectOrCreate?: DeclaracionCargaCreateOrConnectWithoutPeriodoInput | DeclaracionCargaCreateOrConnectWithoutPeriodoInput[]
     createMany?: DeclaracionCargaCreateManyPeriodoInputEnvelope
     connect?: DeclaracionCargaWhereUniqueInput | DeclaracionCargaWhereUniqueInput[]
+  }
+
+  export type DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutPeriodoInput, DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput> | DisponibilidadDocenteCreateWithoutPeriodoInput[] | DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput | DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput[]
+    createMany?: DisponibilidadDocenteCreateManyPeriodoInputEnvelope
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
   }
 
   export type EnumEstadoPeriodoFieldUpdateOperationsInput = {
@@ -43736,6 +45904,20 @@ export namespace Prisma {
     deleteMany?: DeclaracionCargaScalarWhereInput | DeclaracionCargaScalarWhereInput[]
   }
 
+  export type DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutPeriodoInput, DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput> | DisponibilidadDocenteCreateWithoutPeriodoInput[] | DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput | DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput[]
+    upsert?: DisponibilidadDocenteUpsertWithWhereUniqueWithoutPeriodoInput | DisponibilidadDocenteUpsertWithWhereUniqueWithoutPeriodoInput[]
+    createMany?: DisponibilidadDocenteCreateManyPeriodoInputEnvelope
+    set?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    disconnect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    delete?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    update?: DisponibilidadDocenteUpdateWithWhereUniqueWithoutPeriodoInput | DisponibilidadDocenteUpdateWithWhereUniqueWithoutPeriodoInput[]
+    updateMany?: DisponibilidadDocenteUpdateManyWithWhereWithoutPeriodoInput | DisponibilidadDocenteUpdateManyWithWhereWithoutPeriodoInput[]
+    deleteMany?: DisponibilidadDocenteScalarWhereInput | DisponibilidadDocenteScalarWhereInput[]
+  }
+
   export type GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput = {
     create?: XOR<GrupoCreateWithoutPeriodoAcademicoInput, GrupoUncheckedCreateWithoutPeriodoAcademicoInput> | GrupoCreateWithoutPeriodoAcademicoInput[] | GrupoUncheckedCreateWithoutPeriodoAcademicoInput[]
     connectOrCreate?: GrupoCreateOrConnectWithoutPeriodoAcademicoInput | GrupoCreateOrConnectWithoutPeriodoAcademicoInput[]
@@ -43818,6 +46000,20 @@ export namespace Prisma {
     update?: DeclaracionCargaUpdateWithWhereUniqueWithoutPeriodoInput | DeclaracionCargaUpdateWithWhereUniqueWithoutPeriodoInput[]
     updateMany?: DeclaracionCargaUpdateManyWithWhereWithoutPeriodoInput | DeclaracionCargaUpdateManyWithWhereWithoutPeriodoInput[]
     deleteMany?: DeclaracionCargaScalarWhereInput | DeclaracionCargaScalarWhereInput[]
+  }
+
+  export type DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutPeriodoInput, DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput> | DisponibilidadDocenteCreateWithoutPeriodoInput[] | DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput | DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput[]
+    upsert?: DisponibilidadDocenteUpsertWithWhereUniqueWithoutPeriodoInput | DisponibilidadDocenteUpsertWithWhereUniqueWithoutPeriodoInput[]
+    createMany?: DisponibilidadDocenteCreateManyPeriodoInputEnvelope
+    set?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    disconnect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    delete?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    update?: DisponibilidadDocenteUpdateWithWhereUniqueWithoutPeriodoInput | DisponibilidadDocenteUpdateWithWhereUniqueWithoutPeriodoInput[]
+    updateMany?: DisponibilidadDocenteUpdateManyWithWhereWithoutPeriodoInput | DisponibilidadDocenteUpdateManyWithWhereWithoutPeriodoInput[]
+    deleteMany?: DisponibilidadDocenteScalarWhereInput | DisponibilidadDocenteScalarWhereInput[]
   }
 
   export type AsignacionCreateNestedManyWithoutFranjaHorariaInput = {
@@ -44436,6 +46632,20 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type DocumentoFirmaDigitalCreateNestedManyWithoutDeclaracionInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput> | DocumentoFirmaDigitalCreateWithoutDeclaracionInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput | DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyDeclaracionInputEnvelope
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+  }
+
+  export type DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutDeclaracionInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput> | DocumentoFirmaDigitalCreateWithoutDeclaracionInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput | DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyDeclaracionInputEnvelope
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+  }
+
   export type EnumEstadoDeclaracionFieldUpdateOperationsInput = {
     set?: $Enums.EstadoDeclaracion
   }
@@ -44484,6 +46694,66 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDeclaracionesVBDecanoInput, UserUpdateWithoutDeclaracionesVBDecanoInput>, UserUncheckedUpdateWithoutDeclaracionesVBDecanoInput>
+  }
+
+  export type DocumentoFirmaDigitalUpdateManyWithoutDeclaracionNestedInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput> | DocumentoFirmaDigitalCreateWithoutDeclaracionInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput | DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput[]
+    upsert?: DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutDeclaracionInput | DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutDeclaracionInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyDeclaracionInputEnvelope
+    set?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    disconnect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    delete?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    update?: DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutDeclaracionInput | DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutDeclaracionInput[]
+    updateMany?: DocumentoFirmaDigitalUpdateManyWithWhereWithoutDeclaracionInput | DocumentoFirmaDigitalUpdateManyWithWhereWithoutDeclaracionInput[]
+    deleteMany?: DocumentoFirmaDigitalScalarWhereInput | DocumentoFirmaDigitalScalarWhereInput[]
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionNestedInput = {
+    create?: XOR<DocumentoFirmaDigitalCreateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput> | DocumentoFirmaDigitalCreateWithoutDeclaracionInput[] | DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput[]
+    connectOrCreate?: DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput | DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput[]
+    upsert?: DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutDeclaracionInput | DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutDeclaracionInput[]
+    createMany?: DocumentoFirmaDigitalCreateManyDeclaracionInputEnvelope
+    set?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    disconnect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    delete?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    connect?: DocumentoFirmaDigitalWhereUniqueInput | DocumentoFirmaDigitalWhereUniqueInput[]
+    update?: DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutDeclaracionInput | DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutDeclaracionInput[]
+    updateMany?: DocumentoFirmaDigitalUpdateManyWithWhereWithoutDeclaracionInput | DocumentoFirmaDigitalUpdateManyWithWhereWithoutDeclaracionInput[]
+    deleteMany?: DocumentoFirmaDigitalScalarWhereInput | DocumentoFirmaDigitalScalarWhereInput[]
+  }
+
+  export type DeclaracionCargaCreateNestedOneWithoutFirmasDigitalesInput = {
+    create?: XOR<DeclaracionCargaCreateWithoutFirmasDigitalesInput, DeclaracionCargaUncheckedCreateWithoutFirmasDigitalesInput>
+    connectOrCreate?: DeclaracionCargaCreateOrConnectWithoutFirmasDigitalesInput
+    connect?: DeclaracionCargaWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutFirmasDigitalesInput = {
+    create?: XOR<UserCreateWithoutFirmasDigitalesInput, UserUncheckedCreateWithoutFirmasDigitalesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFirmasDigitalesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumTipoDocumentoFirmaFieldUpdateOperationsInput = {
+    set?: $Enums.TipoDocumentoFirma
+  }
+
+  export type DeclaracionCargaUpdateOneRequiredWithoutFirmasDigitalesNestedInput = {
+    create?: XOR<DeclaracionCargaCreateWithoutFirmasDigitalesInput, DeclaracionCargaUncheckedCreateWithoutFirmasDigitalesInput>
+    connectOrCreate?: DeclaracionCargaCreateOrConnectWithoutFirmasDigitalesInput
+    upsert?: DeclaracionCargaUpsertWithoutFirmasDigitalesInput
+    connect?: DeclaracionCargaWhereUniqueInput
+    update?: XOR<XOR<DeclaracionCargaUpdateToOneWithWhereWithoutFirmasDigitalesInput, DeclaracionCargaUpdateWithoutFirmasDigitalesInput>, DeclaracionCargaUncheckedUpdateWithoutFirmasDigitalesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutFirmasDigitalesNestedInput = {
+    create?: XOR<UserCreateWithoutFirmasDigitalesInput, UserUncheckedCreateWithoutFirmasDigitalesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFirmasDigitalesInput
+    upsert?: UserUpsertWithoutFirmasDigitalesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFirmasDigitalesInput, UserUpdateWithoutFirmasDigitalesInput>, UserUncheckedUpdateWithoutFirmasDigitalesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -44675,6 +46945,29 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumUserRoleFilter<$PrismaModel>
     _max?: NestedEnumUserRoleFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumCategoriaDocenteFilter<$PrismaModel = never> = {
@@ -44890,6 +47183,23 @@ export namespace Prisma {
     _max?: NestedEnumEstadoDeclaracionFilter<$PrismaModel>
   }
 
+  export type NestedEnumTipoDocumentoFirmaFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFirma | EnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFirmaFilter<$PrismaModel> | $Enums.TipoDocumentoFirma
+  }
+
+  export type NestedEnumTipoDocumentoFirmaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoDocumentoFirma | EnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoDocumentoFirma[] | ListEnumTipoDocumentoFirmaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoDocumentoFirmaWithAggregatesFilter<$PrismaModel> | $Enums.TipoDocumentoFirma
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoDocumentoFirmaFilter<$PrismaModel>
+    _max?: NestedEnumTipoDocumentoFirmaFilter<$PrismaModel>
+  }
+
   export type DepartamentoCreateWithoutFacultadInput = {
     id?: string
     nombre: string
@@ -45059,6 +47369,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDepartamentoDirigidoInput = {
@@ -45080,6 +47391,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDepartamentoDirigidoInput = {
@@ -45106,6 +47418,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDepartamentoSecretariaInput = {
@@ -45127,6 +47440,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDepartamentoSecretariaInput = {
@@ -45153,6 +47467,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDesignacionesDepartamentoInput = {
@@ -45174,6 +47489,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDesignacionesDepartamentoInput = {
@@ -45318,6 +47634,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDepartamentoDirigidoInput = {
@@ -45339,6 +47656,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUpsertWithoutDepartamentoSecretariaInput = {
@@ -45371,6 +47689,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDepartamentoSecretariaInput = {
@@ -45392,6 +47711,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUpsertWithoutDesignacionesDepartamentoInput = {
@@ -45424,6 +47744,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignacionesDepartamentoInput = {
@@ -45445,6 +47766,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type DocenteUpsertWithWhereUniqueWithoutDepartamentoInput = {
@@ -45531,6 +47853,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutEscuelaDirigidaInput = {
@@ -45552,6 +47875,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutEscuelaDirigidaInput = {
@@ -45578,6 +47902,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDesignacionesEscuelaInput = {
@@ -45599,6 +47924,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDesignacionesEscuelaInput = {
@@ -45695,6 +48021,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEscuelaDirigidaInput = {
@@ -45716,6 +48043,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUpsertWithoutDesignacionesEscuelaInput = {
@@ -45748,6 +48076,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDesignacionesEscuelaInput = {
@@ -45769,6 +48098,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type CurriculaUpsertWithWhereUniqueWithoutEscuelaInput = {
@@ -46143,7 +48473,13 @@ export namespace Prisma {
   export type LogCreateWithoutUserInput = {
     id?: string
     accion: string
+    entidad?: string | null
+    entidadId?: string | null
     detalles?: string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: string | null
+    correlationId?: string | null
     ip?: string | null
     userAgent?: string | null
     createdAt?: Date | string
@@ -46152,7 +48488,13 @@ export namespace Prisma {
   export type LogUncheckedCreateWithoutUserInput = {
     id?: string
     accion: string
+    entidad?: string | null
+    entidadId?: string | null
     detalles?: string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: string | null
+    correlationId?: string | null
     ip?: string | null
     userAgent?: string | null
     createdAt?: Date | string
@@ -46185,6 +48527,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput = {
@@ -46204,6 +48547,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput = {
@@ -46385,6 +48729,7 @@ export namespace Prisma {
     periodo: PeriodoAcademicoCreateNestedOneWithoutDeclaracionesInput
     aprobadorEscuela?: UserCreateNestedOneWithoutDeclaracionesAprobEscuelaInput
     vbDecano?: UserCreateNestedOneWithoutDeclaracionesVBDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaUncheckedCreateWithoutAprobadorDeptoInput = {
@@ -46405,6 +48750,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaCreateOrConnectWithoutAprobadorDeptoInput = {
@@ -46435,6 +48781,7 @@ export namespace Prisma {
     periodo: PeriodoAcademicoCreateNestedOneWithoutDeclaracionesInput
     aprobadorDepto?: UserCreateNestedOneWithoutDeclaracionesAprobDeptoInput
     vbDecano?: UserCreateNestedOneWithoutDeclaracionesVBDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaUncheckedCreateWithoutAprobadorEscuelaInput = {
@@ -46455,6 +48802,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaCreateOrConnectWithoutAprobadorEscuelaInput = {
@@ -46485,6 +48833,7 @@ export namespace Prisma {
     periodo: PeriodoAcademicoCreateNestedOneWithoutDeclaracionesInput
     aprobadorDepto?: UserCreateNestedOneWithoutDeclaracionesAprobDeptoInput
     aprobadorEscuela?: UserCreateNestedOneWithoutDeclaracionesAprobEscuelaInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaUncheckedCreateWithoutVbDecanoInput = {
@@ -46505,6 +48854,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaCreateOrConnectWithoutVbDecanoInput = {
@@ -46514,6 +48864,46 @@ export namespace Prisma {
 
   export type DeclaracionCargaCreateManyVbDecanoInputEnvelope = {
     data: DeclaracionCargaCreateManyVbDecanoInput | DeclaracionCargaCreateManyVbDecanoInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DocumentoFirmaDigitalCreateWithoutFirmadoPorInput = {
+    id?: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    declaracion: DeclaracionCargaCreateNestedOneWithoutFirmasDigitalesInput
+  }
+
+  export type DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput = {
+    id?: string
+    declaracionId: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DocumentoFirmaDigitalCreateOrConnectWithoutFirmadoPorInput = {
+    where: DocumentoFirmaDigitalWhereUniqueInput
+    create: XOR<DocumentoFirmaDigitalCreateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput>
+  }
+
+  export type DocumentoFirmaDigitalCreateManyFirmadoPorInputEnvelope = {
+    data: DocumentoFirmaDigitalCreateManyFirmadoPorInput | DocumentoFirmaDigitalCreateManyFirmadoPorInput[]
     skipDuplicates?: boolean
   }
 
@@ -46619,7 +49009,13 @@ export namespace Prisma {
     id?: StringFilter<"Log"> | string
     userId?: StringNullableFilter<"Log"> | string | null
     accion?: StringFilter<"Log"> | string
+    entidad?: StringNullableFilter<"Log"> | string | null
+    entidadId?: StringNullableFilter<"Log"> | string | null
     detalles?: StringNullableFilter<"Log"> | string | null
+    antes?: JsonNullableFilter<"Log">
+    despues?: JsonNullableFilter<"Log">
+    motivo?: StringNullableFilter<"Log"> | string | null
+    correlationId?: StringNullableFilter<"Log"> | string | null
     ip?: StringNullableFilter<"Log"> | string | null
     userAgent?: StringNullableFilter<"Log"> | string | null
     createdAt?: DateTimeFilter<"Log"> | Date | string
@@ -46865,6 +49261,41 @@ export namespace Prisma {
     data: XOR<DeclaracionCargaUpdateManyMutationInput, DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoInput>
   }
 
+  export type DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutFirmadoPorInput = {
+    where: DocumentoFirmaDigitalWhereUniqueInput
+    update: XOR<DocumentoFirmaDigitalUpdateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedUpdateWithoutFirmadoPorInput>
+    create: XOR<DocumentoFirmaDigitalCreateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedCreateWithoutFirmadoPorInput>
+  }
+
+  export type DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutFirmadoPorInput = {
+    where: DocumentoFirmaDigitalWhereUniqueInput
+    data: XOR<DocumentoFirmaDigitalUpdateWithoutFirmadoPorInput, DocumentoFirmaDigitalUncheckedUpdateWithoutFirmadoPorInput>
+  }
+
+  export type DocumentoFirmaDigitalUpdateManyWithWhereWithoutFirmadoPorInput = {
+    where: DocumentoFirmaDigitalScalarWhereInput
+    data: XOR<DocumentoFirmaDigitalUpdateManyMutationInput, DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorInput>
+  }
+
+  export type DocumentoFirmaDigitalScalarWhereInput = {
+    AND?: DocumentoFirmaDigitalScalarWhereInput | DocumentoFirmaDigitalScalarWhereInput[]
+    OR?: DocumentoFirmaDigitalScalarWhereInput[]
+    NOT?: DocumentoFirmaDigitalScalarWhereInput | DocumentoFirmaDigitalScalarWhereInput[]
+    id?: StringFilter<"DocumentoFirmaDigital"> | string
+    declaracionId?: StringFilter<"DocumentoFirmaDigital"> | string
+    tipo?: EnumTipoDocumentoFirmaFilter<"DocumentoFirmaDigital"> | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFilter<"DocumentoFirmaDigital"> | string
+    algoritmoHash?: StringFilter<"DocumentoFirmaDigital"> | string
+    certificadoSerial?: StringFilter<"DocumentoFirmaDigital"> | string
+    certificadoEmisor?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmaPayload?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmadoPorId?: StringFilter<"DocumentoFirmaDigital"> | string
+    firmadoEn?: DateTimeFilter<"DocumentoFirmaDigital"> | Date | string
+    version?: IntFilter<"DocumentoFirmaDigital"> | number
+    cadenaCustodia?: JsonNullableFilter<"DocumentoFirmaDigital">
+    createdAt?: DateTimeFilter<"DocumentoFirmaDigital"> | Date | string
+  }
+
   export type UserCreateWithoutLogsInput = {
     id?: string
     email: string
@@ -46884,6 +49315,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutLogsInput = {
@@ -46905,6 +49337,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutLogsInput = {
@@ -46942,6 +49375,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLogsInput = {
@@ -46963,6 +49397,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type DepartamentoCreateWithoutDocentesInput = {
@@ -47107,11 +49542,13 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutDocenteInput = {
     id?: string
     createdAt?: Date | string
+    periodo: PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
   }
 
   export type DisponibilidadDocenteUncheckedCreateWithoutDocenteInput = {
     id?: string
+    periodoId: string
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -47201,6 +49638,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDocenteInput = {
@@ -47222,6 +49660,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDocenteInput = {
@@ -47355,6 +49794,7 @@ export namespace Prisma {
     aprobadorDepto?: UserCreateNestedOneWithoutDeclaracionesAprobDeptoInput
     aprobadorEscuela?: UserCreateNestedOneWithoutDeclaracionesAprobEscuelaInput
     vbDecano?: UserCreateNestedOneWithoutDeclaracionesVBDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaUncheckedCreateWithoutDocenteInput = {
@@ -47375,6 +49815,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaCreateOrConnectWithoutDocenteInput = {
@@ -47559,6 +50000,7 @@ export namespace Prisma {
     NOT?: DisponibilidadDocenteScalarWhereInput | DisponibilidadDocenteScalarWhereInput[]
     id?: StringFilter<"DisponibilidadDocente"> | string
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
+    periodoId?: StringFilter<"DisponibilidadDocente"> | string
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
   }
@@ -47651,6 +50093,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDocenteInput = {
@@ -47672,6 +50115,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type AsignacionCargaLectivaUpsertWithWhereUniqueWithoutDocenteInput = {
@@ -48147,6 +50591,51 @@ export namespace Prisma {
     create: XOR<DocenteCreateWithoutDisponibilidadesInput, DocenteUncheckedCreateWithoutDisponibilidadesInput>
   }
 
+  export type PeriodoAcademicoCreateWithoutDisponibilidadesInput = {
+    id?: string
+    nombre: string
+    fechaInicio: Date | string
+    fechaFin: Date | string
+    activo?: boolean
+    estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grupos?: GrupoCreateNestedManyWithoutPeriodoAcademicoInput
+    asignaciones?: AsignacionCreateNestedManyWithoutPeriodoInput
+    preasignaciones?: PreasignacionCreateNestedManyWithoutPeriodoInput
+    aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
+    asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
+    cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
+    declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+  }
+
+  export type PeriodoAcademicoUncheckedCreateWithoutDisponibilidadesInput = {
+    id?: string
+    nombre: string
+    fechaInicio: Date | string
+    fechaFin: Date | string
+    activo?: boolean
+    estado?: $Enums.EstadoPeriodo
+    aprobadoPorId?: string | null
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    grupos?: GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput
+    asignaciones?: AsignacionUncheckedCreateNestedManyWithoutPeriodoInput
+    preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
+    cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
+    declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+  }
+
+  export type PeriodoAcademicoCreateOrConnectWithoutDisponibilidadesInput = {
+    where: PeriodoAcademicoWhereUniqueInput
+    create: XOR<PeriodoAcademicoCreateWithoutDisponibilidadesInput, PeriodoAcademicoUncheckedCreateWithoutDisponibilidadesInput>
+  }
+
   export type FranjaHorariaCreateWithoutDisponibilidadesInput = {
     id?: string
     dia: $Enums.DiaSemana
@@ -48255,6 +50744,57 @@ export namespace Prisma {
     asignacionesCargaCompartida?: AsignacionCargaLectivaUncheckedUpdateManyWithoutDocenteCompartidoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutDocenteNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutDocenteNestedInput
+  }
+
+  export type PeriodoAcademicoUpsertWithoutDisponibilidadesInput = {
+    update: XOR<PeriodoAcademicoUpdateWithoutDisponibilidadesInput, PeriodoAcademicoUncheckedUpdateWithoutDisponibilidadesInput>
+    create: XOR<PeriodoAcademicoCreateWithoutDisponibilidadesInput, PeriodoAcademicoUncheckedCreateWithoutDisponibilidadesInput>
+    where?: PeriodoAcademicoWhereInput
+  }
+
+  export type PeriodoAcademicoUpdateToOneWithWhereWithoutDisponibilidadesInput = {
+    where?: PeriodoAcademicoWhereInput
+    data: XOR<PeriodoAcademicoUpdateWithoutDisponibilidadesInput, PeriodoAcademicoUncheckedUpdateWithoutDisponibilidadesInput>
+  }
+
+  export type PeriodoAcademicoUpdateWithoutDisponibilidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grupos?: GrupoUpdateManyWithoutPeriodoAcademicoNestedInput
+    asignaciones?: AsignacionUpdateManyWithoutPeriodoNestedInput
+    preasignaciones?: PreasignacionUpdateManyWithoutPeriodoNestedInput
+    aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
+    cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
+    declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+  }
+
+  export type PeriodoAcademicoUncheckedUpdateWithoutDisponibilidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    aprobadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grupos?: GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput
+    asignaciones?: AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput
+    preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
+    cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
+    declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type FranjaHorariaUpsertWithoutDisponibilidadesInput = {
@@ -48610,6 +51150,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutGruposInput = {
@@ -48629,6 +51170,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutGruposInput = {
@@ -48837,6 +51379,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutGruposInput = {
@@ -48856,6 +51399,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type AsignacionUpsertWithWhereUniqueWithoutGrupoInput = {
@@ -49145,6 +51689,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutPeriodosAprobadosInput = {
@@ -49166,6 +51711,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutPeriodosAprobadosInput = {
@@ -49265,6 +51811,7 @@ export namespace Prisma {
     aprobadorDepto?: UserCreateNestedOneWithoutDeclaracionesAprobDeptoInput
     aprobadorEscuela?: UserCreateNestedOneWithoutDeclaracionesAprobEscuelaInput
     vbDecano?: UserCreateNestedOneWithoutDeclaracionesVBDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaUncheckedCreateWithoutPeriodoInput = {
@@ -49285,6 +51832,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutDeclaracionInput
   }
 
   export type DeclaracionCargaCreateOrConnectWithoutPeriodoInput = {
@@ -49294,6 +51842,30 @@ export namespace Prisma {
 
   export type DeclaracionCargaCreateManyPeriodoInputEnvelope = {
     data: DeclaracionCargaCreateManyPeriodoInput | DeclaracionCargaCreateManyPeriodoInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DisponibilidadDocenteCreateWithoutPeriodoInput = {
+    id?: string
+    createdAt?: Date | string
+    docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
+    franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
+  }
+
+  export type DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput = {
+    id?: string
+    docenteId: string
+    franjaHorariaId: string
+    createdAt?: Date | string
+  }
+
+  export type DisponibilidadDocenteCreateOrConnectWithoutPeriodoInput = {
+    where: DisponibilidadDocenteWhereUniqueInput
+    create: XOR<DisponibilidadDocenteCreateWithoutPeriodoInput, DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput>
+  }
+
+  export type DisponibilidadDocenteCreateManyPeriodoInputEnvelope = {
+    data: DisponibilidadDocenteCreateManyPeriodoInput | DisponibilidadDocenteCreateManyPeriodoInput[]
     skipDuplicates?: boolean
   }
 
@@ -49375,6 +51947,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPeriodosAprobadosInput = {
@@ -49396,6 +51969,7 @@ export namespace Prisma {
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type AsignacionCargaLectivaUpsertWithWhereUniqueWithoutPeriodoInput = {
@@ -49444,6 +52018,22 @@ export namespace Prisma {
   export type DeclaracionCargaUpdateManyWithWhereWithoutPeriodoInput = {
     where: DeclaracionCargaScalarWhereInput
     data: XOR<DeclaracionCargaUpdateManyMutationInput, DeclaracionCargaUncheckedUpdateManyWithoutPeriodoInput>
+  }
+
+  export type DisponibilidadDocenteUpsertWithWhereUniqueWithoutPeriodoInput = {
+    where: DisponibilidadDocenteWhereUniqueInput
+    update: XOR<DisponibilidadDocenteUpdateWithoutPeriodoInput, DisponibilidadDocenteUncheckedUpdateWithoutPeriodoInput>
+    create: XOR<DisponibilidadDocenteCreateWithoutPeriodoInput, DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput>
+  }
+
+  export type DisponibilidadDocenteUpdateWithWhereUniqueWithoutPeriodoInput = {
+    where: DisponibilidadDocenteWhereUniqueInput
+    data: XOR<DisponibilidadDocenteUpdateWithoutPeriodoInput, DisponibilidadDocenteUncheckedUpdateWithoutPeriodoInput>
+  }
+
+  export type DisponibilidadDocenteUpdateManyWithWhereWithoutPeriodoInput = {
+    where: DisponibilidadDocenteScalarWhereInput
+    data: XOR<DisponibilidadDocenteUpdateManyMutationInput, DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoInput>
   }
 
   export type AsignacionCreateWithoutFranjaHorariaInput = {
@@ -49564,11 +52154,13 @@ export namespace Prisma {
     id?: string
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
+    periodo: PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput
   }
 
   export type DisponibilidadDocenteUncheckedCreateWithoutFranjaHorariaInput = {
     id?: string
     docenteId: string
+    periodoId: string
     createdAt?: Date | string
   }
 
@@ -49847,6 +52439,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutAsignacionesInput = {
@@ -49866,6 +52459,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutAsignacionesInput = {
@@ -50093,6 +52687,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutAsignacionesInput = {
@@ -50112,6 +52707,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type DocenteCreateWithoutRestriccionesInput = {
@@ -50848,6 +53444,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutPreasignacionesInput = {
@@ -50867,6 +53464,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutPreasignacionesInput = {
@@ -51057,6 +53655,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutPreasignacionesInput = {
@@ -51076,6 +53675,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type DocenteCreateWithoutAsignacionesCargaInput = {
@@ -51274,6 +53874,7 @@ export namespace Prisma {
     aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
     cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutAsignacionesCargaInput = {
@@ -51293,6 +53894,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutAsignacionesCargaInput = {
@@ -51525,6 +54127,7 @@ export namespace Prisma {
     aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
     cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutAsignacionesCargaInput = {
@@ -51544,6 +54147,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type DocenteCreateWithoutCargasNoLectivasInput = {
@@ -51636,6 +54240,7 @@ export namespace Prisma {
     aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutCargasNoLectivasInput = {
@@ -51655,6 +54260,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutCargasNoLectivasInput = {
@@ -51799,6 +54405,7 @@ export namespace Prisma {
     aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutCargasNoLectivasInput = {
@@ -51818,6 +54425,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type HorarioCargaNoLectivaUpsertWithWhereUniqueWithoutCargaNoLectivaInput = {
@@ -52016,6 +54624,7 @@ export namespace Prisma {
     aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutDeclaracionesInput = {
@@ -52035,6 +54644,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutDeclaracionesInput = {
@@ -52061,6 +54671,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaCreateNestedManyWithoutDesignadoPorInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDeclaracionesAprobDeptoInput = {
@@ -52082,6 +54693,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUncheckedCreateNestedManyWithoutDesignadoPorInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDeclaracionesAprobDeptoInput = {
@@ -52108,6 +54720,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaCreateNestedManyWithoutDesignadoPorInput
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDeclaracionesAprobEscuelaInput = {
@@ -52129,6 +54742,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUncheckedCreateNestedManyWithoutDesignadoPorInput
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDeclaracionesAprobEscuelaInput = {
@@ -52155,6 +54769,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaCreateNestedManyWithoutDesignadoPorInput
     declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
+    firmasDigitales?: DocumentoFirmaDigitalCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserUncheckedCreateWithoutDeclaracionesVBDecanoInput = {
@@ -52176,11 +54791,52 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUncheckedCreateNestedManyWithoutDesignadoPorInput
     declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedCreateNestedManyWithoutFirmadoPorInput
   }
 
   export type UserCreateOrConnectWithoutDeclaracionesVBDecanoInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutDeclaracionesVBDecanoInput, UserUncheckedCreateWithoutDeclaracionesVBDecanoInput>
+  }
+
+  export type DocumentoFirmaDigitalCreateWithoutDeclaracionInput = {
+    id?: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    firmadoPor: UserCreateNestedOneWithoutFirmasDigitalesInput
+  }
+
+  export type DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput = {
+    id?: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoPorId: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DocumentoFirmaDigitalCreateOrConnectWithoutDeclaracionInput = {
+    where: DocumentoFirmaDigitalWhereUniqueInput
+    create: XOR<DocumentoFirmaDigitalCreateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput>
+  }
+
+  export type DocumentoFirmaDigitalCreateManyDeclaracionInputEnvelope = {
+    data: DocumentoFirmaDigitalCreateManyDeclaracionInput | DocumentoFirmaDigitalCreateManyDeclaracionInput[]
+    skipDuplicates?: boolean
   }
 
   export type DocenteUpsertWithoutDeclaracionesInput = {
@@ -52290,6 +54946,7 @@ export namespace Prisma {
     aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutDeclaracionesInput = {
@@ -52309,6 +54966,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type UserUpsertWithoutDeclaracionesAprobDeptoInput = {
@@ -52341,6 +54999,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUpdateManyWithoutDesignadoPorNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeclaracionesAprobDeptoInput = {
@@ -52362,6 +55021,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUncheckedUpdateManyWithoutDesignadoPorNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUpsertWithoutDeclaracionesAprobEscuelaInput = {
@@ -52394,6 +55054,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUpdateManyWithoutDesignadoPorNestedInput
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeclaracionesAprobEscuelaInput = {
@@ -52415,6 +55076,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUncheckedUpdateManyWithoutDesignadoPorNestedInput
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUpsertWithoutDeclaracionesVBDecanoInput = {
@@ -52447,6 +55109,7 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUpdateManyWithoutDesignadoPorNestedInput
     declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutFirmadoPorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDeclaracionesVBDecanoInput = {
@@ -52468,6 +55131,227 @@ export namespace Prisma {
     designacionesEscuela?: EscuelaUncheckedUpdateManyWithoutDesignadoPorNestedInput
     declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
     declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorNestedInput
+  }
+
+  export type DocumentoFirmaDigitalUpsertWithWhereUniqueWithoutDeclaracionInput = {
+    where: DocumentoFirmaDigitalWhereUniqueInput
+    update: XOR<DocumentoFirmaDigitalUpdateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedUpdateWithoutDeclaracionInput>
+    create: XOR<DocumentoFirmaDigitalCreateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedCreateWithoutDeclaracionInput>
+  }
+
+  export type DocumentoFirmaDigitalUpdateWithWhereUniqueWithoutDeclaracionInput = {
+    where: DocumentoFirmaDigitalWhereUniqueInput
+    data: XOR<DocumentoFirmaDigitalUpdateWithoutDeclaracionInput, DocumentoFirmaDigitalUncheckedUpdateWithoutDeclaracionInput>
+  }
+
+  export type DocumentoFirmaDigitalUpdateManyWithWhereWithoutDeclaracionInput = {
+    where: DocumentoFirmaDigitalScalarWhereInput
+    data: XOR<DocumentoFirmaDigitalUpdateManyMutationInput, DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionInput>
+  }
+
+  export type DeclaracionCargaCreateWithoutFirmasDigitalesInput = {
+    id?: string
+    estado?: $Enums.EstadoDeclaracion
+    totalHorasLectivas?: number
+    totalHorasNoLectivas?: number
+    totalHoras?: number
+    fechaAprobacionDepto?: Date | string | null
+    fechaAprobacionEscuela?: Date | string | null
+    fechaVistoBueno?: Date | string | null
+    observaciones?: string | null
+    declaracionJuradaFirmada?: boolean
+    declaracionSedesFirmada?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    docente: DocenteCreateNestedOneWithoutDeclaracionesInput
+    periodo: PeriodoAcademicoCreateNestedOneWithoutDeclaracionesInput
+    aprobadorDepto?: UserCreateNestedOneWithoutDeclaracionesAprobDeptoInput
+    aprobadorEscuela?: UserCreateNestedOneWithoutDeclaracionesAprobEscuelaInput
+    vbDecano?: UserCreateNestedOneWithoutDeclaracionesVBDecanoInput
+  }
+
+  export type DeclaracionCargaUncheckedCreateWithoutFirmasDigitalesInput = {
+    id?: string
+    docenteId: string
+    periodoId: string
+    estado?: $Enums.EstadoDeclaracion
+    totalHorasLectivas?: number
+    totalHorasNoLectivas?: number
+    totalHoras?: number
+    aprobadoDepartamentoId?: string | null
+    fechaAprobacionDepto?: Date | string | null
+    aprobadoEscuelaId?: string | null
+    fechaAprobacionEscuela?: Date | string | null
+    vistoBuenoDecanoId?: string | null
+    fechaVistoBueno?: Date | string | null
+    observaciones?: string | null
+    declaracionJuradaFirmada?: boolean
+    declaracionSedesFirmada?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeclaracionCargaCreateOrConnectWithoutFirmasDigitalesInput = {
+    where: DeclaracionCargaWhereUniqueInput
+    create: XOR<DeclaracionCargaCreateWithoutFirmasDigitalesInput, DeclaracionCargaUncheckedCreateWithoutFirmasDigitalesInput>
+  }
+
+  export type UserCreateWithoutFirmasDigitalesInput = {
+    id?: string
+    email: string
+    password: string
+    nombre: string
+    role?: $Enums.UserRole
+    activo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    docente?: DocenteCreateNestedOneWithoutUserInput
+    logs?: LogCreateNestedManyWithoutUserInput
+    periodosAprobados?: PeriodoAcademicoCreateNestedManyWithoutAprobadoPorInput
+    departamentoDirigido?: DepartamentoCreateNestedOneWithoutDirectorInput
+    departamentoSecretaria?: DepartamentoCreateNestedOneWithoutSecretariaInput
+    escuelaDirigida?: EscuelaCreateNestedOneWithoutDirectorInput
+    designacionesDepartamento?: DepartamentoCreateNestedManyWithoutDesignadoPorInput
+    designacionesEscuela?: EscuelaCreateNestedManyWithoutDesignadoPorInput
+    declaracionesAprobDepto?: DeclaracionCargaCreateNestedManyWithoutAprobadorDeptoInput
+    declaracionesAprobEscuela?: DeclaracionCargaCreateNestedManyWithoutAprobadorEscuelaInput
+    declaracionesVBDecano?: DeclaracionCargaCreateNestedManyWithoutVbDecanoInput
+  }
+
+  export type UserUncheckedCreateWithoutFirmasDigitalesInput = {
+    id?: string
+    email: string
+    password: string
+    nombre: string
+    role?: $Enums.UserRole
+    activo?: boolean
+    docenteId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    logs?: LogUncheckedCreateNestedManyWithoutUserInput
+    periodosAprobados?: PeriodoAcademicoUncheckedCreateNestedManyWithoutAprobadoPorInput
+    departamentoDirigido?: DepartamentoUncheckedCreateNestedOneWithoutDirectorInput
+    departamentoSecretaria?: DepartamentoUncheckedCreateNestedOneWithoutSecretariaInput
+    escuelaDirigida?: EscuelaUncheckedCreateNestedOneWithoutDirectorInput
+    designacionesDepartamento?: DepartamentoUncheckedCreateNestedManyWithoutDesignadoPorInput
+    designacionesEscuela?: EscuelaUncheckedCreateNestedManyWithoutDesignadoPorInput
+    declaracionesAprobDepto?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorDeptoInput
+    declaracionesAprobEscuela?: DeclaracionCargaUncheckedCreateNestedManyWithoutAprobadorEscuelaInput
+    declaracionesVBDecano?: DeclaracionCargaUncheckedCreateNestedManyWithoutVbDecanoInput
+  }
+
+  export type UserCreateOrConnectWithoutFirmasDigitalesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFirmasDigitalesInput, UserUncheckedCreateWithoutFirmasDigitalesInput>
+  }
+
+  export type DeclaracionCargaUpsertWithoutFirmasDigitalesInput = {
+    update: XOR<DeclaracionCargaUpdateWithoutFirmasDigitalesInput, DeclaracionCargaUncheckedUpdateWithoutFirmasDigitalesInput>
+    create: XOR<DeclaracionCargaCreateWithoutFirmasDigitalesInput, DeclaracionCargaUncheckedCreateWithoutFirmasDigitalesInput>
+    where?: DeclaracionCargaWhereInput
+  }
+
+  export type DeclaracionCargaUpdateToOneWithWhereWithoutFirmasDigitalesInput = {
+    where?: DeclaracionCargaWhereInput
+    data: XOR<DeclaracionCargaUpdateWithoutFirmasDigitalesInput, DeclaracionCargaUncheckedUpdateWithoutFirmasDigitalesInput>
+  }
+
+  export type DeclaracionCargaUpdateWithoutFirmasDigitalesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    estado?: EnumEstadoDeclaracionFieldUpdateOperationsInput | $Enums.EstadoDeclaracion
+    totalHorasLectivas?: IntFieldUpdateOperationsInput | number
+    totalHorasNoLectivas?: IntFieldUpdateOperationsInput | number
+    totalHoras?: IntFieldUpdateOperationsInput | number
+    fechaAprobacionDepto?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaAprobacionEscuela?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fechaVistoBueno?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    declaracionJuradaFirmada?: BoolFieldUpdateOperationsInput | boolean
+    declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneRequiredWithoutDeclaracionesNestedInput
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDeclaracionesNestedInput
+    aprobadorDepto?: UserUpdateOneWithoutDeclaracionesAprobDeptoNestedInput
+    aprobadorEscuela?: UserUpdateOneWithoutDeclaracionesAprobEscuelaNestedInput
+    vbDecano?: UserUpdateOneWithoutDeclaracionesVBDecanoNestedInput
+  }
+
+  export type DeclaracionCargaUncheckedUpdateWithoutFirmasDigitalesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
+    estado?: EnumEstadoDeclaracionFieldUpdateOperationsInput | $Enums.EstadoDeclaracion
+    totalHorasLectivas?: IntFieldUpdateOperationsInput | number
+    totalHorasNoLectivas?: IntFieldUpdateOperationsInput | number
+    totalHoras?: IntFieldUpdateOperationsInput | number
+    aprobadoDepartamentoId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacionDepto?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    aprobadoEscuelaId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacionEscuela?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vistoBuenoDecanoId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaVistoBueno?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    observaciones?: NullableStringFieldUpdateOperationsInput | string | null
+    declaracionJuradaFirmada?: BoolFieldUpdateOperationsInput | boolean
+    declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutFirmasDigitalesInput = {
+    update: XOR<UserUpdateWithoutFirmasDigitalesInput, UserUncheckedUpdateWithoutFirmasDigitalesInput>
+    create: XOR<UserCreateWithoutFirmasDigitalesInput, UserUncheckedCreateWithoutFirmasDigitalesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFirmasDigitalesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFirmasDigitalesInput, UserUncheckedUpdateWithoutFirmasDigitalesInput>
+  }
+
+  export type UserUpdateWithoutFirmasDigitalesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneWithoutUserNestedInput
+    logs?: LogUpdateManyWithoutUserNestedInput
+    periodosAprobados?: PeriodoAcademicoUpdateManyWithoutAprobadoPorNestedInput
+    departamentoDirigido?: DepartamentoUpdateOneWithoutDirectorNestedInput
+    departamentoSecretaria?: DepartamentoUpdateOneWithoutSecretariaNestedInput
+    escuelaDirigida?: EscuelaUpdateOneWithoutDirectorNestedInput
+    designacionesDepartamento?: DepartamentoUpdateManyWithoutDesignadoPorNestedInput
+    designacionesEscuela?: EscuelaUpdateManyWithoutDesignadoPorNestedInput
+    declaracionesAprobDepto?: DeclaracionCargaUpdateManyWithoutAprobadorDeptoNestedInput
+    declaracionesAprobEscuela?: DeclaracionCargaUpdateManyWithoutAprobadorEscuelaNestedInput
+    declaracionesVBDecano?: DeclaracionCargaUpdateManyWithoutVbDecanoNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFirmasDigitalesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    docenteId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    logs?: LogUncheckedUpdateManyWithoutUserNestedInput
+    periodosAprobados?: PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorNestedInput
+    departamentoDirigido?: DepartamentoUncheckedUpdateOneWithoutDirectorNestedInput
+    departamentoSecretaria?: DepartamentoUncheckedUpdateOneWithoutSecretariaNestedInput
+    escuelaDirigida?: EscuelaUncheckedUpdateOneWithoutDirectorNestedInput
+    designacionesDepartamento?: DepartamentoUncheckedUpdateManyWithoutDesignadoPorNestedInput
+    designacionesEscuela?: EscuelaUncheckedUpdateManyWithoutDesignadoPorNestedInput
+    declaracionesAprobDepto?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoNestedInput
+    declaracionesAprobEscuela?: DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaNestedInput
+    declaracionesVBDecano?: DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoNestedInput
   }
 
   export type DepartamentoCreateManyFacultadInput = {
@@ -52739,7 +55623,13 @@ export namespace Prisma {
   export type LogCreateManyUserInput = {
     id?: string
     accion: string
+    entidad?: string | null
+    entidadId?: string | null
     detalles?: string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: string | null
+    correlationId?: string | null
     ip?: string | null
     userAgent?: string | null
     createdAt?: Date | string
@@ -52839,10 +55729,31 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type DocumentoFirmaDigitalCreateManyFirmadoPorInput = {
+    id?: string
+    declaracionId: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
   export type LogUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     accion?: StringFieldUpdateOperationsInput | string
+    entidad?: NullableStringFieldUpdateOperationsInput | string | null
+    entidadId?: NullableStringFieldUpdateOperationsInput | string | null
     detalles?: NullableStringFieldUpdateOperationsInput | string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52851,7 +55762,13 @@ export namespace Prisma {
   export type LogUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     accion?: StringFieldUpdateOperationsInput | string
+    entidad?: NullableStringFieldUpdateOperationsInput | string | null
+    entidadId?: NullableStringFieldUpdateOperationsInput | string | null
     detalles?: NullableStringFieldUpdateOperationsInput | string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52860,7 +55777,13 @@ export namespace Prisma {
   export type LogUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     accion?: StringFieldUpdateOperationsInput | string
+    entidad?: NullableStringFieldUpdateOperationsInput | string | null
+    entidadId?: NullableStringFieldUpdateOperationsInput | string | null
     detalles?: NullableStringFieldUpdateOperationsInput | string | null
+    antes?: NullableJsonNullValueInput | InputJsonValue
+    despues?: NullableJsonNullValueInput | InputJsonValue
+    motivo?: NullableStringFieldUpdateOperationsInput | string | null
+    correlationId?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -52883,6 +55806,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutAprobadoPorInput = {
@@ -52902,6 +55826,7 @@ export namespace Prisma {
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorInput = {
@@ -53002,6 +55927,7 @@ export namespace Prisma {
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDeclaracionesNestedInput
     aprobadorEscuela?: UserUpdateOneWithoutDeclaracionesAprobEscuelaNestedInput
     vbDecano?: UserUpdateOneWithoutDeclaracionesVBDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateWithoutAprobadorDeptoInput = {
@@ -53022,6 +55948,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateManyWithoutAprobadorDeptoInput = {
@@ -53062,6 +55989,7 @@ export namespace Prisma {
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDeclaracionesNestedInput
     aprobadorDepto?: UserUpdateOneWithoutDeclaracionesAprobDeptoNestedInput
     vbDecano?: UserUpdateOneWithoutDeclaracionesVBDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateWithoutAprobadorEscuelaInput = {
@@ -53082,6 +56010,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateManyWithoutAprobadorEscuelaInput = {
@@ -53122,6 +56051,7 @@ export namespace Prisma {
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDeclaracionesNestedInput
     aprobadorDepto?: UserUpdateOneWithoutDeclaracionesAprobDeptoNestedInput
     aprobadorEscuela?: UserUpdateOneWithoutDeclaracionesAprobEscuelaNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateWithoutVbDecanoInput = {
@@ -53142,6 +56072,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateManyWithoutVbDecanoInput = {
@@ -53162,6 +56093,51 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoFirmaDigitalUpdateWithoutFirmadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    declaracion?: DeclaracionCargaUpdateOneRequiredWithoutFirmasDigitalesNestedInput
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateWithoutFirmadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    declaracionId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateManyWithoutFirmadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    declaracionId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AsignacionCreateManyDocenteInput = {
@@ -53201,6 +56177,7 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteCreateManyDocenteInput = {
     id?: string
+    periodoId: string
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -53389,17 +56366,20 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
   }
 
   export type DisponibilidadDocenteUncheckedUpdateWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -53592,6 +56572,7 @@ export namespace Prisma {
     aprobadorDepto?: UserUpdateOneWithoutDeclaracionesAprobDeptoNestedInput
     aprobadorEscuela?: UserUpdateOneWithoutDeclaracionesAprobEscuelaNestedInput
     vbDecano?: UserUpdateOneWithoutDeclaracionesVBDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateWithoutDocenteInput = {
@@ -53612,6 +56593,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateManyWithoutDocenteInput = {
@@ -54056,6 +57038,13 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type DisponibilidadDocenteCreateManyPeriodoInput = {
+    id?: string
+    docenteId: string
+    franjaHorariaId: string
+    createdAt?: Date | string
+  }
+
   export type GrupoUpdateWithoutPeriodoAcademicoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
@@ -54258,6 +57247,7 @@ export namespace Prisma {
     aprobadorDepto?: UserUpdateOneWithoutDeclaracionesAprobDeptoNestedInput
     aprobadorEscuela?: UserUpdateOneWithoutDeclaracionesAprobEscuelaNestedInput
     vbDecano?: UserUpdateOneWithoutDeclaracionesVBDecanoNestedInput
+    firmasDigitales?: DocumentoFirmaDigitalUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateWithoutPeriodoInput = {
@@ -54278,6 +57268,7 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    firmasDigitales?: DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionNestedInput
   }
 
   export type DeclaracionCargaUncheckedUpdateManyWithoutPeriodoInput = {
@@ -54298,6 +57289,27 @@ export namespace Prisma {
     declaracionSedesFirmada?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DisponibilidadDocenteUpdateWithoutPeriodoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
+  }
+
+  export type DisponibilidadDocenteUncheckedUpdateWithoutPeriodoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    franjaHorariaId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    franjaHorariaId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AsignacionCreateManyFranjaHorariaInput = {
@@ -54340,6 +57352,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateManyFranjaHorariaInput = {
     id?: string
     docenteId: string
+    periodoId: string
     createdAt?: Date | string
   }
 
@@ -54458,17 +57471,20 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput
   }
 
   export type DisponibilidadDocenteUncheckedUpdateWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DisponibilidadDocenteUncheckedUpdateManyWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -54509,6 +57525,66 @@ export namespace Prisma {
     horaFin?: StringFieldUpdateOperationsInput | string
     lugar?: NullableStringFieldUpdateOperationsInput | string | null
     aula?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoFirmaDigitalCreateManyDeclaracionInput = {
+    id?: string
+    tipo: $Enums.TipoDocumentoFirma
+    documentoHash: string
+    algoritmoHash?: string
+    certificadoSerial: string
+    certificadoEmisor: string
+    firmaPayload: string
+    firmadoPorId: string
+    firmadoEn?: Date | string
+    version?: number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DocumentoFirmaDigitalUpdateWithoutDeclaracionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    firmadoPor?: UserUpdateOneRequiredWithoutFirmasDigitalesNestedInput
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateWithoutDeclaracionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoPorId?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoFirmaDigitalUncheckedUpdateManyWithoutDeclaracionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoDocumentoFirmaFieldUpdateOperationsInput | $Enums.TipoDocumentoFirma
+    documentoHash?: StringFieldUpdateOperationsInput | string
+    algoritmoHash?: StringFieldUpdateOperationsInput | string
+    certificadoSerial?: StringFieldUpdateOperationsInput | string
+    certificadoEmisor?: StringFieldUpdateOperationsInput | string
+    firmaPayload?: StringFieldUpdateOperationsInput | string
+    firmadoPorId?: StringFieldUpdateOperationsInput | string
+    firmadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    version?: IntFieldUpdateOperationsInput | number
+    cadenaCustodia?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

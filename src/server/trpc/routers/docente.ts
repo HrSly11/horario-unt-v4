@@ -1,7 +1,15 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
+import { createTRPCRouter, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 import { CategoriaDocente, TipoDocente } from '@/generated/prisma/client';
+import type { Prisma, PrismaClient } from '@/generated/prisma/client';
+import {
+  academicManagerRoles,
+  assertDocenteSelfOrRole,
+  departmentScopedRoles,
+  getManagedDepartamentoIds,
+  hasRole,
+} from '../policy';
 
 const docenteInput = z.object({
   nombre: z.string().min(3),
@@ -16,8 +24,82 @@ const docenteInput = z.object({
   perfilAcademico: z.string().optional(),
 });
 
+type CompatibilityDocente = {
+  perfilAcademico?: string | null;
+  gradoAcademico?: string | null;
+  especialidad?: string | null;
+  experienciaAnios: number;
+};
+
+type CompatibilityCurso = {
+  perfilRequerido?: string | null;
+  gradoRequerido?: string | null;
+  especialidadRequerida?: string | null;
+  experienciaMinima?: number | null;
+};
+
+const docenteListSelect = {
+  id: true,
+  codigo: true,
+  nombre: true,
+  email: true,
+  categoria: true,
+  tipo: true,
+  modalidad: true,
+  antiguedad: true,
+  activo: true,
+  gradoAcademico: true,
+  especialidad: true,
+  experienciaAnios: true,
+  perfilAcademico: true,
+  departamentoId: true,
+  departamento: {
+    select: {
+      id: true,
+      nombre: true,
+    },
+  },
+} satisfies Prisma.DocenteSelect;
+
+function buildDocenteSearchFilter(search?: string): Prisma.DocenteWhereInput | undefined {
+  if (!search) return undefined;
+
+  return {
+    OR: [
+      { nombre: { contains: search, mode: 'insensitive' } },
+      { email: { contains: search, mode: 'insensitive' } },
+    ],
+  };
+}
+
+async function resolveAvailabilityPeriod(
+  prisma: Pick<PrismaClient, 'periodoAcademico'>,
+  periodoId?: string
+) {
+  const select = { id: true, estado: true };
+  const periodo = periodoId
+    ? await prisma.periodoAcademico.findUnique({
+        where: { id: periodoId },
+        select,
+      })
+    : await prisma.periodoAcademico.findFirst({
+        where: { activo: true },
+        select,
+        orderBy: { createdAt: 'desc' },
+      });
+
+  if (!periodo) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'No hay un periodo académico activo para registrar disponibilidad.',
+    });
+  }
+
+  return periodo;
+}
+
 // Helper for profile compatibility
-function calculateCompatibility(docente: any, curso: any): number {
+function calculateCompatibility(docente: CompatibilityDocente, curso: CompatibilityCurso): number {
   let score = 0;
 
   // 1. Perfil Académico (Keyword matching) - Weight 40%
@@ -53,29 +135,73 @@ function calculateCompatibility(docente: any, curso: any): number {
 }
 
 export const docenteRouter = createTRPCRouter({
-  list: baseProcedure
+  list: protectedProcedure
     .input(z.object({ search: z.string().optional() }).optional())
     .query(async ({ ctx, input }) => {
+      const filters: Prisma.DocenteWhereInput[] = [];
+      const searchFilter = buildDocenteSearchFilter(input?.search);
+      if (searchFilter) filters.push(searchFilter);
+
+      if (ctx.session.role === 'DOCENTE') {
+        if (!ctx.session.docenteId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'El usuario docente no tiene un ID de docente asociado.' });
+        }
+        filters.push({ id: ctx.session.docenteId });
+      } else if (hasRole(ctx.session, departmentScopedRoles)) {
+        const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+        filters.push({ departamentoId: { in: managedDepartamentoIds ?? [] } });
+      } else if (!hasRole(ctx.session, academicManagerRoles)) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para listar docentes' });
+      }
+
+      const where = filters.length > 0 ? { AND: filters } : undefined;
+
       return ctx.prisma.docente.findMany({
-        where: input?.search
-          ? {
-              OR: [
-                { nombre: { contains: input.search, mode: 'insensitive' } },
-                { email: { contains: input.search, mode: 'insensitive' } },
-              ],
-            }
-          : undefined,
+        where,
+        select: docenteListSelect,
         orderBy: { nombre: 'asc' },
       });
     }),
 
-  byId: baseProcedure
+  byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (ctx.session.role === 'DOCENTE') {
+        assertDocenteSelfOrRole(ctx.session, input.id, []);
+      }
+
       return ctx.prisma.docente.findUniqueOrThrow({
         where: { id: input.id },
-        include: {
-          user: true,
+        select: {
+          id: true,
+          codigo: true,
+          nombre: true,
+          email: true,
+          categoria: true,
+          tipo: true,
+          modalidad: true,
+          antiguedad: true,
+          activo: true,
+          gradoAcademico: true,
+          especialidad: true,
+          experienciaAnios: true,
+          perfilAcademico: true,
+          dni: true,
+          codigoIBM: true,
+          departamentoId: true,
+          horasContrato: true,
+          dictaOtraUniversidad: true,
+          createdAt: true,
+          updatedAt: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              nombre: true,
+              role: true,
+              activo: true,
+            },
+          },
           docenteGrupos: {
             include: { grupo: { include: { curso: true, periodoAcademico: true } } },
           },
@@ -98,7 +224,7 @@ export const docenteRouter = createTRPCRouter({
     return ctx.prisma.docente.delete({ where: { id: input.id } });
   }),
 
-  stats: baseProcedure.query(async ({ ctx }) => {
+  stats: protectedProcedure.query(async ({ ctx }) => {
     const [total, porCategoria, porTipo] = await Promise.all([
       ctx.prisma.docente.count(),
       ctx.prisma.docente.groupBy({
@@ -130,7 +256,7 @@ export const docenteRouter = createTRPCRouter({
   personalStats: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
-    const [docente, assignments] = await Promise.all([
+    const [docente, periodoActivo] = await Promise.all([
       ctx.prisma.docente.findUniqueOrThrow({
         where: { id: ctx.session.docenteId },
         include: {
@@ -139,8 +265,22 @@ export const docenteRouter = createTRPCRouter({
           },
         },
       }),
+      ctx.prisma.periodoAcademico.findFirst({
+        where: { activo: true },
+        select: { id: true },
+      }),
+    ]);
+
+    const periodoFilter = periodoActivo?.id ? { periodoId: periodoActivo.id } : {};
+    const [asignacionesCarga, assignments] = await Promise.all([
+      ctx.prisma.asignacionCargaLectiva.findMany({
+        where: { docenteId: ctx.session.docenteId, ...periodoFilter },
+        include: {
+          grupo: { include: { curso: true } },
+        },
+      }),
       ctx.prisma.asignacion.findMany({
-        where: { docenteId: ctx.session.docenteId },
+        where: { docenteId: ctx.session.docenteId, ...periodoFilter },
         include: {
           grupo: { include: { curso: true } },
           aula: true,
@@ -149,14 +289,13 @@ export const docenteRouter = createTRPCRouter({
       }),
     ]);
 
-    const totalHoras = docente.docenteGrupos.reduce((acc: number, dg: any) => {
-      return acc + (dg.grupo.curso.horasTeoria + dg.grupo.curso.horasLaboratorio);
-    }, 0);
+    const totalHoras = asignacionesCarga.reduce((acc, asignacion) => acc + asignacion.horasAsignadas, 0);
 
     return {
       docente,
+      asignacionesCarga,
       workload: totalHoras,
-      coursesCount: docente.docenteGrupos.length,
+      coursesCount: new Set(asignacionesCarga.map((asignacion) => asignacion.grupoId)).size,
       limits: {
         min: docente.tipo === 'NOMBRADO' ? 8 : 12,
         max: docente.tipo === 'NOMBRADO' ? 16 : 24,
@@ -166,9 +305,11 @@ export const docenteRouter = createTRPCRouter({
   }),
 
   /** Get groups for a specific docente */
-  grupos: baseProcedure
+  grupos: protectedProcedure
     .input(z.object({ docenteId: z.string() }))
     .query(async ({ ctx, input }) => {
+      assertDocenteSelfOrRole(ctx.session, input.docenteId, academicManagerRoles);
+
       return ctx.prisma.docenteGrupo.findMany({
         where: { docenteId: input.docenteId },
         include: {
@@ -206,7 +347,7 @@ export const docenteRouter = createTRPCRouter({
         include: { docenteGrupos: { include: { grupo: { include: { curso: true } } } } },
       });
 
-      const currentLoad = docente.docenteGrupos.reduce((acc: number, dg: any) => {
+      const currentLoad = docente.docenteGrupos.reduce((acc, dg) => {
         return acc + (dg.grupo.curso.horasTeoria + dg.grupo.curso.horasLaboratorio);
       }, 0);
 
@@ -257,34 +398,49 @@ export const docenteRouter = createTRPCRouter({
   }),
 
   /** Get current docente's availability */
-  getDisponibilidad: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
+  getDisponibilidad: protectedProcedure
+    .input(z.object({ periodoId: z.string().optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
-    return ctx.prisma.disponibilidadDocente.findMany({
-      where: { docenteId: ctx.session.docenteId },
-      include: { franjaHoraria: true },
-    });
-  }),
+      const periodo = await resolveAvailabilityPeriod(ctx.prisma, input?.periodoId);
+
+      return ctx.prisma.disponibilidadDocente.findMany({
+        where: { docenteId: ctx.session.docenteId, periodoId: periodo.id },
+        include: { franjaHoraria: true },
+      });
+    }),
 
   /** Save teacher availability */
   saveAvailability: protectedProcedure
-    .input(z.object({ franjaIds: z.array(z.string()) }))
+    .input(z.object({ periodoId: z.string().optional(), franjaIds: z.array(z.string()) }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
       const docenteId = ctx.session.docenteId;
+      const periodo = await resolveAvailabilityPeriod(ctx.prisma, input.periodoId);
+      const franjaIds = [...new Set(input.franjaIds)];
+
+      if (periodo.estado !== 'POSTULACION') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `La disponibilidad docente solo se puede modificar durante POSTULACION. Estado actual: ${periodo.estado}.`,
+        });
+      }
 
       return ctx.prisma.$transaction(async (tx) => {
         await tx.disponibilidadDocente.deleteMany({
-          where: { docenteId },
+          where: { docenteId, periodoId: periodo.id },
         });
 
-        if (input.franjaIds.length > 0) {
+        if (franjaIds.length > 0) {
           await tx.disponibilidadDocente.createMany({
-            data: input.franjaIds.map(id => ({
+            data: franjaIds.map(id => ({
               docenteId,
+              periodoId: periodo.id,
               franjaHorariaId: id,
             })),
+            skipDuplicates: true,
           });
         }
         return { success: true };

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure, directorProcedure } from '../init';
+import { createTRPCRouter, adminProcedure, protectedProcedure, secretariaProcedure, directorProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 import { AvailabilityService } from '@/server/services/availability';
 import { ScheduleEngine } from '@/server/services/schedule-engine';
@@ -9,7 +9,7 @@ export const horarioRouter = createTRPCRouter({
   // ─── Availability (Real-time) ────────────────────────
 
   /** Availability matrix for a single aula (raw — no docente constraints) */
-  aulaAvailability: baseProcedure
+  aulaAvailability: protectedProcedure
     .input(z.object({ periodoId: z.string(), aulaId: z.string() }))
     .query(async ({ ctx, input }) => {
       const service = new AvailabilityService(ctx.prisma);
@@ -17,16 +17,20 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Availability matrix for a single aula annotated with docente-specific constraints */
-  docenteAulaAvailability: baseProcedure
+  docenteAulaAvailability: protectedProcedure
     .input(z.object({ periodoId: z.string(), aulaId: z.string(), docenteId: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== input.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para consultar disponibilidad de otro docente' });
+      }
+
       const service = new AvailabilityService(ctx.prisma);
       return service.getDocenteAulaAvailability(input.periodoId, input.aulaId, input.docenteId);
     }),
 
   // ─── Assignments ───────────────────────────────────
 
-  list: baseProcedure
+  list: protectedProcedure
     .input(z.object({
       periodoId: z.string(),
       docenteId: z.string().optional(),
@@ -40,8 +44,8 @@ export const horarioRouter = createTRPCRouter({
         select: { estado: true }
       });
 
-      const role = ctx.session?.role;
-      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+      const role = ctx.session.role;
+      const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA' || role === 'DECANO';
       const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
 
       if (!isPrivileged && !isPublished) {
@@ -68,9 +72,19 @@ export const horarioRouter = createTRPCRouter({
       });
     }),
 
-  byAula: baseProcedure
+  byAula: protectedProcedure
     .input(z.object({ aulaId: z.string(), periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
+      const periodo = await ctx.prisma.periodoAcademico.findUnique({
+        where: { id: input.periodoId },
+        select: { estado: true },
+      });
+      const isPrivileged = ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DECANO'].includes(ctx.session.role);
+      const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
+      if (!isPrivileged && !isPublished) {
+        return [];
+      }
+
       return ctx.prisma.asignacion.findMany({
         where: { aulaId: input.aulaId, periodoId: input.periodoId },
         include: {
@@ -111,9 +125,14 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Stats for dashboard/management */
-  stats: baseProcedure
+  stats: protectedProcedure
     .input(z.object({ periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
+      const isPrivileged = ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DECANO'].includes(ctx.session.role);
+      if (!isPrivileged) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para consultar indicadores de horarios' });
+      }
+
       const [asignaciones, grupos, docentesConCargaCount] = await Promise.all([
         ctx.prisma.asignacion.findMany({
           where: { periodoId: input.periodoId },
@@ -155,7 +174,7 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Create a single assignment (from filling session or admin) */
-  create: protectedProcedure
+  create: secretariaProcedure
     .input(z.object({
       docenteId: z.string(),
       aulaId: z.string(),
@@ -276,7 +295,9 @@ export const horarioRouter = createTRPCRouter({
             cursoNombre: g.curso.nombre,
             cursoCodigo: g.curso.codigo,
             ciclo: g.curso.ciclo,
+            numAlumnos: g.numAlumnos,
             horasTeoria: g.curso.horasTeoria,
+            horasPractica: g.curso.horasPractica,
             horasLaboratorio: g.curso.horasLaboratorio,
             requiereLaboratorio: g.curso.requiereLaboratorio
           })),
@@ -434,7 +455,7 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Get approval info for the active period */
-  getApprovalInfo: baseProcedure.query(async ({ ctx }) => {
+  getApprovalInfo: protectedProcedure.query(async ({ ctx }) => {
     const activo = await ctx.prisma.periodoAcademico.findFirst({
       where: { activo: true },
       select: {
@@ -447,8 +468,8 @@ export const horarioRouter = createTRPCRouter({
       }
     });
     if (!activo) return null;
-    const role = ctx.session?.role;
-    const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
+    const role = ctx.session.role;
+    const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA' || role === 'DECANO';
     const isPublished = activo.estado === 'APROBADO' || activo.estado === 'FINALIZADO';
     return {
       ...activo,
@@ -529,7 +550,9 @@ export const horarioRouter = createTRPCRouter({
             cursoNombre: dg.grupo.curso.nombre,
             cursoCodigo: dg.grupo.curso.codigo,
             ciclo: dg.grupo.curso.ciclo,
+            numAlumnos: dg.grupo.numAlumnos,
             horasTeoria: dg.grupo.curso.horasTeoria,
+            horasPractica: dg.grupo.curso.horasPractica,
             horasLaboratorio: dg.grupo.curso.horasLaboratorio,
             requiereLaboratorio: dg.grupo.curso.requiereLaboratorio
           })),
@@ -555,7 +578,7 @@ export const horarioRouter = createTRPCRouter({
             docenteId: a.docenteId!,
             aulaId: a.aulaId,
             franjaHorariaId: a.franjaHorariaId,
-            tipo: a.tipo as any,
+            tipo: a.tipo,
             confirmado: a.confirmado
           }))
         };
@@ -638,7 +661,7 @@ export const horarioRouter = createTRPCRouter({
 
   /** Suggest an aula based on business rules */
   suggestAula: protectedProcedure
-    .input(z.object({ grupoId: z.string(), periodoId: z.string(), tipo: z.enum(['TEORIA', 'LABORATORIO']) }))
+    .input(z.object({ grupoId: z.string(), periodoId: z.string(), tipo: z.enum(['TEORIA', 'PRACTICA', 'LABORATORIO']) }))
     .query(async ({ ctx, input }) => {
       const service = new AvailabilityService(ctx.prisma);
       return service.suggestAulaForGroup(input.grupoId, input.periodoId, input.tipo);

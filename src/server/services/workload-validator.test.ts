@@ -6,6 +6,7 @@ import {
   validatePreparacionLimit,
   validateDEDictaOtraUniversidad,
   validateCargaCompleta,
+  validateAll,
   type HorarioSlot,
 } from './workload-validator';
 import { ModalidadDocente } from '@/generated/prisma/client';
@@ -175,5 +176,72 @@ describe('validateCargaCompleta', () => {
     const result = validateCargaCompleta(0, 0, 20);
     expect(result.valid).toBe(false);
     expect(result.message).toContain('Faltan');
+  });
+});
+
+describe('validateAll', () => {
+  function makePrisma({
+    asignaciones = [],
+    cargasNoLectivas = [],
+    horasContrato = 40,
+  }: {
+    asignaciones?: Array<{ id: string; tipo: string; horasAsignadas: number }>;
+    cargasNoLectivas?: Array<{ tipo: string; horas: number }>;
+    horasContrato?: number;
+  }) {
+    return {
+      docente: {
+        findUniqueOrThrow: async () => ({
+          modalidad: ModalidadDocente.TIEMPO_PARCIAL,
+          horasContrato,
+          dictaOtraUniversidad: false,
+        }),
+      },
+      asignacionCargaLectiva: {
+        findMany: async (args?: { where?: { tipo?: { not?: string }; id?: { not?: string } } }) => {
+          return asignaciones.filter((asignacion) => {
+            if (args?.where?.tipo?.not && asignacion.tipo === args.where.tipo.not) return false;
+            if (args?.where?.id?.not && asignacion.id === args.where.id.not) return false;
+            return true;
+          });
+        },
+      },
+      cargaNoLectiva: {
+        findMany: async () => cargasNoLectivas,
+      },
+    } as never;
+  }
+
+  it('counts existing assignments of the same type when adding a new lective load', async () => {
+    const prisma = makePrisma({
+      asignaciones: [
+        { id: 'a1', tipo: 'TEORIA', horasAsignadas: 20 },
+        { id: 'a2', tipo: 'TEORIA', horasAsignadas: 15 },
+      ],
+      horasContrato: 40,
+    });
+
+    const result = await validateAll(prisma, 'docente-1', 'period-1', 10, 'TEORIA');
+
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('45h > 40h');
+  });
+
+  it('replaces the current assignment hours without losing same-type assignments during updates', async () => {
+    const prisma = makePrisma({
+      asignaciones: [
+        { id: 'current', tipo: 'PRACTICA', horasAsignadas: 8 },
+        { id: 'same-type-other', tipo: 'PRACTICA', horasAsignadas: 4 },
+        { id: 'lab', tipo: 'LABORATORIO', horasAsignadas: 6 },
+      ],
+      horasContrato: 14,
+    });
+
+    const result = await validateAll(prisma, 'docente-1', 'period-1', 5, 'PRACTICA', {
+      excludeAsignacionId: 'current',
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('15h > 14h');
   });
 });

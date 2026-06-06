@@ -20,6 +20,18 @@ export const notificationRouter = createTRPCRouter({
   markAsRead: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.session?.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo docentes pueden gestionar notificaciones personales' });
+      }
+
+      const notification = await ctx.prisma.notification.findUniqueOrThrow({
+        where: { id: input.id },
+        select: { docenteId: true },
+      });
+      if (notification.docenteId !== ctx.session.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para modificar esta notificación' });
+      }
+
       return ctx.prisma.notification.update({
         where: { id: input.id },
         data: { leida: true },

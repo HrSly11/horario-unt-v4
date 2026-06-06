@@ -65,6 +65,7 @@ export class ScheduleEngine {
     const remainingByGrupo = new Map(
       this.input.grupos.map((g) => [g.id, {
         teoria: g.horasTeoria,
+        practica: g.horasPractica,
         laboratorio: g.horasLaboratorio,
       }])
     );
@@ -79,6 +80,8 @@ export class ScheduleEngine {
       if (remaining) {
         if (assignment.tipo === 'TEORIA') {
           remaining.teoria = Math.max(0, remaining.teoria - 1);
+        } else if (assignment.tipo === 'PRACTICA') {
+          remaining.practica = Math.max(0, remaining.practica - 1);
         } else {
           remaining.laboratorio = Math.max(0, remaining.laboratorio - 1);
         }
@@ -108,6 +111,21 @@ export class ScheduleEngine {
             remaining.teoria,
             teoriaAulas,
             'TEORIA'
+          );
+
+          if (assigned) {
+            assignedGrupos.add(grupoId);
+          }
+        }
+
+        // Assign practice hours in theory aulas
+        if (remaining.practica > 0) {
+          const assigned = this.assignSlots(
+            docente.id,
+            grupoId,
+            remaining.practica,
+            teoriaAulas,
+            'PRACTICA'
           );
 
           if (assigned) {
@@ -155,7 +173,7 @@ export class ScheduleEngine {
     grupoId: string,
     hoursNeeded: number,
     availableAulas: AulaForSchedule[],
-    tipo: 'TEORIA' | 'LABORATORIO'
+    tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO'
   ): boolean {
     if (availableAulas.length === 0) {
       this.unassigned.push({
@@ -167,6 +185,19 @@ export class ScheduleEngine {
     }
 
     const grupo = this.input.grupos.find(g => g.id === grupoId);
+    const capacityEligibleAulas = grupo
+      ? availableAulas.filter((aula) => aula.capacidad >= grupo.numAlumnos)
+      : availableAulas;
+
+    if (capacityEligibleAulas.length === 0) {
+      this.unassigned.push({
+        grupoId,
+        tipo,
+        reason: `No hay aula de tipo ${tipo.toLowerCase()} con capacidad suficiente para ${grupo?.numAlumnos ?? 0} alumnos`,
+      });
+      return false;
+    }
+
     let assignedCount = 0;
 
     // Group franjas by day and sort by block number
@@ -234,7 +265,7 @@ export class ScheduleEngine {
 
           // Find an aula that is available for the ENTIRE block
           let selectedAula: AulaForSchedule | null = null;
-          for (const aula of availableAulas) {
+          for (const aula of capacityEligibleAulas) {
             const isAulaAvailableForBlock = candidateBlock.every(franja => {
               if (this.isAulaBlocked(aula.id, franja.id)) return false;
               if (!this.checker.isSlotFullyAvailable(docenteId, aula.id, grupoId, franja.id, grupo?.ciclo)) {

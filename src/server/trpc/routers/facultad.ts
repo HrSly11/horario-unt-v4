@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure } from '../init';
+import { createTRPCRouter, adminProcedure, protectedProcedure } from '../init';
 
 const facultadInput = z.object({
   nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
@@ -7,7 +7,7 @@ const facultadInput = z.object({
 });
 
 export const facultadRouter = createTRPCRouter({
-  list: baseProcedure.query(async ({ ctx }) => {
+  list: protectedProcedure.query(async ({ ctx }) => {
     return ctx.prisma.facultad.findMany({
       include: {
         _count: {
@@ -18,7 +18,7 @@ export const facultadRouter = createTRPCRouter({
     });
   }),
 
-  byId: baseProcedure
+  byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       return ctx.prisma.facultad.findUniqueOrThrow({

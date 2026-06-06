@@ -57,7 +57,6 @@ export function Sidebar() {
     ],
     DECANO: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { name: 'Organización', href: '/organizacion', icon: Building2 },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Reportes', href: '/reportes', icon: FileText },

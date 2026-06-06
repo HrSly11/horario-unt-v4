@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, decanoProcedure, directorDepartamentoProcedure } from '../init';
+import { createTRPCRouter, adminProcedure, decanoProcedure, protectedProcedure } from '../init';
+import {
+  assertActiveUserWithRole,
+  assertCanAccessDepartamento,
+  assertRole,
+  buildDepartmentScopedUserWhere,
+  getManagedDepartamentoIds,
+} from '../policy';
 
 const departamentoInput = z.object({
   nombre: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
@@ -7,7 +14,7 @@ const departamentoInput = z.object({
 });
 
 export const departamentoRouter = createTRPCRouter({
-  list: baseProcedure
+  list: protectedProcedure
     .input(
       z.object({
         facultadId: z.string().optional(),
@@ -16,6 +23,8 @@ export const departamentoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const where: Record<string, unknown> = {};
       if (input?.facultadId) where.facultadId = input.facultadId;
+      const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+      if (managedDepartamentoIds !== null) where.id = { in: managedDepartamentoIds };
 
       return ctx.prisma.departamento.findMany({
         where,
@@ -29,9 +38,11 @@ export const departamentoRouter = createTRPCRouter({
       });
     }),
 
-  byId: baseProcedure
+  byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
+      await assertCanAccessDepartamento(ctx.prisma, ctx.session, input.id);
+
       return ctx.prisma.departamento.findUniqueOrThrow({
         where: { id: input.id },
         include: {
@@ -78,7 +89,9 @@ export const departamentoRouter = createTRPCRouter({
         directorId: z.string(),
       })
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      await assertActiveUserWithRole(ctx.prisma, input.directorId, 'DIRECTOR_DEPARTAMENTO');
+
       return ctx.prisma.departamento.update({
         where: { id: input.id },
         data: {
@@ -96,14 +109,20 @@ export const departamentoRouter = createTRPCRouter({
         secretariaId: z.string(),
       })
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
+      await assertActiveUserWithRole(ctx.prisma, input.secretariaId, 'SECRETARIA_DEPARTAMENTO');
+
       return ctx.prisma.departamento.update({
         where: { id: input.id },
-        data: { secretariaId: input.secretariaId },
+        data: {
+          secretariaId: input.secretariaId,
+          designadoPorId: ctx.session.id,
+          fechaDesignacion: new Date(),
+        },
       });
     }),
 
-  listUsersByRole: directorDepartamentoProcedure
+  listUsersByRole: protectedProcedure
     .input(
       z.object({
         departamentoId: z.string(),
@@ -111,8 +130,11 @@ export const departamentoRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      assertRole(ctx.session, ['ADMIN', 'DECANO', 'DIRECTOR_DEPARTAMENTO', 'SECRETARIA_DEPARTAMENTO']);
+      await assertCanAccessDepartamento(ctx.prisma, ctx.session, input.departamentoId);
+
       return ctx.prisma.user.findMany({
-        where: { role: input.role, activo: true },
+        where: buildDepartmentScopedUserWhere(input.role, input.departamentoId),
         select: { id: true, nombre: true, email: true, role: true },
         orderBy: { nombre: 'asc' },
       });

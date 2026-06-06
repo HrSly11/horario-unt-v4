@@ -39,7 +39,9 @@ function makeGrupo(id: string, overrides: Partial<GrupoForSchedule> = {}): Grupo
     cursoNombre: `Curso ${id}`,
     cursoCodigo: `IS-${id}`,
     ciclo: 5,
+    numAlumnos: 30,
     horasTeoria: 2,
+    horasPractica: 0,
     horasLaboratorio: 0,
     requiereLaboratorio: false,
     ...overrides,
@@ -94,6 +96,39 @@ describe('ScheduleEngine', () => {
     expect(labAssignments.length).toBe(2);
     expect(teoriaAssignments.every((a) => a.aulaId === 'a-teoria')).toBe(true);
     expect(labAssignments.every((a) => a.aulaId === 'a-lab')).toBe(true);
+  });
+
+  it('assigns practice hours to theory aulas independently from theory and lab hours', () => {
+    const engine = new ScheduleEngine({
+      docentes: [makeDocente('d1')],
+      grupos: [makeGrupo('g-practica', { horasTeoria: 0, horasPractica: 2, horasLaboratorio: 0 })],
+      aulas: [makeAula('a-teoria', 'TEORIA')],
+      franjas: makeFranjas(10),
+      docenteGrupoMap: makeMap([['d1', ['g-practica']]]),
+    });
+
+    const result = engine.generate();
+
+    expect(result.assignments).toHaveLength(2);
+    expect(result.assignments.every((a) => a.tipo === 'PRACTICA')).toBe(true);
+    expect(result.assignments.every((a) => a.aulaId === 'a-teoria')).toBe(true);
+    expect(result.unassigned).toHaveLength(0);
+  });
+
+  it('does not assign a group to an aula below its enrollment capacity', () => {
+    const engine = new ScheduleEngine({
+      docentes: [makeDocente('d1')],
+      grupos: [makeGrupo('g-large', { numAlumnos: 45, horasTeoria: 1 })],
+      aulas: [makeAula('a-small', 'TEORIA')],
+      franjas: makeFranjas(3),
+      docenteGrupoMap: makeMap([['d1', ['g-large']]]),
+    });
+
+    const result = engine.generate();
+
+    expect(result.assignments).toHaveLength(0);
+    expect(result.unassigned).toHaveLength(1);
+    expect(result.unassigned[0].reason).toContain('capacidad');
   });
 
   it('respects docente hierarchy — higher priority docente gets preferred slots', () => {
