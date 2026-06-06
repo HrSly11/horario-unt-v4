@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} h-full`}>
+    <html lang="es" className={`${inter.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full bg-slate-100 text-slate-900 font-[family-name:var(--font-inter)]">
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
