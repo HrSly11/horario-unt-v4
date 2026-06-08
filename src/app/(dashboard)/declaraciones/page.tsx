@@ -5,9 +5,26 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
   FileCheck, ChevronDown, ChevronUp, Send, CheckCircle2,
-  XCircle, RotateCcw, Award, Plus, FileText, Loader2,
+  XCircle, RotateCcw, Award, Plus, FileText, Loader2, Download,
+  Trash2, RefreshCw,
 } from 'lucide-react';
 import Link from 'next/link';
+
+function downloadBase64PDF(base64: string, filename: string) {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 const ESTADO_BADGES: Record<string, string> = {
   BORRADOR: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -58,6 +75,7 @@ export default function DeclaracionesPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [rejectModalId, setRejectModalId] = useState<string | null>(null);
   const [rejectObservaciones, setRejectObservaciones] = useState('');
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const periodoId = selectedPeriodoId || (periodos.length > 0 ? periodos[0].id : '');
 
@@ -76,6 +94,24 @@ export default function DeclaracionesPage() {
     queryClient.invalidateQueries({ queryKey: trpc.declaracion.list.queryKey() });
     queryClient.invalidateQueries({ queryKey: trpc.declaracion.pendientes.queryKey() });
   }
+
+  const generatePDFMutation = useMutation(
+    trpc.declaracionPDF.generate.mutationOptions({
+      onSuccess: (data) => {
+        downloadBase64PDF(data.pdfBase64, data.filename);
+        setDownloadingId(null);
+      },
+      onError: () => {
+        setDownloadingId(null);
+        alert('Error al generar el PDF. Verifique que la declaración tenga carga asignada.');
+      },
+    })
+  );
+
+  const handleDownload = (declaracionId: string) => {
+    setDownloadingId(declaracionId);
+    generatePDFMutation.mutate({ declaracionId, formato: 'N1' });
+  };
 
   const createMutation = useMutation(
     trpc.declaracion.create.mutationOptions({
@@ -123,10 +159,27 @@ export default function DeclaracionesPage() {
     })
   );
 
+  const deleteMutation = useMutation(
+    trpc.declaracion.delete.mutationOptions({
+      onSuccess: () => {
+        invalidateAll();
+        setExpandedId(null);
+      },
+      onError: (err) => alert(err.message),
+    })
+  );
+
+  const updateTotalsMutation = useMutation(
+    trpc.declaracion.updateTotals.mutationOptions({
+      onSuccess: () => invalidateAll(),
+      onError: (err) => alert(err.message),
+    })
+  );
+
   const anyMutationPending =
     createMutation.isPending || enviarMutation.isPending || aprobarDeptoMutation.isPending ||
     aprobarEscuelaMutation.isPending || vbDecanoMutation.isPending || rechazarMutation.isPending ||
-    reabrirMutation.isPending;
+    reabrirMutation.isPending || deleteMutation.isPending || updateTotalsMutation.isPending;
 
   function handleCreate() {
     if (!user?.docenteId || !periodoId) return;
@@ -142,7 +195,10 @@ export default function DeclaracionesPage() {
     if (isAdmin) return true;
     switch (action) {
       case 'enviar':
-        return isDocente && user?.docenteId === decDocenteId && (estado === 'BORRADOR' || estado === 'RECHAZADA');
+        // El docente puede enviar su propia declaración
+        // El director de departamento también puede enviar si el docente no lo hace (opcional, pero ayuda al flujo)
+        return (isDocente && user?.docenteId === decDocenteId && (estado === 'BORRADOR' || estado === 'RECHAZADA')) ||
+               (isDirectorDepto && (estado === 'BORRADOR' || estado === 'RECHAZADA'));
       case 'aprobarDepto':
         return isDirectorDepto && estado === 'ENVIADA';
       case 'aprobarEscuela':
@@ -150,10 +206,14 @@ export default function DeclaracionesPage() {
       case 'vbDecano':
         return isDecano && estado === 'APROBADA_ESCUELA';
       case 'rechazar':
-        return (isDirectorDepto || isDirectorEscuela) &&
+        return (isDirectorDepto || isDirectorEscuela || isDecano) &&
           ['ENVIADA', 'APROBADA_DEPARTAMENTO', 'APROBADA_ESCUELA'].includes(estado);
       case 'reabrir':
         return isDocente && user?.docenteId === decDocenteId && estado === 'RECHAZADA';
+      case 'eliminar':
+        return (isDocente && user?.docenteId === decDocenteId && (estado === 'BORRADOR' || estado === 'RECHAZADA')) || isAdmin;
+      case 'actualizar':
+        return (isDocente && user?.docenteId === decDocenteId && (estado === 'BORRADOR' || estado === 'RECHAZADA')) || isAdmin;
       default:
         return false;
     }
@@ -222,6 +282,10 @@ export default function DeclaracionesPage() {
               onVbDecano={() => vbDecanoMutation.mutate({ id: dec.id })}
               onRechazar={() => { setRejectModalId(dec.id); setRejectObservaciones(''); }}
               onReabrir={() => reabrirMutation.mutate({ id: dec.id })}
+              onDelete={() => { if(confirm('¿Estás seguro de eliminar esta declaración?')) deleteMutation.mutate({ id: dec.id }); }}
+              onUpdateTotals={() => updateTotalsMutation.mutate({ id: dec.id })}
+              onDownload={() => handleDownload(dec.id)}
+              isDownloading={downloadingId === dec.id}
               mutationPending={anyMutationPending}
               periodoId={periodoId}
             />
@@ -295,7 +359,7 @@ type DeclaracionData = {
   totalHorasNoLectivas: number;
   totalHoras: number;
   observaciones: string | null;
-  docente: { id: string; nombre: string };
+  docente: { id: string; nombre: string; horasContrato: number };
   periodo: { id: string; nombre: string };
 };
 
@@ -310,6 +374,10 @@ function DeclaracionCard({
   onVbDecano,
   onRechazar,
   onReabrir,
+  onDelete,
+  onUpdateTotals,
+  onDownload,
+  isDownloading,
   mutationPending,
   periodoId,
 }: {
@@ -323,6 +391,10 @@ function DeclaracionCard({
   onVbDecano: () => void;
   onRechazar: () => void;
   onReabrir: () => void;
+  onDelete: () => void;
+  onUpdateTotals: () => void;
+  onDownload: () => void;
+  isDownloading: boolean;
   mutationPending: boolean;
   periodoId: string;
 }) {
@@ -334,10 +406,12 @@ function DeclaracionCard({
   const showVbDecano = canPerformAction(dec.docenteId, dec.estado, 'vbDecano');
   const showRechazar = canPerformAction(dec.docenteId, dec.estado, 'rechazar');
   const showReabrir = canPerformAction(dec.docenteId, dec.estado, 'reabrir');
-  const showFormatos = dec.estado === 'FINALIZADA';
+  const showEliminar = canPerformAction(dec.docenteId, dec.estado, 'eliminar');
+  const showActualizar = canPerformAction(dec.docenteId, dec.estado, 'actualizar');
+  const showFormatos = dec.estado === 'FINALIZADA' || dec.estado === 'APROBADA_ESCUELA';
 
   const hasActions = showEnviar || showAprobarDepto || showAprobarEscuela ||
-    showVbDecano || showRechazar || showReabrir || showFormatos;
+    showVbDecano || showRechazar || showReabrir || showEliminar || showActualizar || showFormatos;
 
   return (
     <div className="bg-zinc-900/80 border border-zinc-800 rounded-lg p-4">
@@ -348,6 +422,16 @@ function DeclaracionCard({
           <span className="text-zinc-500 text-sm">{dec.periodo.nombre}</span>
         </div>
         <div className="flex items-center gap-2">
+          {showEliminar && (
+            <button
+              onClick={onDelete}
+              disabled={mutationPending}
+              title="Eliminar declaración"
+              className="p-1.5 rounded-md text-zinc-500 hover:bg-red-500/10 hover:text-red-400 transition-colors disabled:opacity-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
           <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${ESTADO_BADGES[dec.estado] || ''}`}>
             {ESTADO_LABELS[dec.estado] || dec.estado.replace(/_/g, ' ')}
           </span>
@@ -383,12 +467,26 @@ function DeclaracionCard({
       </div>
 
       {/* Hours summary */}
-      <div className="flex items-center gap-2 text-sm text-zinc-400">
-        <span>Lectivas: {dec.totalHorasLectivas}h</span>
-        <span>|</span>
-        <span>No Lectivas: {dec.totalHorasNoLectivas}h</span>
-        <span>|</span>
-        <span className="text-white font-medium">Total: {dec.totalHoras}h</span>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-400">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+          Lectivas: <span className="text-zinc-200">{dec.totalHorasLectivas}h</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+          No Lectivas: <span className="text-zinc-200">{dec.totalHorasNoLectivas}h</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Total: <span className="text-white font-bold">{dec.totalHoras}h</span>
+          <span className="text-zinc-500">/ {dec.docente.horasContrato}h contrato</span>
+        </div>
+        {dec.totalHoras < dec.docente.horasContrato && (dec.estado === 'BORRADOR' || dec.estado === 'RECHAZADA') && (
+          <div className="flex items-center gap-1 text-xs text-amber-400 font-medium bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+            <Loader2 className="h-3 w-3 animate-pulse" />
+            Faltan {dec.docente.horasContrato - dec.totalHoras}h para completar contrato
+          </div>
+        )}
       </div>
 
       {/* Observaciones (if rejected) */}
@@ -400,76 +498,94 @@ function DeclaracionCard({
 
       {/* Action buttons */}
       {hasActions && (
-        <div className="mt-3 pt-3 border-t border-zinc-800 flex flex-wrap items-center gap-2">
-          {showEnviar && (
-            <button
-              onClick={onEnviar}
-              disabled={mutationPending}
-              className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50"
-            >
-              <Send className="h-3.5 w-3.5" />
-              Enviar
-            </button>
-          )}
-          {showAprobarDepto && (
-            <button
-              onClick={onAprobarDepto}
-              disabled={mutationPending}
-              className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50"
-            >
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Aprobar (Depto)
-            </button>
-          )}
-          {showAprobarEscuela && (
-            <button
-              onClick={onAprobarEscuela}
-              disabled={mutationPending}
-              className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50"
-            >
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Aprobar (Escuela)
-            </button>
-          )}
-          {showVbDecano && (
-            <button
-              onClick={onVbDecano}
-              disabled={mutationPending}
-              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
-            >
-              <Award className="h-3.5 w-3.5" />
-              V°B° Finalizar
-            </button>
-          )}
-          {showRechazar && (
-            <button
-              onClick={onRechazar}
-              disabled={mutationPending}
-              className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
-            >
-              <XCircle className="h-3.5 w-3.5" />
-              Rechazar
-            </button>
-          )}
-          {showReabrir && (
-            <button
-              onClick={onReabrir}
-              disabled={mutationPending}
-              className="flex items-center gap-1.5 rounded-lg bg-yellow-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-yellow-500 disabled:opacity-50"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Reabrir
-            </button>
-          )}
-          {showFormatos && (
-            <Link
-              href="/formatos"
-              className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
-            >
-              <FileText className="h-3.5 w-3.5" />
-              Descargar PDF
-            </Link>
-          )}
+        <div className="mt-3 pt-3 border-t border-zinc-800 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {showEnviar && (
+              <button
+                onClick={onEnviar}
+                disabled={mutationPending}
+                className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                <Send className="h-3.5 w-3.5" />
+                Enviar Declaración
+              </button>
+            )}
+            {showActualizar && (
+              <button
+                onClick={onUpdateTotals}
+                disabled={mutationPending}
+                title="Actualizar horas desde las actividades registradas"
+                className="flex items-center gap-1.5 rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-zinc-700 hover:text-white disabled:opacity-50 transition-all active:scale-95"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${mutationPending ? 'animate-spin' : ''}`} />
+                Actualizar Horas
+              </button>
+            )}
+            {showAprobarDepto && (
+              <button
+                onClick={onAprobarDepto}
+                disabled={mutationPending}
+                className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Aprobar (Depto)
+              </button>
+            )}
+            {showAprobarEscuela && (
+              <button
+                onClick={onAprobarEscuela}
+                disabled={mutationPending}
+                className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Aprobar (Escuela)
+              </button>
+            )}
+            {showVbDecano && (
+              <button
+                onClick={onVbDecano}
+                disabled={mutationPending}
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                <Award className="h-3.5 w-3.5" />
+                V°B° Finalizar
+              </button>
+            )}
+            {showRechazar && (
+              <button
+                onClick={onRechazar}
+                disabled={mutationPending}
+                className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                <XCircle className="h-3.5 w-3.5" />
+                Rechazar
+              </button>
+            )}
+            {showReabrir && (
+              <button
+                onClick={onReabrir}
+                disabled={mutationPending}
+                className="flex items-center gap-1.5 rounded-lg bg-yellow-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-yellow-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reabrir
+              </button>
+            )}
+            {showFormatos && (
+              <button
+                onClick={onDownload}
+                disabled={isDownloading || mutationPending}
+                className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                {isDownloading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Download className="h-3.5 w-3.5" />
+                )}
+                Descargar PDF
+              </button>
+            )}
+          </div>
         </div>
       )}
 

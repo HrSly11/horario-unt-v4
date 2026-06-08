@@ -121,6 +121,50 @@ export const authRouter = createTRPCRouter({
       return { success: true, user: { id: user.id, email: user.email, nombre: user.nombre } };
     }),
 
+  createUser: adminProcedure
+    .input(z.object({
+      nombre: z.string(),
+      email: z.string().email(),
+      password: z.string().min(8),
+      role: z.enum(['ADMIN', 'DOCENTE', 'ESTUDIANTE', 'INVITADO', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DIRECTOR_DEPARTAMENTO', 'SECRETARIA_DEPARTAMENTO', 'DECANO']),
+      docenteId: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const existingUser = await ctx.prisma.user.findUnique({
+        where: { email: input.email }
+      });
+
+      if (existingUser) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'Ya existe una cuenta con este correo electrónico',
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(input.password, 10);
+      const user = await ctx.prisma.user.create({
+        data: {
+          email: input.email,
+          password: hashedPassword,
+          nombre: input.nombre,
+          role: input.role,
+          docenteId: input.docenteId,
+          activo: true,
+        }
+      });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'USER_CREATED',
+        entidad: 'User',
+        entidadId: user.id,
+        detalles: `Administrador creó usuario ${user.email} con rol ${user.role}`,
+      });
+
+      return { success: true, user: { id: user.id, email: user.email, nombre: user.nombre } };
+    }),
+
   logout: baseProcedure.mutation(async () => {
     (await cookies()).delete('session');
     return { success: true };

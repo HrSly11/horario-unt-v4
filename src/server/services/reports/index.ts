@@ -4,4 +4,5 @@ export {
   generateDocenteReportHTML,
   generateManagementReportHTML,
   generateCicloReportHTML,
+  generateAuditReportHTML,
 } from './templates';

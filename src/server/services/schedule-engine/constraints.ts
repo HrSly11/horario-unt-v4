@@ -49,12 +49,18 @@ export class ConstraintChecker {
     aulaId: string,
     grupoId: string,
     franjaId: string,
-    cycle?: number
+    cycle?: number,
+    tipo?: 'TEORIA' | 'PRACTICA' | 'LABORATORIO'
   ): boolean {
     const docenteFree = this.isDocenteAvailable(docenteId, franjaId);
     const aulaFree = this.isAulaAvailable(aulaId, franjaId);
-    const grupoFree = this.isGrupoAvailable(grupoId, franjaId);
-    const cycleFree = cycle !== undefined ? this.isCycleAvailable(cycle, franjaId) : true;
+    
+    // For LABORATORIO, we allow the same group and cycle to have multiple assignments
+    // at the same time (in different aulas/with different docentes),
+    // because labs divide the students.
+    const isLab = tipo === 'LABORATORIO';
+    const grupoFree = isLab ? true : this.isGrupoAvailable(grupoId, franjaId);
+    const cycleFree = (isLab || cycle === undefined) ? true : this.isCycleAvailable(cycle, franjaId);
 
     const available = docenteFree && aulaFree && grupoFree && cycleFree;
 

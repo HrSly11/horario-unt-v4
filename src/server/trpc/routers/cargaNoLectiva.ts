@@ -81,8 +81,12 @@ async function assertNonLectiveScheduleIntegrity(
 ) {
   if (!horarios || horarios.length === 0) return;
 
-  const [lectiveAssignments, existingNonLectiveLoads] = await Promise.all([
+  const [lectiveAssignments, preasignaciones, existingNonLectiveLoads] = await Promise.all([
     prisma.asignacion.findMany({
+      where: { docenteId, periodoId },
+      include: { franjaHoraria: true },
+    }),
+    prisma.preasignacion.findMany({
       where: { docenteId, periodoId },
       include: { franjaHoraria: true },
     }),
@@ -98,6 +102,7 @@ async function assertNonLectiveScheduleIntegrity(
 
   const existingSlots = [
     ...lectiveAssignments.map((assignment) => slotFromFranja(assignment.franjaHoraria)),
+    ...preasignaciones.map((pre) => slotFromFranja(pre.franjaHoraria)),
     ...existingNonLectiveLoads.flatMap((load) => load.horarios.map(slotFromHorario)),
   ];
   const result = validateNonLectiveSchedule(existingSlots, horarios.map(slotFromHorario));

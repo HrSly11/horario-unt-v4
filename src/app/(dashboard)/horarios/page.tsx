@@ -3,12 +3,12 @@
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Building2, FlaskConical, User, Calendar, FileDown, CheckCircle2, XCircle, Send, AlertTriangle, EyeOff } from 'lucide-react';
+import { Building2, FlaskConical, User, Calendar, FileDown, CheckCircle2, XCircle, Send, AlertTriangle, EyeOff, Loader2, X } from 'lucide-react';
 
-const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
+const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 const DIA_LABELS: Record<string, string> = {
   LUNES: 'Lun', MARTES: 'Mar', MIERCOLES: 'Mié',
-  JUEVES: 'Jue', VIERNES: 'Vie',
+  JUEVES: 'Jue', VIERNES: 'Vie', SABADO: 'Sáb',
 };
 
 const ESTADO_LABELS: Record<string, string> = {
@@ -21,31 +21,25 @@ const ESTADO_LABELS: Record<string, string> = {
 };
 
 const ESTADO_COLORS: Record<string, string> = {
-  PLANIFICACION: 'bg-slate-500',
-  POSTULACION: 'bg-blue-500',
-  ASIGNACION: 'bg-amber-500',
-  REVISION: 'bg-purple-500',
-  APROBADO: 'bg-emerald-500',
-  FINALIZADO: 'bg-emerald-600',
+  PLANIFICACION: 'bg-slate-100 text-slate-500 border-slate-200',
+  POSTULACION: 'bg-primary/10 text-primary border-primary/20',
+  ASIGNACION: 'bg-warning/10 text-warning border-warning/20',
+  REVISION: 'bg-info/10 text-info border-info/20',
+  APROBADO: 'bg-success/10 text-success border-success/20',
+  FINALIZADO: 'bg-success text-white border-success/20',
 };
 
 const SLOT_COLORS = [
-  'bg-indigo-500/20 border-indigo-500/30 text-indigo-300',
-  'bg-cyan-500/20 border-cyan-500/30 text-cyan-300',
-  'bg-emerald-500/20 border-emerald-500/30 text-emerald-300',
-  'bg-amber-500/20 border-amber-500/30 text-amber-300',
-  'bg-purple-500/20 border-purple-500/30 text-purple-300',
-  'bg-rose-500/20 border-rose-500/30 text-rose-300',
-  'bg-teal-500/20 border-teal-500/30 text-teal-300',
-  'bg-orange-500/20 border-orange-500/30 text-orange-300',
-  'bg-lime-500/20 border-lime-500/30 text-lime-300',
-  'bg-pink-500/20 border-pink-500/30 text-pink-300',
-  'bg-violet-500/20 border-violet-500/30 text-violet-300',
-  'bg-fuchsia-500/20 border-fuchsia-500/30 text-fuchsia-300',
-  'bg-sky-500/20 border-sky-500/30 text-sky-300',
-  'bg-blue-500/20 border-blue-500/30 text-blue-300',
-  'bg-red-500/20 border-red-500/30 text-red-300',
-  'bg-yellow-500/20 border-yellow-500/30 text-yellow-300',
+  'bg-blue-50 border-blue-200 text-blue-700',
+  'bg-purple-50 border-purple-200 text-purple-700',
+  'bg-emerald-50 border-emerald-200 text-emerald-700',
+  'bg-amber-50 border-amber-200 text-amber-700',
+  'bg-rose-50 border-rose-200 text-rose-700',
+  'bg-sky-50 border-sky-200 text-sky-700',
+  'bg-indigo-50 border-indigo-200 text-indigo-700',
+  'bg-teal-50 border-teal-200 text-teal-700',
+  'bg-orange-50 border-orange-200 text-orange-700',
+  'bg-lime-50 border-lime-200 text-lime-700',
 ];
 
 type ViewMode = 'general' | 'aula' | 'docente' | 'mi-horario' | 'ciclo';
@@ -170,14 +164,14 @@ export default function HorariosPage() {
     <div className="space-y-6">
       {/* ===== APPROVAL BANNER ===== */}
       {isDirector && estado === 'REVISION' && (
-        <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-5">
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-5">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-purple-400" />
-                <h2 className="text-lg font-bold text-purple-200">Horario pendiente de revisión</h2>
+                <AlertTriangle className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-bold text-text-main">Horario pendiente de revisión</h2>
               </div>
-              <p className="text-sm text-purple-300/70 mt-1">
+              <p className="text-sm text-text-main mt-1 font-medium">
                 La secretaria ha enviado la asignación para su aprobación.
                 Revise el horario y apruebe o devuelva con observaciones.
               </p>
@@ -185,7 +179,7 @@ export default function HorariosPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowRejectModal(true)}
-                className="flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-300 hover:bg-red-500/20 transition-colors"
+                className="btn-secondary text-danger border-danger/30 hover:bg-danger/5"
               >
                 <XCircle className="h-4 w-4" /> Devolver con observaciones
               </button>
@@ -195,23 +189,22 @@ export default function HorariosPage() {
                   approveMutation.mutate({ periodoId: periodoActivo.id, comentarios: 'Horario conforme. Aprobado por Dirección de Escuela.' });
                 }}
                 disabled={approveMutation.isPending}
-                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-500 transition-colors disabled:opacity-50"
+                className="btn-primary"
               >
                 <CheckCircle2 className="h-4 w-4" /> {approveMutation.isPending ? 'Aprobando...' : 'Aprobar horario'}
               </button>
             </div>
           </div>
 
-          {/* Reject Modal */}
+          {/* Reject Modal Inline */}
           {showRejectModal && (
-            <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/5 p-4">
-              <p className="text-sm font-bold text-red-300 mb-2">Motivo de devolución (obligatorio)</p>
+            <div className="mt-4 rounded-lg border border-danger/20 bg-white p-4 shadow-sm">
+              <p className="text-sm font-bold text-text-main mb-2">Motivo de devolución (obligatorio)</p>
               <textarea
                 value={rejectComment}
                 onChange={(e) => setRejectComment(e.target.value)}
-                placeholder="Describa las correcciones necesarias para que la secretaria realice los ajustes..."
-                className="w-full rounded-lg border border-red-500/30 bg-gray-950 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                rows={3}
+                placeholder="Describa las correcciones necesarias..."
+                className="input-standard h-24"
               />
               <div className="flex gap-2 mt-3">
                 <button
@@ -220,13 +213,13 @@ export default function HorariosPage() {
                     rejectMutation.mutate({ periodoId: periodoActivo.id, comentarios: rejectComment.trim() });
                   }}
                   disabled={rejectMutation.isPending || !rejectComment.trim()}
-                  className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-500 disabled:opacity-50"
+                  className="btn-primary bg-danger hover:bg-red-700"
                 >
                   {rejectMutation.isPending ? 'Devolviendo...' : 'Confirmar devolución'}
                 </button>
                 <button
                   onClick={() => { setShowRejectModal(false); setRejectComment(''); }}
-                  className="rounded-lg border border-gray-700 px-4 py-2 text-xs font-bold text-gray-400 hover:text-white"
+                  className="btn-secondary"
                 >
                   Cancelar
                 </button>
@@ -238,17 +231,17 @@ export default function HorariosPage() {
 
       {/* ===== DIRECTOR REJECTION FEEDBACK (for secretary) ===== */}
       {isSecretaria && estado === 'ASIGNACION' && approvalInfo?.comentariosDirector && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5">
+        <div className="rounded-xl border border-warning/30 bg-warning/5 p-5">
           <div className="flex items-start gap-3">
-            <XCircle className="h-5 w-5 text-amber-400 mt-0.5 shrink-0" />
+            <AlertTriangle className="h-5 w-5 text-warning mt-0.5 shrink-0" />
             <div>
-              <h2 className="text-lg font-bold text-amber-200">Horario devuelto por el director</h2>
-              <p className="text-sm text-amber-300/70 mt-1">
+              <h2 className="text-lg font-bold text-text-main">Horario devuelto por el director</h2>
+              <p className="text-sm text-text-main mt-1 font-medium">
                 El director ha solicitado modificaciones. Realice los ajustes necesarios y vuelva a enviar para revisión.
               </p>
-              <div className="mt-3 rounded-lg border border-amber-500/20 bg-gray-950/50 p-4">
-                <p className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">Observaciones del director:</p>
-                <p className="text-sm text-gray-200">{approvalInfo.comentariosDirector}</p>
+              <div className="mt-3 rounded-lg border border-warning/20 bg-white p-4">
+                <p className="text-xs font-bold text-warning uppercase tracking-wider mb-1">Observaciones del director:</p>
+                <p className="text-sm text-text-main font-semibold italic">"{approvalInfo.comentariosDirector}"</p>
               </div>
             </div>
           </div>
@@ -257,19 +250,16 @@ export default function HorariosPage() {
 
       {/* ===== APPROVED / PUBLISHED BANNER ===== */}
       {estado === 'APROBADO' && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+        <div className="rounded-xl border border-success/30 bg-success/5 p-5">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-                <h2 className="text-lg font-bold text-emerald-200">Horario aprobado</h2>
+                <CheckCircle2 className="h-5 w-5 text-success" />
+                <h2 className="text-lg font-bold text-text-main">Horario aprobado</h2>
               </div>
-              <p className="text-sm text-emerald-300/70 mt-1">
+              <p className="text-sm text-text-main mt-1 font-medium">
                 {approvalInfo?.aprobadoPor?.nombre ? `Aprobado por ${approvalInfo.aprobadoPor.nombre}` : 'Aprobado por Dirección de Escuela'}.
                 {approvalInfo?.fechaAprobacion ? ` ${new Date(approvalInfo.fechaAprobacion).toLocaleDateString('es-PE')}` : ''}
-                {approvalInfo?.comentariosDirector && (
-                  <span className="block mt-1 italic">&ldquo;{approvalInfo.comentariosDirector}&rdquo;</span>
-                )}
               </p>
             </div>
             {isDirector && (
@@ -280,7 +270,7 @@ export default function HorariosPage() {
                   publishMutation.mutate({ periodoId: periodoActivo.id });
                 }}
                 disabled={publishMutation.isPending}
-                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-500 transition-colors disabled:opacity-50"
+                className="btn-primary bg-success hover:bg-green-700"
               >
                 <Send className="h-4 w-4" /> {publishMutation.isPending ? 'Publicando...' : 'Publicar horario'}
               </button>
@@ -290,12 +280,12 @@ export default function HorariosPage() {
       )}
 
       {estado === 'FINALIZADO' && (
-        <div className="rounded-xl border border-emerald-600/30 bg-emerald-600/10 p-4">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+        <div className="rounded-xl border border-success/30 bg-success/5 p-5">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="h-5 w-5 text-success mt-0.5 shrink-0" />
             <div>
-              <h2 className="text-lg font-bold text-emerald-200">Horario publicado</h2>
-              <p className="text-sm text-emerald-300/70">Visible para todos los usuarios de la escuela.</p>
+              <h2 className="text-lg font-bold text-text-main">Horario publicado</h2>
+              <p className="text-sm text-text-main font-medium">El horario ya está visible para todos los usuarios de la escuela.</p>
             </div>
           </div>
         </div>
@@ -303,12 +293,12 @@ export default function HorariosPage() {
 
       {/* ===== DRAFT PREVIEW for privileged users during ASIGNACION ===== */}
       {isPrivileged && estado === 'ASIGNACION' && (
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-400" />
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <div>
-              <h2 className="text-sm font-bold text-amber-200">Previsualización — Asignación en curso</h2>
-              <p className="text-xs text-amber-300/70 mt-0.5">
+              <h2 className="text-sm font-bold text-text-main">Previsualización — Asignación en curso</h2>
+              <p className="text-xs text-text-main mt-1 font-medium">
                 La secretaria está asignando los horarios. Esta vista es solo para seguimiento interno.
                 El horario no será visible para docentes ni público hasta que sea aprobado y publicado.
               </p>
@@ -319,10 +309,12 @@ export default function HorariosPage() {
 
       {/* ===== NOT PUBLISHED — Non-privileged ===== */}
       {!isPrivileged && !isPublished && (
-        <div className="rounded-xl border border-gray-700 bg-gray-900 p-12 text-center">
-          <EyeOff className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-400">Horario no disponible</h2>
-          <p className="text-sm text-gray-600 mt-2 max-w-md mx-auto">
+        <div className="rounded-2xl border border-border bg-white p-16 text-center shadow-sm">
+          <div className="h-20 w-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <EyeOff className="h-10 w-10 text-text-sub" />
+          </div>
+          <h2 className="text-2xl font-bold text-text-main tracking-tight">Horario no disponible</h2>
+          <p className="text-text-sub mt-2 max-w-md mx-auto font-medium">
             El proceso de asignación de horarios aún no ha finalizado.
             El horario será visible aquí una vez que el director de escuela lo apruebe y publique.
           </p>
@@ -334,19 +326,19 @@ export default function HorariosPage() {
         <>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white">Visualización de Horarios</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <p className="text-sm text-gray-500">{periodoActivo?.nombre ?? 'Sin periodo activo'}</p>
-                <span className="text-gray-700">·</span>
+              <h1 className="text-2xl font-bold text-text-main tracking-tight">Visualización de Horarios</h1>
+              <div className="flex items-center gap-3 mt-1.5">
+                <p className="text-sm text-text-sub font-bold">{periodoActivo?.nombre ?? 'Sin periodo activo'}</p>
+                <div className="h-1 w-1 rounded-full bg-slate-300" />
                 <div className="flex items-center gap-1.5">
-                  <div className={`h-2 w-2 rounded-full ${ESTADO_COLORS[estado] ?? 'bg-gray-500'}`} />
-                  <span className="text-xs font-bold text-gray-400">{ESTADO_LABELS[estado] ?? estado}</span>
+                  <span className={`badge ${ESTADO_COLORS[estado] ?? 'badge-gray'}`}>
+                    {ESTADO_LABELS[estado] ?? estado}
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-2">
-              {/* SEND TO REVISION button for secretary */}
               {isSecretaria && estado === 'ASIGNACION' && (
                 <button
                   onClick={() => {
@@ -355,7 +347,7 @@ export default function HorariosPage() {
                     sendToRevisionMutation.mutate({ periodoId: periodoActivo.id });
                   }}
                   disabled={sendToRevisionMutation.isPending}
-                  className="flex items-center gap-2 rounded-lg border border-purple-500/40 bg-purple-500/10 px-4 py-2 text-xs font-bold text-purple-300 hover:bg-purple-500/20 transition-colors disabled:opacity-50"
+                  className="btn-primary bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Send className="h-4 w-4" /> {sendToRevisionMutation.isPending ? 'Enviando...' : 'Enviar a revisión'}
                 </button>
@@ -393,61 +385,61 @@ export default function HorariosPage() {
                   });
                 }}
                 disabled={generatePDFMutation.isPending || !periodoActivo}
-                className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-xs font-bold text-white hover:bg-gray-700 disabled:opacity-50"
+                className="btn-secondary"
               >
                 <FileDown className="h-4 w-4" /> {generatePDFMutation.isPending ? 'Generando...' : 'Descargar PDF'}
               </button>
             </div>
           </div>
 
-          {/* Stats for Privileged */}
+          {/* Stats Cards */}
           {isPrivileged && stats && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
-                <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Progreso de Asignación</p>
+              <div className="card-standard p-4">
+                <p className="text-[10px] text-text-sub uppercase font-bold mb-1 tracking-wider">Progreso de Asignación</p>
                 <div className="flex items-end justify-between">
-                  <span className="text-xl font-bold text-white">{stats.totalGrupos > 0 ? Math.round((stats.gruposAsignados / stats.totalGrupos) * 100) : 0}%</span>
-                  <span className="text-xs text-gray-500">{stats.gruposAsignados} / {stats.totalGrupos} grupos</span>
+                  <span className="text-2xl font-bold text-text-main">{stats.totalGrupos > 0 ? Math.round((stats.gruposAsignados / stats.totalGrupos) * 100) : 0}%</span>
+                  <span className="text-xs text-text-sub font-bold">{stats.gruposAsignados} / {stats.totalGrupos} grupos</span>
                 </div>
               </div>
-              <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
-                <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Docentes con carga</p>
-                <p className="text-xl font-bold text-white">{stats.docentesConCarga}</p>
+              <div className="card-standard p-4">
+                <p className="text-[10px] text-text-sub uppercase font-bold mb-1 tracking-wider">Docentes con carga</p>
+                <p className="text-2xl font-bold text-text-main">{stats.docentesConCarga}</p>
               </div>
-              <div className="p-4 rounded-xl bg-gray-900 border border-gray-800">
-                <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Estado</p>
-                <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full ${ESTADO_COLORS[estado] ?? 'bg-gray-500'}`} />
-                  <span className="text-sm font-bold text-gray-200">{ESTADO_LABELS[estado] ?? estado}</span>
+              <div className="card-standard p-4">
+                <p className="text-[10px] text-text-sub uppercase font-bold mb-1 tracking-wider">Estado Actual</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className={`h-2 w-2 rounded-full ${estado === 'FINALIZADO' ? 'bg-success' : 'bg-primary'} animate-pulse`} />
+                  <span className="text-sm font-bold text-text-main">{ESTADO_LABELS[estado] ?? estado}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* View Mode Tabs */}
-          <div className="flex gap-1 rounded-lg bg-gray-800 p-1">
+          {/* Navigation Tabs */}
+          <div className="flex gap-1 p-1 bg-slate-100 border border-border rounded-xl w-fit">
             {isDocente && (
               <button onClick={() => setViewMode('mi-horario')}
-                className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'mi-horario' ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-400 hover:text-gray-200'}`}>
-                <Calendar className="h-3.5 w-3.5" /> Mi Horario
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${viewMode === 'mi-horario' ? 'bg-white text-primary shadow-sm' : 'text-text-sub hover:text-text-main'}`}>
+                <Calendar className="h-4 w-4" /> Mi Horario
               </button>
             )}
             <button onClick={() => setViewMode('general')}
-              className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'general' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
-              Todo
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${viewMode === 'general' ? 'bg-white text-primary shadow-sm' : 'text-text-sub hover:text-text-main'}`}>
+              Vista General
             </button>
             <button onClick={() => setViewMode('ciclo')}
-              className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'ciclo' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${viewMode === 'ciclo' ? 'bg-white text-primary shadow-sm' : 'text-text-sub hover:text-text-main'}`}>
               Por Ciclo
             </button>
             <button onClick={() => setViewMode('aula')}
-              className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'aula' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
-              <Building2 className="h-3.5 w-3.5" /> Por Aula
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${viewMode === 'aula' ? 'bg-white text-primary shadow-sm' : 'text-text-sub hover:text-text-main'}`}>
+              <Building2 className="h-4 w-4" /> Por Aula
             </button>
             {(isDirector || isSecretaria || isAdmin) && (
               <button onClick={() => setViewMode('docente')}
-                className={`flex-1 flex items-center justify-center gap-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${viewMode === 'docente' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'}`}>
-                <User className="h-3.5 w-3.5" /> Por Docente
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${viewMode === 'docente' ? 'bg-white text-primary shadow-sm' : 'text-text-sub hover:text-text-main'}`}>
+                <User className="h-4 w-4" /> Por Docente
               </button>
             )}
           </div>
@@ -456,64 +448,84 @@ export default function HorariosPage() {
           <div className="flex flex-wrap gap-2">
             {viewMode === 'ciclo' && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(c => (
               <button key={c} onClick={() => setSelectedCiclo(c)}
-                className={`rounded-lg border px-4 py-1.5 text-xs font-bold transition-all ${selectedCiclo === c ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-800 bg-gray-900/50 text-gray-400 hover:border-gray-700'}`}>
+                className={`rounded-lg border px-4 py-1.5 text-[10px] font-bold transition-all uppercase tracking-widest ${selectedCiclo === c ? 'border-primary bg-primary-light text-primary shadow-sm' : 'border-border bg-white text-text-sub hover:border-primary/30'}`}>
                 CICLO {c}
               </button>
             ))}
             {viewMode === 'aula' && aulas.map(a => (
               <button key={a.id} onClick={() => setSelectedAulaId(a.id)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selectedAulaId === a.id ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-800 bg-gray-900/50 text-gray-400 hover:border-gray-700'}`}>
+                className={`rounded-lg border px-3 py-1.5 text-[10px] font-bold transition-all uppercase tracking-widest ${selectedAulaId === a.id ? 'border-primary bg-primary-light text-primary shadow-sm' : 'border-border bg-white text-text-sub hover:border-primary/30'}`}>
                 {a.codigo} {a.tipo === 'LABORATORIO' && <FlaskConical className="inline h-3 w-3 ml-1" />}
               </button>
             ))}
             {viewMode === 'docente' && docentes.map(d => (
               <button key={d.id} onClick={() => setSelectedDocenteId(d.id)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${selectedDocenteId === d.id ? 'border-indigo-500 bg-indigo-600/20 text-indigo-300' : 'border-gray-800 bg-gray-900/50 text-gray-400 hover:border-gray-700'}`}>
+                className={`rounded-lg border px-3 py-1.5 text-[10px] font-bold transition-all uppercase tracking-widest ${selectedDocenteId === d.id ? 'border-primary bg-primary-light text-primary shadow-sm' : 'border-border bg-white text-text-sub hover:border-primary/30'}`}>
                 {d.nombre.split(' ').slice(0, 2).join(' ')}
               </button>
             ))}
           </div>
 
-          {/* Grid */}
-          <div className="rounded-2xl border border-gray-800 bg-gray-900 overflow-hidden shadow-xl overflow-x-auto">
-            <table className="w-full text-[11px]">
+          {/* Grid Container */}
+          <div className="table-standard overflow-x-auto shadow-sm">
+            <table className="w-full text-[11px] border-collapse">
               <thead>
-                <tr className="bg-gray-800/50">
-                  <th className="px-4 py-3 text-left font-bold text-gray-400 uppercase tracking-widest w-20 sticky left-0 bg-gray-800">Hora</th>
+                <tr className="bg-slate-50/80">
+                  <th className="px-4 py-4 text-left font-bold text-text-sub uppercase tracking-wider w-24 sticky left-0 bg-slate-50 border-b border-border">Hora</th>
                   {DIAS.map(dia => (
-                    <th key={dia} className="px-2 py-3 text-center font-bold text-gray-400 uppercase tracking-widest min-w-[140px]">
+                    <th key={dia} className="px-2 py-4 text-center font-bold text-text-sub uppercase tracking-wider min-w-[160px] border-b border-border">
                       {DIA_LABELS[dia]}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {horas.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-20 text-center text-gray-600 font-medium">
+                {isLoading ? (
+                  <tr><td colSpan={7} className="py-24 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
+                    <p className="text-text-sub font-bold">Cargando grilla horaria...</p>
+                  </td></tr>
+                ) : horas.length === 0 ? (
+                  <tr><td colSpan={7} className="px-4 py-20 text-center text-text-sub font-bold italic">
                     {isPrivileged ? 'No hay asignaciones para mostrar' : 'No hay asignaciones confirmadas para mostrar'}
                   </td></tr>
                 ) : (
                   horas.map(hora => (
-                    <tr key={hora} className="border-t border-gray-800/50">
-                      <td className="px-4 py-3 font-mono text-gray-500 bg-gray-950/30 sticky left-0">{hora}</td>
+                    <tr key={hora} className="border-b border-slate-50 last:border-0">
+                      <td className="px-4 py-4 font-mono font-bold text-text-sub bg-slate-50/30 sticky left-0 border-r border-border/50">{hora}</td>
                       {DIAS.map(dia => {
-                        const a = asignaciones.find(a => a.franjaHoraria.dia === dia && a.franjaHoraria.horaInicio === hora);
-                        if (!a) return <td key={dia} className="px-1 py-1" />;
-
-                        const colorClass = cursoColorMap.get(a.grupo.curso.id) || '';
+                        const slots = asignaciones.filter(a => a.franjaHoraria.dia === dia && a.franjaHoraria.horaInicio === hora);
+                        
                         return (
-                          <td key={dia} className="px-1 py-1">
-                            <div className={`p-2 rounded-lg border flex flex-col justify-center min-h-[50px] ${colorClass}`}>
-                              <div className="flex items-center justify-between mb-1">
-                                <p className="font-black text-[10px] leading-tight">{a.grupo.curso.codigo}</p>
-                                {isPrivileged && !a.confirmado && <span className="text-[7px] bg-white/20 px-1 rounded font-bold">BORRADOR</span>}
-                              </div>
-                              <p className="text-[9px] font-medium opacity-80 truncate">{a.grupo.curso.nombre}</p>
-                              <div className="mt-1 pt-1 border-t border-white/10 flex flex-wrap gap-x-2 text-[8px] font-bold opacity-70">
-                                <span>G{a.grupo.nombre}</span>
-                                <span>{a.aula?.codigo}</span>
-                                {viewMode !== 'docente' && viewMode !== 'mi-horario' && <span>{a.docente?.nombre.split(' ')[0]}</span>}
-                              </div>
+                            <td key={dia} className="p-1 border-r border-slate-50 last:border-0 min-h-[80px]">
+                              <div className={`grid gap-1.5 ${slots.length > 1 ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
+                                {slots.map((slot, idx) => {
+                                const colorClass = cursoColorMap.get(slot.grupo.curso.id) || SLOT_COLORS[0];
+                                return (
+                                  <div key={`${slot.id}-${idx}`} className={`h-full min-h-[70px] rounded-xl border p-3 shadow-sm transition-all hover:shadow-md ${colorClass}`}>
+                                    <div className="flex justify-between items-start mb-1.5">
+                                      <span className="text-[9px] font-black uppercase tracking-tighter opacity-70">{slot.grupo.curso.codigo}</span>
+                                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-white/40 border border-white/20">{slot.tipo}</span>
+                                    </div>
+                                    <p className="font-bold text-[11px] leading-tight mb-2 line-clamp-2">{slot.grupo.curso.nombre}</p>
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <User className="h-3 w-3 shrink-0 opacity-60" />
+                                        <span className="text-[9px] font-bold truncate">{slot.docente?.nombre ?? 'Sin docente'}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5">
+                                        <Building2 className="h-3 w-3 shrink-0 opacity-60" />
+                                        <span className="text-[9px] font-bold">{slot.aula?.codigo ?? 'Sin aula'}</span>
+                                      </div>
+                                    </div>
+                                    {viewMode === 'general' && (
+                                      <div className="mt-2 pt-1.5 border-t border-current/10">
+                                        <span className="text-[8px] font-black uppercase">Grupo {slot.grupo.nombre}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </td>
                         );

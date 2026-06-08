@@ -16,12 +16,19 @@ export interface GrupoForSchedule {
   cursoId: string;
   cursoNombre: string;
   cursoCodigo: string;
-  ciclo: number; // Added: track cycle for conflicts
+  ciclo: number;
   numAlumnos: number;
   horasTeoria: number;
   horasPractica: number;
   horasLaboratorio: number;
   requiereLaboratorio: boolean;
+  workloads: WorkloadPerDocente[];
+}
+
+export interface WorkloadPerDocente {
+  docenteId: string;
+  tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO';
+  horas: number;
 }
 
 export interface AulaForSchedule {

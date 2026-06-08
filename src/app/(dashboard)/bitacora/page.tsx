@@ -1,13 +1,27 @@
 'use client';
 
 import { useTRPC } from '@/trpc/client';
-import { useQuery } from '@tanstack/react-query';
-import { History, User as UserIcon, Calendar, Clock } from 'lucide-react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { History, User as UserIcon, Calendar, Clock, FileDown } from 'lucide-react';
 
 export default function BitacoraPage() {
   const trpc = useTRPC();
   const { data, isLoading } = useQuery({ ...trpc.auth.getLogs.queryOptions() });
   const logs = (data as any[]) || [];
+
+  const downloadBase64PDF = (base64: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = `data:application/pdf;base64,${base64}`;
+    link.download = filename;
+    link.click();
+  };
+
+  const generateReportMutation = useMutation(
+    trpc.reporte.generateAuditReport.mutationOptions({
+      onSuccess: (data) => downloadBase64PDF(data.pdf, data.filename),
+      onError: () => alert('Error al generar el reporte PDF'),
+    })
+  );
 
   if (isLoading) {
     return (
@@ -24,8 +38,22 @@ export default function BitacoraPage() {
           <h1 className="text-2xl font-bold text-white">Bitácora del Sistema</h1>
           <p className="text-sm text-gray-500 mt-1">Registro de accesos y actividades críticas de los usuarios</p>
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900 border border-gray-800">
-          <History className="h-5 w-5 text-gray-400" />
+        <div className="flex gap-3">
+          <button
+            onClick={() => generateReportMutation.mutate()}
+            disabled={generateReportMutation.isPending}
+            className="flex items-center gap-2 rounded-xl bg-gray-800 px-4 py-2 text-sm font-bold text-white hover:bg-gray-700 transition-all border border-gray-700 shadow-lg"
+          >
+            {generateReportMutation.isPending ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <FileDown className="h-4 w-4" />
+            )}
+            Descargar Reporte PDF
+          </button>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900 border border-gray-800">
+            <History className="h-5 w-5 text-gray-400" />
+          </div>
         </div>
       </div>
 

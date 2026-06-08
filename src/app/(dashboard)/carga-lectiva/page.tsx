@@ -18,9 +18,9 @@ import {
 const TIPO_OPTIONS = ['TEORIA', 'PRACTICA', 'LABORATORIO'] as const;
 
 const TIPO_COLORS: Record<string, string> = {
-  TEORIA: 'bg-blue-500/20 text-blue-400',
-  PRACTICA: 'bg-emerald-500/20 text-emerald-400',
-  LABORATORIO: 'bg-amber-500/20 text-amber-400',
+  TEORIA: 'badge-info',
+  PRACTICA: 'badge-success',
+  LABORATORIO: 'badge-warning',
 };
 
 const canManage = (role?: string) =>
@@ -190,54 +190,56 @@ export default function CargaLectivaPage() {
     const docenteCargas = cargasLectivas.filter((c) => c.docenteId === user?.docenteId);
 
     return (
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Mi Carga Lectiva</h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-text-main">Mi Carga Lectiva</h1>
+          <p className="text-text-sub text-sm mt-1">
             Cursos asignados en el periodo actual
           </p>
         </div>
 
-        <div className="bg-zinc-900/80 border border-zinc-800 rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-zinc-800">
+        <div className="table-standard">
+          <table className="w-full text-left border-separate border-spacing-0">
+            <thead>
               <tr>
-                <th className="text-left p-3 text-zinc-400 font-medium">Curso</th>
-                <th className="text-left p-3 text-zinc-400 font-medium">Grupo</th>
-                <th className="text-left p-3 text-zinc-400 font-medium">Tipo</th>
-                <th className="text-center p-3 text-zinc-400 font-medium">Horas</th>
-                <th className="text-center p-3 text-zinc-400 font-medium">Compartido</th>
+                <th>Curso</th>
+                <th>Grupo</th>
+                <th>Tipo</th>
+                <th className="text-center">Horas</th>
+                <th className="text-center">Compartido</th>
               </tr>
             </thead>
             <tbody>
               {docenteCargas.map((carga) => (
-                <tr key={carga.id} className="border-t border-zinc-800 hover:bg-zinc-800/50">
-                  <td className="p-3 text-zinc-300">
-                    {carga.grupo.curso.codigo} - {carga.grupo.curso.nombre}
+                <tr key={carga.id} className="group transition-colors">
+                  <td>
+                    <p className="font-bold text-text-main group-hover:text-primary transition-colors">{carga.grupo.curso.codigo} - {carga.grupo.curso.nombre}</p>
                   </td>
-                  <td className="p-3 text-zinc-300">{carga.grupo.nombre}</td>
-                  <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded text-xs ${TIPO_COLORS[carga.tipo]}`}>
+                  <td>
+                    <span className="badge badge-gray">{carga.grupo.nombre}</span>
+                  </td>
+                  <td>
+                    <span className={`badge ${TIPO_COLORS[carga.tipo]}`}>
                       {carga.tipo}
                     </span>
                   </td>
-                  <td className="p-3 text-center text-white font-mono">
-                    {carga.horasAsignadas}h
+                  <td className="text-center">
+                    <span className="text-xs font-bold text-primary bg-primary-light px-2 py-1 rounded-md border border-primary/10">{carga.horasAsignadas}h</span>
                   </td>
-                  <td className="p-3 text-center">
+                  <td className="text-center">
                     {carga.compartido ? (
-                      <span className="px-2 py-0.5 rounded text-xs bg-purple-500/20 text-purple-400">
+                      <span className="badge badge-info">
                         Con {carga.docenteCompartido?.nombre}
                       </span>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-text-sub/50">—</span>
                     )}
                   </td>
                 </tr>
               ))}
               {docenteCargas.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-6 text-center text-zinc-500">
+                  <td colSpan={5} className="p-12 text-center text-text-sub">
                     No tienes carga lectiva asignada en este periodo
                   </td>
                 </tr>

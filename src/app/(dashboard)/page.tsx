@@ -12,6 +12,7 @@ import {
   Clock,
   ArrowRight,
   FileText,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   BarChart,
@@ -26,17 +27,17 @@ import {
   Cell,
 } from 'recharts';
 
-const COLORS = ['#4f46e5', '#0891b2', '#047857', '#b45309', '#dc2626', '#7e22ce'];
-const CHART_GRID_COLOR = '#d7dee8';
-const CHART_AXIS_COLOR = '#64748b';
+const COLORS = ['#2563EB', '#0284C7', '#16A34A', '#F59E0B', '#DC2626', '#64748B'];
+const CHART_GRID_COLOR = '#E2E8F0';
+const CHART_AXIS_COLOR = '#64748B';
 const CHART_TOOLTIP_STYLE = {
   backgroundColor: '#ffffff',
-  border: '1px solid #d7dee8',
-  borderRadius: '10px',
-  boxShadow: '0 18px 40px rgb(15 23 42 / 0.08)',
-  color: '#0f172a',
+  border: '1px solid #E2E8F0',
+  borderRadius: '12px',
+  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+  color: '#0F172A',
 };
-const CHART_TOOLTIP_LABEL_STYLE = { color: '#334155' };
+const CHART_TOOLTIP_LABEL_STYLE = { color: '#475569', fontWeight: 'bold' };
 
 function StatCard({
   title,
@@ -52,22 +53,24 @@ function StatCard({
   color?: string;
 }) {
   const colorMap: Record<string, string> = {
-    indigo: 'from-indigo-600/20 to-indigo-600/5 border-indigo-500/30 text-indigo-400',
-    cyan: 'from-cyan-600/20 to-cyan-600/5 border-cyan-500/30 text-cyan-400',
-    emerald: 'from-emerald-600/20 to-emerald-600/5 border-emerald-500/30 text-emerald-400',
-    amber: 'from-amber-600/20 to-amber-600/5 border-amber-500/30 text-amber-400',
-    red: 'from-red-600/20 to-red-600/5 border-red-500/30 text-red-400',
+    indigo: 'bg-primary/5 border-primary/20 text-primary',
+    cyan: 'bg-info/5 border-info/20 text-info',
+    emerald: 'bg-success/5 border-success/20 text-success',
+    amber: 'bg-warning/5 border-warning/20 text-warning',
+    red: 'bg-danger/5 border-danger/20 text-danger',
   };
 
   return (
-    <div className={`rounded-xl border bg-gradient-to-br p-5 ${colorMap[color]}`}>
+    <div className={`rounded-xl border p-5 transition-all hover:shadow-md ${colorMap[color]}`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{title}</p>
-          <p className="mt-2 text-3xl font-bold text-white">{value}</p>
-          {subtitle && <p className="mt-1 text-xs text-gray-500">{subtitle}</p>}
+          <p className="text-[10px] font-bold text-text-sub uppercase tracking-widest">{title}</p>
+          <p className="mt-2 text-3xl font-black text-text-main tracking-tight">{value}</p>
+          {subtitle && <p className="mt-1 text-xs text-text-sub font-medium">{subtitle}</p>}
         </div>
-        <Icon className="h-8 w-8 opacity-60" />
+        <div className={`p-3 rounded-xl bg-white/50 border border-current/10`}>
+          <Icon className="h-6 w-6 opacity-80" />
+        </div>
       </div>
     </div>
   );
@@ -88,6 +91,11 @@ export default function DashboardPage() {
   const isDirector = user?.role === 'DIRECTOR_ESCUELA';
   const isAdmin = user?.role === 'ADMIN';
   const isDecano = user?.role === 'DECANO';
+
+  const decanoStats = useQuery({
+    ...trpc.reporte.getDecanoStats.queryOptions({ periodoId: periodoActivo?.id }),
+    enabled: isDecano || isAdmin,
+  });
 
   const horarioStats = useQuery({
     ...trpc.horario.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
@@ -144,14 +152,14 @@ export default function DashboardPage() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Panel de Secretaría Académica</h1>
-            <p className="text-sm text-gray-500 mt-1">Gestión operativa del semestre</p>
+            <h1 className="text-2xl font-bold text-text-main">Panel de Secretaría Académica</h1>
+            <p className="text-sm text-text-sub mt-1">Gestión operativa del semestre</p>
           </div>
           <div className="flex gap-3">
-             <Link href="/reportes" className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700">
+             <Link href="/reportes" className="px-4 py-2 bg-slate-100 text-text-main rounded-lg text-sm font-bold hover:bg-slate-200 transition-all">
                Ver Reportes
              </Link>
-             <Link href="/asignacion" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-500 shadow-lg shadow-indigo-600/25">
+             <Link href="/asignacion" className="btn-primary">
                Módulo de Asignación
              </Link>
           </div>
@@ -192,45 +200,47 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Stats Charts */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-              <h2 className="text-sm font-semibold text-gray-300 mb-4">Ocupación de Aulas (%)</h2>
+            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="text-sm font-bold text-text-sub uppercase tracking-wider mb-4">Ocupación de Aulas (%)</h2>
               {ocupacionData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={ocupacionData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-                    <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} />
-                    <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                    <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} tickLine={false} axisLine={false} />
                     <Tooltip
                       contentStyle={CHART_TOOLTIP_STYLE}
                       labelStyle={CHART_TOOLTIP_LABEL_STYLE}
+                      cursor={{ fill: '#F8FAFC' }}
                     />
-                    <Bar dataKey="ocupacion" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="ocupacion" fill="#2563EB" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[250px] flex items-center justify-center text-gray-600">
+                <div className="h-[250px] flex items-center justify-center text-text-sub font-medium">
                   Sin datos de ocupación
                 </div>
               )}
             </div>
 
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-              <h2 className="text-sm font-semibold text-gray-300 mb-4">Carga Docente (Top 15)</h2>
+            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="text-sm font-bold text-text-sub uppercase tracking-wider mb-4">Carga Docente (Top 15)</h2>
               {cargaDocenteData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={350}>
                   <BarChart data={cargaDocenteData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-                    <XAxis type="number" stroke={CHART_AXIS_COLOR} fontSize={11} />
-                    <YAxis type="category" dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} width={120} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} horizontal={false} />
+                    <XAxis type="number" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis type="category" dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} width={120} tickLine={false} axisLine={false} />
                     <Tooltip
                       contentStyle={CHART_TOOLTIP_STYLE}
                       labelStyle={CHART_TOOLTIP_LABEL_STYLE}
+                      cursor={{ fill: '#F8FAFC' }}
                     />
-                    <Bar dataKey="horas" fill="#06b6d4" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="horas" fill="#0284C7" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[300px] flex items-center justify-center text-gray-600">
+                <div className="h-[300px] flex items-center justify-center text-text-sub font-medium">
                   Sin carga docente
                 </div>
               )}
@@ -239,54 +249,76 @@ export default function DashboardPage() {
 
           {/* Side Module Info */}
           <div className="space-y-6">
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-              <h2 className="text-sm font-semibold text-gray-300 mb-4">Docentes por Categoría</h2>
+            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="text-sm font-bold text-text-sub uppercase tracking-wider mb-4">Docentes por Categoría</h2>
               {categoriaData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={categoriaData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={4}
-                      dataKey="value"
-                    >
-                      {categoriaData.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={CHART_TOOLTIP_STYLE}
-                      labelStyle={CHART_TOOLTIP_LABEL_STYLE}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                <>
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={categoriaData}
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {categoriaData.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    {categoriaData.map((item, index) => (
+                      <div key={item.name} className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                        <span className="text-[10px] font-bold text-text-sub uppercase">{item.name}</span>
+                        <span className="text-[10px] font-black text-text-main ml-auto">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
-                <div className="h-[250px] flex items-center justify-center text-gray-600">
+                <div className="h-[200px] flex items-center justify-center text-text-sub">
                   Sin datos
                 </div>
               )}
             </div>
 
-            <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-6">
-              <AlertTriangle className="h-8 w-8 text-indigo-500 mb-4" />
-              <h2 className="text-lg font-bold text-white mb-2">Módulo de Asignación</h2>
-              <p className="text-xs text-gray-400 leading-relaxed mb-4">
-                Usted es el responsable de completar el proceso de asignación siguiendo la jerarquía y disponibilidad.
-              </p>
-              <Link 
-                href="/asignacion" 
-                className="flex items-center justify-center w-full px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-500 transition-colors"
-              >
-                Ir a Asignación &rarr;
-              </Link>
-            </div>
-            
-            <div className="p-5 rounded-xl bg-gray-800/50 border border-gray-700 text-left">
-               <p className="text-[10px] font-bold text-indigo-400 uppercase mb-1">Recordatorio</p>
-               <p className="text-xs text-gray-400">Verifique la disponibilidad de los docentes antes de iniciar cualquier cambio en el módulo de asignación.</p>
+            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="text-sm font-bold text-text-sub uppercase tracking-wider mb-4">Acciones Rápidas</h2>
+              <div className="grid gap-2">
+                <Link href="/docentes" className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-border hover:border-primary/30 transition-all group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-white border border-border group-hover:text-primary transition-colors">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs font-bold text-text-main">Directorio Docente</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-text-sub group-hover:text-primary" />
+                </Link>
+                <Link href="/cursos" className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-border hover:border-primary/30 transition-all group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-white border border-border group-hover:text-primary transition-colors">
+                      <BookOpen className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs font-bold text-text-main">Catálogo de Cursos</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-text-sub group-hover:text-primary" />
+                </Link>
+                <Link href="/reportes" className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-border hover:border-primary/30 transition-all group">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-white border border-border group-hover:text-primary transition-colors">
+                      <FileText className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs font-bold text-text-main">Reportes de Carga</span>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-text-sub group-hover:text-primary" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -300,8 +332,8 @@ export default function DashboardPage() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Panel de Dirección de Escuela</h1>
-            <p className="text-sm text-gray-500 mt-1">Supervisión y aprobación de horarios</p>
+            <h1 className="text-2xl font-bold text-text-main">Panel de Dirección de Escuela</h1>
+            <p className="text-sm text-text-sub mt-1">Supervisión y aprobación de horarios</p>
           </div>
           <div className="flex gap-3">
              {periodoActivo?.estado === 'PLANIFICACION' && (
@@ -312,15 +344,15 @@ export default function DashboardPage() {
                    }
                  }}
                  disabled={startAssignmentProcessMutation.isPending}
-                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-500 shadow-lg shadow-emerald-500/25 disabled:opacity-50"
+                 className="btn-primary"
                >
                  {startAssignmentProcessMutation.isPending ? 'Iniciando...' : 'Iniciar Proceso de Asignación'}
                </button>
              )}
-             <Link href="/reportes" className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700">
+             <Link href="/reportes" className="px-4 py-2 bg-slate-100 text-text-main rounded-lg text-sm font-bold hover:bg-slate-200 transition-all">
                Ver Reportes
              </Link>
-             <Link href="/horarios" className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-500 shadow-lg shadow-amber-600/25">
+             <Link href="/horarios" className="px-4 py-2 bg-warning text-white rounded-lg text-sm font-bold hover:bg-amber-600 shadow-lg shadow-warning/25 transition-all">
                Revisar Horarios
              </Link>
           </div>
@@ -360,30 +392,31 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Charts for Director */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-            <h2 className="text-sm font-semibold text-gray-300 mb-4">Ocupación de Ambientes Académicos (%)</h2>
+          <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-sub uppercase tracking-wider mb-4">Ocupación de Ambientes Académicos (%)</h2>
             {ocupacionData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={ocupacionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} />
-                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={CHART_TOOLTIP_STYLE}
                     labelStyle={CHART_TOOLTIP_LABEL_STYLE}
+                    cursor={{ fill: '#F8FAFC' }}
                   />
-                  <Bar dataKey="ocupacion" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="ocupacion" fill="#2563EB" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-gray-600">
+              <div className="h-[300px] flex items-center justify-center text-text-sub font-medium">
                 Sin datos de ocupación disponibles
               </div>
             )}
           </div>
 
-          <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-            <h2 className="text-sm font-semibold text-gray-300 mb-4">Docentes por Categoría</h2>
+          <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-sub uppercase tracking-wider mb-4">Docentes por Categoría</h2>
             {categoriaData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -408,45 +441,46 @@ export default function DashboardPage() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-gray-600">
+              <div className="h-[300px] flex items-center justify-center text-text-sub font-medium">
                 Sin datos de docentes
               </div>
             )}
           </div>
 
-          <div className="lg:col-span-2 rounded-xl border border-gray-800 bg-gray-900 p-6">
-            <h2 className="text-sm font-semibold text-gray-300 mb-4">Carga Lectiva Detallada</h2>
+          <div className="lg:col-span-2 rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-sub uppercase tracking-wider mb-4">Carga Lectiva Detallada</h2>
             {cargaDocenteData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={cargaDocenteData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} />
-                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={10} angle={-45} textAnchor="end" height={60} />
-                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={10} angle={-45} textAnchor="end" height={60} tickLine={false} axisLine={false} />
+                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={CHART_TOOLTIP_STYLE}
                     labelStyle={CHART_TOOLTIP_LABEL_STYLE}
+                    cursor={{ fill: '#F8FAFC' }}
                   />
-                  <Bar dataKey="horas" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="horas" fill="#16A34A" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-gray-600">
+              <div className="h-[300px] flex items-center justify-center text-text-sub font-medium">
                 Sin carga docente registrada
               </div>
             )}
           </div>
         </div>
 
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-8 flex items-center justify-between">
+        <div className="rounded-xl border border-warning/30 bg-warning/5 p-8 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white mb-2">Estado de la Programación</h2>
-            <p className="text-gray-400">
+            <h2 className="text-xl font-bold text-text-main mb-2 tracking-tight">Estado de la Programación</h2>
+            <p className="text-text-sub font-medium">
               Supervise el avance de las asignaciones y revise la propuesta final de horarios para su aprobación.
             </p>
           </div>
           <Link 
             href="/horarios"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-500 transition-colors shadow-lg shadow-amber-600/20"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-warning text-white rounded-lg font-bold hover:bg-amber-600 transition-all shadow-lg shadow-warning/20"
           >
             Ver Programación Completa <ArrowRight className="h-4 w-4" />
           </Link>
@@ -456,28 +490,154 @@ export default function DashboardPage() {
   }
 
   // --- Dashboard para Decano ---
-  if (isDecano) {
+  if (isDecano && decanoStats.data) {
+    const dStats = decanoStats.data;
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Panel del Decanato</h1>
-            <p className="text-sm text-gray-500 mt-1">Supervisión de cargas académicas</p>
+            <h1 className="text-2xl font-bold text-text-main">Panel de Decanato</h1>
+            <p className="text-sm text-text-sub mt-1">Visión global de la Facultad · {dStats.periodo}</p>
           </div>
           <div className="flex gap-3">
-            <Link href="/declaraciones" className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-500 shadow-lg shadow-amber-600/25">
-              VB Pendientes
+            <Link href="/bitacora" className="px-4 py-2 bg-slate-100 text-text-main rounded-lg text-sm font-bold hover:bg-slate-200 transition-all">
+              Bitácora de Auditoría
             </Link>
-            <Link href="/reportes" className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-semibold hover:bg-gray-700">
-              Reportes
+            <Link href="/declaraciones" className="btn-primary">
+              V°B° Declaraciones
             </Link>
           </div>
         </div>
+
+        {/* Decano KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard title="Docentes Totales" value={docenteStats?.total ?? 0} subtitle="Plana completa" icon={Users} color="indigo" />
-          <StatCard title="Declaraciones Pendientes" value="—" subtitle="VB Decano" icon={FileText} color="amber" />
-          <StatCard title="Periodo Activo" value={periodoActivo?.nombre || '---'} subtitle={periodoActivo?.estado} icon={Calendar} color="emerald" />
-          <StatCard title="Cobertura Carga" value={stats?.totalGrupos ? `${Math.round((stats.gruposAsignados / stats.totalGrupos) * 100)}%` : '0%'} subtitle="Grupos asignados" icon={TrendingUp} color="cyan" />
+          <StatCard
+            title="Total Docentes"
+            value={dStats.contadores.docentes || 0}
+            subtitle={`${dStats.contadores.departamentos || 0} Departamentos`}
+            icon={Users}
+            color="indigo"
+          />
+          <StatCard
+            title="Declaraciones Finalizadas"
+            value={dStats.contadores.declaracionesFinalizadas || 0}
+            subtitle={`de ${dStats.contadores.docentes || 0} docentes`}
+            icon={CheckCircle2}
+            color="emerald"
+          />
+          <StatCard
+            title="Declaraciones Pendientes"
+            value={dStats.contadores.declaracionesPendientes || 0}
+            subtitle="Acción requerida"
+            icon={AlertTriangle}
+            color="amber"
+          />
+          <StatCard
+            title="Escuelas Activas"
+            value={dStats.contadores.escuelas || 0}
+            subtitle="Programación académica"
+            icon={BookOpen}
+            color="cyan"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Cumplimiento por Departamento */}
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
+              <h2 className="text-sm font-semibold text-gray-300 mb-6 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-indigo-400" />
+                Cumplimiento de Declaraciones por Departamento (%)
+              </h2>
+              <div className="space-y-5">
+                {dStats.graficos?.progresoDepartamentos?.map((depto: any) => (
+                  <div key={depto.nombre} className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-300 font-medium">{depto.nombre}</span>
+                      <span className="text-gray-500">{depto.completadas} / {depto.total} docentes</span>
+                    </div>
+                    <div className="relative h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-indigo-500 transition-all duration-500"
+                        style={{ width: `${depto.porcentaje}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Carga Lectiva vs No Lectiva */}
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
+              <h2 className="text-sm font-semibold text-gray-300 mb-6">Distribución de Carga Horaria Total</h2>
+              <div className="h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dStats.graficos?.cargaGlobal || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                    <XAxis dataKey="name" stroke={CHART_AXIS_COLOR} fontSize={11} />
+                    <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
+                    <Bar dataKey="horas" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={60} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Estado de Declaraciones (Pie) */}
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
+              <h2 className="text-sm font-semibold text-gray-300 mb-4">Estado de Declaraciones</h2>
+              <div className="h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={dStats.graficos?.distribucionDeclaraciones || []}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      <Cell fill="#10b981" /> {/* Finalizadas */}
+                      <Cell fill="#f59e0b" /> {/* Pendientes */}
+                    </Pie>
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex justify-center gap-4 mt-2">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] text-gray-400">Finalizadas</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="text-[10px] text-gray-400">Pendientes</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Acciones Rápidas */}
+            <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-6">
+              <h2 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Supervisión Decanal</h2>
+              <div className="space-y-3">
+                <p className="text-xs text-gray-400 leading-relaxed">
+                  Como Decano, su función es validar la carga académica final y asegurar el cumplimiento normativo de la facultad.
+                </p>
+                <div className="pt-2">
+                  <Link 
+                    href="/reportes" 
+                    className="flex items-center justify-between w-full px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl text-xs font-semibold transition-all border border-gray-700"
+                  >
+                    Reportes Consolidados
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -548,11 +708,11 @@ export default function DashboardPage() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Mi Panel Docente</h1>
-            <p className="text-sm text-gray-500 mt-1">Hola, {user.nombre} · {personalDocente.docente.tipo}</p>
+            <h1 className="text-2xl font-bold text-text-main">Mi Panel Docente</h1>
+            <p className="text-sm text-text-sub mt-1">Hola, {user.nombre} · {personalDocente.docente.tipo}</p>
           </div>
           <div className="flex gap-3">
-             <Link href="/disponibilidad" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-500 shadow-lg shadow-indigo-600/25">
+             <Link href="/disponibilidad" className="btn-primary">
                Gestionar Disponibilidad
              </Link>
           </div>
@@ -716,19 +876,19 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="mb-8 flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-text-main">
             {isAdmin ? 'Panel de Administración' : 'Dashboard General'}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-text-sub mt-1">
             Periodo activo: {periodoActivo?.nombre ?? 'Ninguno configurado'}
           </p>
         </div>
         {isAdmin && (
           <div className="flex gap-2">
-            <Link href="/asignacion" className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-indigo-500 transition-colors">
+            <Link href="/asignacion" className="btn-primary !py-1 !px-3 !text-[10px] uppercase">
               Módulo de Asignación
             </Link>
-            <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-bold text-purple-400 uppercase tracking-widest">
+            <span className="px-3 py-1 bg-secondary/10 border border-secondary/20 rounded-full text-[10px] font-bold text-secondary uppercase tracking-widest">
               Vista Avanzada
             </span>
           </div>

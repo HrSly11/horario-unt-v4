@@ -228,7 +228,7 @@ export const horarioRouter = createTRPCRouter({
       console.log(`[TRPC] autoGenerate iniciado. Periodo: ${input.periodoId}`);
       try {
         // 1. Fetch all data needed for the engine
-        const [docentes, grupos, aulas, franjas, docenteGrupos, restricciones, mantenimientos, disponibilidades] = await Promise.all([
+        const [docentes, grupos, aulas, franjas, docenteGrupos, restricciones, mantenimientos, disponibilidades, asignacionesCarga] = await Promise.all([
           ctx.prisma.docente.findMany({ where: { activo: true } }),
           ctx.prisma.grupo.findMany({ 
             where: { periodoAcademicoId: input.periodoId },
@@ -241,7 +241,10 @@ export const horarioRouter = createTRPCRouter({
           }),
           ctx.prisma.restriccionDocente.findMany(),
           ctx.prisma.mantenimientoAula.findMany(),
-          ctx.prisma.disponibilidadDocente.findMany()
+          ctx.prisma.disponibilidadDocente.findMany(),
+          ctx.prisma.asignacionCargaLectiva.findMany({
+            where: { periodoId: input.periodoId }
+          })
         ]);
 
         console.log(`[TRPC] Datos recuperados: ${docentes.length} docentes, ${grupos.length} grupos, ${docenteGrupos.length} vinculaciones, ${aulas.length} aulas`);
@@ -299,7 +302,14 @@ export const horarioRouter = createTRPCRouter({
             horasTeoria: g.curso.horasTeoria,
             horasPractica: g.curso.horasPractica,
             horasLaboratorio: g.curso.horasLaboratorio,
-            requiereLaboratorio: g.curso.requiereLaboratorio
+            requiereLaboratorio: g.curso.requiereLaboratorio,
+            workloads: asignacionesCarga
+              .filter(ac => ac.grupoId === g.id)
+              .map(ac => ({
+                docenteId: ac.docenteId,
+                tipo: ac.tipo as 'TEORIA' | 'PRACTICA' | 'LABORATORIO',
+                horas: ac.horasAsignadas
+              }))
           })),
           aulas: aulas.map(a => ({
             id: a.id,

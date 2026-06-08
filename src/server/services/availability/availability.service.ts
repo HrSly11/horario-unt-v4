@@ -316,11 +316,19 @@ export class AvailabilityService {
     // For laboratories, the user said they are "plena elección del docente" 
     // but the system can suggest one.
     if (tipo === 'LABORATORIO') {
-       // Just suggest the first available lab
+       // Just suggest the first available lab with enough capacity
        const lab = await this.prisma.aula.findFirst({
          where: { tipo: 'LABORATORIO', capacidad: { gte: grupo.numAlumnos } },
        });
-       return lab?.id || null;
+       
+       if (lab) return lab.id;
+
+       // Fallback: suggest the largest laboratory if none has enough capacity
+       const largestLab = await this.prisma.aula.findFirst({
+         where: { tipo: 'LABORATORIO' },
+         orderBy: { capacidad: 'desc' },
+       });
+       return largestLab?.id || null;
     }
 
     // For theory/practice, try to match the cycle

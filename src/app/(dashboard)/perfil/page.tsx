@@ -56,7 +56,7 @@ export default function PerfilPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -64,125 +64,114 @@ export default function PerfilPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Mi Perfil</h1>
-        <p className="text-sm text-gray-500 mt-1">Administra tu información personal y seguridad de la cuenta</p>
+        <h1 className="text-2xl font-bold text-text-main tracking-tight">Mi Perfil</h1>
+        <p className="text-sm text-text-sub mt-1">Administra tu información personal y seguridad de la cuenta</p>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-xl">
-        <div className="p-6 border-b border-gray-800 bg-gray-900/50">
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-indigo-600/20 flex items-center justify-center border border-indigo-500/30">
-              <User className="h-8 w-8 text-indigo-400" />
+      <div className="card-standard overflow-hidden p-0">
+        <div className="p-8 border-b border-border bg-slate-50/50">
+          <div className="flex items-center gap-6">
+            <div className="h-20 w-20 rounded-full bg-primary-light flex items-center justify-center border border-primary/20 shadow-sm">
+              <User className="h-10 w-10 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-white">{user?.nombre}</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                  {user?.role}
+              <h2 className="text-xl font-bold text-text-main">{user?.nombre}</h2>
+              <div className="flex items-center gap-3 mt-1.5">
+                <span className="badge badge-primary">
+                  {user?.role.replace('_', ' ')}
                 </span>
-                <span className="text-sm text-gray-500">{user?.email}</span>
+                <div className="flex items-center gap-1.5 text-sm text-text-sub font-medium">
+                  <Mail className="h-4 w-4 opacity-70" />
+                  {user?.email}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {error && (
-            <div className="flex items-center gap-3 rounded-lg bg-red-500/10 p-4 text-sm text-red-400 border border-red-500/20">
+            <div className="flex items-center gap-3 rounded-xl bg-red-50 p-4 text-sm text-danger border border-red-100 animate-in fade-in duration-200">
               <AlertCircle className="h-5 w-5 shrink-0" />
-              <p>{error}</p>
+              <p className="font-bold">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="flex items-center gap-3 rounded-lg bg-green-500/10 p-4 text-sm text-green-400 border border-green-500/20">
+            <div className="flex items-center gap-3 rounded-xl bg-green-50 p-4 text-sm text-success border border-green-100 animate-in fade-in duration-200">
               <CheckCircle2 className="h-5 w-5 shrink-0" />
-              <p>Perfil actualizado correctamente</p>
+              <p className="font-bold">Perfil actualizado correctamente</p>
             </div>
           )}
 
-          <div className="grid gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Nombre Completo</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-600" />
-                <input
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="block w-full rounded-lg border border-gray-800 bg-gray-950 py-2.5 pl-11 pr-4 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-2">
+              <label className="label-standard flex items-center gap-2">
+                <User className="h-3 w-3" /> Nombre Completo
+              </label>
+              <input
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="input-standard"
+                placeholder="Tu nombre completo"
+              />
             </div>
 
-            {user?.role === 'DOCENTE' && (
-              <div className="p-4 rounded-lg bg-indigo-500/5 border border-indigo-500/10">
-                <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1">Rol Docente</p>
-                <p className="text-sm text-gray-300">
-                  Como docente, tu nombre está vinculado a tu registro oficial. 
-                  Los cambios realizados aquí se reflejarán en las listas de horarios.
-                </p>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">Correo Electrónico</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-700" />
-                <input
-                  type="email"
-                  disabled
-                  value={user?.email}
-                  className="block w-full rounded-lg border border-gray-800 bg-gray-900/50 py-2.5 pl-11 pr-4 text-gray-500 cursor-not-allowed"
-                />
-              </div>
-              <p className="mt-1 text-[11px] text-gray-600">El correo institucional no puede ser modificado.</p>
+            <div className="space-y-2">
+              <label className="label-standard flex items-center gap-2">
+                <Mail className="h-3 w-3" /> Correo Electrónico
+              </label>
+              <input
+                type="email"
+                value={user?.email}
+                disabled
+                className="input-standard bg-slate-50 cursor-not-allowed opacity-70"
+              />
+              <p className="text-[10px] text-text-sub font-bold uppercase tracking-wider pl-1">El correo no puede ser modificado</p>
             </div>
 
-            <div className="pt-4 border-t border-gray-800">
-              <h3 className="text-sm font-medium text-white mb-4">Cambiar Contraseña</h3>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Nueva Contraseña</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-600" />
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="block w-full rounded-lg border border-gray-800 bg-gray-950 py-2.5 pl-11 pr-4 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
+            <div className="pt-4 border-t border-border">
+              <h3 className="text-sm font-bold text-text-main flex items-center gap-2 mb-4 uppercase tracking-wider">
+                <Lock className="h-4 w-4 text-primary" /> Seguridad
+              </h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="label-standard">Nueva Contraseña</label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-standard"
+                    placeholder="••••••••"
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Confirmar Contraseña</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-600" />
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="block w-full rounded-lg border border-gray-800 bg-gray-950 py-2.5 pl-11 pr-4 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <label className="label-standard">Confirmar Contraseña</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="input-standard"
+                    placeholder="••••••••"
+                  />
                 </div>
               </div>
-              <p className="mt-2 text-[11px] text-gray-600">Deja estos campos en blanco si no deseas cambiar tu contraseña.</p>
+              <p className="text-[10px] text-text-sub mt-2 font-bold uppercase tracking-wider pl-1">Dejar en blanco si no desea cambiar la contraseña</p>
             </div>
           </div>
 
-          <div className="flex justify-end pt-4">
+          <div className="pt-4">
             <button
               type="submit"
               disabled={updateMutation.isPending}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-all disabled:opacity-50 shadow-lg shadow-indigo-500/20"
+              className="btn-primary w-full sm:w-auto px-8 py-3"
             >
               {updateMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Guardando...
+                  Actualizando...
                 </>
               ) : (
                 'Guardar Cambios'
@@ -192,28 +181,19 @@ export default function PerfilPage() {
         </form>
       </div>
 
-      {user?.docente && (
-        <div className="mt-6 bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Shield className="h-5 w-5 text-indigo-400" />
-            <h3 className="text-sm font-semibold text-indigo-300 uppercase tracking-wider">Información de Docente Vinculada</h3>
+      <div className="mt-8 card-standard bg-slate-50/50 border-dashed">
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-white rounded-xl border border-border shadow-sm">
+            <Shield className="h-6 w-6 text-primary" />
           </div>
-          <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
-            <div>
-              <p className="text-gray-500">Categoría</p>
-              <p className="text-gray-300 font-medium">{user.docente.categoria}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Tipo</p>
-              <p className="text-gray-300 font-medium">{user.docente.tipo}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Antigüedad</p>
-              <p className="text-gray-300 font-medium">{new Date(user.docente.antiguedad).toLocaleDateString()}</p>
-            </div>
+          <div>
+            <h4 className="text-sm font-bold text-text-main uppercase tracking-wider">Privacidad y Seguridad</h4>
+            <p className="text-xs text-text-sub mt-1 leading-relaxed">
+              Tu información está protegida. Los cambios en el nombre se reflejarán en todos los reportes y el sistema de horarios de forma inmediata.
+            </p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

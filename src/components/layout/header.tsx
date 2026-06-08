@@ -45,11 +45,11 @@ export function Header() {
   }, []);
 
   return (
-    <header className="fixed top-0 right-0 left-64 z-40 h-16 border-b border-slate-200 bg-white/85 backdrop-blur-md flex items-center justify-end px-8 shadow-sm">
+    <header className="fixed top-0 right-0 left-64 z-40 h-16 border-b border-border bg-white/80 backdrop-blur-md flex items-center justify-end px-8">
       {!user && (
         <Link
           href="/login"
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-indigo-500 shadow-sm"
+          className="btn-primary"
         >
           <LogIn className="h-4 w-4" />
           Iniciar Sesión
@@ -61,31 +61,29 @@ export function Header() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative rounded-full border border-slate-200 bg-white p-2 text-slate-500 shadow-sm transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+              className="relative rounded-full border border-border bg-white p-2 text-text-sub transition-all hover:border-primary/30 hover:bg-primary-light hover:text-primary focus:ring-4 focus:ring-primary/10 outline-none"
             >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center border-2 border-white">
-                  {unreadCount}
-                </span>
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-danger ring-2 ring-white" />
               )}
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-3 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4">
-                  <h3 className="text-sm font-bold text-slate-950">Notificaciones</h3>
+              <div className="absolute right-0 mt-3 w-80 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl animate-slide-in-top">
+                <div className="flex items-center justify-between border-b border-border bg-slate-50/50 p-4">
+                  <h3 className="text-[11px] font-bold text-text-sub uppercase tracking-wider">Notificaciones</h3>
                   <button 
                     onClick={() => markAllRead.mutate()}
-                    className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 uppercase tracking-wider"
+                    className="text-[10px] font-bold text-primary hover:text-primary-hover uppercase tracking-widest"
                   >
-                    Marcar todo como leído
+                    Marcar todo leído
                   </button>
                 </div>
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-80 overflow-y-auto">
                   {notifications.length === 0 ? (
                     <div className="p-8 text-center">
-                      <p className="text-xs text-slate-500">No hay notificaciones nuevas</p>
+                      <p className="text-xs font-medium text-text-sub">No hay notificaciones</p>
                     </div>
                   ) : (
                     notifications.map((n) => (
@@ -93,38 +91,35 @@ export function Header() {
                         key={n.id}
                         href={n.link || '#'}
                         onClick={() => setShowNotifications(false)}
-                        className={`block border-b border-slate-100 p-4 transition-colors hover:bg-slate-50 ${!n.leida ? 'bg-indigo-50' : ''}`}
+                        className="block border-b border-slate-50 p-4 transition-colors hover:bg-slate-50"
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <h4 className="text-xs font-bold text-slate-900">{n.titulo}</h4>
-                          {!n.leida && <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 shrink-0" />}
+                          <h4 className="text-xs font-bold text-text-main leading-tight">{n.titulo}</h4>
+                          {!n.leida && <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0 mt-1" />}
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{n.mensaje}</p>
-                        <p className="text-[9px] text-slate-400 mt-2 font-medium">
-                          {new Date(n.createdAt).toLocaleString()}
-                        </p>
+                        <p className="mt-1 text-[11px] text-text-sub line-clamp-2">{n.mensaje}</p>
+                        <span className="mt-2 block text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                          {new Date(n.createdAt).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </Link>
                     ))
                   )}
-                </div>
-                <div className="border-t border-slate-100 bg-slate-50 p-3 text-center">
-                  <Link href="/notificaciones" className="text-[10px] font-bold text-slate-500 hover:text-indigo-600 uppercase tracking-widest">
-                    Ver todo el historial
-                  </Link>
                 </div>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="h-6 w-px bg-border" />
+          
+          <Link href="/perfil" className="flex items-center gap-3 group">
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-slate-950">{user.nombre}</p>
-              <p className="text-[10px] text-slate-500 uppercase tracking-wider">{user.role}</p>
+              <p className="text-sm font-bold text-text-main group-hover:text-primary transition-colors leading-none">{user.nombre}</p>
+              <p className="text-[10px] font-bold text-text-sub uppercase tracking-tighter mt-1">{user.role.replace('_', ' ')}</p>
             </div>
-            <Link href="/perfil" className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 transition-colors hover:border-indigo-200 hover:bg-indigo-50">
-              <UserIcon className="h-5 w-5 text-slate-500" />
-            </Link>
-          </div>
+            <div className="h-9 w-9 rounded-full bg-slate-100 border border-border flex items-center justify-center text-text-sub font-bold group-hover:border-primary/30 group-hover:bg-primary-light group-hover:text-primary transition-all">
+              {user.nombre.charAt(0)}
+            </div>
+          </Link>
         </div>
       )}
     </header>

@@ -100,54 +100,70 @@ export class ScheduleEngine {
         const grupo = grupoMap.get(grupoId);
         if (!grupo) continue;
 
-        const remaining = remainingByGrupo.get(grupoId);
-        if (!remaining) continue;
+        // Get workloads for THIS docente and THIS group
+        const docenteWorkloads = grupo.workloads.filter(w => w.docenteId === docente.id);
 
-        // Assign theory hours
-        if (remaining.teoria > 0) {
-          const assigned = this.assignSlots(
-            docente.id,
-            grupoId,
-            remaining.teoria,
-            teoriaAulas,
-            'TEORIA'
-          );
+        for (const workload of docenteWorkloads) {
+          const remaining = remainingByGrupo.get(grupoId);
+          if (!remaining) continue;
 
-          if (assigned) {
-            assignedGrupos.add(grupoId);
-          }
-        }
+          if (workload.tipo === 'TEORIA') {
+            this.assignSlots(
+              docente.id,
+              grupoId,
+              workload.horas,
+              teoriaAulas,
+              'TEORIA'
+            );
+          } else if (workload.tipo === 'PRACTICA') {
+            this.assignSlots(
+              docente.id,
+              grupoId,
+              workload.horas,
+              teoriaAulas,
+              'PRACTICA'
+            );
+          } else if (workload.tipo === 'LABORATORIO') {
+            // Requirement: Lab groups multiplier
+            // Lab capacity is usually 16-20. We'll use 20 as default or the largest lab capacity.
+            const labCapacity = 20;
+            const numLabGroups = Math.ceil(grupo.numAlumnos / labCapacity);
+            
+            // If the course has e.g. 3h lab, and we need 2 lab groups,
+            // the TOTAL lab dictation hours is 6h.
+            // These 6h should be distributed among docentes.
+            // If THIS docente has 'workload.horas' (e.g. 3h), they dictate 1 lab group.
+            // If they have 6h, they dictate 2 groups.
+            const groupsToDictate = Math.floor(workload.horas / grupo.horasLaboratorio);
 
-        // Assign practice hours in theory aulas
-        if (remaining.practica > 0) {
-          const assigned = this.assignSlots(
-            docente.id,
-            grupoId,
-            remaining.practica,
-            teoriaAulas,
-            'PRACTICA'
-          );
+            for (let i = 0; i < groupsToDictate; i++) {
+              const assignedToLab = this.assignSlots(
+                docente.id,
+                grupoId,
+                grupo.horasLaboratorio,
+                labAulas,
+                'LABORATORIO'
+              );
 
-          if (assigned) {
-            assignedGrupos.add(grupoId);
-          }
-        }
-
-        // Assign lab hours independently
-        if (remaining.laboratorio > 0 && grupo.requiereLaboratorio) {
-          const assigned = this.assignSlots(
-            docente.id,
-            grupoId,
-            remaining.laboratorio,
-            labAulas,
-            'LABORATORIO'
-          );
-
-          if (assigned) {
-            assignedGrupos.add(grupoId);
+              // Fallback to theory rooms if lab assignment failed and not strictly required
+              if (!assignedToLab && !grupo.requiereLaboratorio) {
+                this.assignSlots(
+                  docente.id,
+                  grupoId,
+                  grupo.horasLaboratorio,
+                  teoriaAulas,
+                  'LABORATORIO'
+                );
+              }
+            }
           }
         }
       }
+    }
+
+    // Mark groups as assigned if they have at least one assignment
+    for (const assignment of this.assignments) {
+      assignedGrupos.add(assignment.grupoId);
     }
 
     return {
@@ -185,9 +201,15 @@ export class ScheduleEngine {
     }
 
     const grupo = this.input.grupos.find(g => g.id === grupoId);
-    const capacityEligibleAulas = grupo
+    let capacityEligibleAulas = grupo
       ? availableAulas.filter((aula) => aula.capacidad >= grupo.numAlumnos)
       : availableAulas;
+
+    // FIX: If no aula matches capacity exactly, don't fail immediately.
+    // Use the largest available aulas as a fallback to avoid "disappearing" assignments.
+    if (capacityEligibleAulas.length === 0 && availableAulas.length > 0) {
+      capacityEligibleAulas = [...availableAulas].sort((a, b) => b.capacidad - a.capacidad);
+    }
 
     if (capacityEligibleAulas.length === 0) {
       this.unassigned.push({
@@ -217,8 +239,18 @@ export class ScheduleEngine {
       if (assignedCount >= hoursNeeded) break;
       // console.log(`Checking blockSize ${blockSize} for docente ${docenteId}, grupo ${grupoId}`);
 
-      // Days sorted by current docente load (prefer days with fewer hours if we have to choose)
+      // Days sorted by priority:
+      // 1. Prefer Monday-Friday over Saturday (unless special case)
+      // 2. Prefer days with fewer hours current load
       const sortedDays = Array.from(franjasByDay.keys()).sort((a, b) => {
+        const isSaturdayA = a === 'SABADO';
+        const isSaturdayB = b === 'SABADO';
+        
+        // Exception: Course "DEPORTE" or similar for 2nd cycle might prefer Saturday if needed,
+        // but here we follow the general rule: L-V first.
+        if (isSaturdayA && !isSaturdayB) return 1;
+        if (!isSaturdayA && isSaturdayB) return -1;
+
         const horasA = this.getDocenteHoras(docenteId, a).length;
         const horasB = this.getDocenteHoras(docenteId, b).length;
         return horasA - horasB;
@@ -251,8 +283,11 @@ export class ScheduleEngine {
           const isBlockAvailable = candidateBlock.every(franja => {
             if (this.isDocenteBlocked(docenteId, franja.id)) return false;
             if (!this.checker.isDocenteAvailable(docenteId, franja.id)) return false;
-            if (!this.checker.isGrupoAvailable(grupoId, franja.id)) return false;
-            if (grupo && !this.checker.isCycleAvailable(grupo.ciclo, franja.id)) return false;
+            
+            // For LABORATORIO, we allow same group and cycle to have multiple slots
+            const isLab = tipo === 'LABORATORIO';
+            if (!isLab && !this.checker.isGrupoAvailable(grupoId, franja.id)) return false;
+            if (!isLab && grupo && !this.checker.isCycleAvailable(grupo.ciclo, franja.id)) return false;
             
             // Limit hours per day check (simplified, we'll check properly below)
             const currentDayHoras = this.getDocenteHoras(docenteId, dia);
@@ -268,7 +303,7 @@ export class ScheduleEngine {
           for (const aula of capacityEligibleAulas) {
             const isAulaAvailableForBlock = candidateBlock.every(franja => {
               if (this.isAulaBlocked(aula.id, franja.id)) return false;
-              if (!this.checker.isSlotFullyAvailable(docenteId, aula.id, grupoId, franja.id, grupo?.ciclo)) {
+              if (!this.checker.isSlotFullyAvailable(docenteId, aula.id, grupoId, franja.id, grupo?.ciclo, tipo)) {
                 return false;
               }
               return true;

@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Calendar, Save, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
-const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'] as const;
+const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'] as const;
 const HORAS = Array.from({ length: 15 }, (_, i) => {
   const h = i + 7;
   return `${String(h).padStart(2, '0')}:00`;

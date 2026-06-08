@@ -185,16 +185,16 @@ exports.Prisma.LogScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   accion: 'accion',
+  detalles: 'detalles',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
   entidad: 'entidad',
   entidadId: 'entidadId',
-  detalles: 'detalles',
   antes: 'antes',
   despues: 'despues',
   motivo: 'motivo',
-  correlationId: 'correlationId',
-  ip: 'ip',
-  userAgent: 'userAgent',
-  createdAt: 'createdAt'
+  correlationId: 'correlationId'
 };
 
 exports.Prisma.DocenteScalarFieldEnum = {
@@ -247,15 +247,18 @@ exports.Prisma.CursoScalarFieldEnum = {
   especialidadRequerida: 'especialidadRequerida',
   aperturado: 'aperturado',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  condicion: 'condicion',
+  departamento: 'departamento',
+  requisitos: 'requisitos'
 };
 
 exports.Prisma.DisponibilidadDocenteScalarFieldEnum = {
   id: 'id',
   docenteId: 'docenteId',
-  periodoId: 'periodoId',
   franjaHorariaId: 'franjaHorariaId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  periodoId: 'periodoId'
 };
 
 exports.Prisma.PostulacionCursoScalarFieldEnum = {

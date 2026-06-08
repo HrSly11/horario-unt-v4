@@ -11,6 +11,7 @@ import {
   generateDocenteReportHTML,
   generateManagementReportHTML,
   generateCicloReportHTML,
+  generateAuditReportHTML,
 } from '@/server/services/reports';
 
 const reportRoles: UserRole[] = [...academicManagerRoles, ...departmentScopedRoles, 'DOCENTE'];
@@ -465,5 +466,158 @@ export const reporteRouter = createTRPCRouter({
           { franjaHoraria: { horaInicio: 'asc' } }
         ]
       });
+    }),
+
+  /** Generate Audit Report PDF */
+  generateAuditReport: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      if (ctx.session.role !== 'ADMIN') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Solo los administradores pueden generar reportes de bitácora' });
+      }
+
+      const logs = await ctx.prisma.log.findMany({
+        include: { user: { select: { nombre: true, email: true, role: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 500 // Last 500 activities
+      });
+
+      const reportData = logs.map(log => ({
+        usuario: log.user?.nombre || 'Sistema',
+        email: log.user?.email || '-',
+        rol: log.user?.role || '-',
+        accion: log.accion,
+        detalles: log.detalles,
+        fecha: log.createdAt,
+      }));
+
+      const html = generateAuditReportHTML(reportData);
+      const buffer = await renderPDF(html, { landscape: true });
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'GENERATE_AUDIT_REPORT',
+        entidad: 'Log',
+        detalles: 'Se generó un reporte PDF de la bitácora del sistema',
+      });
+
+      return {
+        pdf: buffer.toString('base64'),
+        filename: `bitacora_sistema_${new Date().toISOString().split('T')[0]}.pdf`,
+      };
+    }),
+
+  /** Decano Dashboard Stats */
+  getDecanoStats: protectedProcedure
+    .input(z.object({ periodoId: z.string().optional() }))
+    .query(async ({ ctx, input }) => {
+      if (!hasRole(ctx.session, ['ADMIN', 'DECANO'])) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permisos para ver estadísticas de decanato' });
+      }
+
+      const activePeriodo = input.periodoId 
+        ? await ctx.prisma.periodoAcademico.findUnique({ where: { id: input.periodoId } })
+        : await ctx.prisma.periodoAcademico.findFirst({ where: { activo: true }, orderBy: { fechaInicio: 'desc' } });
+
+      if (!activePeriodo) {
+        return {
+          contadores: { docentes: 0, departamentos: 0, escuelas: 0, declaracionesFinalizadas: 0 },
+          progresoDeclaraciones: [],
+          cargaPorDepartamento: [],
+          estadoHorarios: [],
+        };
+      }
+
+      const [
+        totalDocentes,
+        totalDepartamentos,
+        totalEscuelas,
+        declaraciones,
+        departamentos,
+        escuelas,
+      ] = await Promise.all([
+        ctx.prisma.docente.count({ where: { activo: true } }),
+        ctx.prisma.departamento.count(),
+        ctx.prisma.escuela.count(),
+        ctx.prisma.declaracionCarga.findMany({
+          where: { periodoId: activePeriodo.id },
+          include: { docente: { include: { departamento: true } } },
+        }),
+        ctx.prisma.departamento.findMany({ include: { docentes: true } }),
+        ctx.prisma.escuela.findMany({
+          include: {
+            curriculas: {
+              include: {
+                cursos: {
+                  include: {
+                    curso: {
+                      include: {
+                        grupos: { where: { periodoAcademicoId: activePeriodo.id } }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }),
+      ]);
+
+      // 1. Contadores de Declaraciones por estado
+      const finalizadas = declaraciones.filter(d => d.estado === 'FINALIZADA').length;
+      const pendientes = declaraciones.filter(d => d.estado !== 'FINALIZADA').length;
+
+      // 2. Progreso por Departamento (Cumplimiento de Declaraciones)
+      const progresoPorDepto = departamentos.map(depto => {
+        const decsDepto = declaraciones.filter(d => d.docente.departamentoId === depto.id);
+        const total = depto.docentes.length;
+        const completadas = decsDepto.filter(d => d.estado === 'FINALIZADA').length;
+        return {
+          nombre: depto.nombre,
+          total,
+          completadas,
+          porcentaje: total > 0 ? Math.round((completadas / total) * 100) : 0,
+        };
+      });
+
+      // 3. Carga Lectiva vs No Lectiva Global
+      const totalLectivas = declaraciones.reduce((acc, d) => acc + (d.totalHorasLectivas || 0), 0);
+      const totalNoLectivas = declaraciones.reduce((acc, d) => acc + (d.totalHorasNoLectivas || 0), 0);
+
+      // 4. Estado de Horarios por Escuela
+      const estadoHorarios = escuelas.map(esc => {
+        const gruposEscuela = esc.curriculas.flatMap(curr => 
+          curr.cursos.flatMap(cc => cc.curso.grupos)
+        );
+        const totalGrupos = gruposEscuela.length;
+        // This is a simplification, ideally we'd check if all groups have assignments
+        return {
+          nombre: esc.nombre,
+          grupos: totalGrupos,
+        };
+      });
+
+      return {
+        periodo: activePeriodo.nombre,
+        contadores: {
+          docentes: totalDocentes,
+          departamentos: totalDepartamentos,
+          escuelas: totalEscuelas,
+          declaracionesFinalizadas: finalizadas,
+          declaracionesPendientes: pendientes,
+        },
+        graficos: {
+          distribucionDeclaraciones: [
+            { name: 'Finalizadas', value: finalizadas },
+            { name: 'Pendientes', value: pendientes },
+          ],
+          cargaGlobal: [
+            { name: 'Lectiva', horas: totalLectivas },
+            { name: 'No Lectiva', horas: totalNoLectivas },
+          ],
+          progresoDepartamentos: progresoPorDepto,
+          horariosEscuelas: estadoHorarios,
+        }
+      };
     }),
 });

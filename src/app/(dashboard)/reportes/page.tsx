@@ -44,10 +44,17 @@ const REPORT_TYPES = [
 ];
 
 const COLOR_MAP: Record<string, string> = {
-  indigo: 'from-indigo-600/20 to-indigo-600/5 border-indigo-500/30 text-indigo-400 hover:border-indigo-400',
-  purple: 'from-purple-600/20 to-purple-600/5 border-purple-500/30 text-purple-400 hover:border-purple-400',
-  cyan: 'from-cyan-600/20 to-cyan-600/5 border-cyan-500/30 text-cyan-400 hover:border-cyan-400',
-  emerald: 'from-emerald-600/20 to-emerald-600/5 border-emerald-500/30 text-emerald-400 hover:border-emerald-400',
+  indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:border-indigo-400 hover:bg-indigo-100 shadow-sm',
+  purple: 'bg-purple-50 border-purple-200 text-purple-700 hover:border-purple-400 hover:bg-purple-100 shadow-sm',
+  cyan: 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:border-cyan-400 hover:bg-cyan-100 shadow-sm',
+  emerald: 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100 shadow-sm',
+};
+
+const ICON_BG_MAP: Record<string, string> = {
+  indigo: 'bg-indigo-600 text-white',
+  purple: 'bg-purple-600 text-white',
+  cyan: 'bg-cyan-600 text-white',
+  emerald: 'bg-emerald-600 text-white',
 };
 
 function downloadBase64PDF(base64: string, filename: string) {
@@ -137,21 +144,21 @@ export default function ReportesPage() {
                 return (
                   <div
                     key={report.id}
-                    className={`rounded-xl border bg-gradient-to-br p-6 transition-all cursor-pointer ${COLOR_MAP[report.color]}`}
+                    className={`rounded-xl border p-6 transition-all cursor-pointer ${COLOR_MAP[report.color]}`}
                     onClick={() => !isGenerating && handleGenerate(report.id)}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-800/50">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg shadow-sm ${ICON_BG_MAP[report.color]}`}>
                         <Icon className="h-5 w-5" />
                       </div>
                       {isGenerating ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <Download className="h-4 w-4 opacity-50" />
+                        <Download className="h-4 w-4 opacity-70" />
                       )}
                     </div>
-                    <h3 className="mt-4 font-semibold text-white">{report.name}</h3>
-                    <p className="mt-1 text-xs text-gray-500">{report.description}</p>
+                    <h3 className="mt-4 font-bold text-inherit">{report.name}</h3>
+                    <p className="mt-1 text-xs text-inherit opacity-80">{report.description}</p>
                   </div>
                 );
               })}
@@ -172,21 +179,21 @@ export default function ReportesPage() {
                 return (
                   <div
                     key={report.id}
-                    className={`rounded-xl border bg-gradient-to-br p-6 transition-all cursor-pointer ${COLOR_MAP[report.color]}`}
+                    className={`rounded-xl border p-6 transition-all cursor-pointer ${COLOR_MAP[report.color]}`}
                     onClick={() => !isGenerating && handleGenerate(report.id)}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-800/50">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg shadow-sm ${ICON_BG_MAP[report.color]}`}>
                         <Icon className="h-5 w-5" />
                       </div>
                       {isGenerating ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <Download className="h-4 w-4 opacity-50" />
+                        <Download className="h-4 w-4 opacity-70" />
                       )}
                     </div>
-                    <h3 className="mt-4 font-semibold text-white">{report.name}</h3>
-                    <p className="mt-1 text-xs text-gray-500">{report.description}</p>
+                    <h3 className="mt-4 font-bold text-inherit">{report.name}</h3>
+                    <p className="mt-1 text-xs text-inherit opacity-80">{report.description}</p>
                   </div>
                 );
               })}

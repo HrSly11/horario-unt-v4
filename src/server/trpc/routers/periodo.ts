@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, directorProcedure } from '../init';
+import { createTRPCRouter, baseProcedure, adminProcedure, directorProcedure, academicManagerProcedure } from '../init';
 
 const periodoInput = z.object({
   nombre: z.string().min(3, 'El nombre es obligatorio (ej: 2026-I)'),
   fechaInicio: z.coerce.date(),
   fechaFin: z.coerce.date(),
   activo: z.boolean().optional().default(false),
+  estado: z.enum(['PLANIFICACION', 'POSTULACION', 'ASIGNACION', 'REVISION', 'APROBADO', 'FINALIZADO']).optional(),
 });
 
 export const periodoRouter = createTRPCRouter({
@@ -38,28 +39,45 @@ export const periodoRouter = createTRPCRouter({
       });
     }),
 
-  create: adminProcedure.input(periodoInput).mutation(({ ctx, input }) => {
+  create: academicManagerProcedure.input(periodoInput).mutation(async ({ ctx, input }) => {
+    if (input.activo) {
+      // Finalizar el periodo activo actual
+      await ctx.prisma.periodoAcademico.updateMany({
+        where: { activo: true },
+        data: { activo: false, estado: 'FINALIZADO' },
+      });
+    }
     return ctx.prisma.periodoAcademico.create({ data: input });
   }),
 
-  update: adminProcedure
+  update: academicManagerProcedure
     .input(z.object({ id: z.string() }).merge(periodoInput))
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
+      
+      if (data.activo) {
+        // Finalizar otros periodos activos
+        await ctx.prisma.periodoAcademico.updateMany({
+          where: { activo: true, id: { not: id } },
+          data: { activo: false, estado: 'FINALIZADO' },
+        });
+      }
+
       return ctx.prisma.periodoAcademico.update({ where: { id }, data });
     }),
 
-  delete: adminProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
+  delete: academicManagerProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {
     return ctx.prisma.periodoAcademico.delete({ where: { id: input.id } });
   }),
 
-  toggleActive: adminProcedure
+  toggleActive: academicManagerProcedure
     .input(z.object({ id: z.string(), activo: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       if (input.activo) {
+        // Finalizar el periodo activo actual
         await ctx.prisma.periodoAcademico.updateMany({
           where: { activo: true },
-          data: { activo: false },
+          data: { activo: false, estado: 'FINALIZADO' },
         });
       }
       return ctx.prisma.periodoAcademico.update({

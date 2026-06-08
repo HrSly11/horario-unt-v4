@@ -87,7 +87,7 @@ export const declaracionRouter = createTRPCRouter({
       return ctx.prisma.declaracionCarga.findMany({
         where,
         include: {
-          docente: { select: { id: true, nombre: true, email: true, departamentoId: true } },
+          docente: { select: { id: true, nombre: true, email: true, departamentoId: true, horasContrato: true } },
           periodo: { select: { id: true, nombre: true } },
           aprobadorDepto: { select: { id: true, nombre: true } },
           aprobadorEscuela: { select: { id: true, nombre: true } },
@@ -165,6 +165,64 @@ export const declaracionRouter = createTRPCRouter({
         },
         include: { docente: { select: { id: true, nombre: true } }, periodo: { select: { id: true, nombre: true } } },
       });
+    }),
+
+  updateTotals: docenteProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({ where: { id: input.id } });
+      
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para actualizar esta declaración' });
+      }
+
+      if (declaracion.estado !== 'BORRADOR' && declaracion.estado !== 'RECHAZADA') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Solo se pueden actualizar los totales en estado BORRADOR o RECHAZADA' });
+      }
+
+      const [asignaciones, cargas] = await Promise.all([
+        ctx.prisma.asignacionCargaLectiva.findMany({ where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId } }),
+        ctx.prisma.cargaNoLectiva.findMany({ where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId } }),
+      ]);
+
+      const totalLectivas = asignaciones.reduce((sum, a) => sum + a.horasAsignadas, 0);
+      const totalNoLectivas = cargas.reduce((sum, c) => sum + c.horas, 0);
+
+      return ctx.prisma.declaracionCarga.update({
+        where: { id: input.id },
+        data: {
+          totalHorasLectivas: totalLectivas,
+          totalHorasNoLectivas: totalNoLectivas,
+          totalHoras: totalLectivas + totalNoLectivas,
+        },
+        include: { docente: { select: { id: true, nombre: true, horasContrato: true } } },
+      });
+    }),
+
+  delete: docenteProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({ where: { id: input.id } });
+
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== declaracion.docenteId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para eliminar esta declaración' });
+      }
+
+      if (declaracion.estado !== 'BORRADOR' && declaracion.estado !== 'RECHAZADA') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Solo se pueden eliminar declaraciones en estado BORRADOR o RECHAZADA' });
+      }
+
+      await writeAuditLog(ctx.prisma, {
+        session: ctx.session,
+        headers: ctx.headers,
+        accion: 'DECLARACION_ELIMINADA',
+        entidad: 'DeclaracionCarga',
+        entidadId: input.id,
+        antes: { estado: declaracion.estado, totalHoras: declaracion.totalHoras },
+        despues: null,
+      });
+
+      return ctx.prisma.declaracionCarga.delete({ where: { id: input.id } });
     }),
 
   enviar: docenteProcedure

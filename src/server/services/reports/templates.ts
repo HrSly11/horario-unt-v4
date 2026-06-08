@@ -71,7 +71,39 @@ const STYLES = `
       font-size: 9px;
     }
     .hora-col { width: 80px; font-weight: bold; background: #f0f0f0; }
-    .day-col { width: calc((100% - 80px) / 5); }
+    .day-col { width: calc((100% - 80px) / 6); }
+
+    /* Audit Report Specific */
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .audit-table th, .audit-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      font-size: 9px;
+    }
+    .audit-table th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .audit-table tr:nth-child(even) {
+      background-color: #fcfcfc;
+    }
+    .badge {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .badge-login { background: #dcfce7; color: #166534; }
+    .badge-critical { background: #fee2e2; color: #991b1b; }
+    .badge-default { background: #f1f5f9; color: #475569; }
     
     .slot-box {
       font-size: 8px;
@@ -149,10 +181,10 @@ const STYLES = `
   </style>
 `;
 
-const DIAS_ORDER = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'] as const;
+const DIAS_ORDER = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'] as const;
 const DIAS_LABELS: Record<string, string> = {
   LUNES: 'LUNES', MARTES: 'MARTES', MIERCOLES: 'MIÉRCOLES',
-  JUEVES: 'JUEVES', VIERNES: 'VIERNES',
+  JUEVES: 'JUEVES', VIERNES: 'VIERNES', SABADO: 'SÁBADO',
 };
 
 const HORAS = [
@@ -518,6 +550,60 @@ export function generateDocenteReportHTML(docentes: DocenteReportData[], periodo
   }).join('');
 
   return `<!DOCTYPE html><html><head>${STYLES}</head><body>${pages}</body></html>`;
+}
+
+export function generateAuditReportHTML(logs: any[]): string {
+  const info = {
+    'SISTEMA': 'GESTIÓN DE CARGA ACADÉMICA - UNT',
+    'TIPO DE REPORTE': 'BITÁCORA DE ACCESOS Y ACTIVIDADES CRÍTICAS',
+    'FECHA DE GENERACIÓN': new Date().toLocaleString('es-PE'),
+    'REGISTROS MOSTRADOS': logs.length.toString(),
+  };
+
+  const html = `
+    <div class="page">
+      ${institutionalHeader('REPORTE DE AUDITORÍA Y SEGURIDAD', info)}
+      
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th style="width: 150px;">Usuario / Email</th>
+            <th style="width: 80px;">Rol</th>
+            <th style="width: 100px;">Acción</th>
+            <th>Detalles de la Actividad</th>
+            <th style="width: 110px;">Fecha y Hora</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${logs.map(log => {
+            const isLogin = log.accion === 'LOGIN';
+            const isCritical = log.accion.includes('DELETE') || log.accion.includes('UPDATE') || log.accion.includes('PUBLISH');
+            const badgeClass = isLogin ? 'badge-login' : (isCritical ? 'badge-critical' : 'badge-default');
+            
+            return `
+              <tr>
+                <td>
+                  <div style="font-weight: bold;">${log.usuario}</div>
+                  <div style="font-size: 8px; color: #666;">${log.email}</div>
+                </td>
+                <td>${log.rol}</td>
+                <td><span class="badge ${badgeClass}">${log.accion}</span></td>
+                <td>${log.detalles}</td>
+                <td>
+                  <div>${new Date(log.fecha).toLocaleDateString('es-PE')}</div>
+                  <div style="font-size: 8px; color: #666;">${new Date(log.fecha).toLocaleTimeString('es-PE')}</div>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+      
+      <div class="footer-line">Este reporte es confidencial y para uso exclusivo del administrador del sistema.</div>
+    </div>
+  `;
+
+  return `<!DOCTYPE html><html><head>${STYLES}</head><body>${html}</body></html>`;
 }
 
 // ─── MANAGEMENT REPORT ──────────────────────────────
