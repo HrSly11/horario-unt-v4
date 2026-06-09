@@ -13,6 +13,9 @@ import {
   X,
   Search,
   ChevronDown,
+  Check,
+  Award,
+  AlertCircle,
 } from 'lucide-react';
 
 const TIPO_OPTIONS = ['TEORIA', 'PRACTICA', 'LABORATORIO'] as const;
@@ -65,23 +68,45 @@ export default function CargaLectivaPage() {
     enabled: !!periodoId,
   });
 
+  const { data: postulantes = [], isLoading: isLoadingPostulantes } = useQuery({
+    ...trpc.cargaLectiva.postulantesByGrupo.queryOptions({ 
+      grupoId: assignGrupoId 
+    }),
+    enabled: !!assignGrupoId && showAssignModal,
+  });
+
   const { data: docentes = [] } = useQuery({
     ...trpc.docente.list.queryOptions({}),
   });
 
+  const uniqueDocentesList = useMemo(() => {
+    const seen = new Set();
+    return docentes.filter((d) => {
+      const emailKey = d.email.toLowerCase().trim();
+      if (seen.has(d.id) || seen.has(emailKey)) return false;
+      seen.add(d.id);
+      seen.add(emailKey);
+      return true;
+    });
+  }, [docentes]);
+
   const { data: cursos = [] } = useQuery({
-    ...trpc.curso.list.queryOptions({}),
+    ...trpc.curso.list.queryOptions({ 
+      periodoId: periodoId || undefined,
+      vista: 'CATALOGO'
+    }),
+    enabled: !!periodoId,
   });
 
   // ── derived ────────────────────────────────────────────
   const filteredDocentes = useMemo(() => {
-    if (!docenteSearch) return docentes;
+    if (!docenteSearch) return uniqueDocentesList;
     const term = docenteSearch.toLowerCase();
-    return docentes.filter(
+    return uniqueDocentesList.filter(
       (d) =>
         d.nombre.toLowerCase().includes(term) || d.email.toLowerCase().includes(term)
     );
-  }, [docentes, docenteSearch]);
+  }, [uniqueDocentesList, docenteSearch]);
 
   // Build a flat list of grupos with curso info for the active period
   const gruposForPeriod = useMemo(() => {
@@ -100,7 +125,31 @@ export default function CargaLectivaPage() {
   }, [cursos, periodoId]);
 
   const totalHoras = cargasLectivas.reduce((s, c) => s + c.horasAsignadas, 0);
-  const uniqueDocentes = new Set(cargasLectivas.map((c) => c.docenteId)).size;
+  const uniqueDocentesCount = new Set(cargasLectivas.map((c) => c.docenteId)).size;
+
+  // Group assignments by docente
+  const groupedCargas = useMemo(() => {
+    const groups: Record<string, {
+      docente: (typeof cargasLectivas)[0]['docente'];
+      asignaciones: (typeof cargasLectivas);
+      totalHoras: number;
+    }> = {};
+
+    cargasLectivas.forEach((carga) => {
+      const dId = carga.docenteId;
+      if (!groups[dId]) {
+        groups[dId] = {
+          docente: carga.docente,
+          asignaciones: [],
+          totalHoras: 0,
+        };
+      }
+      groups[dId].asignaciones.push(carga);
+      groups[dId].totalHoras += carga.horasAsignadas;
+    });
+
+    return Object.values(groups).sort((a, b) => a.docente.nombre.localeCompare(b.docente.nombre));
+  }, [cargasLectivas]);
 
   const isManager = canManage(user?.role);
 
@@ -318,7 +367,7 @@ export default function CargaLectivaPage() {
             className="appearance-none bg-zinc-900/80 border border-zinc-800 text-white rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:border-blue-500 min-w-[220px]"
           >
             <option value="">Todos los docentes</option>
-            {docentes.map((d) => (
+            {uniqueDocentesList.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.nombre}
               </option>
@@ -357,7 +406,7 @@ export default function CargaLectivaPage() {
           </div>
           <div>
             <div className="text-zinc-400 text-sm">Docentes</div>
-            <div className="text-2xl font-bold text-white">{uniqueDocentes}</div>
+            <div className="text-2xl font-bold text-white">{uniqueDocentesCount}</div>
           </div>
         </div>
       </div>
@@ -371,68 +420,83 @@ export default function CargaLectivaPage() {
             <thead className="bg-zinc-800">
               <tr>
                 <th className="text-left p-3 text-zinc-400 font-medium">Docente</th>
-                <th className="text-left p-3 text-zinc-400 font-medium">Curso</th>
-                <th className="text-left p-3 text-zinc-400 font-medium">Grupo</th>
-                <th className="text-left p-3 text-zinc-400 font-medium">Tipo</th>
-                <th className="text-center p-3 text-zinc-400 font-medium">Horas</th>
-                <th className="text-center p-3 text-zinc-400 font-medium">Compartido</th>
-                <th className="text-center p-3 text-zinc-400 font-medium">Acciones</th>
+                <th className="text-left p-3 text-zinc-400 font-medium">Cursos Asignados</th>
+                <th className="text-center p-3 text-zinc-400 font-medium">Total Horas</th>
               </tr>
             </thead>
             <tbody>
-              {cargasLectivas.map((carga) => (
+              {groupedCargas.map((group) => (
                 <tr
-                  key={carga.id}
-                  className="border-t border-zinc-800 hover:bg-zinc-800/50"
+                  key={group.docente.id}
+                  className="border-t border-zinc-800 hover:bg-zinc-800/30 transition-colors"
                 >
-                  <td className="p-3 text-white">{carga.docente.nombre}</td>
-                  <td className="p-3 text-zinc-300">
-                    {carga.grupo.curso.codigo} - {carga.grupo.curso.nombre}
-                  </td>
-                  <td className="p-3 text-zinc-300">{carga.grupo.nombre}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-0.5 rounded text-xs ${TIPO_COLORS[carga.tipo]}`}
-                    >
-                      {carga.tipo}
-                    </span>
-                  </td>
-                  <td className="p-3 text-center text-white font-mono">
-                    {carga.horasAsignadas}h
-                  </td>
-                  <td className="p-3 text-center">
-                    {carga.compartido ? (
-                      <span className="px-2 py-0.5 rounded text-xs bg-purple-500/20 text-purple-400">
-                        Con {carga.docenteCompartido?.nombre}
+                  <td className="p-3 align-top">
+                    <div className="flex flex-col">
+                      <span className="text-white font-semibold">{group.docente.nombre}</span>
+                      <span className="text-zinc-500 text-xs">{group.docente.email}</span>
+                      <span className="text-[10px] text-zinc-600 mt-1 uppercase font-bold tracking-wider">
+                        {group.docente.categoria} • {group.docente.modalidad}
                       </span>
-                    ) : (
-                      <span className="text-zinc-600">—</span>
-                    )}
+                    </div>
                   </td>
-                  <td className="p-3 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <button
-                        onClick={() => openEditModal(carga)}
-                        className="p-1.5 text-zinc-400 hover:text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
-                        title="Editar"
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        onClick={() => setDeletingId(carga.id)}
-                        className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
-                        title="Eliminar"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                  <td className="p-3">
+                    <div className="space-y-2">
+                      {group.asignaciones.map((carga) => (
+                        <div key={carga.id} className="flex items-center justify-between bg-zinc-800/50 p-2 rounded-lg group/item">
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-blue-400 font-bold text-xs">{carga.grupo.curso.codigo}</span>
+                              <span className="text-zinc-300 text-sm">{carga.grupo.curso.nombre}</span>
+                              <span className="badge badge-gray text-[10px]">{carga.grupo.nombre}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${TIPO_COLORS[carga.tipo]}`}>
+                                {carga.tipo}
+                              </span>
+                              <span className="text-zinc-500 text-[10px] font-medium">{carga.horasAsignadas}h</span>
+                              {carga.compartido && (
+                                <span className="text-[10px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/20">
+                                  Compartido con {carga.docenteCompartido?.nombre}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => openEditModal(carga)}
+                              className="p-1.5 text-zinc-400 hover:text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
+                              title="Editar"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={() => setDeletingId(carga.id)}
+                              className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="p-3 text-center align-top">
+                    <div className="inline-flex flex-col items-center justify-center bg-blue-500/10 border border-blue-500/20 rounded-lg p-2 min-w-[60px]">
+                      <span className="text-xl font-bold text-blue-400 leading-none">{group.totalHoras}</span>
+                      <span className="text-[10px] text-blue-400/60 font-bold uppercase tracking-widest mt-1">Horas</span>
                     </div>
                   </td>
                 </tr>
               ))}
-              {cargasLectivas.length === 0 && (
+              {groupedCargas.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-zinc-500">
-                    No hay asignaciones de carga lectiva para este periodo
+                  <td colSpan={3} className="p-12 text-center">
+                    <div className="flex flex-col items-center gap-2 text-zinc-500">
+                      <Users size={32} className="opacity-20" />
+                      <p>No hay asignaciones de carga lectiva para este periodo</p>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -509,6 +573,69 @@ export default function CargaLectivaPage() {
                 </select>
               </div>
 
+              {/* Postulantes al curso */}
+              {assignGrupoId && (
+                <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg overflow-hidden">
+                  <div className="px-3 py-2 bg-zinc-800 border-b border-zinc-700 flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <Award size={14} className="text-amber-500" />
+                      Postulantes al curso
+                    </span>
+                    {isLoadingPostulantes && (
+                      <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    )}
+                  </div>
+                  <div className="max-h-[160px] overflow-y-auto">
+                    {postulantes.length > 0 ? (
+                      <div className="divide-y divide-zinc-800">
+                        {postulantes.map((p) => (
+                          <div 
+                            key={p.docente.id} 
+                            className={`p-2.5 flex items-center justify-between hover:bg-zinc-800 transition-colors ${assignDocenteId === p.docente.id ? 'bg-blue-500/5' : ''}`}
+                          >
+                            <div className="flex flex-col gap-0.5 min-w-0">
+                              <span className={`text-sm font-medium truncate ${assignDocenteId === p.docente.id ? 'text-blue-400' : 'text-zinc-200'}`}>
+                                {p.docente.nombre}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] text-zinc-500 uppercase font-bold">Prioridad {p.prioridad}</span>
+                                <span className="text-[10px] text-emerald-500 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                                  {p.compatibilidad.toFixed(0)}% compatibilidad
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => setAssignDocenteId(p.docente.id)}
+                              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-bold transition-all ${
+                                assignDocenteId === p.docente.id
+                                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
+                                  : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-300'
+                              }`}
+                            >
+                              {assignDocenteId === p.docente.id ? (
+                                <>
+                                  <Check size={12} strokeWidth={3} />
+                                  Seleccionado
+                                </>
+                              ) : (
+                                'Seleccionar'
+                              )}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : !isLoadingPostulantes ? (
+                      <div className="p-6 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <AlertCircle size={20} className="text-zinc-600" />
+                          <p className="text-xs text-zinc-500 font-medium">No hay docentes postulados para este curso</p>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              )}
+
               {/* Tipo + Horas */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -568,7 +695,7 @@ export default function CargaLectivaPage() {
                     className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                   >
                     <option value="">Seleccionar docente</option>
-                    {docentes
+                    {uniqueDocentesList
                       .filter((d) => d.id !== assignDocenteId)
                       .map((d) => (
                         <option key={d.id} value={d.id}>
@@ -659,7 +786,7 @@ export default function CargaLectivaPage() {
                     className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                   >
                     <option value="">Seleccionar docente</option>
-                    {docentes.map((d) => (
+                    {uniqueDocentesList.map((d) => (
                       <option key={d.id} value={d.id}>
                         {d.nombre}
                       </option>

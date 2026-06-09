@@ -12,6 +12,7 @@ export const academicManagerRoles: UserRole[] = [
   'SECRETARIA_ACADEMICA',
   'DIRECTOR_ESCUELA',
   'DECANO',
+  'DIRECTOR_DEPARTAMENTO',
 ];
 
 export const departmentManagerRoles: UserRole[] = [

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { createTRPCRouter, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
-import { CategoriaDocente, TipoDocente } from '@/generated/prisma/client';
-import type { Prisma, PrismaClient } from '@/generated/prisma/client';
+import { CategoriaDocente, TipoDocente, TipoAsignacion, Prisma } from '@/generated/prisma/client';
+import type { PrismaClient } from '@/generated/prisma/client';
 import {
   academicManagerRoles,
   assertDocenteSelfOrRole,
@@ -147,10 +147,17 @@ export const docenteRouter = createTRPCRouter({
           throw new TRPCError({ code: 'FORBIDDEN', message: 'El usuario docente no tiene un ID de docente asociado.' });
         }
         filters.push({ id: ctx.session.docenteId });
+      } else if (
+        ctx.session.role === 'DIRECTOR_ESCUELA' ||
+        ctx.session.role === 'DIRECTOR_DEPARTAMENTO' ||
+        ctx.session.role === 'DECANO' ||
+        hasRole(ctx.session, academicManagerRoles)
+      ) {
+        // Roles directivos y de gestión académica ven todos los docentes
       } else if (hasRole(ctx.session, departmentScopedRoles)) {
         const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
         filters.push({ departamentoId: { in: managedDepartamentoIds ?? [] } });
-      } else if (!hasRole(ctx.session, academicManagerRoles)) {
+      } else {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para listar docentes' });
       }
 
@@ -159,6 +166,7 @@ export const docenteRouter = createTRPCRouter({
       return ctx.prisma.docente.findMany({
         where,
         select: docenteListSelect,
+        distinct: ['id'], // Asegurar que no haya duplicados en la respuesta
         orderBy: { nombre: 'asc' },
       });
     }),
@@ -399,38 +407,58 @@ export const docenteRouter = createTRPCRouter({
 
   /** Get current docente's availability */
   getDisponibilidad: protectedProcedure
-    .input(z.object({ periodoId: z.string().optional() }).optional())
+    .input(z.object({ 
+      periodoId: z.string().optional(),
+      grupoId: z.string().optional(),
+      tipo: z.nativeEnum(TipoAsignacion).optional(),
+    }).optional())
     .query(async ({ ctx, input }) => {
       if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
       const periodo = await resolveAvailabilityPeriod(ctx.prisma, input?.periodoId);
 
       return ctx.prisma.disponibilidadDocente.findMany({
-        where: { docenteId: ctx.session.docenteId, periodoId: periodo.id },
+        where: { 
+          docenteId: ctx.session.docenteId, 
+          periodoId: periodo.id,
+          grupoId: input?.grupoId || null,
+          tipo: input?.tipo || null,
+        },
         include: { franjaHoraria: true },
       });
     }),
 
   /** Save teacher availability */
   saveAvailability: protectedProcedure
-    .input(z.object({ periodoId: z.string().optional(), franjaIds: z.array(z.string()) }))
+    .input(z.object({ 
+      periodoId: z.string().optional(), 
+      grupoId: z.string().optional(),
+      tipo: z.nativeEnum(TipoAsignacion).optional(),
+      franjaIds: z.array(z.string()),
+    }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
       const docenteId = ctx.session.docenteId;
       const periodo = await resolveAvailabilityPeriod(ctx.prisma, input.periodoId);
       const franjaIds = [...new Set(input.franjaIds)];
+      const grupoId = input.grupoId || null;
+      const tipo = input.tipo || null;
 
-      if (periodo.estado !== 'POSTULACION') {
+      // Allow general availability only during POSTULACION
+      // Allow specific course suggestions (grupoId) during POSTULACION or ASIGNACION
+      const allowedStates = grupoId ? ['POSTULACION', 'ASIGNACION'] : ['POSTULACION'];
+
+      if (!allowedStates.includes(periodo.estado)) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
-          message: `La disponibilidad docente solo se puede modificar durante POSTULACION. Estado actual: ${periodo.estado}.`,
+          message: `La disponibilidad ${grupoId ? 'por curso' : 'general'} solo se puede modificar durante ${allowedStates.join(' o ')}. Estado actual: ${periodo.estado}.`,
         });
       }
 
       return ctx.prisma.$transaction(async (tx) => {
         await tx.disponibilidadDocente.deleteMany({
-          where: { docenteId, periodoId: periodo.id },
+          where: { docenteId, periodoId: periodo.id, grupoId, tipo },
         });
 
         if (franjaIds.length > 0) {
@@ -439,6 +467,8 @@ export const docenteRouter = createTRPCRouter({
               docenteId,
               periodoId: periodo.id,
               franjaHorariaId: id,
+              grupoId,
+              tipo,
             })),
             skipDuplicates: true,
           });

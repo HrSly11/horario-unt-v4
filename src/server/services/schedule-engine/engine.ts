@@ -23,6 +23,10 @@ interface ScheduleEngineInput {
   existingAssignments?: Assignment[];
   /** Blocked slots per docente (restricciones, etc.) */
   blockedDocenteSlots?: Set<string>;
+  /** Blocked slots per docente-grupo (docenteId::grupoId::franjaId) */
+  blockedDocenteGrupoSlots?: Set<string>;
+  /** Blocked slots per docente-grupo-tipo (docenteId::grupoId::tipo::franjaId) */
+  blockedDocenteGrupoTipoSlots?: Set<string>;
   /** Blocked slots per aula (mantenimiento, etc.) */
   blockedAulaSlots?: Set<string>;
 }
@@ -42,12 +46,16 @@ export class ScheduleEngine {
   private cycleHorasPorDia = new Map<number, Map<string, string[]>>(); // New: track cycle hours
   private franjaById = new Map<string, FranjaForSchedule>();
   private blockedDocenteSlots: Set<string>;
+  private blockedDocenteGrupoSlots: Set<string>;
+  private blockedDocenteGrupoTipoSlots: Set<string>;
   private blockedAulaSlots: Set<string>;
 
   constructor(input: ScheduleEngineInput) {
     this.input = input;
     this.checker = new ConstraintChecker();
     this.blockedDocenteSlots = new Set(input.blockedDocenteSlots || []);
+    this.blockedDocenteGrupoSlots = new Set(input.blockedDocenteGrupoSlots || []);
+    this.blockedDocenteGrupoTipoSlots = new Set(input.blockedDocenteGrupoTipoSlots || []);
     this.blockedAulaSlots = new Set(input.blockedAulaSlots || []);
   }
 
@@ -281,7 +289,7 @@ export class ScheduleEngine {
 
           // Check if all franjas in block are available for docente, grupo, cycle
           const isBlockAvailable = candidateBlock.every(franja => {
-            if (this.isDocenteBlocked(docenteId, franja.id)) return false;
+            if (this.isDocenteBlocked(docenteId, franja.id, grupoId, tipo)) return false;
             if (!this.checker.isDocenteAvailable(docenteId, franja.id)) return false;
             
             // For LABORATORIO, we allow same group and cycle to have multiple slots
@@ -389,9 +397,21 @@ export class ScheduleEngine {
     return `${entityId}::${franjaId}`;
   }
 
-  private isDocenteBlocked(docenteId: string, franjaId: string): boolean {
+  private isDocenteBlocked(docenteId: string, franjaId: string, grupoId?: string, tipo?: string): boolean {
     const key = `${docenteId}::${franjaId}`;
-    return this.blockedDocenteSlots.has(key);
+    if (this.blockedDocenteSlots.has(key)) return true;
+
+    if (grupoId) {
+      if (tipo) {
+        const typeKey = `${docenteId}::${grupoId}::${tipo}::${franjaId}`;
+        if (this.blockedDocenteGrupoTipoSlots.has(typeKey)) return true;
+      }
+
+      const groupKey = `${docenteId}::${grupoId}::${franjaId}`;
+      if (this.blockedDocenteGrupoSlots.has(groupKey)) return true;
+    }
+
+    return false;
   }
 
   private isAulaBlocked(aulaId: string, franjaId: string): boolean {

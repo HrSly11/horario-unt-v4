@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
+import { Prisma } from '@/generated/prisma/client';
 
 const cursoInput = z.object({
   codigo: z.string().min(2, 'El código es obligatorio'),
@@ -29,7 +30,7 @@ const grupoInput = z.object({
 });
 
 export const cursoRouter = createTRPCRouter({
-  list: baseProcedure
+  list: protectedProcedure
     .input(
       z.object({
         ciclo: z.number().int().optional(),
@@ -37,12 +38,14 @@ export const cursoRouter = createTRPCRouter({
         vista: z.enum(['CATALOGO', 'APERTURA', 'MIS_CURSOS']).optional().default('CATALOGO'),
         periodoId: z.string().optional(),
         docenteId: z.string().optional(),
+        soloAperturados: z.boolean().optional(),
       }).optional()
     )
     .query(async ({ ctx, input }) => {
-      const where: Record<string, any> = {};
+      const where: Prisma.CursoWhereInput = {};
 
       if (input?.ciclo) where.ciclo = input.ciclo;
+      if (input?.soloAperturados) where.aperturado = true;
       if (input?.search) {
         where.OR = [
           { nombre: { contains: input.search, mode: 'insensitive' } },
@@ -62,8 +65,9 @@ export const cursoRouter = createTRPCRouter({
             }
           }
         };
-      } else if (input?.periodoId) {
+      } else if (input?.periodoId && input?.vista !== 'CATALOGO') {
         // Para otras vistas con periodoId (como APERTURA), solo cursos con grupos en ese periodo
+        // En CATALOGO permitimos ver todos aunque no tengan grupos todavía
         where.grupos = {
           some: {
             periodoAcademicoId: input.periodoId
@@ -72,7 +76,6 @@ export const cursoRouter = createTRPCRouter({
       }
 
       // Lógica de Paridad para la vista de APERTURA o MIS_CURSOS
-      // En MIS_CURSOS también aplicamos paridad por seguridad, aunque las asignaciones ya deberían respetarla
       if (input?.vista === 'APERTURA' || input?.vista === 'MIS_CURSOS') {
         const periodo = input?.periodoId 
           ? await ctx.prisma.periodoAcademico.findUnique({ where: { id: input.periodoId } })
@@ -92,7 +95,6 @@ export const cursoRouter = createTRPCRouter({
               where.ciclo = { in: [2, 4, 6, 8, 10, 12] };
             }
           }
-          // Si es extraordinario, no se añade filtro de paridad (es libre)
         }
       }
 
@@ -100,6 +102,7 @@ export const cursoRouter = createTRPCRouter({
         where,
         include: {
           grupos: {
+            where: input?.periodoId ? { periodoAcademicoId: input.periodoId } : undefined,
             include: { periodoAcademico: true },
             orderBy: { nombre: 'asc' },
           },

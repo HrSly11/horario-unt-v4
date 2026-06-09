@@ -3815,6 +3815,7 @@ export namespace Prisma {
     asignaciones: number
     asignacionesCarga: number
     docenteGrupos: number
+    disponibilidades: number
     preasignaciones: number
   }
 
@@ -3822,6 +3823,7 @@ export namespace Prisma {
     asignaciones?: boolean | GrupoCountOutputTypeCountAsignacionesArgs
     asignacionesCarga?: boolean | GrupoCountOutputTypeCountAsignacionesCargaArgs
     docenteGrupos?: boolean | GrupoCountOutputTypeCountDocenteGruposArgs
+    disponibilidades?: boolean | GrupoCountOutputTypeCountDisponibilidadesArgs
     preasignaciones?: boolean | GrupoCountOutputTypeCountPreasignacionesArgs
   }
 
@@ -3855,6 +3857,13 @@ export namespace Prisma {
    */
   export type GrupoCountOutputTypeCountDocenteGruposArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DocenteGrupoWhereInput
+  }
+
+  /**
+   * GrupoCountOutputType without action
+   */
+  export type GrupoCountOutputTypeCountDisponibilidadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DisponibilidadDocenteWhereInput
   }
 
   /**
@@ -16633,6 +16642,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteMinAggregateOutputType = {
     id: string | null
     docenteId: string | null
+    grupoId: string | null
+    tipo: $Enums.TipoAsignacion | null
     franjaHorariaId: string | null
     createdAt: Date | null
     periodoId: string | null
@@ -16641,6 +16652,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteMaxAggregateOutputType = {
     id: string | null
     docenteId: string | null
+    grupoId: string | null
+    tipo: $Enums.TipoAsignacion | null
     franjaHorariaId: string | null
     createdAt: Date | null
     periodoId: string | null
@@ -16649,6 +16662,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteCountAggregateOutputType = {
     id: number
     docenteId: number
+    grupoId: number
+    tipo: number
     franjaHorariaId: number
     createdAt: number
     periodoId: number
@@ -16659,6 +16674,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteMinAggregateInputType = {
     id?: true
     docenteId?: true
+    grupoId?: true
+    tipo?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -16667,6 +16684,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteMaxAggregateInputType = {
     id?: true
     docenteId?: true
+    grupoId?: true
+    tipo?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -16675,6 +16694,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteCountAggregateInputType = {
     id?: true
     docenteId?: true
+    grupoId?: true
+    tipo?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -16756,6 +16777,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteGroupByOutputType = {
     id: string
     docenteId: string
+    grupoId: string | null
+    tipo: $Enums.TipoAsignacion | null
     franjaHorariaId: string
     createdAt: Date
     periodoId: string
@@ -16781,10 +16804,13 @@ export namespace Prisma {
   export type DisponibilidadDocenteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     docenteId?: boolean
+    grupoId?: boolean
+    tipo?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadDocente"]>
@@ -16792,10 +16818,13 @@ export namespace Prisma {
   export type DisponibilidadDocenteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     docenteId?: boolean
+    grupoId?: boolean
+    tipo?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadDocente"]>
@@ -16803,10 +16832,13 @@ export namespace Prisma {
   export type DisponibilidadDocenteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     docenteId?: boolean
+    grupoId?: boolean
+    tipo?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["disponibilidadDocente"]>
@@ -16814,24 +16846,29 @@ export namespace Prisma {
   export type DisponibilidadDocenteSelectScalar = {
     id?: boolean
     docenteId?: boolean
+    grupoId?: boolean
+    tipo?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
   }
 
-  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "franjaHorariaId" | "createdAt" | "periodoId", ExtArgs["result"]["disponibilidadDocente"]>
+  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "grupoId" | "tipo" | "franjaHorariaId" | "createdAt" | "periodoId", ExtArgs["result"]["disponibilidadDocente"]>
   export type DisponibilidadDocenteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
   }
   export type DisponibilidadDocenteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
   }
   export type DisponibilidadDocenteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
     franjaHoraria?: boolean | FranjaHorariaDefaultArgs<ExtArgs>
     periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
   }
@@ -16840,12 +16877,15 @@ export namespace Prisma {
     name: "DisponibilidadDocente"
     objects: {
       docente: Prisma.$DocentePayload<ExtArgs>
+      grupo: Prisma.$GrupoPayload<ExtArgs> | null
       franjaHoraria: Prisma.$FranjaHorariaPayload<ExtArgs>
       periodo: Prisma.$PeriodoAcademicoPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       docenteId: string
+      grupoId: string | null
+      tipo: $Enums.TipoAsignacion | null
       franjaHorariaId: string
       createdAt: Date
       periodoId: string
@@ -17244,6 +17284,7 @@ export namespace Prisma {
   export interface Prisma__DisponibilidadDocenteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     docente<T extends DocenteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DocenteDefaultArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    grupo<T extends DisponibilidadDocente$grupoArgs<ExtArgs> = {}>(args?: Subset<T, DisponibilidadDocente$grupoArgs<ExtArgs>>): Prisma__GrupoClient<$Result.GetResult<Prisma.$GrupoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     franjaHoraria<T extends FranjaHorariaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, FranjaHorariaDefaultArgs<ExtArgs>>): Prisma__FranjaHorariaClient<$Result.GetResult<Prisma.$FranjaHorariaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     periodo<T extends PeriodoAcademicoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademicoDefaultArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
@@ -17277,6 +17318,8 @@ export namespace Prisma {
   interface DisponibilidadDocenteFieldRefs {
     readonly id: FieldRef<"DisponibilidadDocente", 'String'>
     readonly docenteId: FieldRef<"DisponibilidadDocente", 'String'>
+    readonly grupoId: FieldRef<"DisponibilidadDocente", 'String'>
+    readonly tipo: FieldRef<"DisponibilidadDocente", 'TipoAsignacion'>
     readonly franjaHorariaId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly createdAt: FieldRef<"DisponibilidadDocente", 'DateTime'>
     readonly periodoId: FieldRef<"DisponibilidadDocente", 'String'>
@@ -17678,6 +17721,25 @@ export namespace Prisma {
      * Limit how many DisponibilidadDocentes to delete.
      */
     limit?: number
+  }
+
+  /**
+   * DisponibilidadDocente.grupo
+   */
+  export type DisponibilidadDocente$grupoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Grupo
+     */
+    select?: GrupoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Grupo
+     */
+    omit?: GrupoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GrupoInclude<ExtArgs> | null
+    where?: GrupoWhereInput
   }
 
   /**
@@ -19046,6 +19108,7 @@ export namespace Prisma {
     asignaciones?: boolean | Grupo$asignacionesArgs<ExtArgs>
     asignacionesCarga?: boolean | Grupo$asignacionesCargaArgs<ExtArgs>
     docenteGrupos?: boolean | Grupo$docenteGruposArgs<ExtArgs>
+    disponibilidades?: boolean | Grupo$disponibilidadesArgs<ExtArgs>
     curso?: boolean | CursoDefaultArgs<ExtArgs>
     periodoAcademico?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     preasignaciones?: boolean | Grupo$preasignacionesArgs<ExtArgs>
@@ -19094,6 +19157,7 @@ export namespace Prisma {
     asignaciones?: boolean | Grupo$asignacionesArgs<ExtArgs>
     asignacionesCarga?: boolean | Grupo$asignacionesCargaArgs<ExtArgs>
     docenteGrupos?: boolean | Grupo$docenteGruposArgs<ExtArgs>
+    disponibilidades?: boolean | Grupo$disponibilidadesArgs<ExtArgs>
     curso?: boolean | CursoDefaultArgs<ExtArgs>
     periodoAcademico?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
     preasignaciones?: boolean | Grupo$preasignacionesArgs<ExtArgs>
@@ -19114,6 +19178,7 @@ export namespace Prisma {
       asignaciones: Prisma.$AsignacionPayload<ExtArgs>[]
       asignacionesCarga: Prisma.$AsignacionCargaLectivaPayload<ExtArgs>[]
       docenteGrupos: Prisma.$DocenteGrupoPayload<ExtArgs>[]
+      disponibilidades: Prisma.$DisponibilidadDocentePayload<ExtArgs>[]
       curso: Prisma.$CursoPayload<ExtArgs>
       periodoAcademico: Prisma.$PeriodoAcademicoPayload<ExtArgs>
       preasignaciones: Prisma.$PreasignacionPayload<ExtArgs>[]
@@ -19524,6 +19589,7 @@ export namespace Prisma {
     asignaciones<T extends Grupo$asignacionesArgs<ExtArgs> = {}>(args?: Subset<T, Grupo$asignacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     asignacionesCarga<T extends Grupo$asignacionesCargaArgs<ExtArgs> = {}>(args?: Subset<T, Grupo$asignacionesCargaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AsignacionCargaLectivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     docenteGrupos<T extends Grupo$docenteGruposArgs<ExtArgs> = {}>(args?: Subset<T, Grupo$docenteGruposArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DocenteGrupoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    disponibilidades<T extends Grupo$disponibilidadesArgs<ExtArgs> = {}>(args?: Subset<T, Grupo$disponibilidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DisponibilidadDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     curso<T extends CursoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CursoDefaultArgs<ExtArgs>>): Prisma__CursoClient<$Result.GetResult<Prisma.$CursoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     periodoAcademico<T extends PeriodoAcademicoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademicoDefaultArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     preasignaciones<T extends Grupo$preasignacionesArgs<ExtArgs> = {}>(args?: Subset<T, Grupo$preasignacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -20034,6 +20100,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DocenteGrupoScalarFieldEnum | DocenteGrupoScalarFieldEnum[]
+  }
+
+  /**
+   * Grupo.disponibilidades
+   */
+  export type Grupo$disponibilidadesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DisponibilidadDocente
+     */
+    select?: DisponibilidadDocenteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DisponibilidadDocente
+     */
+    omit?: DisponibilidadDocenteOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DisponibilidadDocenteInclude<ExtArgs> | null
+    where?: DisponibilidadDocenteWhereInput
+    orderBy?: DisponibilidadDocenteOrderByWithRelationInput | DisponibilidadDocenteOrderByWithRelationInput[]
+    cursor?: DisponibilidadDocenteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DisponibilidadDocenteScalarFieldEnum | DisponibilidadDocenteScalarFieldEnum[]
   }
 
   /**
@@ -36665,6 +36755,8 @@ export namespace Prisma {
   export const DisponibilidadDocenteScalarFieldEnum: {
     id: 'id',
     docenteId: 'docenteId',
+    grupoId: 'grupoId',
+    tipo: 'tipo',
     franjaHorariaId: 'franjaHorariaId',
     createdAt: 'createdAt',
     periodoId: 'periodoId'
@@ -37073,6 +37165,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'TipoAsignacion'
+   */
+  export type EnumTipoAsignacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAsignacion'>
+    
+
+
+  /**
+   * Reference to a field of type 'TipoAsignacion[]'
+   */
+  export type ListEnumTipoAsignacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAsignacion[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -37125,20 +37231,6 @@ export namespace Prisma {
    * Reference to a field of type 'DiaSemana[]'
    */
   export type ListEnumDiaSemanaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiaSemana[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'TipoAsignacion'
-   */
-  export type EnumTipoAsignacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAsignacion'>
-    
-
-
-  /**
-   * Reference to a field of type 'TipoAsignacion[]'
-   */
-  export type ListEnumTipoAsignacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAsignacion[]'>
     
 
 
@@ -38139,10 +38231,13 @@ export namespace Prisma {
     NOT?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     id?: StringFilter<"DisponibilidadDocente"> | string
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
+    grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
+    tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
     docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
+    grupo?: XOR<GrupoNullableScalarRelationFilter, GrupoWhereInput> | null
     franjaHoraria?: XOR<FranjaHorariaScalarRelationFilter, FranjaHorariaWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
   }
@@ -38150,32 +38245,40 @@ export namespace Prisma {
   export type DisponibilidadDocenteOrderByWithRelationInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    grupoId?: SortOrderInput | SortOrder
+    tipo?: SortOrderInput | SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
     docente?: DocenteOrderByWithRelationInput
+    grupo?: GrupoOrderByWithRelationInput
     franjaHoraria?: FranjaHorariaOrderByWithRelationInput
     periodo?: PeriodoAcademicoOrderByWithRelationInput
   }
 
   export type DisponibilidadDocenteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    docenteId_periodoId_franjaHorariaId?: DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdCompoundUniqueInput
+    docenteId_periodoId_franjaHorariaId_grupoId_tipo?: DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoCompoundUniqueInput
     AND?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     OR?: DisponibilidadDocenteWhereInput[]
     NOT?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
+    grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
+    tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
     docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
+    grupo?: XOR<GrupoNullableScalarRelationFilter, GrupoWhereInput> | null
     franjaHoraria?: XOR<FranjaHorariaScalarRelationFilter, FranjaHorariaWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
-  }, "id" | "docenteId_periodoId_franjaHorariaId">
+  }, "id" | "docenteId_periodoId_franjaHorariaId_grupoId_tipo">
 
   export type DisponibilidadDocenteOrderByWithAggregationInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    grupoId?: SortOrderInput | SortOrder
+    tipo?: SortOrderInput | SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
@@ -38190,6 +38293,8 @@ export namespace Prisma {
     NOT?: DisponibilidadDocenteScalarWhereWithAggregatesInput | DisponibilidadDocenteScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     docenteId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
+    grupoId?: StringNullableWithAggregatesFilter<"DisponibilidadDocente"> | string | null
+    tipo?: EnumTipoAsignacionNullableWithAggregatesFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeWithAggregatesFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
@@ -38276,6 +38381,7 @@ export namespace Prisma {
     asignaciones?: AsignacionListRelationFilter
     asignacionesCarga?: AsignacionCargaLectivaListRelationFilter
     docenteGrupos?: DocenteGrupoListRelationFilter
+    disponibilidades?: DisponibilidadDocenteListRelationFilter
     curso?: XOR<CursoScalarRelationFilter, CursoWhereInput>
     periodoAcademico?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
     preasignaciones?: PreasignacionListRelationFilter
@@ -38293,6 +38399,7 @@ export namespace Prisma {
     asignaciones?: AsignacionOrderByRelationAggregateInput
     asignacionesCarga?: AsignacionCargaLectivaOrderByRelationAggregateInput
     docenteGrupos?: DocenteGrupoOrderByRelationAggregateInput
+    disponibilidades?: DisponibilidadDocenteOrderByRelationAggregateInput
     curso?: CursoOrderByWithRelationInput
     periodoAcademico?: PeriodoAcademicoOrderByWithRelationInput
     preasignaciones?: PreasignacionOrderByRelationAggregateInput
@@ -38314,6 +38421,7 @@ export namespace Prisma {
     asignaciones?: AsignacionListRelationFilter
     asignacionesCarga?: AsignacionCargaLectivaListRelationFilter
     docenteGrupos?: DocenteGrupoListRelationFilter
+    disponibilidades?: DisponibilidadDocenteListRelationFilter
     curso?: XOR<CursoScalarRelationFilter, CursoWhereInput>
     periodoAcademico?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
     preasignaciones?: PreasignacionListRelationFilter
@@ -40552,8 +40660,10 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteCreateInput = {
     id?: string
+    tipo?: $Enums.TipoAsignacion | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
+    grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
     periodo: PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput
   }
@@ -40561,6 +40671,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteUncheckedCreateInput = {
     id?: string
     docenteId: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -40568,8 +40680,10 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput
   }
@@ -40577,6 +40691,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -40585,6 +40701,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateManyInput = {
     id?: string
     docenteId: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -40592,12 +40710,15 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DisponibilidadDocenteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -40674,6 +40795,7 @@ export namespace Prisma {
     asignaciones?: AsignacionCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutGrupoInput
     curso: CursoCreateNestedOneWithoutGruposInput
     periodoAcademico: PeriodoAcademicoCreateNestedOneWithoutGruposInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutGrupoInput
@@ -40691,6 +40813,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutGrupoInput
   }
 
@@ -40704,6 +40827,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput
     curso?: CursoUpdateOneRequiredWithoutGruposNestedInput
     periodoAcademico?: PeriodoAcademicoUpdateOneRequiredWithoutGruposNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutGrupoNestedInput
@@ -40721,6 +40845,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
@@ -42923,6 +43048,18 @@ export namespace Prisma {
     experienciaMinima?: SortOrder
   }
 
+  export type EnumTipoAsignacionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoAsignacion | EnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel> | $Enums.TipoAsignacion | null
+  }
+
+  export type GrupoNullableScalarRelationFilter = {
+    is?: GrupoWhereInput | null
+    isNot?: GrupoWhereInput | null
+  }
+
   export type FranjaHorariaScalarRelationFilter = {
     is?: FranjaHorariaWhereInput
     isNot?: FranjaHorariaWhereInput
@@ -42933,15 +43070,19 @@ export namespace Prisma {
     isNot?: PeriodoAcademicoWhereInput
   }
 
-  export type DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdCompoundUniqueInput = {
+  export type DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoCompoundUniqueInput = {
     docenteId: string
     periodoId: string
     franjaHorariaId: string
+    grupoId: string
+    tipo: $Enums.TipoAsignacion
   }
 
   export type DisponibilidadDocenteCountOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    grupoId?: SortOrder
+    tipo?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
@@ -42950,6 +43091,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteMaxOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    grupoId?: SortOrder
+    tipo?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
@@ -42958,9 +43101,21 @@ export namespace Prisma {
   export type DisponibilidadDocenteMinOrderByAggregateInput = {
     id?: SortOrder
     docenteId?: SortOrder
+    grupoId?: SortOrder
+    tipo?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
+  }
+
+  export type EnumTipoAsignacionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoAsignacion | EnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTipoAsignacionNullableWithAggregatesFilter<$PrismaModel> | $Enums.TipoAsignacion | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
+    _max?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -45433,6 +45588,12 @@ export namespace Prisma {
     connect?: DocenteWhereUniqueInput
   }
 
+  export type GrupoCreateNestedOneWithoutDisponibilidadesInput = {
+    create?: XOR<GrupoCreateWithoutDisponibilidadesInput, GrupoUncheckedCreateWithoutDisponibilidadesInput>
+    connectOrCreate?: GrupoCreateOrConnectWithoutDisponibilidadesInput
+    connect?: GrupoWhereUniqueInput
+  }
+
   export type FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput = {
     create?: XOR<FranjaHorariaCreateWithoutDisponibilidadesInput, FranjaHorariaUncheckedCreateWithoutDisponibilidadesInput>
     connectOrCreate?: FranjaHorariaCreateOrConnectWithoutDisponibilidadesInput
@@ -45445,12 +45606,26 @@ export namespace Prisma {
     connect?: PeriodoAcademicoWhereUniqueInput
   }
 
+  export type NullableEnumTipoAsignacionFieldUpdateOperationsInput = {
+    set?: $Enums.TipoAsignacion | null
+  }
+
   export type DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput = {
     create?: XOR<DocenteCreateWithoutDisponibilidadesInput, DocenteUncheckedCreateWithoutDisponibilidadesInput>
     connectOrCreate?: DocenteCreateOrConnectWithoutDisponibilidadesInput
     upsert?: DocenteUpsertWithoutDisponibilidadesInput
     connect?: DocenteWhereUniqueInput
     update?: XOR<XOR<DocenteUpdateToOneWithWhereWithoutDisponibilidadesInput, DocenteUpdateWithoutDisponibilidadesInput>, DocenteUncheckedUpdateWithoutDisponibilidadesInput>
+  }
+
+  export type GrupoUpdateOneWithoutDisponibilidadesNestedInput = {
+    create?: XOR<GrupoCreateWithoutDisponibilidadesInput, GrupoUncheckedCreateWithoutDisponibilidadesInput>
+    connectOrCreate?: GrupoCreateOrConnectWithoutDisponibilidadesInput
+    upsert?: GrupoUpsertWithoutDisponibilidadesInput
+    disconnect?: GrupoWhereInput | boolean
+    delete?: GrupoWhereInput | boolean
+    connect?: GrupoWhereUniqueInput
+    update?: XOR<XOR<GrupoUpdateToOneWithWhereWithoutDisponibilidadesInput, GrupoUpdateWithoutDisponibilidadesInput>, GrupoUncheckedUpdateWithoutDisponibilidadesInput>
   }
 
   export type FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput = {
@@ -45526,6 +45701,13 @@ export namespace Prisma {
     connect?: DocenteGrupoWhereUniqueInput | DocenteGrupoWhereUniqueInput[]
   }
 
+  export type DisponibilidadDocenteCreateNestedManyWithoutGrupoInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutGrupoInput, DisponibilidadDocenteUncheckedCreateWithoutGrupoInput> | DisponibilidadDocenteCreateWithoutGrupoInput[] | DisponibilidadDocenteUncheckedCreateWithoutGrupoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutGrupoInput | DisponibilidadDocenteCreateOrConnectWithoutGrupoInput[]
+    createMany?: DisponibilidadDocenteCreateManyGrupoInputEnvelope
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+  }
+
   export type CursoCreateNestedOneWithoutGruposInput = {
     create?: XOR<CursoCreateWithoutGruposInput, CursoUncheckedCreateWithoutGruposInput>
     connectOrCreate?: CursoCreateOrConnectWithoutGruposInput
@@ -45564,6 +45746,13 @@ export namespace Prisma {
     connectOrCreate?: DocenteGrupoCreateOrConnectWithoutGrupoInput | DocenteGrupoCreateOrConnectWithoutGrupoInput[]
     createMany?: DocenteGrupoCreateManyGrupoInputEnvelope
     connect?: DocenteGrupoWhereUniqueInput | DocenteGrupoWhereUniqueInput[]
+  }
+
+  export type DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutGrupoInput, DisponibilidadDocenteUncheckedCreateWithoutGrupoInput> | DisponibilidadDocenteCreateWithoutGrupoInput[] | DisponibilidadDocenteUncheckedCreateWithoutGrupoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutGrupoInput | DisponibilidadDocenteCreateOrConnectWithoutGrupoInput[]
+    createMany?: DisponibilidadDocenteCreateManyGrupoInputEnvelope
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
   }
 
   export type PreasignacionUncheckedCreateNestedManyWithoutGrupoInput = {
@@ -45613,6 +45802,20 @@ export namespace Prisma {
     update?: DocenteGrupoUpdateWithWhereUniqueWithoutGrupoInput | DocenteGrupoUpdateWithWhereUniqueWithoutGrupoInput[]
     updateMany?: DocenteGrupoUpdateManyWithWhereWithoutGrupoInput | DocenteGrupoUpdateManyWithWhereWithoutGrupoInput[]
     deleteMany?: DocenteGrupoScalarWhereInput | DocenteGrupoScalarWhereInput[]
+  }
+
+  export type DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutGrupoInput, DisponibilidadDocenteUncheckedCreateWithoutGrupoInput> | DisponibilidadDocenteCreateWithoutGrupoInput[] | DisponibilidadDocenteUncheckedCreateWithoutGrupoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutGrupoInput | DisponibilidadDocenteCreateOrConnectWithoutGrupoInput[]
+    upsert?: DisponibilidadDocenteUpsertWithWhereUniqueWithoutGrupoInput | DisponibilidadDocenteUpsertWithWhereUniqueWithoutGrupoInput[]
+    createMany?: DisponibilidadDocenteCreateManyGrupoInputEnvelope
+    set?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    disconnect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    delete?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    update?: DisponibilidadDocenteUpdateWithWhereUniqueWithoutGrupoInput | DisponibilidadDocenteUpdateWithWhereUniqueWithoutGrupoInput[]
+    updateMany?: DisponibilidadDocenteUpdateManyWithWhereWithoutGrupoInput | DisponibilidadDocenteUpdateManyWithWhereWithoutGrupoInput[]
+    deleteMany?: DisponibilidadDocenteScalarWhereInput | DisponibilidadDocenteScalarWhereInput[]
   }
 
   export type CursoUpdateOneRequiredWithoutGruposNestedInput = {
@@ -45685,6 +45888,20 @@ export namespace Prisma {
     update?: DocenteGrupoUpdateWithWhereUniqueWithoutGrupoInput | DocenteGrupoUpdateWithWhereUniqueWithoutGrupoInput[]
     updateMany?: DocenteGrupoUpdateManyWithWhereWithoutGrupoInput | DocenteGrupoUpdateManyWithWhereWithoutGrupoInput[]
     deleteMany?: DocenteGrupoScalarWhereInput | DocenteGrupoScalarWhereInput[]
+  }
+
+  export type DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput = {
+    create?: XOR<DisponibilidadDocenteCreateWithoutGrupoInput, DisponibilidadDocenteUncheckedCreateWithoutGrupoInput> | DisponibilidadDocenteCreateWithoutGrupoInput[] | DisponibilidadDocenteUncheckedCreateWithoutGrupoInput[]
+    connectOrCreate?: DisponibilidadDocenteCreateOrConnectWithoutGrupoInput | DisponibilidadDocenteCreateOrConnectWithoutGrupoInput[]
+    upsert?: DisponibilidadDocenteUpsertWithWhereUniqueWithoutGrupoInput | DisponibilidadDocenteUpsertWithWhereUniqueWithoutGrupoInput[]
+    createMany?: DisponibilidadDocenteCreateManyGrupoInputEnvelope
+    set?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    disconnect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    delete?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    connect?: DisponibilidadDocenteWhereUniqueInput | DisponibilidadDocenteWhereUniqueInput[]
+    update?: DisponibilidadDocenteUpdateWithWhereUniqueWithoutGrupoInput | DisponibilidadDocenteUpdateWithWhereUniqueWithoutGrupoInput[]
+    updateMany?: DisponibilidadDocenteUpdateManyWithWhereWithoutGrupoInput | DisponibilidadDocenteUpdateManyWithWhereWithoutGrupoInput[]
+    deleteMany?: DisponibilidadDocenteScalarWhereInput | DisponibilidadDocenteScalarWhereInput[]
   }
 
   export type PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput = {
@@ -47106,6 +47323,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumModalidadDocenteFilter<$PrismaModel>
     _max?: NestedEnumModalidadDocenteFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTipoAsignacionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoAsignacion | EnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel> | $Enums.TipoAsignacion | null
+  }
+
+  export type NestedEnumTipoAsignacionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoAsignacion | EnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.TipoAsignacion[] | ListEnumTipoAsignacionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumTipoAsignacionNullableWithAggregatesFilter<$PrismaModel> | $Enums.TipoAsignacion | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
+    _max?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -49693,13 +49927,17 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteCreateWithoutDocenteInput = {
     id?: string
+    tipo?: $Enums.TipoAsignacion | null
     createdAt?: Date | string
+    grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
     periodo: PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput
   }
 
   export type DisponibilidadDocenteUncheckedCreateWithoutDocenteInput = {
     id?: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -50078,6 +50316,8 @@ export namespace Prisma {
     NOT?: DisponibilidadDocenteScalarWhereInput | DisponibilidadDocenteScalarWhereInput[]
     id?: StringFilter<"DisponibilidadDocente"> | string
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
+    grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
+    tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
@@ -50501,6 +50741,7 @@ export namespace Prisma {
     asignaciones?: AsignacionCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutGrupoInput
     periodoAcademico: PeriodoAcademicoCreateNestedOneWithoutGruposInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutGrupoInput
   }
@@ -50516,6 +50757,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutGrupoInput
   }
 
@@ -50690,6 +50932,41 @@ export namespace Prisma {
     create: XOR<DocenteCreateWithoutDisponibilidadesInput, DocenteUncheckedCreateWithoutDisponibilidadesInput>
   }
 
+  export type GrupoCreateWithoutDisponibilidadesInput = {
+    id?: string
+    nombre: string
+    seccion?: string | null
+    numAlumnos?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    asignaciones?: AsignacionCreateNestedManyWithoutGrupoInput
+    asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutGrupoInput
+    docenteGrupos?: DocenteGrupoCreateNestedManyWithoutGrupoInput
+    curso: CursoCreateNestedOneWithoutGruposInput
+    periodoAcademico: PeriodoAcademicoCreateNestedOneWithoutGruposInput
+    preasignaciones?: PreasignacionCreateNestedManyWithoutGrupoInput
+  }
+
+  export type GrupoUncheckedCreateWithoutDisponibilidadesInput = {
+    id?: string
+    nombre: string
+    seccion?: string | null
+    cursoId: string
+    periodoAcademicoId: string
+    numAlumnos?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    asignaciones?: AsignacionUncheckedCreateNestedManyWithoutGrupoInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutGrupoInput
+    docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutGrupoInput
+    preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutGrupoInput
+  }
+
+  export type GrupoCreateOrConnectWithoutDisponibilidadesInput = {
+    where: GrupoWhereUniqueInput
+    create: XOR<GrupoCreateWithoutDisponibilidadesInput, GrupoUncheckedCreateWithoutDisponibilidadesInput>
+  }
+
   export type FranjaHorariaCreateWithoutDisponibilidadesInput = {
     id?: string
     dia: $Enums.DiaSemana
@@ -50843,6 +51120,47 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+  }
+
+  export type GrupoUpsertWithoutDisponibilidadesInput = {
+    update: XOR<GrupoUpdateWithoutDisponibilidadesInput, GrupoUncheckedUpdateWithoutDisponibilidadesInput>
+    create: XOR<GrupoCreateWithoutDisponibilidadesInput, GrupoUncheckedCreateWithoutDisponibilidadesInput>
+    where?: GrupoWhereInput
+  }
+
+  export type GrupoUpdateToOneWithWhereWithoutDisponibilidadesInput = {
+    where?: GrupoWhereInput
+    data: XOR<GrupoUpdateWithoutDisponibilidadesInput, GrupoUncheckedUpdateWithoutDisponibilidadesInput>
+  }
+
+  export type GrupoUpdateWithoutDisponibilidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    seccion?: NullableStringFieldUpdateOperationsInput | string | null
+    numAlumnos?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    asignaciones?: AsignacionUpdateManyWithoutGrupoNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutGrupoNestedInput
+    docenteGrupos?: DocenteGrupoUpdateManyWithoutGrupoNestedInput
+    curso?: CursoUpdateOneRequiredWithoutGruposNestedInput
+    periodoAcademico?: PeriodoAcademicoUpdateOneRequiredWithoutGruposNestedInput
+    preasignaciones?: PreasignacionUpdateManyWithoutGrupoNestedInput
+  }
+
+  export type GrupoUncheckedUpdateWithoutDisponibilidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    seccion?: NullableStringFieldUpdateOperationsInput | string | null
+    cursoId?: StringFieldUpdateOperationsInput | string
+    periodoAcademicoId?: StringFieldUpdateOperationsInput | string
+    numAlumnos?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    asignaciones?: AsignacionUncheckedUpdateManyWithoutGrupoNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutGrupoNestedInput
+    docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutGrupoNestedInput
+    preasignaciones?: PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
   export type FranjaHorariaUpsertWithoutDisponibilidadesInput = {
@@ -51285,6 +51603,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type DisponibilidadDocenteCreateWithoutGrupoInput = {
+    id?: string
+    tipo?: $Enums.TipoAsignacion | null
+    createdAt?: Date | string
+    docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
+    franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
+    periodo: PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput
+  }
+
+  export type DisponibilidadDocenteUncheckedCreateWithoutGrupoInput = {
+    id?: string
+    docenteId: string
+    tipo?: $Enums.TipoAsignacion | null
+    franjaHorariaId: string
+    createdAt?: Date | string
+    periodoId: string
+  }
+
+  export type DisponibilidadDocenteCreateOrConnectWithoutGrupoInput = {
+    where: DisponibilidadDocenteWhereUniqueInput
+    create: XOR<DisponibilidadDocenteCreateWithoutGrupoInput, DisponibilidadDocenteUncheckedCreateWithoutGrupoInput>
+  }
+
+  export type DisponibilidadDocenteCreateManyGrupoInputEnvelope = {
+    data: DisponibilidadDocenteCreateManyGrupoInput | DisponibilidadDocenteCreateManyGrupoInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CursoCreateWithoutGruposInput = {
     id?: string
     codigo: string
@@ -51461,6 +51807,22 @@ export namespace Prisma {
   export type DocenteGrupoUpdateManyWithWhereWithoutGrupoInput = {
     where: DocenteGrupoScalarWhereInput
     data: XOR<DocenteGrupoUpdateManyMutationInput, DocenteGrupoUncheckedUpdateManyWithoutGrupoInput>
+  }
+
+  export type DisponibilidadDocenteUpsertWithWhereUniqueWithoutGrupoInput = {
+    where: DisponibilidadDocenteWhereUniqueInput
+    update: XOR<DisponibilidadDocenteUpdateWithoutGrupoInput, DisponibilidadDocenteUncheckedUpdateWithoutGrupoInput>
+    create: XOR<DisponibilidadDocenteCreateWithoutGrupoInput, DisponibilidadDocenteUncheckedCreateWithoutGrupoInput>
+  }
+
+  export type DisponibilidadDocenteUpdateWithWhereUniqueWithoutGrupoInput = {
+    where: DisponibilidadDocenteWhereUniqueInput
+    data: XOR<DisponibilidadDocenteUpdateWithoutGrupoInput, DisponibilidadDocenteUncheckedUpdateWithoutGrupoInput>
+  }
+
+  export type DisponibilidadDocenteUpdateManyWithWhereWithoutGrupoInput = {
+    where: DisponibilidadDocenteScalarWhereInput
+    data: XOR<DisponibilidadDocenteUpdateManyMutationInput, DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoInput>
   }
 
   export type CursoUpsertWithoutGruposInput = {
@@ -51851,14 +52213,18 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteCreateWithoutPeriodoInput = {
     id?: string
+    tipo?: $Enums.TipoAsignacion | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
+    grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
   }
 
   export type DisponibilidadDocenteUncheckedCreateWithoutPeriodoInput = {
     id?: string
     docenteId: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -51883,6 +52249,7 @@ export namespace Prisma {
     asignaciones?: AsignacionCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutGrupoInput
     curso: CursoCreateNestedOneWithoutGruposInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutGrupoInput
   }
@@ -51898,6 +52265,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutGrupoInput
   }
 
@@ -52193,14 +52561,18 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteCreateWithoutFranjaHorariaInput = {
     id?: string
+    tipo?: $Enums.TipoAsignacion | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
+    grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
     periodo: PeriodoAcademicoCreateNestedOneWithoutDisponibilidadesInput
   }
 
   export type DisponibilidadDocenteUncheckedCreateWithoutFranjaHorariaInput = {
     id?: string
     docenteId: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     createdAt?: Date | string
     periodoId: string
   }
@@ -52521,6 +52893,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutGrupoInput
     curso: CursoCreateNestedOneWithoutGruposInput
     periodoAcademico: PeriodoAcademicoCreateNestedOneWithoutGruposInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutGrupoInput
@@ -52537,6 +52910,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutGrupoInput
   }
 
@@ -52763,6 +53137,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput
     curso?: CursoUpdateOneRequiredWithoutGruposNestedInput
     periodoAcademico?: PeriodoAcademicoUpdateOneRequiredWithoutGruposNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutGrupoNestedInput
@@ -52779,6 +53154,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
@@ -53135,6 +53511,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     asignaciones?: AsignacionCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutGrupoInput
     curso: CursoCreateNestedOneWithoutGruposInput
     periodoAcademico: PeriodoAcademicoCreateNestedOneWithoutGruposInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutGrupoInput
@@ -53151,6 +53528,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutGrupoInput
   }
 
@@ -53258,6 +53636,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignaciones?: AsignacionUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput
     curso?: CursoUpdateOneRequiredWithoutGruposNestedInput
     periodoAcademico?: PeriodoAcademicoUpdateOneRequiredWithoutGruposNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutGrupoNestedInput
@@ -53274,6 +53653,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignaciones?: AsignacionUncheckedUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
@@ -53527,6 +53907,7 @@ export namespace Prisma {
     asignaciones?: AsignacionCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutGrupoInput
     curso: CursoCreateNestedOneWithoutGruposInput
     periodoAcademico: PeriodoAcademicoCreateNestedOneWithoutGruposInput
   }
@@ -53543,6 +53924,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutGrupoInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput
   }
 
   export type GrupoCreateOrConnectWithoutPreasignacionesInput = {
@@ -53732,6 +54114,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput
     curso?: CursoUpdateOneRequiredWithoutGruposNestedInput
     periodoAcademico?: PeriodoAcademicoUpdateOneRequiredWithoutGruposNestedInput
   }
@@ -53748,6 +54131,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
   export type PeriodoAcademicoUpsertWithoutPreasignacionesInput = {
@@ -53956,6 +54340,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     asignaciones?: AsignacionCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutGrupoInput
     curso: CursoCreateNestedOneWithoutGruposInput
     periodoAcademico: PeriodoAcademicoCreateNestedOneWithoutGruposInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutGrupoInput
@@ -53972,6 +54357,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     asignaciones?: AsignacionUncheckedCreateNestedManyWithoutGrupoInput
     docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutGrupoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutGrupoInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutGrupoInput
   }
 
@@ -54203,6 +54589,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignaciones?: AsignacionUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput
     curso?: CursoUpdateOneRequiredWithoutGruposNestedInput
     periodoAcademico?: PeriodoAcademicoUpdateOneRequiredWithoutGruposNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutGrupoNestedInput
@@ -54219,6 +54606,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     asignaciones?: AsignacionUncheckedUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
@@ -56334,6 +56722,8 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteCreateManyDocenteInput = {
     id?: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -56594,13 +56984,17 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteUpdateWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput
   }
 
   export type DisponibilidadDocenteUncheckedUpdateWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -56608,6 +57002,8 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -56795,6 +57191,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput
     periodoAcademico?: PeriodoAcademicoUpdateOneRequiredWithoutGruposNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutGrupoNestedInput
   }
@@ -56810,6 +57207,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
@@ -56874,6 +57272,15 @@ export namespace Prisma {
     id?: string
     docenteId: string
     createdAt?: Date | string
+  }
+
+  export type DisponibilidadDocenteCreateManyGrupoInput = {
+    id?: string
+    docenteId: string
+    tipo?: $Enums.TipoAsignacion | null
+    franjaHorariaId: string
+    createdAt?: Date | string
+    periodoId: string
   }
 
   export type PreasignacionCreateManyGrupoInput = {
@@ -56972,6 +57379,33 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DisponibilidadDocenteUpdateWithoutGrupoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput
+  }
+
+  export type DisponibilidadDocenteUncheckedUpdateWithoutGrupoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    franjaHorariaId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodoId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    franjaHorariaId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodoId?: StringFieldUpdateOperationsInput | string
   }
 
   export type PreasignacionUpdateWithoutGrupoInput = {
@@ -57143,6 +57577,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateManyPeriodoInput = {
     id?: string
     docenteId: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -57345,14 +57781,18 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteUpdateWithoutPeriodoInput = {
     id?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
   }
 
   export type DisponibilidadDocenteUncheckedUpdateWithoutPeriodoInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57360,6 +57800,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57374,6 +57816,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutGrupoNestedInput
     curso?: CursoUpdateOneRequiredWithoutGruposNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutGrupoNestedInput
   }
@@ -57389,6 +57832,7 @@ export namespace Prisma {
     asignaciones?: AsignacionUncheckedUpdateManyWithoutGrupoNestedInput
     asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutGrupoNestedInput
     docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutGrupoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutGrupoNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutGrupoNestedInput
   }
 
@@ -57449,6 +57893,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateManyFranjaHorariaInput = {
     id?: string
     docenteId: string
+    grupoId?: string | null
+    tipo?: $Enums.TipoAsignacion | null
     createdAt?: Date | string
     periodoId: string
   }
@@ -57514,14 +57960,18 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteUpdateWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
+    grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
     periodo?: PeriodoAcademicoUpdateOneRequiredWithoutDisponibilidadesNestedInput
   }
 
   export type DisponibilidadDocenteUncheckedUpdateWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
   }
@@ -57529,6 +57979,8 @@ export namespace Prisma {
   export type DisponibilidadDocenteUncheckedUpdateManyWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
+    grupoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
   }

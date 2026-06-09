@@ -73,6 +73,17 @@ export interface ScheduleResult {
   };
 }
 
+export interface ScheduleContext {
+  /** Pre-existing assignments that must be respected (read-only) */
+  existingAssignments?: Assignment[];
+  /** Blocked slots per docente (restricciones, etc.) */
+  blockedDocenteSlots?: Set<string>;
+  /** Blocked slots per docente-grupo (docenteId::grupoId::franjaId) */
+  blockedDocenteGrupoSlots?: Set<string>;
+  /** Blocked slots per aula (mantenimiento, etc.) */
+  blockedAulaSlots?: Set<string>;
+}
+
 // ── Conflict Tracking ──────────────────────────────
 
 export interface OccupiedSlot {

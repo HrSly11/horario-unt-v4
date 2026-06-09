@@ -70,34 +70,61 @@ export default function HorariosPage() {
   const [viewMode, setViewMode] = useState<ViewMode>(isDocente ? 'mi-horario' : 'general');
   const [selectedAulaId, setSelectedAulaId] = useState<string | null>(null);
   const [selectedDocenteId, setSelectedDocenteId] = useState<string | null>(null);
-  const [selectedCiclo, setSelectedCiclo] = useState<number | null>(1);
+  const [selectedCiclo, setSelectedCiclo] = useState<number | null>(null);
+  const [selectedPeriodoId, setSelectedPeriodoId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
 
+  const { data: periodos = [] } = useQuery({ ...trpc.periodo.list.queryOptions() });
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
+
+  // Use selected period or fallback to active period
+  const currentPeriodo = selectedPeriodoId
+    ? periodos.find(p => p.id === selectedPeriodoId)
+    : periodoActivo;
+
   const { data: approvalInfo, refetch: refetchApproval } = useQuery({
     ...trpc.horario.getApprovalInfo.queryOptions(),
-    enabled: !!periodoActivo?.id,
+    enabled: !!currentPeriodo?.id,
   });
   const { data: aulas = [] } = useQuery({ ...trpc.aula.list.queryOptions({}) });
   const { data: docentes = [] } = useQuery({ ...trpc.docente.list.queryOptions({}) });
-  const { data: stats } = useQuery({ ...trpc.horario.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }), enabled: !!periodoActivo?.id });
+  const { data: stats } = useQuery({ ...trpc.horario.stats.queryOptions({ periodoId: currentPeriodo?.id ?? '' }), enabled: !!currentPeriodo?.id });
 
   const queryInput = viewMode === 'aula' && selectedAulaId
-    ? { aulaId: selectedAulaId, periodoId: periodoActivo?.id ?? '' }
+    ? { aulaId: selectedAulaId, periodoId: currentPeriodo?.id ?? '' }
     : viewMode === 'docente' && selectedDocenteId
-      ? { docenteId: selectedDocenteId, periodoId: periodoActivo?.id ?? '' }
+      ? { docenteId: selectedDocenteId, periodoId: currentPeriodo?.id ?? '' }
       : viewMode === 'mi-horario' && user?.docenteId
-        ? { docenteId: user.docenteId, periodoId: periodoActivo?.id ?? '' }
-        : { periodoId: periodoActivo?.id ?? '' };
+        ? { docenteId: user.docenteId, periodoId: currentPeriodo?.id ?? '' }
+        : { periodoId: currentPeriodo?.id ?? '' };
 
   const { data: rawAsignaciones = [], isLoading } = useQuery({
     ...trpc.horario.list.queryOptions(queryInput),
-    enabled: !!periodoActivo?.id,
+    enabled: !!currentPeriodo?.id,
   });
 
-  const estado = periodoActivo?.estado ?? 'PLANIFICACION';
+  const estado = currentPeriodo?.estado ?? 'PLANIFICACION';
   const isPublished = estado === 'APROBADO' || estado === 'FINALIZADO';
+
+  // Helper to determine if a cycle should be visible based on period name
+  const isCycleVisible = (ciclo: number) => {
+    if (!currentPeriodo) return true;
+    const name = currentPeriodo.nombre.toUpperCase();
+    if (name.endsWith('-I')) {
+      return ciclo % 2 !== 0; // Odd cycles
+    } else if (name.endsWith('-II')) {
+      return ciclo % 2 === 0; // Even cycles
+    }
+    return true; // Fallback for other naming conventions
+  };
+
+  const visibleCycles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(isCycleVisible);
+
+  // Auto-select first visible cycle if current selected cycle is hidden or null
+  if (viewMode === 'ciclo' && (selectedCiclo === null || !visibleCycles.includes(selectedCiclo))) {
+    setSelectedCiclo(visibleCycles[0] || 1);
+  }
 
   const asignaciones = (rawAsignaciones as HorarioAsignacion[]).filter(a => {
     const isVisible = isPrivileged || isPublished || a.confirmado;
@@ -328,7 +355,15 @@ export default function HorariosPage() {
             <div>
               <h1 className="text-2xl font-bold text-text-main tracking-tight">Visualización de Horarios</h1>
               <div className="flex items-center gap-3 mt-1.5">
-                <p className="text-sm text-text-sub font-bold">{periodoActivo?.nombre ?? 'Sin periodo activo'}</p>
+                <select 
+                  value={currentPeriodo?.id ?? ''} 
+                  onChange={(e) => setSelectedPeriodoId(e.target.value)}
+                  className="text-sm font-bold bg-transparent border-none p-0 focus:ring-0 cursor-pointer text-primary hover:text-primary-dark transition-colors"
+                >
+                  {periodos.map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre} {p.activo ? '(Activo)' : ''}</option>
+                  ))}
+                </select>
                 <div className="h-1 w-1 rounded-full bg-slate-300" />
                 <div className="flex items-center gap-1.5">
                   <span className={`badge ${ESTADO_COLORS[estado] ?? 'badge-gray'}`}>
@@ -342,9 +377,9 @@ export default function HorariosPage() {
               {isSecretaria && estado === 'ASIGNACION' && (
                 <button
                   onClick={() => {
-                    if (!periodoActivo?.id) return;
+                    if (!currentPeriodo?.id) return;
                     if (!confirm('¿Enviar la asignación actual al director para revisión?')) return;
-                    sendToRevisionMutation.mutate({ periodoId: periodoActivo.id });
+                    sendToRevisionMutation.mutate({ periodoId: currentPeriodo.id });
                   }}
                   disabled={sendToRevisionMutation.isPending}
                   className="btn-primary bg-indigo-600 hover:bg-indigo-700"
@@ -355,7 +390,7 @@ export default function HorariosPage() {
 
               <button
                 onClick={() => {
-                  if (!periodoActivo) return;
+                  if (!currentPeriodo) return;
                   let tipo: 'por-aula' | 'por-laboratorio' | 'por-docente' | 'por-ciclo' = 'por-ciclo';
                   let docenteId: string | undefined = undefined;
                   let aulaId: string | undefined = undefined;
@@ -377,14 +412,14 @@ export default function HorariosPage() {
                   }
 
                   generatePDFMutation.mutate({
-                    periodoId: periodoActivo.id,
+                    periodoId: currentPeriodo.id,
                     tipo,
                     docenteId,
                     aulaId,
                     ciclo
                   });
                 }}
-                disabled={generatePDFMutation.isPending || !periodoActivo}
+                disabled={generatePDFMutation.isPending || !currentPeriodo}
                 className="btn-secondary"
               >
                 <FileDown className="h-4 w-4" /> {generatePDFMutation.isPending ? 'Generando...' : 'Descargar PDF'}
@@ -446,7 +481,7 @@ export default function HorariosPage() {
 
           {/* Selectors */}
           <div className="flex flex-wrap gap-2">
-            {viewMode === 'ciclo' && [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(c => (
+            {viewMode === 'ciclo' && visibleCycles.map(c => (
               <button key={c} onClick={() => setSelectedCiclo(c)}
                 className={`rounded-lg border px-4 py-1.5 text-[10px] font-bold transition-all uppercase tracking-widest ${selectedCiclo === c ? 'border-primary bg-primary-light text-primary shadow-sm' : 'border-border bg-white text-text-sub hover:border-primary/30'}`}>
                 CICLO {c}

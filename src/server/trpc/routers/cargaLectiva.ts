@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import type { Prisma, PrismaClient, TipoAsignacion } from '@/generated/prisma/client';
+import { Prisma } from '@/generated/prisma/client';
+import type { PrismaClient, TipoAsignacion } from '@/generated/prisma/client';
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -158,28 +159,83 @@ export const cargaLectivaRouter = createTRPCRouter({
       await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, input.docenteId);
       await assertLectivePeriodMutable(ctx.prisma, input.periodoId);
       await assertGrupoBelongsToPeriodo(ctx.prisma, input.grupoId, input.periodoId);
-      await assertUniqueGrupoPeriodoTipo(ctx.prisma, input);
+
+      const grupo = await ctx.prisma.grupo.findUniqueOrThrow({
+        where: { id: input.grupoId },
+        include: { curso: true },
+      });
+
+      // Check if there's an existing assignment for this group, period, and type
+      const existing = await ctx.prisma.asignacionCargaLectiva.findFirst({
+        where: {
+          grupoId: input.grupoId,
+          periodoId: input.periodoId,
+          tipo: input.tipo,
+        },
+        include: { docente: { select: { nombre: true } } },
+      });
+
+      if (existing && existing.docenteId !== input.docenteId) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `El grupo ya tiene carga ${input.tipo} asignada para este periodo${existing.docente?.nombre ? ` a ${existing.docente.nombre}` : ''}`,
+        });
+      }
+
+      const horasFinales = existing ? existing.horasAsignadas + input.horasAsignadas : input.horasAsignadas;
+
+      // Course hours limit check
+      let maxHoras = 0;
+      if (input.tipo === 'TEORIA') maxHoras = grupo.curso.horasTeoria;
+      else if (input.tipo === 'PRACTICA') maxHoras = grupo.curso.horasPractica;
+      else if (input.tipo === 'LABORATORIO') maxHoras = grupo.curso.horasLaboratorio;
+
+      if (horasFinales > maxHoras) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Las horas asignadas (${horasFinales}h) exceden el límite del curso para ${input.tipo} (${maxHoras}h)`,
+        });
+      }
 
       const validation = await validateAll(
         ctx.prisma,
         input.docenteId,
         input.periodoId,
-        input.horasAsignadas,
-        input.tipo
+        horasFinales,
+        input.tipo,
+        { excludeAsignacionId: existing?.id }
       );
       if (!validation.valid) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: validation.message });
       }
 
       try {
-        return await ctx.prisma.asignacionCargaLectiva.create({
-          data: input,
-          include: {
-            docente: { select: { id: true, nombre: true } },
-            grupo: { include: { curso: { select: { codigo: true, nombre: true } } } },
-            docenteCompartido: { select: { id: true, nombre: true } },
-          },
-        });
+        if (existing) {
+          // Update existing assignment by adding hours
+          return await ctx.prisma.asignacionCargaLectiva.update({
+            where: { id: existing.id },
+            data: {
+              horasAsignadas: horasFinales,
+              compartido: input.compartido ?? existing.compartido,
+              docenteCompartidoId: input.docenteCompartidoId ?? existing.docenteCompartidoId,
+            },
+            include: {
+              docente: { select: { id: true, nombre: true } },
+              grupo: { include: { curso: { select: { codigo: true, nombre: true } } } },
+              docenteCompartido: { select: { id: true, nombre: true } },
+            },
+          });
+        } else {
+          // Create new assignment
+          return await ctx.prisma.asignacionCargaLectiva.create({
+            data: input,
+            include: {
+              docente: { select: { id: true, nombre: true } },
+              grupo: { include: { curso: { select: { codigo: true, nombre: true } } } },
+              docenteCompartido: { select: { id: true, nombre: true } },
+            },
+          });
+        }
       } catch (error: unknown) {
         if (error && typeof error === 'object' && 'code' in error && (error as { code: string }).code === 'P2002') {
           throw new TRPCError({ code: 'CONFLICT', message: 'Asignación duplicada: ya existe este grupo-periodo-tipo' });
@@ -212,20 +268,27 @@ export const cargaLectivaRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
-      const existing = await ctx.prisma.asignacionCargaLectiva.findUniqueOrThrow({ where: { id } });
+      const existing = await ctx.prisma.asignacionCargaLectiva.findUniqueOrThrow({ 
+        where: { id },
+        include: { grupo: { include: { curso: true } } }
+      });
       await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, existing.docenteId);
       await assertLectivePeriodMutable(ctx.prisma, existing.periodoId);
-      await assertUniqueGrupoPeriodoTipo(
-        ctx.prisma,
-        {
-          grupoId: existing.grupoId,
-          periodoId: existing.periodoId,
-          tipo: existing.tipo,
-        },
-        id
-      );
 
       if (data.horasAsignadas !== undefined) {
+        // Course hours limit check
+        let maxHoras = 0;
+        if (existing.tipo === 'TEORIA') maxHoras = existing.grupo.curso.horasTeoria;
+        else if (existing.tipo === 'PRACTICA') maxHoras = existing.grupo.curso.horasPractica;
+        else if (existing.tipo === 'LABORATORIO') maxHoras = existing.grupo.curso.horasLaboratorio;
+
+        if (data.horasAsignadas > maxHoras) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Las horas asignadas (${data.horasAsignadas}h) exceden el límite del curso para ${existing.tipo} (${maxHoras}h)`,
+          });
+        }
+
         const validation = await validateAll(
           ctx.prisma,
           existing.docenteId,

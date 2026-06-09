@@ -256,6 +256,8 @@ exports.Prisma.CursoScalarFieldEnum = {
 exports.Prisma.DisponibilidadDocenteScalarFieldEnum = {
   id: 'id',
   docenteId: 'docenteId',
+  grupoId: 'grupoId',
+  tipo: 'tipo',
   franjaHorariaId: 'franjaHorariaId',
   createdAt: 'createdAt',
   periodoId: 'periodoId'
@@ -502,6 +504,12 @@ exports.ModalidadDocente = exports.$Enums.ModalidadDocente = {
   TIEMPO_PARCIAL: 'TIEMPO_PARCIAL'
 };
 
+exports.TipoAsignacion = exports.$Enums.TipoAsignacion = {
+  TEORIA: 'TEORIA',
+  PRACTICA: 'PRACTICA',
+  LABORATORIO: 'LABORATORIO'
+};
+
 exports.TipoAula = exports.$Enums.TipoAula = {
   TEORIA: 'TEORIA',
   LABORATORIO: 'LABORATORIO'
@@ -523,12 +531,6 @@ exports.DiaSemana = exports.$Enums.DiaSemana = {
   JUEVES: 'JUEVES',
   VIERNES: 'VIERNES',
   SABADO: 'SABADO'
-};
-
-exports.TipoAsignacion = exports.$Enums.TipoAsignacion = {
-  TEORIA: 'TEORIA',
-  PRACTICA: 'PRACTICA',
-  LABORATORIO: 'LABORATORIO'
 };
 
 exports.TipoRestriccion = exports.$Enums.TipoRestriccion = {

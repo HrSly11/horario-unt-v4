@@ -112,7 +112,8 @@ export const directorDepartamentoProcedure = protectedProcedure.use(({ ctx, next
 });
 
 export const secretariaDepartamentoProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.session.role !== 'SECRETARIA_DEPARTAMENTO' && ctx.session.role !== 'ADMIN') {
+  const departmentRoles: UserRole[] = ['DIRECTOR_DEPARTAMENTO', 'SECRETARIA_DEPARTAMENTO', 'ADMIN'];
+  if (!departmentRoles.includes(ctx.session.role)) {
     throw new TRPCError({ code: 'FORBIDDEN' });
   }
   return next();

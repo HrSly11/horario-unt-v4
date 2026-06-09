@@ -216,14 +216,17 @@ model Curso {
 model DisponibilidadDocente {
   id              String           @id @default(cuid())
   docenteId       String           @map("docente_id")
+  grupoId         String?          @map("grupo_id")
+  tipo            TipoAsignacion?
   franjaHorariaId String           @map("franja_horaria_id")
   createdAt       DateTime         @default(now()) @map("created_at")
   periodoId       String           @map("periodo_id")
   docente         Docente          @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  grupo           Grupo?           @relation(fields: [grupoId], references: [id], onDelete: Cascade)
   franjaHoraria   FranjaHoraria    @relation(fields: [franjaHorariaId], references: [id], onDelete: Cascade)
   periodo         PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
 
-  @@unique([docenteId, periodoId, franjaHorariaId])
+  @@unique([docenteId, periodoId, franjaHorariaId, grupoId, tipo])
   @@map("disponibilidades_docentes")
 }
 
@@ -253,6 +256,7 @@ model Grupo {
   asignaciones       Asignacion[]
   asignacionesCarga  AsignacionCargaLectiva[]
   docenteGrupos      DocenteGrupo[]
+  disponibilidades   DisponibilidadDocente[]
   curso              Curso                    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
   periodoAcademico   PeriodoAcademico         @relation(fields: [periodoAcademicoId], references: [id], onDelete: Cascade)
   preasignaciones    Preasignacion[]
