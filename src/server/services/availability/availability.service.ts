@@ -3,6 +3,34 @@ import type { AulaAvailability, AvailabilityCell, SlotStatus, ValidationResult }
 import { getLunchBlockedHoras } from './lunch-window';
 import { wouldExceedContinuousHours } from './continuous-hours';
 
+export type ScheduleDay =
+  | 'LUNES'
+  | 'MARTES'
+  | 'MIERCOLES'
+  | 'JUEVES'
+  | 'VIERNES'
+  | 'SABADO';
+
+export interface LaboratorySearchInput {
+  day: ScheduleDay;
+  startTime: string;
+  endTime: string;
+}
+
+export interface LaboratorySearchResult {
+  periodName: string;
+  day: ScheduleDay;
+  startTime: string;
+  endTime: string;
+  laboratories: Array<{
+    code: string;
+    name: string;
+    capacity: number;
+    building: string;
+    floor: number;
+  }>;
+}
+
 /**
  * Real-time availability service.
  * Computes slot availability for aulas considering all constraints.
@@ -10,6 +38,101 @@ import { wouldExceedContinuousHours } from './continuous-hours';
  */
 export class AvailabilityService {
   constructor(private prisma: PrismaClient) {}
+
+  async findAvailableLaboratories({
+    day,
+    startTime,
+    endTime,
+  }: LaboratorySearchInput): Promise<LaboratorySearchResult> {
+    if (startTime >= endTime) {
+      throw new Error('La hora de inicio debe ser anterior a la hora de fin');
+    }
+
+    const period = await this.prisma.periodoAcademico.findFirst({
+      where: { activo: true },
+      select: { id: true, nombre: true },
+    });
+
+    if (!period) {
+      throw new Error('No hay un periodo academico activo');
+    }
+
+    const slots = await this.prisma.franjaHoraria.findMany({
+      where: {
+        dia: day,
+        horaInicio: { lt: endTime },
+        horaFin: { gt: startTime },
+      },
+      orderBy: { horaInicio: 'asc' },
+      select: { id: true, horaInicio: true, horaFin: true },
+    });
+
+    let coveredUntil = startTime;
+    for (const slot of slots) {
+      if (slot.horaInicio > coveredUntil) break;
+      if (slot.horaFin > coveredUntil) coveredUntil = slot.horaFin;
+    }
+
+    if (coveredUntil < endTime) {
+      throw new Error('El intervalo solicitado no esta cubierto por las franjas horarias del sistema');
+    }
+
+    const laboratories = await this.prisma.aula.findMany({
+      where: { tipo: 'LABORATORIO' },
+      orderBy: [{ edificio: 'asc' }, { piso: 'asc' }, { codigo: 'asc' }],
+      select: {
+        id: true,
+        codigo: true,
+        nombre: true,
+        capacidad: true,
+        edificio: true,
+        piso: true,
+      },
+    });
+
+    const laboratoryIds = laboratories.map((laboratory) => laboratory.id);
+    const slotIds = slots.map((slot) => slot.id);
+
+    const [assignments, maintenances] = laboratories.length === 0
+      ? [[], []]
+      : await Promise.all([
+          this.prisma.asignacion.findMany({
+            where: {
+              periodoId: period.id,
+              aulaId: { in: laboratoryIds },
+              franjaHorariaId: { in: slotIds },
+            },
+            select: { aulaId: true },
+          }),
+          this.prisma.mantenimientoAula.findMany({
+            where: {
+              aulaId: { in: laboratoryIds },
+              franjaHorariaId: { in: slotIds },
+            },
+            select: { aulaId: true },
+          }),
+        ]);
+    const unavailableLaboratoryIds = new Set([
+      ...assignments.map((assignment) => assignment.aulaId),
+      ...maintenances.map((maintenance) => maintenance.aulaId),
+    ]);
+
+    return {
+      periodName: period.nombre,
+      day,
+      startTime,
+      endTime,
+      laboratories: laboratories
+        .filter((laboratory) => !unavailableLaboratoryIds.has(laboratory.id))
+        .map((laboratory) => ({
+          code: laboratory.codigo,
+          name: laboratory.nombre,
+          capacity: laboratory.capacidad,
+          building: laboratory.edificio,
+          floor: laboratory.piso,
+        })),
+    };
+  }
 
   /**
    * Get availability matrix for a single aula.

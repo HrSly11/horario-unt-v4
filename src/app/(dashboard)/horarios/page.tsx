@@ -506,7 +506,7 @@ export default function HorariosPage() {
             <table className="w-full text-[11px] border-collapse">
               <thead>
                 <tr className="bg-slate-50/80">
-                  <th className="px-4 py-4 text-left font-bold text-text-sub uppercase tracking-wider w-24 sticky left-0 bg-slate-50 border-b border-border">Hora</th>
+                  <th className="px-4 py-4 text-center font-bold text-text-sub uppercase tracking-wider w-24 sticky left-0 bg-slate-50 border-b border-border">Hora</th>
                   {DIAS.map(dia => (
                     <th key={dia} className="px-2 py-4 text-center font-bold text-text-sub uppercase tracking-wider min-w-[160px] border-b border-border">
                       {DIA_LABELS[dia]}
@@ -525,9 +525,20 @@ export default function HorariosPage() {
                     {isPrivileged ? 'No hay asignaciones para mostrar' : 'No hay asignaciones confirmadas para mostrar'}
                   </td></tr>
                 ) : (
-                  horas.map(hora => (
-                    <tr key={hora} className="border-b border-slate-50 last:border-0">
-                      <td className="px-4 py-4 font-mono font-bold text-text-sub bg-slate-50/30 sticky left-0 border-r border-border/50">{hora}</td>
+                  horas.map((hora, idx) => {
+                    const matchingAsig = asignaciones.find(a => a.franjaHoraria.horaInicio === hora);
+                    const horaFin = matchingAsig?.franjaHoraria.horaFin ?? '';
+                    const isLast = idx === horas.length - 1;
+
+                    const startHour = parseInt(hora.split(':')[0], 10);
+                    const endHour = horaFin ? parseInt(horaFin.split(':')[0], 10) : startHour + 1;
+                    const label = `${startHour}-${endHour}`;
+
+                    return (
+                      <tr key={hora} className="border-b border-slate-100 last:border-0">
+                        <td className="px-4 py-4 font-mono font-bold text-text-sub bg-slate-50/95 sticky left-0 border-r border-border/50 w-24 text-center text-xs">
+                          {label}
+                        </td>
                       {DIAS.map(dia => {
                         const slots = asignaciones.filter(a => a.franjaHoraria.dia === dia && a.franjaHoraria.horaInicio === hora);
                         
@@ -566,7 +577,8 @@ export default function HorariosPage() {
                         );
                       })}
                     </tr>
-                  ))
+                  );
+                  })
                 )}
               </tbody>
             </table>

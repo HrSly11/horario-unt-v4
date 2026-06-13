@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { PrismaClient } from '@/generated/prisma/client';
 import { AvailabilityService } from './availability.service';
 
 function makePrisma({
@@ -43,7 +44,7 @@ function makePrisma({
     grupo: {
       findUniqueOrThrow: vi.fn(async () => ({ id: 'grupo-1', numAlumnos: grupoNumAlumnos })),
     },
-  } as any;
+  } as unknown as PrismaClient;
 }
 
 describe('AvailabilityService capacity validation', () => {
@@ -103,6 +104,108 @@ describe('AvailabilityService capacity validation', () => {
     });
     expect(prisma.disponibilidadDocente.findFirst).toHaveBeenCalledWith({
       where: { docenteId: 'docente-1', periodoId: 'period-1', franjaHorariaId: 'franja-1' },
+    });
+  });
+});
+
+function makeLaboratoryAvailabilityPrisma(
+  occupiedAulaIds: string[] = [],
+  maintenanceAulaIds: string[] = []
+) {
+  const laboratories = Array.from({ length: 5 }, (_, index) => ({
+    id: `lab-${index + 1}`,
+    codigo: `LAB-${index + 1}`,
+    nombre: `Laboratorio ${index + 1}`,
+    capacidad: index === 3 || index === 4 ? 20 : 16,
+    edificio: 'Pabellon C',
+    piso: index < 2 ? 1 : 2,
+  }));
+
+  return {
+    periodoAcademico: {
+      findFirst: vi.fn(async () => ({ id: 'period-1', nombre: '2026-I' })),
+    },
+    franjaHoraria: {
+      findMany: vi.fn(async () => [
+        { id: 'slot-15', horaInicio: '15:00', horaFin: '16:00' },
+        { id: 'slot-16', horaInicio: '16:00', horaFin: '17:00' },
+        { id: 'slot-17', horaInicio: '17:00', horaFin: '18:00' },
+      ]),
+    },
+    aula: {
+      findMany: vi.fn(async () => laboratories),
+    },
+    asignacion: {
+      findMany: vi.fn(async () => occupiedAulaIds.map((aulaId) => ({ aulaId }))),
+    },
+    mantenimientoAula: {
+      findMany: vi.fn(async () => maintenanceAulaIds.map((aulaId) => ({ aulaId }))),
+    },
+  } as unknown as PrismaClient;
+}
+
+describe('AvailabilityService laboratory search', () => {
+  it('returns every free laboratory on Tuesday from 15:00 to 18:00', async () => {
+    const prisma = makeLaboratoryAvailabilityPrisma();
+    const service = new AvailabilityService(prisma);
+
+    const result = await service.findAvailableLaboratories({
+      day: 'MARTES',
+      startTime: '15:00',
+      endTime: '18:00',
+    });
+
+    expect(result.periodName).toBe('2026-I');
+    expect(result.laboratories.map((laboratory) => laboratory.code)).toEqual([
+      'LAB-1',
+      'LAB-2',
+      'LAB-3',
+      'LAB-4',
+      'LAB-5',
+    ]);
+    expect(prisma.franjaHoraria.findMany).toHaveBeenCalledWith({
+      where: {
+        dia: 'MARTES',
+        horaInicio: { lt: '18:00' },
+        horaFin: { gt: '15:00' },
+      },
+      orderBy: { horaInicio: 'asc' },
+      select: { id: true, horaInicio: true, horaFin: true },
+    });
+  });
+
+  it('excludes a laboratory occupied during any part of the requested interval', async () => {
+    const prisma = makeLaboratoryAvailabilityPrisma(['lab-2']);
+    const service = new AvailabilityService(prisma);
+
+    const result = await service.findAvailableLaboratories({
+      day: 'MARTES',
+      startTime: '15:00',
+      endTime: '18:00',
+    });
+
+    expect(result.laboratories.map((laboratory) => laboratory.code)).not.toContain('LAB-2');
+    expect(result.laboratories).toHaveLength(4);
+  });
+
+  it('excludes a laboratory under maintenance during any part of the requested interval', async () => {
+    const prisma = makeLaboratoryAvailabilityPrisma([], ['lab-3']);
+    const service = new AvailabilityService(prisma);
+
+    const result = await service.findAvailableLaboratories({
+      day: 'MARTES',
+      startTime: '15:00',
+      endTime: '18:00',
+    });
+
+    expect(result.laboratories.map((laboratory) => laboratory.code)).not.toContain('LAB-3');
+    expect(result.laboratories).toHaveLength(4);
+    expect(prisma.mantenimientoAula.findMany).toHaveBeenCalledWith({
+      where: {
+        aulaId: { in: ['lab-1', 'lab-2', 'lab-3', 'lab-4', 'lab-5'] },
+        franjaHorariaId: { in: ['slot-15', 'slot-16', 'slot-17'] },
+      },
+      select: { aulaId: true },
     });
   });
 });
