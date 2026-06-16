@@ -109,7 +109,7 @@ export const cargaLectivaRouter = createTRPCRouter({
         where,
         include: {
           docente: { select: { id: true, nombre: true, email: true, categoria: true, modalidad: true, horasContrato: true } },
-          grupo: { include: { curso: { select: { id: true, codigo: true, nombre: true, creditos: true, horasTeoria: true, horasPractica: true, horasLaboratorio: true, ciclo: true } } } },
+          grupo: { include: { curso: { select: { id: true, codigo: true, nombre: true, creditos: true, horasTeoria: true, horasPractica: true, horasLaboratorio: true, ciclo: true, numGruposLaboratorio: true } } } },
           periodo: { select: { id: true, nombre: true } },
           docenteCompartido: { select: { id: true, nombre: true } },
         },

@@ -239,6 +239,7 @@ exports.Prisma.CursoScalarFieldEnum = {
   horasTeoria: 'horasTeoria',
   horasPractica: 'horasPractica',
   horasLaboratorio: 'horasLaboratorio',
+  numGruposLaboratorio: 'numGruposLaboratorio',
   ciclo: 'ciclo',
   requiereLaboratorio: 'requiereLaboratorio',
   perfilRequerido: 'perfilRequerido',

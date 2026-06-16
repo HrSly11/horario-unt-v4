@@ -15279,6 +15279,7 @@ export namespace Prisma {
     horasTeoria: number | null
     horasPractica: number | null
     horasLaboratorio: number | null
+    numGruposLaboratorio: number | null
     ciclo: number | null
     experienciaMinima: number | null
   }
@@ -15288,6 +15289,7 @@ export namespace Prisma {
     horasTeoria: number | null
     horasPractica: number | null
     horasLaboratorio: number | null
+    numGruposLaboratorio: number | null
     ciclo: number | null
     experienciaMinima: number | null
   }
@@ -15300,6 +15302,7 @@ export namespace Prisma {
     horasTeoria: number | null
     horasPractica: number | null
     horasLaboratorio: number | null
+    numGruposLaboratorio: number | null
     ciclo: number | null
     requiereLaboratorio: boolean | null
     perfilRequerido: string | null
@@ -15322,6 +15325,7 @@ export namespace Prisma {
     horasTeoria: number | null
     horasPractica: number | null
     horasLaboratorio: number | null
+    numGruposLaboratorio: number | null
     ciclo: number | null
     requiereLaboratorio: boolean | null
     perfilRequerido: string | null
@@ -15344,6 +15348,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica: number
     horasLaboratorio: number
+    numGruposLaboratorio: number
     ciclo: number
     requiereLaboratorio: number
     perfilRequerido: number
@@ -15365,6 +15370,7 @@ export namespace Prisma {
     horasTeoria?: true
     horasPractica?: true
     horasLaboratorio?: true
+    numGruposLaboratorio?: true
     ciclo?: true
     experienciaMinima?: true
   }
@@ -15374,6 +15380,7 @@ export namespace Prisma {
     horasTeoria?: true
     horasPractica?: true
     horasLaboratorio?: true
+    numGruposLaboratorio?: true
     ciclo?: true
     experienciaMinima?: true
   }
@@ -15386,6 +15393,7 @@ export namespace Prisma {
     horasTeoria?: true
     horasPractica?: true
     horasLaboratorio?: true
+    numGruposLaboratorio?: true
     ciclo?: true
     requiereLaboratorio?: true
     perfilRequerido?: true
@@ -15408,6 +15416,7 @@ export namespace Prisma {
     horasTeoria?: true
     horasPractica?: true
     horasLaboratorio?: true
+    numGruposLaboratorio?: true
     ciclo?: true
     requiereLaboratorio?: true
     perfilRequerido?: true
@@ -15430,6 +15439,7 @@ export namespace Prisma {
     horasTeoria?: true
     horasPractica?: true
     horasLaboratorio?: true
+    numGruposLaboratorio?: true
     ciclo?: true
     requiereLaboratorio?: true
     perfilRequerido?: true
@@ -15539,6 +15549,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica: number
     horasLaboratorio: number
+    numGruposLaboratorio: number
     ciclo: number
     requiereLaboratorio: boolean
     perfilRequerido: string | null
@@ -15580,6 +15591,7 @@ export namespace Prisma {
     horasTeoria?: boolean
     horasPractica?: boolean
     horasLaboratorio?: boolean
+    numGruposLaboratorio?: boolean
     ciclo?: boolean
     requiereLaboratorio?: boolean
     perfilRequerido?: boolean
@@ -15606,6 +15618,7 @@ export namespace Prisma {
     horasTeoria?: boolean
     horasPractica?: boolean
     horasLaboratorio?: boolean
+    numGruposLaboratorio?: boolean
     ciclo?: boolean
     requiereLaboratorio?: boolean
     perfilRequerido?: boolean
@@ -15628,6 +15641,7 @@ export namespace Prisma {
     horasTeoria?: boolean
     horasPractica?: boolean
     horasLaboratorio?: boolean
+    numGruposLaboratorio?: boolean
     ciclo?: boolean
     requiereLaboratorio?: boolean
     perfilRequerido?: boolean
@@ -15650,6 +15664,7 @@ export namespace Prisma {
     horasTeoria?: boolean
     horasPractica?: boolean
     horasLaboratorio?: boolean
+    numGruposLaboratorio?: boolean
     ciclo?: boolean
     requiereLaboratorio?: boolean
     perfilRequerido?: boolean
@@ -15664,7 +15679,7 @@ export namespace Prisma {
     requisitos?: boolean
   }
 
-  export type CursoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "codigo" | "nombre" | "creditos" | "horasTeoria" | "horasPractica" | "horasLaboratorio" | "ciclo" | "requiereLaboratorio" | "perfilRequerido" | "gradoRequerido" | "experienciaMinima" | "especialidadRequerida" | "aperturado" | "createdAt" | "updatedAt" | "condicion" | "departamento" | "requisitos", ExtArgs["result"]["curso"]>
+  export type CursoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "codigo" | "nombre" | "creditos" | "horasTeoria" | "horasPractica" | "horasLaboratorio" | "numGruposLaboratorio" | "ciclo" | "requiereLaboratorio" | "perfilRequerido" | "gradoRequerido" | "experienciaMinima" | "especialidadRequerida" | "aperturado" | "createdAt" | "updatedAt" | "condicion" | "departamento" | "requisitos", ExtArgs["result"]["curso"]>
   export type CursoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     cursoCurriculas?: boolean | Curso$cursoCurriculasArgs<ExtArgs>
     grupos?: boolean | Curso$gruposArgs<ExtArgs>
@@ -15689,6 +15704,7 @@ export namespace Prisma {
       horasTeoria: number
       horasPractica: number
       horasLaboratorio: number
+      numGruposLaboratorio: number
       ciclo: number
       requiereLaboratorio: boolean
       perfilRequerido: string | null
@@ -16134,6 +16150,7 @@ export namespace Prisma {
     readonly horasTeoria: FieldRef<"Curso", 'Int'>
     readonly horasPractica: FieldRef<"Curso", 'Int'>
     readonly horasLaboratorio: FieldRef<"Curso", 'Int'>
+    readonly numGruposLaboratorio: FieldRef<"Curso", 'Int'>
     readonly ciclo: FieldRef<"Curso", 'Int'>
     readonly requiereLaboratorio: FieldRef<"Curso", 'Boolean'>
     readonly perfilRequerido: FieldRef<"Curso", 'String'>
@@ -36735,6 +36752,7 @@ export namespace Prisma {
     horasTeoria: 'horasTeoria',
     horasPractica: 'horasPractica',
     horasLaboratorio: 'horasLaboratorio',
+    numGruposLaboratorio: 'numGruposLaboratorio',
     ciclo: 'ciclo',
     requiereLaboratorio: 'requiereLaboratorio',
     perfilRequerido: 'perfilRequerido',
@@ -38103,6 +38121,7 @@ export namespace Prisma {
     horasTeoria?: IntFilter<"Curso"> | number
     horasPractica?: IntFilter<"Curso"> | number
     horasLaboratorio?: IntFilter<"Curso"> | number
+    numGruposLaboratorio?: IntFilter<"Curso"> | number
     ciclo?: IntFilter<"Curso"> | number
     requiereLaboratorio?: BoolFilter<"Curso"> | boolean
     perfilRequerido?: StringNullableFilter<"Curso"> | string | null
@@ -38128,6 +38147,7 @@ export namespace Prisma {
     horasTeoria?: SortOrder
     horasPractica?: SortOrder
     horasLaboratorio?: SortOrder
+    numGruposLaboratorio?: SortOrder
     ciclo?: SortOrder
     requiereLaboratorio?: SortOrder
     perfilRequerido?: SortOrderInput | SortOrder
@@ -38156,6 +38176,7 @@ export namespace Prisma {
     horasTeoria?: IntFilter<"Curso"> | number
     horasPractica?: IntFilter<"Curso"> | number
     horasLaboratorio?: IntFilter<"Curso"> | number
+    numGruposLaboratorio?: IntFilter<"Curso"> | number
     ciclo?: IntFilter<"Curso"> | number
     requiereLaboratorio?: BoolFilter<"Curso"> | boolean
     perfilRequerido?: StringNullableFilter<"Curso"> | string | null
@@ -38181,6 +38202,7 @@ export namespace Prisma {
     horasTeoria?: SortOrder
     horasPractica?: SortOrder
     horasLaboratorio?: SortOrder
+    numGruposLaboratorio?: SortOrder
     ciclo?: SortOrder
     requiereLaboratorio?: SortOrder
     perfilRequerido?: SortOrderInput | SortOrder
@@ -38211,6 +38233,7 @@ export namespace Prisma {
     horasTeoria?: IntWithAggregatesFilter<"Curso"> | number
     horasPractica?: IntWithAggregatesFilter<"Curso"> | number
     horasLaboratorio?: IntWithAggregatesFilter<"Curso"> | number
+    numGruposLaboratorio?: IntWithAggregatesFilter<"Curso"> | number
     ciclo?: IntWithAggregatesFilter<"Curso"> | number
     requiereLaboratorio?: BoolWithAggregatesFilter<"Curso"> | boolean
     perfilRequerido?: StringNullableWithAggregatesFilter<"Curso"> | string | null
@@ -40500,6 +40523,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -40525,6 +40549,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -40550,6 +40575,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40575,6 +40601,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40600,6 +40627,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -40622,6 +40650,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40644,6 +40673,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42972,6 +43002,7 @@ export namespace Prisma {
     horasTeoria?: SortOrder
     horasPractica?: SortOrder
     horasLaboratorio?: SortOrder
+    numGruposLaboratorio?: SortOrder
     ciclo?: SortOrder
     requiereLaboratorio?: SortOrder
     perfilRequerido?: SortOrder
@@ -42991,6 +43022,7 @@ export namespace Prisma {
     horasTeoria?: SortOrder
     horasPractica?: SortOrder
     horasLaboratorio?: SortOrder
+    numGruposLaboratorio?: SortOrder
     ciclo?: SortOrder
     experienciaMinima?: SortOrder
   }
@@ -43003,6 +43035,7 @@ export namespace Prisma {
     horasTeoria?: SortOrder
     horasPractica?: SortOrder
     horasLaboratorio?: SortOrder
+    numGruposLaboratorio?: SortOrder
     ciclo?: SortOrder
     requiereLaboratorio?: SortOrder
     perfilRequerido?: SortOrder
@@ -43025,6 +43058,7 @@ export namespace Prisma {
     horasTeoria?: SortOrder
     horasPractica?: SortOrder
     horasLaboratorio?: SortOrder
+    numGruposLaboratorio?: SortOrder
     ciclo?: SortOrder
     requiereLaboratorio?: SortOrder
     perfilRequerido?: SortOrder
@@ -43044,6 +43078,7 @@ export namespace Prisma {
     horasTeoria?: SortOrder
     horasPractica?: SortOrder
     horasLaboratorio?: SortOrder
+    numGruposLaboratorio?: SortOrder
     ciclo?: SortOrder
     experienciaMinima?: SortOrder
   }
@@ -48595,6 +48630,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -48619,6 +48655,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -48690,6 +48727,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48714,6 +48752,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51259,6 +51298,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -51283,6 +51323,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -51396,6 +51437,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51420,6 +51462,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51639,6 +51682,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -51663,6 +51707,7 @@ export namespace Prisma {
     horasTeoria: number
     horasPractica?: number
     horasLaboratorio?: number
+    numGruposLaboratorio?: number
     ciclo: number
     requiereLaboratorio?: boolean
     perfilRequerido?: string | null
@@ -51844,6 +51889,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51868,6 +51914,7 @@ export namespace Prisma {
     horasTeoria?: IntFieldUpdateOperationsInput | number
     horasPractica?: IntFieldUpdateOperationsInput | number
     horasLaboratorio?: IntFieldUpdateOperationsInput | number
+    numGruposLaboratorio?: IntFieldUpdateOperationsInput | number
     ciclo?: IntFieldUpdateOperationsInput | number
     requiereLaboratorio?: BoolFieldUpdateOperationsInput | boolean
     perfilRequerido?: NullableStringFieldUpdateOperationsInput | string | null

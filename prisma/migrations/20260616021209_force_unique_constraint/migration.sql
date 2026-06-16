@@ -1,0 +1,2 @@
+-- RenameIndex
+ALTER INDEX "disponibilidades_docentes_docente_id_periodo_id_franja_horaria_" RENAME TO "disponibilidades_docentes_docente_id_periodo_id_franja_hora_key";

@@ -194,6 +194,7 @@ model Curso {
   horasTeoria           Int                @map("horas_teoria")
   horasPractica         Int                @default(0) @map("horas_practica")
   horasLaboratorio      Int                @default(0) @map("horas_laboratorio")
+  numGruposLaboratorio  Int                @default(1) @map("num_grupos_laboratorio")
   ciclo                 Int
   requiereLaboratorio   Boolean            @default(false) @map("requiere_laboratorio")
   perfilRequerido       String?            @map("perfil_requerido")

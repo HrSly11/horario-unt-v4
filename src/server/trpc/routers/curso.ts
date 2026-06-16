@@ -10,6 +10,7 @@ const cursoInput = z.object({
   horasTeoria: z.number().int().min(0),
   horasPractica: z.number().int().min(0).default(0),
   horasLaboratorio: z.number().int().min(0),
+  numGruposLaboratorio: z.number().int().min(1).optional().default(1),
   ciclo: z.number().int().min(1).max(12),
   requiereLaboratorio: z.boolean().optional().default(false),
   perfilRequerido: z.string().optional(),
@@ -106,6 +107,11 @@ export const cursoRouter = createTRPCRouter({
             include: { periodoAcademico: true },
             orderBy: { nombre: 'asc' },
           },
+          cursoCurriculas: {
+            include: {
+              curricula: true
+            }
+          }
         },
         orderBy: [{ ciclo: 'asc' }, { codigo: 'asc' }],
       });
@@ -126,6 +132,11 @@ export const cursoRouter = createTRPCRouter({
               },
             },
           },
+          cursoCurriculas: {
+            include: {
+              curricula: true
+            }
+          }
         },
       });
     }),

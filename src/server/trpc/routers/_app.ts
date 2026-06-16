@@ -15,6 +15,7 @@ import { cargaNoLectivaRouter } from './cargaNoLectiva';
 import { declaracionRouter } from './declaracion';
 import { declaracionPDFRouter } from './declaracionPDF';
 import { helpRouter } from './help';
+import { curriculaRouter } from './curricula';
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
@@ -33,7 +34,7 @@ export const appRouter = createTRPCRouter({
   declaracion: declaracionRouter,
   declaracionPDF: declaracionPDFRouter,
   help: helpRouter,
+  curricula: curriculaRouter,
 });
 
 export type AppRouter = typeof appRouter;
-
