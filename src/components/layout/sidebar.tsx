@@ -45,6 +45,7 @@ export function Sidebar() {
       { name: 'Organización', href: '/organizacion', icon: Building2 },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
+      { name: 'Planes de Estudio', href: '/planes-estudio', icon: GraduationCap },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
       { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
@@ -71,6 +72,7 @@ export function Sidebar() {
     ],
     SECRETARIA_DEPARTAMENTO: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Planes de Estudio', href: '/planes-estudio', icon: GraduationCap },
       { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
       { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },

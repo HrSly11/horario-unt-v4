@@ -156,6 +156,16 @@ export default function CargaLectivaPage() {
   // For DOCENTE role — they only see their own
   const isDocente = user?.role === 'DOCENTE';
 
+  const selectedCursoForAssign = useMemo(() => {
+    if (!assignGrupoId) return null;
+    return cursos.find((c) => c.grupos?.some((g) => g.id === assignGrupoId));
+  }, [cursos, assignGrupoId]);
+
+  const selectedCargaForEdit = useMemo(() => {
+    if (!editingId) return null;
+    return cargasLectivas.find((c) => c.id === editingId);
+  }, [cargasLectivas, editingId]);
+
   // ── mutations ──────────────────────────────────────────
   const assignMutation = useMutation(
     trpc.cargaLectiva.assign.mutationOptions({
@@ -263,6 +273,9 @@ export default function CargaLectivaPage() {
                 <tr key={carga.id} className="group transition-colors">
                   <td>
                     <p className="font-bold text-text-main group-hover:text-primary transition-colors">{carga.grupo.curso.codigo} - {carga.grupo.curso.nombre}</p>
+                    <p className="text-[10px] text-text-sub mt-0.5">
+                      Horas: {carga.grupo.curso.horasTeoria}T / {carga.grupo.curso.horasPractica}P / {carga.grupo.curso.horasLaboratorio}L ({carga.grupo.curso.numGruposLaboratorio} G. Lab) | LECTIVAS: {carga.grupo.curso.horasTeoria + carga.grupo.curso.horasPractica + (carga.grupo.curso.numGruposLaboratorio * carga.grupo.curso.horasLaboratorio)}h
+                    </p>
                   </td>
                   <td>
                     <span className="badge badge-gray">{carga.grupo.nombre}</span>
@@ -459,6 +472,12 @@ export default function CargaLectivaPage() {
                                   Compartido con {carga.docenteCompartido?.nombre}
                                 </span>
                               )}
+                              <span className="text-[10px] text-zinc-500 font-medium">
+                                • Curso: {carga.grupo.curso.horasTeoria}T/{carga.grupo.curso.horasPractica}P/{carga.grupo.curso.horasLaboratorio}L ({carga.grupo.curso.numGruposLaboratorio} G. Lab)
+                              </span>
+                              <span className="text-[10px] text-blue-400 font-bold">
+                                • LECTIVAS: {carga.grupo.curso.horasTeoria + carga.grupo.curso.horasPractica + (carga.grupo.curso.numGruposLaboratorio * carga.grupo.curso.horasLaboratorio)}h
+                              </span>
                             </div>
                           </div>
                           
@@ -572,6 +591,27 @@ export default function CargaLectivaPage() {
                   ))}
                 </select>
               </div>
+
+              {/* Curso details and computed LECTIVAS */}
+              {selectedCursoForAssign && (
+                <div className="bg-zinc-800/40 border border-zinc-800 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Detalles del Curso</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="text-zinc-400">Horas:</div>
+                    <div className="text-white font-medium text-right">
+                      {selectedCursoForAssign.horasTeoria}T / {selectedCursoForAssign.horasPractica}P / {selectedCursoForAssign.horasLaboratorio}L
+                    </div>
+                    <div className="text-zinc-400">Grupos de Lab:</div>
+                    <div className="text-white font-medium text-right">
+                      {selectedCursoForAssign.numGruposLaboratorio}
+                    </div>
+                    <div className="text-blue-400 font-bold border-t border-zinc-800 pt-1.5 mt-1">Calculado LECTIVAS:</div>
+                    <div className="text-blue-400 font-bold border-t border-zinc-800 pt-1.5 mt-1 text-right">
+                      {selectedCursoForAssign.horasTeoria + selectedCursoForAssign.horasPractica + (selectedCursoForAssign.numGruposLaboratorio * selectedCursoForAssign.horasLaboratorio)}h
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Postulantes al curso */}
               {assignGrupoId && (
@@ -749,6 +789,28 @@ export default function CargaLectivaPage() {
 
             {/* Body */}
             <div className="p-5 space-y-4">
+              {/* Curso details and computed LECTIVAS */}
+              {selectedCargaForEdit && (
+                <div className="bg-zinc-800/40 border border-zinc-800 rounded-lg p-3 space-y-2 mb-4">
+                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Detalles del Curso</p>
+                  <p className="text-sm font-semibold text-white">{selectedCargaForEdit.grupo.curso.nombre}</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="text-zinc-400">Horas:</div>
+                    <div className="text-white font-medium text-right">
+                      {selectedCargaForEdit.grupo.curso.horasTeoria}T / {selectedCargaForEdit.grupo.curso.horasPractica}P / {selectedCargaForEdit.grupo.curso.horasLaboratorio}L
+                    </div>
+                    <div className="text-zinc-400">Grupos de Lab:</div>
+                    <div className="text-white font-medium text-right">
+                      {selectedCargaForEdit.grupo.curso.numGruposLaboratorio}
+                    </div>
+                    <div className="text-blue-400 font-bold border-t border-zinc-800 pt-1.5 mt-1">Calculado LECTIVAS:</div>
+                    <div className="text-blue-400 font-bold border-t border-zinc-800 pt-1.5 mt-1 text-right">
+                      {selectedCargaForEdit.grupo.curso.horasTeoria + selectedCargaForEdit.grupo.curso.horasPractica + (selectedCargaForEdit.grupo.curso.numGruposLaboratorio * selectedCargaForEdit.grupo.curso.horasLaboratorio)}h
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-1">
                   Horas asignadas

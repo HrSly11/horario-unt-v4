@@ -12,6 +12,7 @@ type FormData = {
   horasTeoria: number;
   horasPractica: number;
   horasLaboratorio: number;
+  numGruposLaboratorio: number;
   ciclo: number;
   requiereLaboratorio: boolean;
   perfilRequerido: string;
@@ -24,7 +25,7 @@ type FormData = {
 };
 
 const emptyForm: FormData = {
-  codigo: '', nombre: '', creditos: 3, horasTeoria: 2, horasPractica: 0, horasLaboratorio: 2, ciclo: 1, requiereLaboratorio: false,
+  codigo: '', nombre: '', creditos: 3, horasTeoria: 2, horasPractica: 0, horasLaboratorio: 2, numGruposLaboratorio: 1, ciclo: 1, requiereLaboratorio: false,
   perfilRequerido: '', gradoRequerido: '', experienciaMinima: 0, especialidadRequerida: '',
   departamento: 'Dpto. de Ing. Sistemas', requisitos: '', condicion: 'O',
 };
@@ -157,6 +158,7 @@ export default function CursosPage() {
       horasTeoria: c.horasTeoria,
       horasPractica: c.horasPractica || 0,
       horasLaboratorio: c.horasLaboratorio,
+      numGruposLaboratorio: c.numGruposLaboratorio || 1,
       ciclo: c.ciclo,
       requiereLaboratorio: c.requiereLaboratorio,
       perfilRequerido: c.perfilRequerido || '',
@@ -480,10 +482,13 @@ export default function CursosPage() {
                     {c.creditos}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="badge badge-info">{c.horasTeoria}T</span>
                       <span className="badge badge-success">{c.horasPractica}P</span>
                       <span className="badge badge-warning">{c.horasLaboratorio}L</span>
+                      <span className="badge badge-gray font-semibold text-slate-500" title="Grupos de laboratorio">
+                        {c.numGruposLaboratorio} G. Lab
+                      </span>
                     </div>
                   </td>
                   {activeTab === 'APERTURA' && (
@@ -697,7 +702,7 @@ export default function CursosPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-5 gap-4">
                 <div>
                   <label className="label-standard">Créditos</label>
                   <input type="number" required value={form.creditos} onChange={e => setForm({...form, creditos: Number(e.target.value)})} className="input-standard" />
@@ -713,6 +718,10 @@ export default function CursosPage() {
                 <div>
                   <label className="label-standard">HL</label>
                   <input type="number" required value={form.horasLaboratorio} onChange={e => setForm({...form, horasLaboratorio: Number(e.target.value)})} className="input-standard" />
+                </div>
+                <div>
+                  <label className="label-standard">Grupos Lab</label>
+                  <input type="number" required min={1} value={form.numGruposLaboratorio} onChange={e => setForm({...form, numGruposLaboratorio: Number(e.target.value)})} className="input-standard" />
                 </div>
               </div>
 

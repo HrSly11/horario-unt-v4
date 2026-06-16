@@ -46,7 +46,15 @@ function makePrisma({
       findUniqueOrThrow: vi.fn(async () => ({ estado: periodEstado })),
     },
     grupo: {
-      findUniqueOrThrow: vi.fn(async () => ({ periodoAcademicoId: groupPeriodId })),
+      findUniqueOrThrow: vi.fn(async () => ({
+        periodoAcademicoId: groupPeriodId,
+        curso: {
+          horasTeoria: 6,
+          horasPractica: 4,
+          horasLaboratorio: 4,
+          numGruposLaboratorio: 2,
+        },
+      })),
     },
     docente: {
       findUniqueOrThrow: vi.fn(async () => ({
@@ -105,8 +113,7 @@ describe('cargaLectivaRouter assignment rules', () => {
         periodoId: 'period-1',
         tipo: 'TEORIA',
       },
-      select: {
-        id: true,
+      include: {
         docente: { select: { nombre: true } },
       },
     });
@@ -147,5 +154,31 @@ describe('cargaLectivaRouter assignment rules', () => {
 
     await expect(caller.unassign({ id: 'acl-1' })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
     expect(prisma.asignacionCargaLectiva.delete).not.toHaveBeenCalled();
+  });
+
+  describe('Lecture Hours (LECTIVAS) Calculation Formula', () => {
+    const calculateLectivas = (
+      horasTeoria: number,
+      horasPractica: number,
+      horasLaboratorio: number,
+      numGruposLaboratorio: number
+    ) => {
+      return horasTeoria + horasPractica + numGruposLaboratorio * horasLaboratorio;
+    };
+
+    it('calculates correctly with theory=4, practice=2, lab=2 hours, and lab groups=3 (spec case)', () => {
+      const result = calculateLectivas(4, 2, 2, 3);
+      expect(result).toBe(12);
+    });
+
+    it('calculates correctly with default 1 lab group', () => {
+      const result = calculateLectivas(2, 2, 2, 1);
+      expect(result).toBe(6);
+    });
+
+    it('calculates correctly with 0 lab hours regardless of lab groups count', () => {
+      const result = calculateLectivas(3, 1, 0, 5);
+      expect(result).toBe(4);
+    });
   });
 });
