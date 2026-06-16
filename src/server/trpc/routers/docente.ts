@@ -330,12 +330,15 @@ export const docenteRouter = createTRPCRouter({
 
   /** Application to a course/group by a docente */
   postulateToGroup: protectedProcedure
-    .input(z.object({ grupoId: z.string() }))
+    .input(z.object({
+      grupoId: z.string(),
+      tipo: z.nativeEnum(TipoAsignacion).optional(),
+    }))
     .mutation(async ({ ctx, input }) => {
       if (!ctx.session?.docenteId) throw new TRPCError({ code: 'UNAUTHORIZED' });
 
       const docenteId = ctx.session.docenteId;
-      const { grupoId } = input;
+      const { grupoId, tipo } = input;
 
       // 1. Validate if already assigned
       const existing = await ctx.prisma.docenteGrupo.findUnique({
@@ -364,6 +367,20 @@ export const docenteRouter = createTRPCRouter({
         include: { curso: true },
       });
 
+      // 3. Validate tipo has hours if specified
+      if (tipo) {
+        const horasParaTipo =
+          tipo === 'TEORIA' ? group.curso.horasTeoria
+          : tipo === 'PRACTICA' ? group.curso.horasPractica
+          : group.curso.horasLaboratorio;
+        if (horasParaTipo === 0) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `El curso no tiene horas de ${tipo.toLowerCase()} definidas`,
+          });
+        }
+      }
+
       const nextLoad = currentLoad + group.curso.horasTeoria + group.curso.horasLaboratorio;
       const maxLoad = docente.tipo === 'NOMBRADO' ? 16 : 24;
 
@@ -374,7 +391,7 @@ export const docenteRouter = createTRPCRouter({
         });
       }
 
-      // 3. Create assignment link
+      // 4. Create assignment link
       return ctx.prisma.docenteGrupo.upsert({
         where: { docenteId_grupoId: { docenteId, grupoId } },
         create: { docenteId, grupoId },

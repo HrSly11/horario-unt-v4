@@ -73,6 +73,7 @@ export function Sidebar() {
     SECRETARIA_DEPARTAMENTO: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Planes de Estudio', href: '/planes-estudio', icon: GraduationCap },
+      { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
       { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },

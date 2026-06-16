@@ -37,6 +37,7 @@ export default function CursosPage() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedCurso, setSelectedCurso] = useState<any>(null);
   const [editId, setEditId] = useState<string | null>(null);
+  const [postulaTipo, setPostulaTipo] = useState<'TEORIA' | 'PRACTICA' | 'LABORATORIO' | ''>('');
    const [form, setForm] = useState<FormData>(emptyForm);
    const [search, setSearch] = useState('');
    const [filterCiclo, setFilterCiclo] = useState<number | undefined>();
@@ -504,20 +505,7 @@ export default function CursosPage() {
                     <div className="flex items-center justify-end gap-1">
                       {activeTab === 'APERTURA' && (isAdmin || isSecretaria) && (
                         <button
-                          onClick={() => {
-                            if (!c.aperturado) {
-                              const esImpar = periodoActivo?.nombre.endsWith('-I');
-                              const cicloImpar = c.ciclo % 2 !== 0;
-                              const esExtraordinario = periodoActivo?.nombre.includes('Extraordinario');
-                              
-                              if (!esExtraordinario && esImpar !== cicloImpar) {
-                                setAperturaExcepcionalId(c.id);
-                                setShowAperturaModal(true);
-                                return;
-                              }
-                            }
-                            handleToggleApertura(c);
-                          }}
+                          onClick={() => handleToggleApertura(c)}
                           className={`p-2 rounded-lg transition-all ${
                             c.aperturado 
                               ? 'text-danger hover:bg-red-50' 
@@ -647,31 +635,123 @@ export default function CursosPage() {
           <div className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-lg font-bold text-text-main">Inscripción al Curso</h2>
+                <h2 className="text-lg font-bold text-text-main">Postulación al Curso</h2>
                 <p className="text-xs text-text-sub">{selectedCurso.nombre} ({selectedCurso.codigo})</p>
               </div>
               <button onClick={() => setShowAssignModal(false)} className="rounded-lg p-1 text-text-sub hover:bg-slate-100"><X className="h-5 w-5" /></button>
             </div>
-            
-            <div className="space-y-4">
-              <p className="text-sm text-text-sub font-medium">Selecciona el grupo al que deseas inscribirte:</p>
-              <div className="grid gap-3">
-                {selectedCurso.grupos.map((g: any) => (
-                  <div key={g.id} className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-border">
-                    <div>
-                      <p className="font-bold text-text-main">Grupo {g.nombre}</p>
-                      <p className="text-xs text-text-sub font-medium">Periodo: {g.periodoAcademico.nombre}</p>
-                    </div>
-                    <button
-                      onClick={() => postulateMutation.mutate({ grupoId: g.id })}
-                      disabled={postulateMutation.isPending}
-                      className="btn-primary"
-                    >
-                      {postulateMutation.isPending ? 'Procesando...' : 'Postular'}
-                    </button>
+
+            {/* Course hours summary */}
+            <div className="mb-4 p-3 rounded-xl bg-slate-50 border border-border">
+              <p className="text-[10px] font-bold text-text-sub uppercase tracking-wider mb-2">Distribución de horas</p>
+              <div className="flex gap-3">
+                {selectedCurso.horasTeoria > 0 && (
+                  <div className="flex-1 text-center p-2 rounded-lg bg-blue-50 border border-blue-200">
+                    <p className="text-lg font-bold text-blue-600">{selectedCurso.horasTeoria}</p>
+                    <p className="text-[10px] font-bold text-blue-400 uppercase">Teoría</p>
                   </div>
-                ))}
+                )}
+                {selectedCurso.horasPractica > 0 && (
+                  <div className="flex-1 text-center p-2 rounded-lg bg-emerald-50 border border-emerald-200">
+                    <p className="text-lg font-bold text-emerald-600">{selectedCurso.horasPractica}</p>
+                    <p className="text-[10px] font-bold text-emerald-400 uppercase">Práctica</p>
+                  </div>
+                )}
+                {selectedCurso.horasLaboratorio > 0 && (
+                  <div className="flex-1 text-center p-2 rounded-lg bg-amber-50 border border-amber-200">
+                    <p className="text-lg font-bold text-amber-600">{selectedCurso.horasLaboratorio}</p>
+                    <p className="text-[10px] font-bold text-amber-400 uppercase">Lab</p>
+                  </div>
+                )}
               </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-semibold text-text-main mb-2">¿A qué tipo de horas te postulas?</p>
+                <div className="grid gap-2">
+                  {selectedCurso.horasTeoria > 0 && (
+                    <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      postulaTipo === 'TEORIA'
+                        ? 'border-blue-400 bg-blue-50'
+                        : 'border-border bg-slate-50 hover:border-blue-200'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="tipo"
+                        value="TEORIA"
+                        checked={postulaTipo === 'TEORIA'}
+                        onChange={() => setPostulaTipo('TEORIA')}
+                        className="accent-blue-600"
+                      />
+                      <div>
+                        <p className="font-bold text-text-main text-sm">Horas Teóricas</p>
+                        <p className="text-xs text-text-sub">{selectedCurso.horasTeoria} h/sem</p>
+                      </div>
+                    </label>
+                  )}
+                  {selectedCurso.horasPractica > 0 && (
+                    <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      postulaTipo === 'PRACTICA'
+                        ? 'border-emerald-400 bg-emerald-50'
+                        : 'border-border bg-slate-50 hover:border-emerald-200'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="tipo"
+                        value="PRACTICA"
+                        checked={postulaTipo === 'PRACTICA'}
+                        onChange={() => setPostulaTipo('PRACTICA')}
+                        className="accent-emerald-600"
+                      />
+                      <div>
+                        <p className="font-bold text-text-main text-sm">Horas Prácticas</p>
+                        <p className="text-xs text-text-sub">{selectedCurso.horasPractica} h/sem</p>
+                      </div>
+                    </label>
+                  )}
+                  {selectedCurso.horasLaboratorio > 0 && (
+                    <label className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      postulaTipo === 'LABORATORIO'
+                        ? 'border-amber-400 bg-amber-50'
+                        : 'border-border bg-slate-50 hover:border-amber-200'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="tipo"
+                        value="LABORATORIO"
+                        checked={postulaTipo === 'LABORATORIO'}
+                        onChange={() => setPostulaTipo('LABORATORIO')}
+                        className="accent-amber-600"
+                      />
+                      <div>
+                        <p className="font-bold text-text-main text-sm">Horas de Laboratorio</p>
+                        <p className="text-xs text-text-sub">{selectedCurso.horasLaboratorio} h/sem ({selectedCurso.numGruposLaboratorio ?? 1} grupo{(selectedCurso.numGruposLaboratorio ?? 1) > 1 ? 's' : ''})</p>
+                      </div>
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              {selectedCurso.grupos && selectedCurso.grupos.length > 0 ? (
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      if (!postulaTipo) { alert('Selecciona el tipo de horas al que te postulas'); return; }
+                      const mainGrupo = selectedCurso.grupos[0];
+                      postulateMutation.mutate({ grupoId: mainGrupo.id, tipo: postulaTipo });
+                    }}
+                    disabled={postulateMutation.isPending || !postulaTipo}
+                    className="btn-primary w-full justify-center py-3 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {postulateMutation.isPending ? 'Procesando...' : 'Confirmar Postulación'}
+                  </button>
+                </div>
+              ) : (
+                <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+                  No hay grupos programados para este curso en el período actual.
+                </p>
+              )}
             </div>
           </div>
         </div>

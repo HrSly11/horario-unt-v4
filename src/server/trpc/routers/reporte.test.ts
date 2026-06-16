@@ -124,7 +124,7 @@ describe('reporteRouter department scoping', () => {
   });
 
   it('scopes porCiclo report queries for department roles by docente department', async () => {
-    const session = makeSession('DIRECTOR_DEPARTAMENTO');
+    const session = makeSession('SECRETARIA_DEPARTAMENTO');
     const prisma = makePrisma({ session, managedDepartamentoId: 'dept-managed' });
     const caller = makeCaller(prisma, session);
 

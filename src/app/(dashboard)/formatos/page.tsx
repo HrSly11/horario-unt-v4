@@ -25,7 +25,8 @@ export default function FormatosPage() {
   const trpc = useTRPC();
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
   const { data: periodos = [] } = useQuery({ ...trpc.periodo.list.queryOptions() });
-  const periodoId = periodos.length > 0 ? periodos[0].id : '';
+  const activePeriod = periodos.find((p) => p.activo);
+  const periodoId = activePeriod?.id || (periodos.length > 0 ? periodos[0].id : '');
   const docenteId = user?.docenteId || '';
   const [loading, setLoading] = useState<string | null>(null);
 

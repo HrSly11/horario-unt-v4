@@ -38,7 +38,20 @@ export const curriculaRouter = createTRPCRouter({
           escuela: { select: { id: true, nombre: true } },
           cursos: {
             include: {
-              curso: { select: { id: true, codigo: true, nombre: true, creditos: true } }
+              curso: {
+                select: {
+                  id: true,
+                  codigo: true,
+                  nombre: true,
+                  creditos: true,
+                  horasTeoria: true,
+                  horasPractica: true,
+                  horasLaboratorio: true,
+                  condicion: true,
+                  departamento: true,
+                  requisitos: true
+                }
+              }
             }
           }
         },
@@ -55,7 +68,20 @@ export const curriculaRouter = createTRPCRouter({
           escuela: { select: { id: true, nombre: true } },
           cursos: {
             include: {
-              curso: { select: { id: true, codigo: true, nombre: true, creditos: true, horasTeoria: true, horasPractica: true, horasLaboratorio: true } }
+              curso: {
+                select: {
+                  id: true,
+                  codigo: true,
+                  nombre: true,
+                  creditos: true,
+                  horasTeoria: true,
+                  horasPractica: true,
+                  horasLaboratorio: true,
+                  condicion: true,
+                  departamento: true,
+                  requisitos: true
+                }
+              }
             }
           }
         },

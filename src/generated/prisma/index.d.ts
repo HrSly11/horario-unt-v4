@@ -15310,6 +15310,7 @@ export namespace Prisma {
     experienciaMinima: number | null
     especialidadRequerida: string | null
     aperturado: boolean | null
+    motivoAperturaExcepcional: string | null
     createdAt: Date | null
     updatedAt: Date | null
     condicion: string | null
@@ -15333,6 +15334,7 @@ export namespace Prisma {
     experienciaMinima: number | null
     especialidadRequerida: string | null
     aperturado: boolean | null
+    motivoAperturaExcepcional: string | null
     createdAt: Date | null
     updatedAt: Date | null
     condicion: string | null
@@ -15356,6 +15358,7 @@ export namespace Prisma {
     experienciaMinima: number
     especialidadRequerida: number
     aperturado: number
+    motivoAperturaExcepcional: number
     createdAt: number
     updatedAt: number
     condicion: number
@@ -15401,6 +15404,7 @@ export namespace Prisma {
     experienciaMinima?: true
     especialidadRequerida?: true
     aperturado?: true
+    motivoAperturaExcepcional?: true
     createdAt?: true
     updatedAt?: true
     condicion?: true
@@ -15424,6 +15428,7 @@ export namespace Prisma {
     experienciaMinima?: true
     especialidadRequerida?: true
     aperturado?: true
+    motivoAperturaExcepcional?: true
     createdAt?: true
     updatedAt?: true
     condicion?: true
@@ -15447,6 +15452,7 @@ export namespace Prisma {
     experienciaMinima?: true
     especialidadRequerida?: true
     aperturado?: true
+    motivoAperturaExcepcional?: true
     createdAt?: true
     updatedAt?: true
     condicion?: true
@@ -15557,6 +15563,7 @@ export namespace Prisma {
     experienciaMinima: number
     especialidadRequerida: string | null
     aperturado: boolean
+    motivoAperturaExcepcional: string | null
     createdAt: Date
     updatedAt: Date
     condicion: string | null
@@ -15599,6 +15606,7 @@ export namespace Prisma {
     experienciaMinima?: boolean
     especialidadRequerida?: boolean
     aperturado?: boolean
+    motivoAperturaExcepcional?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     condicion?: boolean
@@ -15626,6 +15634,7 @@ export namespace Prisma {
     experienciaMinima?: boolean
     especialidadRequerida?: boolean
     aperturado?: boolean
+    motivoAperturaExcepcional?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     condicion?: boolean
@@ -15649,6 +15658,7 @@ export namespace Prisma {
     experienciaMinima?: boolean
     especialidadRequerida?: boolean
     aperturado?: boolean
+    motivoAperturaExcepcional?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     condicion?: boolean
@@ -15672,6 +15682,7 @@ export namespace Prisma {
     experienciaMinima?: boolean
     especialidadRequerida?: boolean
     aperturado?: boolean
+    motivoAperturaExcepcional?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     condicion?: boolean
@@ -15679,7 +15690,7 @@ export namespace Prisma {
     requisitos?: boolean
   }
 
-  export type CursoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "codigo" | "nombre" | "creditos" | "horasTeoria" | "horasPractica" | "horasLaboratorio" | "numGruposLaboratorio" | "ciclo" | "requiereLaboratorio" | "perfilRequerido" | "gradoRequerido" | "experienciaMinima" | "especialidadRequerida" | "aperturado" | "createdAt" | "updatedAt" | "condicion" | "departamento" | "requisitos", ExtArgs["result"]["curso"]>
+  export type CursoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "codigo" | "nombre" | "creditos" | "horasTeoria" | "horasPractica" | "horasLaboratorio" | "numGruposLaboratorio" | "ciclo" | "requiereLaboratorio" | "perfilRequerido" | "gradoRequerido" | "experienciaMinima" | "especialidadRequerida" | "aperturado" | "motivoAperturaExcepcional" | "createdAt" | "updatedAt" | "condicion" | "departamento" | "requisitos", ExtArgs["result"]["curso"]>
   export type CursoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     cursoCurriculas?: boolean | Curso$cursoCurriculasArgs<ExtArgs>
     grupos?: boolean | Curso$gruposArgs<ExtArgs>
@@ -15712,6 +15723,7 @@ export namespace Prisma {
       experienciaMinima: number
       especialidadRequerida: string | null
       aperturado: boolean
+      motivoAperturaExcepcional: string | null
       createdAt: Date
       updatedAt: Date
       condicion: string | null
@@ -16158,6 +16170,7 @@ export namespace Prisma {
     readonly experienciaMinima: FieldRef<"Curso", 'Int'>
     readonly especialidadRequerida: FieldRef<"Curso", 'String'>
     readonly aperturado: FieldRef<"Curso", 'Boolean'>
+    readonly motivoAperturaExcepcional: FieldRef<"Curso", 'String'>
     readonly createdAt: FieldRef<"Curso", 'DateTime'>
     readonly updatedAt: FieldRef<"Curso", 'DateTime'>
     readonly condicion: FieldRef<"Curso", 'String'>
@@ -30471,10 +30484,12 @@ export namespace Prisma {
 
   export type AsignacionCargaLectivaAvgAggregateOutputType = {
     horasAsignadas: number | null
+    grupoLaboratorio: number | null
   }
 
   export type AsignacionCargaLectivaSumAggregateOutputType = {
     horasAsignadas: number | null
+    grupoLaboratorio: number | null
   }
 
   export type AsignacionCargaLectivaMinAggregateOutputType = {
@@ -30486,6 +30501,7 @@ export namespace Prisma {
     horasAsignadas: number | null
     compartido: boolean | null
     docenteCompartidoId: string | null
+    grupoLaboratorio: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -30499,6 +30515,7 @@ export namespace Prisma {
     horasAsignadas: number | null
     compartido: boolean | null
     docenteCompartidoId: string | null
+    grupoLaboratorio: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -30512,6 +30529,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido: number
     docenteCompartidoId: number
+    grupoLaboratorio: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -30520,10 +30538,12 @@ export namespace Prisma {
 
   export type AsignacionCargaLectivaAvgAggregateInputType = {
     horasAsignadas?: true
+    grupoLaboratorio?: true
   }
 
   export type AsignacionCargaLectivaSumAggregateInputType = {
     horasAsignadas?: true
+    grupoLaboratorio?: true
   }
 
   export type AsignacionCargaLectivaMinAggregateInputType = {
@@ -30535,6 +30555,7 @@ export namespace Prisma {
     horasAsignadas?: true
     compartido?: true
     docenteCompartidoId?: true
+    grupoLaboratorio?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -30548,6 +30569,7 @@ export namespace Prisma {
     horasAsignadas?: true
     compartido?: true
     docenteCompartidoId?: true
+    grupoLaboratorio?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -30561,6 +30583,7 @@ export namespace Prisma {
     horasAsignadas?: true
     compartido?: true
     docenteCompartidoId?: true
+    grupoLaboratorio?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -30661,6 +30684,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido: boolean
     docenteCompartidoId: string | null
+    grupoLaboratorio: number | null
     createdAt: Date
     updatedAt: Date
     _count: AsignacionCargaLectivaCountAggregateOutputType | null
@@ -30693,6 +30717,7 @@ export namespace Prisma {
     horasAsignadas?: boolean
     compartido?: boolean
     docenteCompartidoId?: boolean
+    grupoLaboratorio?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     docenteCompartido?: boolean | AsignacionCargaLectiva$docenteCompartidoArgs<ExtArgs>
@@ -30710,6 +30735,7 @@ export namespace Prisma {
     horasAsignadas?: boolean
     compartido?: boolean
     docenteCompartidoId?: boolean
+    grupoLaboratorio?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     docenteCompartido?: boolean | AsignacionCargaLectiva$docenteCompartidoArgs<ExtArgs>
@@ -30727,6 +30753,7 @@ export namespace Prisma {
     horasAsignadas?: boolean
     compartido?: boolean
     docenteCompartidoId?: boolean
+    grupoLaboratorio?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     docenteCompartido?: boolean | AsignacionCargaLectiva$docenteCompartidoArgs<ExtArgs>
@@ -30744,11 +30771,12 @@ export namespace Prisma {
     horasAsignadas?: boolean
     compartido?: boolean
     docenteCompartidoId?: boolean
+    grupoLaboratorio?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AsignacionCargaLectivaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "grupoId" | "periodoId" | "tipo" | "horasAsignadas" | "compartido" | "docenteCompartidoId" | "createdAt" | "updatedAt", ExtArgs["result"]["asignacionCargaLectiva"]>
+  export type AsignacionCargaLectivaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "grupoId" | "periodoId" | "tipo" | "horasAsignadas" | "compartido" | "docenteCompartidoId" | "grupoLaboratorio" | "createdAt" | "updatedAt", ExtArgs["result"]["asignacionCargaLectiva"]>
   export type AsignacionCargaLectivaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docenteCompartido?: boolean | AsignacionCargaLectiva$docenteCompartidoArgs<ExtArgs>
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
@@ -30785,6 +30813,7 @@ export namespace Prisma {
       horasAsignadas: number
       compartido: boolean
       docenteCompartidoId: string | null
+      grupoLaboratorio: number | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["asignacionCargaLectiva"]>
@@ -31222,6 +31251,7 @@ export namespace Prisma {
     readonly horasAsignadas: FieldRef<"AsignacionCargaLectiva", 'Int'>
     readonly compartido: FieldRef<"AsignacionCargaLectiva", 'Boolean'>
     readonly docenteCompartidoId: FieldRef<"AsignacionCargaLectiva", 'String'>
+    readonly grupoLaboratorio: FieldRef<"AsignacionCargaLectiva", 'Int'>
     readonly createdAt: FieldRef<"AsignacionCargaLectiva", 'DateTime'>
     readonly updatedAt: FieldRef<"AsignacionCargaLectiva", 'DateTime'>
   }
@@ -36760,6 +36790,7 @@ export namespace Prisma {
     experienciaMinima: 'experienciaMinima',
     especialidadRequerida: 'especialidadRequerida',
     aperturado: 'aperturado',
+    motivoAperturaExcepcional: 'motivoAperturaExcepcional',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     condicion: 'condicion',
@@ -36935,6 +36966,7 @@ export namespace Prisma {
     horasAsignadas: 'horasAsignadas',
     compartido: 'compartido',
     docenteCompartidoId: 'docenteCompartidoId',
+    grupoLaboratorio: 'grupoLaboratorio',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -38129,6 +38161,7 @@ export namespace Prisma {
     experienciaMinima?: IntFilter<"Curso"> | number
     especialidadRequerida?: StringNullableFilter<"Curso"> | string | null
     aperturado?: BoolFilter<"Curso"> | boolean
+    motivoAperturaExcepcional?: StringNullableFilter<"Curso"> | string | null
     createdAt?: DateTimeFilter<"Curso"> | Date | string
     updatedAt?: DateTimeFilter<"Curso"> | Date | string
     condicion?: StringNullableFilter<"Curso"> | string | null
@@ -38155,6 +38188,7 @@ export namespace Prisma {
     experienciaMinima?: SortOrder
     especialidadRequerida?: SortOrderInput | SortOrder
     aperturado?: SortOrder
+    motivoAperturaExcepcional?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     condicion?: SortOrderInput | SortOrder
@@ -38184,6 +38218,7 @@ export namespace Prisma {
     experienciaMinima?: IntFilter<"Curso"> | number
     especialidadRequerida?: StringNullableFilter<"Curso"> | string | null
     aperturado?: BoolFilter<"Curso"> | boolean
+    motivoAperturaExcepcional?: StringNullableFilter<"Curso"> | string | null
     createdAt?: DateTimeFilter<"Curso"> | Date | string
     updatedAt?: DateTimeFilter<"Curso"> | Date | string
     condicion?: StringNullableFilter<"Curso"> | string | null
@@ -38210,6 +38245,7 @@ export namespace Prisma {
     experienciaMinima?: SortOrder
     especialidadRequerida?: SortOrderInput | SortOrder
     aperturado?: SortOrder
+    motivoAperturaExcepcional?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     condicion?: SortOrderInput | SortOrder
@@ -38241,6 +38277,7 @@ export namespace Prisma {
     experienciaMinima?: IntWithAggregatesFilter<"Curso"> | number
     especialidadRequerida?: StringNullableWithAggregatesFilter<"Curso"> | string | null
     aperturado?: BoolWithAggregatesFilter<"Curso"> | boolean
+    motivoAperturaExcepcional?: StringNullableWithAggregatesFilter<"Curso"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Curso"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Curso"> | Date | string
     condicion?: StringNullableWithAggregatesFilter<"Curso"> | string | null
@@ -39152,6 +39189,7 @@ export namespace Prisma {
     horasAsignadas?: IntFilter<"AsignacionCargaLectiva"> | number
     compartido?: BoolFilter<"AsignacionCargaLectiva"> | boolean
     docenteCompartidoId?: StringNullableFilter<"AsignacionCargaLectiva"> | string | null
+    grupoLaboratorio?: IntNullableFilter<"AsignacionCargaLectiva"> | number | null
     createdAt?: DateTimeFilter<"AsignacionCargaLectiva"> | Date | string
     updatedAt?: DateTimeFilter<"AsignacionCargaLectiva"> | Date | string
     docenteCompartido?: XOR<DocenteNullableScalarRelationFilter, DocenteWhereInput> | null
@@ -39169,6 +39207,7 @@ export namespace Prisma {
     horasAsignadas?: SortOrder
     compartido?: SortOrder
     docenteCompartidoId?: SortOrderInput | SortOrder
+    grupoLaboratorio?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     docenteCompartido?: DocenteOrderByWithRelationInput
@@ -39179,8 +39218,7 @@ export namespace Prisma {
 
   export type AsignacionCargaLectivaWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    docenteId_grupoId_periodoId_tipo?: AsignacionCargaLectivaDocenteIdGrupoIdPeriodoIdTipoCompoundUniqueInput
-    grupoId_periodoId_tipo?: AsignacionCargaLectivaGrupoIdPeriodoIdTipoCompoundUniqueInput
+    docenteId_grupoId_periodoId_tipo_grupoLaboratorio?: AsignacionCargaLectivaDocenteIdGrupoIdPeriodoIdTipoGrupoLaboratorioCompoundUniqueInput
     AND?: AsignacionCargaLectivaWhereInput | AsignacionCargaLectivaWhereInput[]
     OR?: AsignacionCargaLectivaWhereInput[]
     NOT?: AsignacionCargaLectivaWhereInput | AsignacionCargaLectivaWhereInput[]
@@ -39191,13 +39229,14 @@ export namespace Prisma {
     horasAsignadas?: IntFilter<"AsignacionCargaLectiva"> | number
     compartido?: BoolFilter<"AsignacionCargaLectiva"> | boolean
     docenteCompartidoId?: StringNullableFilter<"AsignacionCargaLectiva"> | string | null
+    grupoLaboratorio?: IntNullableFilter<"AsignacionCargaLectiva"> | number | null
     createdAt?: DateTimeFilter<"AsignacionCargaLectiva"> | Date | string
     updatedAt?: DateTimeFilter<"AsignacionCargaLectiva"> | Date | string
     docenteCompartido?: XOR<DocenteNullableScalarRelationFilter, DocenteWhereInput> | null
     docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
     grupo?: XOR<GrupoScalarRelationFilter, GrupoWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
-  }, "id" | "docenteId_grupoId_periodoId_tipo" | "grupoId_periodoId_tipo">
+  }, "id" | "docenteId_grupoId_periodoId_tipo_grupoLaboratorio">
 
   export type AsignacionCargaLectivaOrderByWithAggregationInput = {
     id?: SortOrder
@@ -39208,6 +39247,7 @@ export namespace Prisma {
     horasAsignadas?: SortOrder
     compartido?: SortOrder
     docenteCompartidoId?: SortOrderInput | SortOrder
+    grupoLaboratorio?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: AsignacionCargaLectivaCountOrderByAggregateInput
@@ -39229,6 +39269,7 @@ export namespace Prisma {
     horasAsignadas?: IntWithAggregatesFilter<"AsignacionCargaLectiva"> | number
     compartido?: BoolWithAggregatesFilter<"AsignacionCargaLectiva"> | boolean
     docenteCompartidoId?: StringNullableWithAggregatesFilter<"AsignacionCargaLectiva"> | string | null
+    grupoLaboratorio?: IntNullableWithAggregatesFilter<"AsignacionCargaLectiva"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"AsignacionCargaLectiva"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"AsignacionCargaLectiva"> | Date | string
   }
@@ -40531,6 +40572,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -40557,6 +40599,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -40583,6 +40626,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40609,6 +40653,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40635,6 +40680,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -40658,6 +40704,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40681,6 +40728,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41585,6 +41633,7 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     horasAsignadas: number
     compartido?: boolean
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     docenteCompartido?: DocenteCreateNestedOneWithoutAsignacionesCargaCompartidaInput
@@ -41602,6 +41651,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -41611,6 +41661,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docenteCompartido?: DocenteUpdateOneWithoutAsignacionesCargaCompartidaNestedInput
@@ -41628,6 +41679,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -41641,6 +41693,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -41650,6 +41703,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -41663,6 +41717,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -43010,6 +43065,7 @@ export namespace Prisma {
     experienciaMinima?: SortOrder
     especialidadRequerida?: SortOrder
     aperturado?: SortOrder
+    motivoAperturaExcepcional?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     condicion?: SortOrder
@@ -43043,6 +43099,7 @@ export namespace Prisma {
     experienciaMinima?: SortOrder
     especialidadRequerida?: SortOrder
     aperturado?: SortOrder
+    motivoAperturaExcepcional?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     condicion?: SortOrder
@@ -43066,6 +43123,7 @@ export namespace Prisma {
     experienciaMinima?: SortOrder
     especialidadRequerida?: SortOrder
     aperturado?: SortOrder
+    motivoAperturaExcepcional?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     condicion?: SortOrder
@@ -43708,17 +43766,23 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type AsignacionCargaLectivaDocenteIdGrupoIdPeriodoIdTipoCompoundUniqueInput = {
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type AsignacionCargaLectivaDocenteIdGrupoIdPeriodoIdTipoGrupoLaboratorioCompoundUniqueInput = {
     docenteId: string
     grupoId: string
     periodoId: string
     tipo: $Enums.TipoAsignacion
-  }
-
-  export type AsignacionCargaLectivaGrupoIdPeriodoIdTipoCompoundUniqueInput = {
-    grupoId: string
-    periodoId: string
-    tipo: $Enums.TipoAsignacion
+    grupoLaboratorio: number
   }
 
   export type AsignacionCargaLectivaCountOrderByAggregateInput = {
@@ -43730,12 +43794,14 @@ export namespace Prisma {
     horasAsignadas?: SortOrder
     compartido?: SortOrder
     docenteCompartidoId?: SortOrder
+    grupoLaboratorio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type AsignacionCargaLectivaAvgOrderByAggregateInput = {
     horasAsignadas?: SortOrder
+    grupoLaboratorio?: SortOrder
   }
 
   export type AsignacionCargaLectivaMaxOrderByAggregateInput = {
@@ -43747,6 +43813,7 @@ export namespace Prisma {
     horasAsignadas?: SortOrder
     compartido?: SortOrder
     docenteCompartidoId?: SortOrder
+    grupoLaboratorio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -43760,22 +43827,17 @@ export namespace Prisma {
     horasAsignadas?: SortOrder
     compartido?: SortOrder
     docenteCompartidoId?: SortOrder
+    grupoLaboratorio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type AsignacionCargaLectivaSumOrderByAggregateInput = {
     horasAsignadas?: SortOrder
+    grupoLaboratorio?: SortOrder
   }
 
-  export type EnumTipoCargaNoLectivaFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoCargaNoLectiva | EnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel> | $Enums.TipoCargaNoLectiva
-  }
-
-  export type IntNullableFilter<$PrismaModel = never> = {
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -43783,7 +43845,19 @@ export namespace Prisma {
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type EnumTipoCargaNoLectivaFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCargaNoLectiva | EnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel> | $Enums.TipoCargaNoLectiva
   }
 
   export type HorarioCargaNoLectivaListRelationFilter = {
@@ -43859,22 +43933,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel>
     _max?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel>
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type CargaNoLectivaScalarRelationFilter = {
@@ -46811,6 +46869,14 @@ export namespace Prisma {
     connect?: PeriodoAcademicoWhereUniqueInput
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type DocenteUpdateOneWithoutAsignacionesCargaCompartidaNestedInput = {
     create?: XOR<DocenteCreateWithoutAsignacionesCargaCompartidaInput, DocenteUncheckedCreateWithoutAsignacionesCargaCompartidaInput>
     connectOrCreate?: DocenteCreateOrConnectWithoutAsignacionesCargaCompartidaInput
@@ -46873,14 +46939,6 @@ export namespace Prisma {
 
   export type EnumTipoCargaNoLectivaFieldUpdateOperationsInput = {
     set?: $Enums.TipoCargaNoLectiva
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type DocenteUpdateOneRequiredWithoutCargasNoLectivasNestedInput = {
@@ -47478,23 +47536,6 @@ export namespace Prisma {
     _max?: NestedEnumTipoRestriccionFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoCargaNoLectivaFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoCargaNoLectiva | EnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel> | $Enums.TipoCargaNoLectiva
-  }
-
-  export type NestedEnumTipoCargaNoLectivaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoCargaNoLectiva | EnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoCargaNoLectivaWithAggregatesFilter<$PrismaModel> | $Enums.TipoCargaNoLectiva
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel>
-    _max?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel>
-  }
-
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -47520,6 +47561,23 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumTipoCargaNoLectivaFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCargaNoLectiva | EnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel> | $Enums.TipoCargaNoLectiva
+  }
+
+  export type NestedEnumTipoCargaNoLectivaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCargaNoLectiva | EnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCargaNoLectiva[] | ListEnumTipoCargaNoLectivaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCargaNoLectivaWithAggregatesFilter<$PrismaModel> | $Enums.TipoCargaNoLectiva
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel>
+    _max?: NestedEnumTipoCargaNoLectivaFilter<$PrismaModel>
   }
 
   export type NestedEnumEstadoDeclaracionFilter<$PrismaModel = never> = {
@@ -48638,6 +48696,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -48663,6 +48722,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -48735,6 +48795,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48760,6 +48821,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49809,6 +49871,7 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     horasAsignadas: number
     compartido?: boolean
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     docente: DocenteCreateNestedOneWithoutAsignacionesCargaInput
@@ -49824,6 +49887,7 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     horasAsignadas: number
     compartido?: boolean
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -49843,6 +49907,7 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     horasAsignadas: number
     compartido?: boolean
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     docenteCompartido?: DocenteCreateNestedOneWithoutAsignacionesCargaCompartidaInput
@@ -49858,6 +49923,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -50263,6 +50329,7 @@ export namespace Prisma {
     horasAsignadas?: IntFilter<"AsignacionCargaLectiva"> | number
     compartido?: BoolFilter<"AsignacionCargaLectiva"> | boolean
     docenteCompartidoId?: StringNullableFilter<"AsignacionCargaLectiva"> | string | null
+    grupoLaboratorio?: IntNullableFilter<"AsignacionCargaLectiva"> | number | null
     createdAt?: DateTimeFilter<"AsignacionCargaLectiva"> | Date | string
     updatedAt?: DateTimeFilter<"AsignacionCargaLectiva"> | Date | string
   }
@@ -51306,6 +51373,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -51331,6 +51399,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -51445,6 +51514,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51470,6 +51540,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51595,6 +51666,7 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     horasAsignadas: number
     compartido?: boolean
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     docenteCompartido?: DocenteCreateNestedOneWithoutAsignacionesCargaCompartidaInput
@@ -51610,6 +51682,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -51690,6 +51763,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -51715,6 +51789,7 @@ export namespace Prisma {
     experienciaMinima?: number
     especialidadRequerida?: string | null
     aperturado?: boolean
+    motivoAperturaExcepcional?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     condicion?: string | null
@@ -51897,6 +51972,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51922,6 +51998,7 @@ export namespace Prisma {
     experienciaMinima?: IntFieldUpdateOperationsInput | number
     especialidadRequerida?: NullableStringFieldUpdateOperationsInput | string | null
     aperturado?: BoolFieldUpdateOperationsInput | boolean
+    motivoAperturaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     condicion?: NullableStringFieldUpdateOperationsInput | string | null
@@ -52137,6 +52214,7 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     horasAsignadas: number
     compartido?: boolean
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     docenteCompartido?: DocenteCreateNestedOneWithoutAsignacionesCargaCompartidaInput
@@ -52152,6 +52230,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -56717,6 +56796,7 @@ export namespace Prisma {
     tipo: $Enums.TipoAsignacion
     horasAsignadas: number
     compartido?: boolean
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -56729,6 +56809,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -56856,6 +56937,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutAsignacionesCargaNestedInput
@@ -56871,6 +56953,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -56883,6 +56966,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -56892,6 +56976,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docenteCompartido?: DocenteUpdateOneWithoutAsignacionesCargaCompartidaNestedInput
@@ -56907,6 +56992,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -56919,6 +57005,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57311,6 +57398,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57379,6 +57467,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docenteCompartido?: DocenteUpdateOneWithoutAsignacionesCargaCompartidaNestedInput
@@ -57394,6 +57483,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57406,6 +57496,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57583,6 +57674,7 @@ export namespace Prisma {
     horasAsignadas: number
     compartido?: boolean
     docenteCompartidoId?: string | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -57689,6 +57781,7 @@ export namespace Prisma {
     tipo?: EnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docenteCompartido?: DocenteUpdateOneWithoutAsignacionesCargaCompartidaNestedInput
@@ -57704,6 +57797,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -57716,6 +57810,7 @@ export namespace Prisma {
     horasAsignadas?: IntFieldUpdateOperationsInput | number
     compartido?: BoolFieldUpdateOperationsInput | boolean
     docenteCompartidoId?: NullableStringFieldUpdateOperationsInput | string | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

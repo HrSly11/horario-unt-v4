@@ -78,6 +78,9 @@ function makePrisma({
     asignacion: {
       findMany: vi.fn(async () => lectiveAssignments),
     },
+    preasignacion: {
+      findMany: vi.fn(async () => []),
+    },
     asignacionCargaLectiva: {
       findMany: vi.fn(async () => []),
     },

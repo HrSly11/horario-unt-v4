@@ -128,7 +128,14 @@ export const horarioRouter = createTRPCRouter({
   stats: protectedProcedure
     .input(z.object({ periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const isPrivileged = ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DECANO'].includes(ctx.session.role);
+      const isPrivileged = [
+        'ADMIN',
+        'SECRETARIA_ACADEMICA',
+        'DIRECTOR_ESCUELA',
+        'DECANO',
+        'DIRECTOR_DEPARTAMENTO',
+        'SECRETARIA_DEPARTAMENTO',
+      ].includes(ctx.session.role);
       if (!isPrivileged) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para consultar indicadores de horarios' });
       }

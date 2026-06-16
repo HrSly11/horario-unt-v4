@@ -51,7 +51,8 @@ export default function HorarioPersonalPage() {
     enabled: true,
   });
 
-  const activePeriodo = periodoId || (periodos.length > 0 ? periodos[0].id : '');
+  const activePeriod = periodos.find((p) => p.activo);
+  const activePeriodo = periodoId || activePeriod?.id || (periodos.length > 0 ? periodos[0].id : '');
 
   // ─── Carga lectiva summary (stat cards) ─────────────
   const { data: cargaLectiva } = useQuery({

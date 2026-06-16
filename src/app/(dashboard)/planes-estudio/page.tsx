@@ -198,7 +198,7 @@ export default function PlanesEstudioPage() {
   function handleLinkSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!linkForm.cursoId) {
-      alert('Please select a course to link.');
+      alert('Por favor, selecciona un curso para vincular.');
       return;
     }
     linkCourseMutation.mutate({
@@ -210,12 +210,12 @@ export default function PlanesEstudioPage() {
   }
 
   function handleDelete(id: string) {
-    if (!confirm('¿Are you sure you want to delete this curriculum? This action cannot be undone.')) return;
+    if (!confirm('¿Estás seguro de que deseas eliminar este plan de estudio? Esta acción no se puede deshacer.')) return;
     deleteMutation.mutate({ id });
   }
 
   function handleUnlink(curriculaId: string, cursoId: string) {
-    if (!confirm('¿Remove this course from the curriculum?')) return;
+    if (!confirm('¿Deseas desvincular este curso del plan de estudio?')) return;
     unlinkCourseMutation.mutate({ curriculaId, cursoId });
   }
 
@@ -228,7 +228,7 @@ export default function PlanesEstudioPage() {
         <div>
           <h1 className="text-2xl font-bold text-text-main">Planes de Estudio</h1>
           <p className="text-sm text-text-sub mt-1">
-            Manage academic curricula and their course assignments
+            Gestiona los planes de estudio y sus asignaciones de cursos
           </p>
         </div>
         {userCanWrite && (
@@ -236,7 +236,7 @@ export default function PlanesEstudioPage() {
             onClick={() => { setEditId(null); setCurriculaForm(emptyCurriculaForm); setShowCurriculaModal(true); }}
             className="btn-primary"
           >
-            <Plus className="h-4 w-4" /> New Curriculum
+            <Plus className="h-4 w-4" /> + Nuevo Plan
           </button>
         )}
       </div>
@@ -247,7 +247,7 @@ export default function PlanesEstudioPage() {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-sub" />
           <input
             type="text"
-            placeholder="Search by code, year or school..."
+            placeholder="Buscar por código, año o escuela..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="input-standard pl-12"
@@ -266,7 +266,7 @@ export default function PlanesEstudioPage() {
           onChange={(e) => setFilterEscuelaId(e.target.value)}
           className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
         >
-          <option value="">All schools</option>
+          <option value="">Todas las escuelas</option>
           {escuelas.map((e) => (
             <option key={e.id} value={e.id}>{e.nombre}</option>
           ))}
@@ -277,12 +277,12 @@ export default function PlanesEstudioPage() {
       <div className="space-y-3">
         {isLoading ? (
           <div className="table-standard">
-            <div className="px-6 py-12 text-center text-text-sub">Loading curricula...</div>
+            <div className="px-6 py-12 text-center text-text-sub">Cargando planes de estudio...</div>
           </div>
         ) : filteredCurriculas.length === 0 ? (
           <div className="table-standard">
             <div className="px-6 py-12 text-center text-text-sub">
-              No curricula found
+              No se encontraron planes de estudio
             </div>
           </div>
         ) : (
@@ -293,13 +293,19 @@ export default function PlanesEstudioPage() {
             return (
               <div key={curricula.id} className="table-standard overflow-hidden">
                 {/* Curricula row */}
-                <div className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
+                <div
+                  onClick={() => setExpandedId(isExpanded ? null : curricula.id)}
+                  className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     {/* Expand toggle */}
                     <button
-                      onClick={() => setExpandedId(isExpanded ? null : curricula.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedId(isExpanded ? null : curricula.id);
+                      }}
                       className="p-1 rounded-lg text-text-sub hover:bg-slate-100 hover:text-text-main transition-all shrink-0"
-                      title={isExpanded ? 'Collapse' : 'Expand courses'}
+                      title={isExpanded ? 'Colapsar' : 'Expandir cursos'}
                     >
                       {isExpanded ? (
                         <ChevronDown className="h-4 w-4" />
@@ -317,36 +323,36 @@ export default function PlanesEstudioPage() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-bold text-text-main">{curricula.codigo}</p>
-                        <span className="badge badge-gray">Year {curricula.anio}</span>
+                        <span className="badge badge-gray">Año {curricula.anio}</span>
                         {curricula.vigente ? (
-                          <span className="badge badge-success">Active</span>
+                          <span className="badge badge-success">Vigente</span>
                         ) : (
-                          <span className="badge badge-gray text-slate-400">Inactive</span>
+                          <span className="badge badge-gray text-slate-400">No vigente</span>
                         )}
                       </div>
                       <p className="text-xs text-text-sub font-medium truncate mt-0.5">
                         {curricula.escuela.nombre}
                         <span className="mx-2 text-border">•</span>
-                        {linkedCourses.length} course{linkedCourses.length !== 1 ? 's' : ''} linked
+                        {linkedCourses.length} {linkedCourses.length === 1 ? 'curso vinculado' : 'cursos vinculados'}
                       </p>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                     {userCanWrite && (
                       <>
                         <button
                           onClick={() => openLinkModal(curricula.id)}
                           className="p-2 rounded-lg text-text-sub hover:bg-primary-light hover:text-primary transition-all"
-                          title="Link course"
+                          title="Vincular curso"
                         >
                           <Link2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => openEdit(curricula)}
                           className="p-2 rounded-lg text-text-sub hover:bg-primary-light hover:text-primary transition-all"
-                          title="Edit curriculum"
+                          title="Editar plan de estudio"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
@@ -354,7 +360,7 @@ export default function PlanesEstudioPage() {
                           onClick={() => handleDelete(curricula.id)}
                           disabled={deleteMutation.isPending}
                           className="p-2 rounded-lg text-text-sub hover:bg-red-50 hover:text-danger transition-all"
-                          title="Delete curriculum"
+                          title="Eliminar plan de estudio"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -368,64 +374,122 @@ export default function PlanesEstudioPage() {
                   <div className="border-t border-border bg-slate-50/60">
                     {linkedCourses.length === 0 ? (
                       <div className="px-8 py-6 text-center text-text-sub text-sm">
-                        No courses linked yet.
+                        Aún no hay cursos vinculados.
                         {userCanWrite && (
                           <button
                             onClick={() => openLinkModal(curricula.id)}
                             className="ml-2 text-primary font-bold hover:underline"
                           >
-                            Link a course
+                            Vincular un curso
                           </button>
                         )}
                       </div>
-                    ) : (
-                      <div className="px-6 py-3">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-text-sub mb-3">
-                          Linked Courses
-                        </p>
-                        <div className="grid gap-2">
-                          {linkedCourses.map((cc) => (
-                            <div
-                              key={cc.curso.id}
-                              className="flex items-center justify-between p-3 rounded-xl bg-white border border-border hover:border-primary/30 transition-all group"
-                            >
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="p-1.5 rounded-lg bg-primary/5 shrink-0">
-                                  <BookOpen className="h-3.5 w-3.5 text-primary" />
+                    ) : (() => {
+                      const groupedByCiclo = linkedCourses.reduce((acc, cc) => {
+                        const ciclo = cc.ciclo;
+                        if (!acc[ciclo]) acc[ciclo] = [];
+                        acc[ciclo].push(cc);
+                        return acc;
+                      }, {} as Record<number, typeof linkedCourses>);
+
+                      const sortedCiclos = Object.keys(groupedByCiclo)
+                        .map(Number)
+                        .sort((a, b) => a - b);
+
+                      return (
+                        <div className="px-6 py-4 space-y-6">
+                          <p className="text-xs font-bold uppercase tracking-widest text-text-sub">
+                            Estructura del Plan de Estudios
+                          </p>
+                          
+                          {sortedCiclos.map((ciclo) => {
+                            const coursesInCiclo = groupedByCiclo[ciclo];
+                            const totalCreditos = coursesInCiclo.reduce((sum, cc) => sum + cc.curso.creditos, 0);
+                            
+                            return (
+                              <div key={ciclo} className="border border-border rounded-xl bg-white overflow-hidden shadow-sm">
+                                <div className="bg-slate-50 border-b border-border px-4 py-2.5 flex justify-between items-center">
+                                  <span className="text-xs font-bold text-text-main uppercase tracking-wider">
+                                    Ciclo {ciclo}
+                                  </span>
+                                  <span className="text-xs font-semibold text-text-sub">
+                                    Suma de créditos: <strong className="text-primary">{totalCreditos}</strong>
+                                  </span>
                                 </div>
-                                <div className="min-w-0">
-                                  <p className="text-sm font-bold text-text-main truncate">
-                                    {cc.curso.nombre}
-                                  </p>
-                                  <p className="text-[10px] text-text-sub font-bold uppercase tracking-wider">
-                                    {cc.curso.codigo}
-                                  </p>
+                                
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                      <tr className="border-b border-border bg-slate-50/50 text-[10px] font-bold uppercase tracking-wider text-text-sub">
+                                        <th className="px-4 py-2 w-20">#</th>
+                                        <th className="px-4 py-2 w-16 text-center">Tipo</th>
+                                        <th className="px-4 py-2">Curso</th>
+                                        <th className="px-3 py-2 text-center w-10">T</th>
+                                        <th className="px-3 py-2 text-center w-10">P</th>
+                                        <th className="px-3 py-2 text-center w-10">L</th>
+                                        <th className="px-3 py-2 text-center w-10">C</th>
+                                        <th className="px-4 py-2">Departamento Responsable</th>
+                                        {userCanWrite && <th className="px-4 py-2 text-right w-16">Acción</th>}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {coursesInCiclo.map((cc) => (
+                                        <tr 
+                                          key={cc.curso.id} 
+                                          className="border-b border-border/60 hover:bg-slate-50/50 transition-colors group"
+                                        >
+                                          <td className="px-4 py-2.5 font-mono text-[11px] text-text-sub">
+                                            {cc.curso.codigo}
+                                          </td>
+                                          <td className="px-4 py-2.5 text-center">
+                                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                              cc.curso.condicion === 'OB' || cc.curso.condicion === 'S' || cc.curso.condicion === 'O'
+                                                ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                                                : 'bg-amber-50 text-amber-600 border border-amber-100'
+                                            }`}>
+                                              {cc.curso.condicion ?? (cc.esElectivo ? 'EL' : 'OB')}
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-2.5 font-medium text-text-main">
+                                            <div>
+                                              {cc.curso.nombre}
+                                              {cc.curso.requisitos && (
+                                                <p className="text-[10px] text-slate-400 font-normal mt-0.5 italic">
+                                                  * Requisito: {cc.curso.requisitos}
+                                                </p>
+                                              )}
+                                            </div>
+                                          </td>
+                                          <td className="px-3 py-2.5 text-center font-medium text-slate-600">{cc.curso.horasTeoria}</td>
+                                          <td className="px-3 py-2.5 text-center font-medium text-slate-600">{cc.curso.horasPractica}</td>
+                                          <td className="px-3 py-2.5 text-center font-medium text-slate-600">{cc.curso.horasLaboratorio}</td>
+                                          <td className="px-3 py-2.5 text-center font-bold text-primary">{cc.curso.creditos}</td>
+                                          <td className="px-4 py-2.5 text-text-sub font-medium">
+                                            {cc.curso.departamento ?? '—'}
+                                          </td>
+                                          {userCanWrite && (
+                                            <td className="px-4 py-2.5 text-right">
+                                              <button
+                                                onClick={() => handleUnlink(curricula.id, cc.curso.id)}
+                                                disabled={unlinkCourseMutation.isPending}
+                                                className="p-1.5 rounded-lg text-text-sub hover:bg-red-50 hover:text-danger transition-all opacity-0 group-hover:opacity-100"
+                                                title="Desvincular curso del plan de estudio"
+                                              >
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                              </button>
+                                            </td>
+                                          )}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="badge badge-info">Ciclo {cc.ciclo}</span>
-                                {cc.esElectivo && (
-                                  <span className="badge badge-warning">Elective</span>
-                                )}
-                                <span className="text-xs text-text-sub font-medium">
-                                  {cc.curso.creditos} cr.
-                                </span>
-                                {userCanWrite && (
-                                  <button
-                                    onClick={() => handleUnlink(curricula.id, cc.curso.id)}
-                                    disabled={unlinkCourseMutation.isPending}
-                                    className="p-1.5 rounded-lg text-text-sub hover:bg-red-50 hover:text-danger transition-all opacity-0 group-hover:opacity-100"
-                                    title="Remove course from curriculum"
-                                  >
-                                    <Link2Off className="h-3.5 w-3.5" />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 )}
               </div>
@@ -440,7 +504,7 @@ export default function PlanesEstudioPage() {
           <div className="modal-content max-w-lg">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-text-main">
-                {editId ? 'Edit Curriculum' : 'New Curriculum'}
+                {editId ? 'Editar Plan de Estudio' : 'Nuevo Plan de Estudio'}
               </h2>
               <button
                 onClick={closeCurriculaModal}
@@ -453,18 +517,18 @@ export default function PlanesEstudioPage() {
             <form onSubmit={handleCurriculaSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label-standard">Code</label>
+                  <label className="label-standard">Código</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. PE-2018"
+                    placeholder="ej. PE-2018"
                     value={curriculaForm.codigo}
                     onChange={(e) => setCurriculaForm({ ...curriculaForm, codigo: e.target.value })}
                     className="input-standard"
                   />
                 </div>
                 <div>
-                  <label className="label-standard">Academic Year</label>
+                  <label className="label-standard">Año Académico</label>
                   <input
                     type="number"
                     required
@@ -478,14 +542,14 @@ export default function PlanesEstudioPage() {
               </div>
 
               <div>
-                <label className="label-standard">School</label>
+                <label className="label-standard">Escuela</label>
                 <select
                   required
                   value={curriculaForm.escuelaId}
                   onChange={(e) => setCurriculaForm({ ...curriculaForm, escuelaId: e.target.value })}
                   className="input-standard"
                 >
-                  <option value="">Select a school…</option>
+                  <option value="">Seleccionar una escuela…</option>
                   {escuelas.map((e) => (
                     <option key={e.id} value={e.id}>{e.nombre}</option>
                   ))}
@@ -501,13 +565,13 @@ export default function PlanesEstudioPage() {
                   className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                 />
                 <label htmlFor="vigente" className="text-sm font-medium text-text-main cursor-pointer">
-                  Active (vigente)
+                  Vigente
                 </label>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">
                 <button type="button" onClick={closeCurriculaModal} className="btn-secondary">
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   type="submit"
@@ -515,10 +579,8 @@ export default function PlanesEstudioPage() {
                   className="btn-primary"
                 >
                   {createMutation.isPending || updateMutation.isPending
-                    ? 'Saving...'
-                    : editId
-                    ? 'Update'
-                    : 'Create'}
+                    ? 'Guardando...'
+                    : 'Guardar'}
                 </button>
               </div>
             </form>
@@ -532,7 +594,7 @@ export default function PlanesEstudioPage() {
           <div className="modal-content max-w-xl">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-lg font-bold text-text-main">Link Course to Curriculum</h2>
+                <h2 className="text-lg font-bold text-text-main">Vincular Curso al Plan</h2>
                 <p className="text-xs text-text-sub font-medium">
                   {curriculas.find((c) => c.id === linkTargetCurriculaId)?.codigo}
                 </p>
@@ -548,12 +610,12 @@ export default function PlanesEstudioPage() {
             <form onSubmit={handleLinkSubmit} className="space-y-4">
               {/* Course search + select */}
               <div>
-                <label className="label-standard">Course</label>
+                <label className="label-standard">Curso</label>
                 <div className="relative mb-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-sub" />
                   <input
                     type="text"
-                    placeholder="Search courses..."
+                    placeholder="Buscar cursos..."
                     value={courseSearch}
                     onChange={(e) => setCourseSearch(e.target.value)}
                     className="input-standard pl-10"
@@ -566,7 +628,7 @@ export default function PlanesEstudioPage() {
                   className="input-standard"
                   size={5}
                 >
-                  <option value="" disabled>— select a course —</option>
+                  <option value="" disabled>— seleccionar un curso —</option>
                   {filteredCourses.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.codigo} — {c.nombre}
@@ -577,7 +639,7 @@ export default function PlanesEstudioPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label-standard">Semester (Ciclo)</label>
+                  <label className="label-standard">Ciclo</label>
                   <select
                     value={linkForm.ciclo}
                     onChange={(e) => setLinkForm({ ...linkForm, ciclo: Number(e.target.value) })}
@@ -598,7 +660,7 @@ export default function PlanesEstudioPage() {
                       className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                     />
                     <label htmlFor="esElectivo" className="text-sm font-medium text-text-main cursor-pointer">
-                      Elective course
+                      Curso electivo
                     </label>
                   </div>
                 </div>
@@ -606,14 +668,14 @@ export default function PlanesEstudioPage() {
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">
                 <button type="button" onClick={closeLinkModal} className="btn-secondary">
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={linkCourseMutation.isPending || !linkForm.cursoId}
                   className="btn-primary"
                 >
-                  {linkCourseMutation.isPending ? 'Linking...' : 'Link Course'}
+                  {linkCourseMutation.isPending ? 'Vinculando...' : 'Vincular'}
                 </button>
               </div>
             </form>

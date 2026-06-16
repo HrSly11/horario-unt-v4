@@ -77,7 +77,8 @@ export default function DeclaracionesPage() {
   const [rejectObservaciones, setRejectObservaciones] = useState('');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
-  const periodoId = selectedPeriodoId || (periodos.length > 0 ? periodos[0].id : '');
+  const activePeriod = periodos.find((p) => p.activo);
+  const periodoId = selectedPeriodoId || activePeriod?.id || (periodos.length > 0 ? periodos[0].id : '');
 
   const isDocente = user?.role === 'DOCENTE';
   const isDirectorDepto = user?.role === 'DIRECTOR_DEPARTAMENTO';

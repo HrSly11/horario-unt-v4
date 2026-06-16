@@ -202,6 +202,7 @@ model Curso {
   experienciaMinima     Int                @default(0) @map("experiencia_minima")
   especialidadRequerida String?            @map("especialidad_requerida")
   aperturado            Boolean            @default(false)
+  motivoAperturaExcepcional String?       @map("motivo_apertura_excepcional")
   createdAt             DateTime           @default(now()) @map("created_at")
   updatedAt             DateTime           @updatedAt @map("updated_at")
   condicion             String?            @default("O")
@@ -426,6 +427,7 @@ model AsignacionCargaLectiva {
   horasAsignadas      Int              @map("horas_asignadas")
   compartido          Boolean          @default(false)
   docenteCompartidoId String?          @map("docente_compartido_id")
+  grupoLaboratorio    Int?             @map("grupo_laboratorio")
   createdAt           DateTime         @default(now()) @map("created_at")
   updatedAt           DateTime         @updatedAt @map("updated_at")
   docenteCompartido   Docente?         @relation("DocenteCompartido", fields: [docenteCompartidoId], references: [id])
@@ -433,8 +435,7 @@ model AsignacionCargaLectiva {
   grupo               Grupo            @relation(fields: [grupoId], references: [id], onDelete: Cascade)
   periodo             PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
 
-  @@unique([docenteId, grupoId, periodoId, tipo])
-  @@unique([grupoId, periodoId, tipo])
+  @@unique([docenteId, grupoId, periodoId, tipo, grupoLaboratorio])
   @@map("asignaciones_carga_lectiva")
 }
 

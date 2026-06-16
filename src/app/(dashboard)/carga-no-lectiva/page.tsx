@@ -124,11 +124,12 @@ export default function CargaNoLectivaPage() {
   const { data: periodos = [] } = useQuery({ ...trpc.periodo.list.queryOptions() });
 
   const docenteId = user?.docenteId || '';
-  const periodoId = selectedPeriodoId || (periodos.length > 0 ? periodos[0].id : '');
+  const activePeriod = periodos.find((p) => p.activo);
+  const periodoId = selectedPeriodoId || activePeriod?.id || (periodos.length > 0 ? periodos[0].id : '');
 
   // Set initial periodo when periodos load
   if (periodos.length > 0 && !selectedPeriodoId) {
-    setSelectedPeriodoId(periodos[0].id);
+    setSelectedPeriodoId(activePeriod?.id || periodos[0].id);
   }
 
   const { data: cargaData } = useQuery({

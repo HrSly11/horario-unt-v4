@@ -228,7 +228,7 @@ describe('docenteRouter availability', () => {
       orderBy: { createdAt: 'desc' },
     });
     expect(prisma.disponibilidadDocente.findMany).toHaveBeenCalledWith({
-      where: { docenteId: 'docente-1', periodoId: 'period-active' },
+      where: { docenteId: 'docente-1', periodoId: 'period-active', grupoId: null, tipo: null },
       include: { franjaHoraria: true },
     });
   });
@@ -241,12 +241,12 @@ describe('docenteRouter availability', () => {
     await caller.saveAvailability({ franjaIds: ['franja-1', 'franja-1', 'franja-2'] });
 
     expect(prisma.disponibilidadDocente.deleteMany).toHaveBeenCalledWith({
-      where: { docenteId: 'docente-1', periodoId: 'period-active' },
+      where: { docenteId: 'docente-1', periodoId: 'period-active', grupoId: null, tipo: null },
     });
     expect(prisma.disponibilidadDocente.createMany).toHaveBeenCalledWith({
       data: [
-        { docenteId: 'docente-1', periodoId: 'period-active', franjaHorariaId: 'franja-1' },
-        { docenteId: 'docente-1', periodoId: 'period-active', franjaHorariaId: 'franja-2' },
+        { docenteId: 'docente-1', periodoId: 'period-active', franjaHorariaId: 'franja-1', grupoId: null, tipo: null },
+        { docenteId: 'docente-1', periodoId: 'period-active', franjaHorariaId: 'franja-2', grupoId: null, tipo: null },
       ],
       skipDuplicates: true,
     });

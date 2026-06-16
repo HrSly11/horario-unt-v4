@@ -32,7 +32,7 @@ function makeDocente(id: string, overrides: Partial<DocenteForSchedule> = {}): D
 }
 
 function makeGrupo(id: string, overrides: Partial<GrupoForSchedule> = {}): GrupoForSchedule {
-  return {
+  const base = {
     id,
     nombre: 'A',
     cursoId: `curso-${id}`,
@@ -45,6 +45,15 @@ function makeGrupo(id: string, overrides: Partial<GrupoForSchedule> = {}): Grupo
     horasLaboratorio: 0,
     requiereLaboratorio: false,
     ...overrides,
+  };
+
+  return {
+    ...base,
+    workloads: base.workloads ?? [
+      { docenteId: 'd1', tipo: 'TEORIA' as const, horas: base.horasTeoria },
+      { docenteId: 'd1', tipo: 'PRACTICA' as const, horas: base.horasPractica },
+      { docenteId: 'd1', tipo: 'LABORATORIO' as const, horas: base.horasLaboratorio }
+    ].filter(w => w.horas > 0)
   };
 }
 
@@ -115,7 +124,7 @@ describe('ScheduleEngine', () => {
     expect(result.unassigned).toHaveLength(0);
   });
 
-  it('does not assign a group to an aula below its enrollment capacity', () => {
+  it('assigns to the largest available aula if no aula matches capacity', () => {
     const engine = new ScheduleEngine({
       docentes: [makeDocente('d1')],
       grupos: [makeGrupo('g-large', { numAlumnos: 45, horasTeoria: 1 })],
@@ -126,9 +135,8 @@ describe('ScheduleEngine', () => {
 
     const result = engine.generate();
 
-    expect(result.assignments).toHaveLength(0);
-    expect(result.unassigned).toHaveLength(1);
-    expect(result.unassigned[0].reason).toContain('capacidad');
+    expect(result.assignments).toHaveLength(1);
+    expect(result.assignments[0].aulaId).toBe('a-small');
   });
 
   it('respects docente hierarchy — higher priority docente gets preferred slots', () => {
@@ -141,8 +149,8 @@ describe('ScheduleEngine', () => {
         makeDocente('d-nombrado', { tipo: 'NOMBRADO', categoria: 'PRINCIPAL' }),
       ],
       grupos: [
-        makeGrupo('g1', { horasTeoria: 1 }),
-        makeGrupo('g2', { horasTeoria: 1 }),
+        makeGrupo('g1', { horasTeoria: 1, workloads: [{ docenteId: 'd-nombrado', tipo: 'TEORIA', horas: 1 }] }),
+        makeGrupo('g2', { horasTeoria: 1, workloads: [{ docenteId: 'd-contratado', tipo: 'TEORIA', horas: 1 }] }),
       ],
       aulas,
       franjas,
@@ -187,8 +195,8 @@ describe('ScheduleEngine', () => {
     const engine = new ScheduleEngine({
       docentes: [makeDocente('d1'), makeDocente('d2', { categoria: 'ASOCIADO' })],
       grupos: [
-        makeGrupo('g1', { horasTeoria: 1 }),
-        makeGrupo('g2', { horasTeoria: 1 }),
+        makeGrupo('g1', { horasTeoria: 1, workloads: [{ docenteId: 'd1', tipo: 'TEORIA', horas: 1 }] }),
+        makeGrupo('g2', { horasTeoria: 1, workloads: [{ docenteId: 'd2', tipo: 'TEORIA', horas: 1 }] }),
       ],
       aulas: [makeAula('a1')], // Only 1 aula
       franjas,

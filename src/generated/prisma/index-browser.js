@@ -247,6 +247,7 @@ exports.Prisma.CursoScalarFieldEnum = {
   experienciaMinima: 'experienciaMinima',
   especialidadRequerida: 'especialidadRequerida',
   aperturado: 'aperturado',
+  motivoAperturaExcepcional: 'motivoAperturaExcepcional',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   condicion: 'condicion',
@@ -383,6 +384,7 @@ exports.Prisma.AsignacionCargaLectivaScalarFieldEnum = {
   horasAsignadas: 'horasAsignadas',
   compartido: 'compartido',
   docenteCompartidoId: 'docenteCompartidoId',
+  grupoLaboratorio: 'grupoLaboratorio',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

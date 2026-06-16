@@ -109,7 +109,7 @@ export class ScheduleEngine {
         if (!grupo) continue;
 
         // Get workloads for THIS docente and THIS group
-        const docenteWorkloads = grupo.workloads.filter(w => w.docenteId === docente.id);
+        const docenteWorkloads = (grupo.workloads || []).filter(w => w.docenteId === docente.id);
 
         for (const workload of docenteWorkloads) {
           const remaining = remainingByGrupo.get(grupoId);

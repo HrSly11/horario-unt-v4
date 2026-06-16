@@ -26,6 +26,7 @@ export interface CargaNoLectivaSummary {
 
 export interface ValidateAllOptions {
   excludeAsignacionId?: string;
+  excludeGrupoId?: string;
 }
 
 function ok(): ValidationResult {
@@ -174,9 +175,13 @@ export async function validateAll(
 
   const asignacionesExistentes = await prisma.asignacionCargaLectiva.findMany({
     where: {
-      docenteId,
       periodoId,
+      OR: [
+        { docenteId },
+        { docenteCompartidoId: docenteId }
+      ],
       ...(options.excludeAsignacionId ? { id: { not: options.excludeAsignacionId } } : {}),
+      ...(options.excludeGrupoId ? { grupoId: { not: options.excludeGrupoId } } : {}),
     },
   });
 

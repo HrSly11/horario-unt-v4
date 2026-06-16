@@ -35,6 +35,7 @@ function makePrisma({
   duplicateAssignment?: { id: string; docente?: { nombre: string } | null } | null;
 } = {}) {
   return {
+    $transaction: vi.fn(),
     user: {
       findUnique: vi.fn(async () => ({
         ...makeSession(),
@@ -67,6 +68,7 @@ function makePrisma({
       findFirst: vi.fn(async () => duplicateAssignment),
       findMany: vi.fn(async () => []),
       create: vi.fn(async (args) => args),
+      deleteMany: vi.fn(async () => ({ count: 0 })),
       findUniqueOrThrow: vi.fn(async () => ({
         id: 'acl-1',
         docenteId: 'docente-1',
@@ -154,6 +156,74 @@ describe('cargaLectivaRouter assignment rules', () => {
 
     await expect(caller.unassign({ id: 'acl-1' })).rejects.toMatchObject({ code: 'BAD_REQUEST' });
     expect(prisma.asignacionCargaLectiva.delete).not.toHaveBeenCalled();
+  });
+
+  describe('assignCursoCompleto', () => {
+    it('successfully updates all load assignments in a transaction', async () => {
+      const mockTx = {
+        asignacionCargaLectiva: {
+          deleteMany: vi.fn(),
+          create: vi.fn(),
+        },
+      };
+      const prisma = makePrisma();
+      prisma.$transaction = vi.fn(async (cb: any) => cb(mockTx));
+
+      const caller = makeCaller(prisma);
+
+      await caller.assignCursoCompleto({
+        docenteId: 'docente-1',
+        grupoId: 'grupo-1',
+        periodoId: 'period-1',
+        teoria: { horas: 4, compartido: true, docenteCompartidoId: 'docente-2', horasCompartido: 2 },
+        practica: { horas: 2, compartido: false },
+        laboratorio: { horas: 2, compartido: true, docenteCompartidoId: 'docente-3', horasCompartido: 2, gruposLaboratorio: [1], gruposLaboratorioCompartido: [2] },
+      });
+
+      expect(mockTx.asignacionCargaLectiva.deleteMany).toHaveBeenCalledWith({
+        where: { grupoId: 'grupo-1', periodoId: 'period-1' },
+      });
+      expect(mockTx.asignacionCargaLectiva.create).toHaveBeenCalledTimes(5); // Theory (prim + comp), Practice, Lab (prim + comp)
+    });
+
+    it('rejects if theory hours exceed course limit', async () => {
+      const prisma = makePrisma();
+      const caller = makeCaller(prisma);
+
+      await expect(
+        caller.assignCursoCompleto({
+          docenteId: 'docente-1',
+          grupoId: 'grupo-1',
+          periodoId: 'period-1',
+          teoria: { horas: 8, compartido: false }, // Limit is 6
+          practica: { horas: 0, compartido: false },
+          laboratorio: { horas: 0, compartido: false },
+        })
+      ).rejects.toMatchObject({ code: 'BAD_REQUEST', message: /TEORIA/ });
+    });
+
+    it('rejects if not all laboratory groups are selected', async () => {
+      const prisma = makePrisma();
+      const caller = makeCaller(prisma);
+
+      await expect(
+        caller.assignCursoCompleto({
+          docenteId: 'docente-1',
+          grupoId: 'grupo-1',
+          periodoId: 'period-1',
+          teoria: { horas: 0, compartido: false },
+          practica: { horas: 0, compartido: false },
+          laboratorio: {
+            horas: 2,
+            compartido: false,
+            gruposLaboratorio: [1]
+          },
+        })
+      ).rejects.toMatchObject({
+        code: 'BAD_REQUEST',
+        message: /Debe asignar todos los grupos de laboratorio/
+      });
+    });
   });
 
   describe('Lecture Hours (LECTIVAS) Calculation Formula', () => {

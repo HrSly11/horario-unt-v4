@@ -97,7 +97,10 @@ export const cargaLectivaRouter = createTRPCRouter({
         if (!ctx.session.docenteId) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'El usuario docente no tiene un ID de docente asociado.' });
         }
-        where.docenteId = ctx.session.docenteId;
+        where.OR = [
+          { docenteId: ctx.session.docenteId },
+          { docenteCompartidoId: ctx.session.docenteId }
+        ];
       } else if (!input?.departamentoId) {
         const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
         if (managedDepartamentoIds !== null) {
@@ -129,9 +132,16 @@ export const cargaLectivaRouter = createTRPCRouter({
 
       const [asignaciones, cargaNoLectiva] = await Promise.all([
         ctx.prisma.asignacionCargaLectiva.findMany({
-          where: { docenteId: input.docenteId, periodoId: input.periodoId },
+          where: {
+            periodoId: input.periodoId,
+            OR: [
+              { docenteId: input.docenteId },
+              { docenteCompartidoId: input.docenteId }
+            ]
+          },
           include: {
-            grupo: { include: { curso: { select: { codigo: true, nombre: true } } } },
+            docente: { select: { id: true, nombre: true } },
+            grupo: { include: { curso: { select: { id: true, codigo: true, nombre: true, creditos: true, horasTeoria: true, horasPractica: true, horasLaboratorio: true, ciclo: true } } } },
             docenteCompartido: { select: { id: true, nombre: true } },
           },
           orderBy: { createdAt: 'asc' },
@@ -244,6 +254,310 @@ export const cargaLectivaRouter = createTRPCRouter({
       }
     }),
 
+  assignCursoCompleto: secretariaDepartamentoProcedure
+    .input(
+      z.object({
+        docenteId: z.string().min(1),
+        grupoId: z.string().min(1),
+        periodoId: z.string().min(1),
+        teoria: z.object({
+          horas: z.number().int().nonnegative(),
+          compartido: z.boolean(),
+          docenteCompartidoId: z.string().nullable().optional(),
+          horasCompartido: z.number().int().nonnegative().optional(),
+        }),
+        practica: z.object({
+          horas: z.number().int().nonnegative(),
+          compartido: z.boolean(),
+          docenteCompartidoId: z.string().nullable().optional(),
+          horasCompartido: z.number().int().nonnegative().optional(),
+        }),
+        laboratorio: z.object({
+          horas: z.number().int().nonnegative(),
+          compartido: z.boolean(),
+          docenteCompartidoId: z.string().nullable().optional(),
+          horasCompartido: z.number().int().nonnegative().optional(),
+          gruposLaboratorio: z.array(z.number().int().min(1)).optional().default([]),
+          gruposLaboratorioCompartido: z.array(z.number().int().min(1)).optional().default([]),
+        }),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, input.docenteId);
+      await assertLectivePeriodMutable(ctx.prisma, input.periodoId);
+      await assertGrupoBelongsToPeriodo(ctx.prisma, input.grupoId, input.periodoId);
+
+      const grupo = await ctx.prisma.grupo.findUniqueOrThrow({
+        where: { id: input.grupoId },
+        include: { curso: true },
+      });
+
+      const numGrupos = grupo.curso.numGruposLaboratorio || 1;
+
+      // 1. Check Course hours limits for each type
+      const horasTeoriaTotal = input.teoria.horas + (input.teoria.compartido ? input.teoria.horasCompartido || 0 : 0);
+      if (horasTeoriaTotal > grupo.curso.horasTeoria) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Las horas de TEORIA (${horasTeoriaTotal}h) exceden el límite del curso (${grupo.curso.horasTeoria}h)`,
+        });
+      }
+
+      const horasPracticaTotal = input.practica.horas + (input.practica.compartido ? input.practica.horasCompartido || 0 : 0);
+      if (horasPracticaTotal > grupo.curso.horasPractica) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Las horas de PRACTICA (${horasPracticaTotal}h) exceden el límite del curso (${grupo.curso.horasPractica}h)`,
+        });
+      }
+
+      // Check Laboratory hours limits based on group assignment
+      const labHorasPrim = input.laboratorio.horas;
+      const labHorasComp = input.laboratorio.compartido ? input.laboratorio.horasCompartido || 0 : 0;
+      const horasPorGrupo = grupo.curso.horasLaboratorio;
+
+      if (numGrupos > 1) {
+        const expectedPrimGroups = horasPorGrupo > 0 ? Math.ceil(labHorasPrim / horasPorGrupo) : 0;
+        if (labHorasPrim > 0 && input.laboratorio.gruposLaboratorio.length !== expectedPrimGroups) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Debe seleccionar exactamente ${expectedPrimGroups} grupo(s) de laboratorio para el docente principal`,
+          });
+        }
+
+        const expectedCompGroups = horasPorGrupo > 0 ? Math.ceil(labHorasComp / horasPorGrupo) : 0;
+        if (labHorasComp > 0 && input.laboratorio.gruposLaboratorioCompartido.length !== expectedCompGroups) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Debe seleccionar exactamente ${expectedCompGroups} grupo(s) de laboratorio para el docente compartido`,
+          });
+        }
+
+        // Check for overlaps (disjoint sets)
+        const primSet = new Set(input.laboratorio.gruposLaboratorio);
+        for (const gComp of input.laboratorio.gruposLaboratorioCompartido) {
+          if (primSet.has(gComp)) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: `El Grupo Lab ${gComp} no puede ser asignado a ambos docentes al mismo tiempo`,
+            });
+          }
+        }
+
+        // Check index limit
+        for (const gIdx of [...input.laboratorio.gruposLaboratorio, ...input.laboratorio.gruposLaboratorioCompartido]) {
+          if (gIdx > numGrupos) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: `El Grupo Lab ${gIdx} excede el número de grupos de laboratorio del curso (${numGrupos})`,
+            });
+          }
+        }
+
+        // Check coverage: all lab groups must be assigned if lab hours exist
+        if (horasPorGrupo > 0) {
+          const totalSelected = input.laboratorio.gruposLaboratorio.length +
+            (input.laboratorio.compartido ? input.laboratorio.gruposLaboratorioCompartido.length : 0);
+          if (totalSelected !== numGrupos) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: `Debe asignar todos los grupos de laboratorio del curso (${numGrupos} en total). Asignados actualmente: ${totalSelected}.`,
+            });
+          }
+        }
+      } else {
+        // Only 1 group, so they share it (directly sum)
+        if (labHorasPrim + labHorasComp > horasPorGrupo) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Las horas de LABORATORIO (${labHorasPrim + labHorasComp}h) exceden el límite del curso (${horasPorGrupo}h)`,
+          });
+        }
+      }
+
+      // 2. Validate Workload (HT + HP + HL) for the primary docente
+      const totalNuevasHoras = input.teoria.horas + input.practica.horas + input.laboratorio.horas;
+      if (totalNuevasHoras > 0) {
+        const validation = await validateAll(
+          ctx.prisma,
+          input.docenteId,
+          input.periodoId,
+          totalNuevasHoras,
+          'TEORIA',
+          { excludeGrupoId: input.grupoId }
+        );
+        if (!validation.valid) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: `Docente Principal: ${validation.message}` });
+        }
+      }
+
+      // 3. Validate Workload for each shared docente (if any)
+      const uniqueSharedIds = new Set<string>();
+      if (input.teoria.compartido && input.teoria.docenteCompartidoId && (input.teoria.horasCompartido || 0) > 0) {
+        uniqueSharedIds.add(input.teoria.docenteCompartidoId);
+      }
+      if (input.practica.compartido && input.practica.docenteCompartidoId && (input.practica.horasCompartido || 0) > 0) {
+        uniqueSharedIds.add(input.practica.docenteCompartidoId);
+      }
+      if (input.laboratorio.compartido && input.laboratorio.docenteCompartidoId && (input.laboratorio.horasCompartido || 0) > 0) {
+        uniqueSharedIds.add(input.laboratorio.docenteCompartidoId);
+      }
+
+      for (const sharedId of uniqueSharedIds) {
+        await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, sharedId);
+        
+        let sharedHours = 0;
+        if (input.teoria.compartido && input.teoria.docenteCompartidoId === sharedId) {
+          sharedHours += input.teoria.horasCompartido || 0;
+        }
+        if (input.practica.compartido && input.practica.docenteCompartidoId === sharedId) {
+          sharedHours += input.practica.horasCompartido || 0;
+        }
+        if (input.laboratorio.compartido && input.laboratorio.docenteCompartidoId === sharedId) {
+          sharedHours += input.laboratorio.horasCompartido || 0;
+        }
+
+        if (sharedHours > 0) {
+          const validation = await validateAll(
+            ctx.prisma,
+            sharedId,
+            input.periodoId,
+            sharedHours,
+            'TEORIA',
+            { excludeGrupoId: input.grupoId }
+          );
+          if (!validation.valid) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: `Docente Compartido: ${validation.message}` });
+          }
+        }
+      }
+
+      // 4. Save assignments in transaction (delete existing for group+period, then create new)
+      return await ctx.prisma.$transaction(async (tx) => {
+        // Delete all existing assignments for this group and period
+        await tx.asignacionCargaLectiva.deleteMany({
+          where: { grupoId: input.grupoId, periodoId: input.periodoId },
+        });
+
+        // Helper to insert an assignment
+        const insertAsignacion = async (
+          docenteId: string,
+          tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO',
+          horas: number,
+          compartido: boolean,
+          docenteCompartidoId: string | null,
+          grupoLaboratorio: number | null
+        ) => {
+          await tx.asignacionCargaLectiva.create({
+            data: {
+              docenteId,
+              grupoId: input.grupoId,
+              periodoId: input.periodoId,
+              tipo,
+              horasAsignadas: horas,
+              compartido,
+              docenteCompartidoId,
+              grupoLaboratorio,
+            },
+          });
+        };
+
+        // Teoría
+        if (input.teoria.horas > 0) {
+          await insertAsignacion(
+            input.docenteId,
+            'TEORIA',
+            input.teoria.horas,
+            input.teoria.compartido,
+            input.teoria.compartido ? input.teoria.docenteCompartidoId || null : null,
+            null
+          );
+        }
+        if (input.teoria.compartido && (input.teoria.horasCompartido || 0) > 0 && input.teoria.docenteCompartidoId) {
+          await insertAsignacion(
+            input.teoria.docenteCompartidoId,
+            'TEORIA',
+            input.teoria.horasCompartido || 0,
+            true,
+            input.docenteId,
+            null
+          );
+        }
+
+        // Práctica
+        if (input.practica.horas > 0) {
+          await insertAsignacion(
+            input.docenteId,
+            'PRACTICA',
+            input.practica.horas,
+            input.practica.compartido,
+            input.practica.compartido ? input.practica.docenteCompartidoId || null : null,
+            null
+          );
+        }
+        if (input.practica.compartido && (input.practica.horasCompartido || 0) > 0 && input.practica.docenteCompartidoId) {
+          await insertAsignacion(
+            input.practica.docenteCompartidoId,
+            'PRACTICA',
+            input.practica.horasCompartido || 0,
+            true,
+            input.docenteId,
+            null
+          );
+        }
+
+        // Laboratorio
+        if (input.laboratorio.horas > 0) {
+          if (grupo.curso.numGruposLaboratorio > 1 && input.laboratorio.gruposLaboratorio.length > 0) {
+            for (const grupoLabIndex of input.laboratorio.gruposLaboratorio) {
+              await insertAsignacion(
+                input.docenteId,
+                'LABORATORIO',
+                grupo.curso.horasLaboratorio,
+                input.laboratorio.compartido,
+                input.laboratorio.compartido ? input.laboratorio.docenteCompartidoId || null : null,
+                grupoLabIndex
+              );
+            }
+          } else {
+            await insertAsignacion(
+              input.docenteId,
+              'LABORATORIO',
+              input.laboratorio.horas,
+              input.laboratorio.compartido,
+              input.laboratorio.compartido ? input.laboratorio.docenteCompartidoId || null : null,
+              null
+            );
+          }
+        }
+        if (input.laboratorio.compartido && (input.laboratorio.horasCompartido || 0) > 0 && input.laboratorio.docenteCompartidoId) {
+          if (grupo.curso.numGruposLaboratorio > 1 && input.laboratorio.gruposLaboratorioCompartido.length > 0) {
+            for (const grupoLabIndex of input.laboratorio.gruposLaboratorioCompartido) {
+              await insertAsignacion(
+                input.laboratorio.docenteCompartidoId,
+                'LABORATORIO',
+                grupo.curso.horasLaboratorio,
+                true,
+                input.docenteId,
+                grupoLabIndex
+              );
+            }
+          } else {
+            await insertAsignacion(
+              input.laboratorio.docenteCompartidoId,
+              'LABORATORIO',
+              input.laboratorio.horasCompartido || 0,
+              true,
+              input.docenteId,
+              null
+            );
+          }
+        }
+
+        return { success: true };
+      });
+    }),
+
   unassign: secretariaDepartamentoProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -261,19 +575,33 @@ export const cargaLectivaRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
+        docenteId: z.string().optional(),
         horasAsignadas: z.number().int().min(1).max(40).optional(),
         compartido: z.boolean().optional(),
         docenteCompartidoId: z.string().nullable().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input;
+      const { id, docenteId: newDocenteId, ...data } = input;
       const existing = await ctx.prisma.asignacionCargaLectiva.findUniqueOrThrow({ 
         where: { id },
         include: { grupo: { include: { curso: true } } }
       });
       await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, existing.docenteId);
       await assertLectivePeriodMutable(ctx.prisma, existing.periodoId);
+
+      // If changing docente, validate the new docente belongs to managed dept
+      if (newDocenteId && newDocenteId !== existing.docenteId) {
+        await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, newDocenteId);
+        // Check no conflict: same grupo+periodo+tipo for the new docente
+        await assertUniqueGrupoPeriodoTipo(
+          ctx.prisma,
+          { grupoId: existing.grupoId, periodoId: existing.periodoId, tipo: existing.tipo },
+          id
+        );
+      }
+
+      const effectiveDocenteId = newDocenteId ?? existing.docenteId;
 
       if (data.horasAsignadas !== undefined) {
         // Course hours limit check
@@ -291,7 +619,7 @@ export const cargaLectivaRouter = createTRPCRouter({
 
         const validation = await validateAll(
           ctx.prisma,
-          existing.docenteId,
+          effectiveDocenteId,
           existing.periodoId,
           data.horasAsignadas,
           existing.tipo,
@@ -304,12 +632,90 @@ export const cargaLectivaRouter = createTRPCRouter({
 
       return ctx.prisma.asignacionCargaLectiva.update({
         where: { id },
-        data,
+        data: { ...data, ...(newDocenteId ? { docenteId: newDocenteId } : {}) },
         include: {
           docente: { select: { id: true, nombre: true } },
           grupo: { include: { curso: { select: { codigo: true, nombre: true } } } },
         },
       });
+    }),
+
+  /** Returns docentes who have postulated (DocenteGrupo) to a given grupo, with compatibility info */
+  postulantesByGrupo: protectedProcedure
+    .input(z.object({ grupoId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { grupoId } = input;
+
+      const grupo = await ctx.prisma.grupo.findUniqueOrThrow({
+        where: { id: grupoId },
+        include: { curso: true },
+      });
+
+      const docenteGrupos = await ctx.prisma.docenteGrupo.findMany({
+        where: { grupoId },
+        include: {
+          docente: {
+            select: {
+              id: true,
+              nombre: true,
+              email: true,
+              categoria: true,
+              modalidad: true,
+              especialidad: true,
+              horasContrato: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      return docenteGrupos.map((dg, index) => {
+        // Simple compatibility: check if docente categoria matches curso creditos
+        const creditos = grupo.curso.creditos;
+        const base = dg.docente.categoria === 'PRINCIPAL' ? 100
+          : dg.docente.categoria === 'ASOCIADO' ? 85
+          : dg.docente.categoria === 'AUXILIAR' ? 70
+          : 60;
+        const compatibility = Math.min(100, base + (creditos >= 4 ? 5 : 0));
+        return {
+          docente: {
+            id: dg.docente.id,
+            nombre: dg.docente.nombre,
+            email: dg.docente.email,
+            categoria: dg.docente.categoria,
+            modalidad: dg.docente.modalidad,
+            horasContrato: dg.docente.horasContrato,
+          },
+          prioridad: index + 1,
+          compatibilidad: compatibility,
+        };
+      });
+    }),
+
+  /** Returns all grupos for a period with full curso info — for the assignment dropdown */
+  gruposDisponibles: protectedProcedure
+    .input(z.object({ periodoId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const grupos = await ctx.prisma.grupo.findMany({
+        where: { periodoAcademicoId: input.periodoId },
+        include: {
+          curso: {
+            select: {
+              id: true,
+              codigo: true,
+              nombre: true,
+              creditos: true,
+              horasTeoria: true,
+              horasPractica: true,
+              horasLaboratorio: true,
+              numGruposLaboratorio: true,
+              ciclo: true,
+            },
+          },
+        },
+        orderBy: [{ curso: { codigo: 'asc' } }, { nombre: 'asc' }],
+      });
+      return grupos;
     }),
 
   resumenPorDepartamento: protectedProcedure

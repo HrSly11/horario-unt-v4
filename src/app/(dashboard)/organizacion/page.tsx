@@ -77,7 +77,7 @@ export default function OrganizacionPage() {
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-text-main group-hover:text-primary transition-colors">{f.nombre}</h3>
-                      <p className="text-[10px] text-text-sub font-bold uppercase tracking-wider">Sede: {f.sede}</p>
+                      <p className="text-[10px] text-text-sub font-bold uppercase tracking-wider">Siglas: {f.siglas}</p>
                     </div>
                   </div>
                   <div className="flex gap-1">

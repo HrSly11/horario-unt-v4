@@ -99,12 +99,12 @@ export default function DashboardPage() {
 
   const horarioStats = useQuery({
     ...trpc.horario.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
-    enabled: !!periodoActivo?.id,
+    enabled: !!periodoActivo?.id && user?.role !== 'DOCENTE' && user?.role !== 'INVITADO',
   });
 
   const aulaStats = useQuery({
     ...trpc.aula.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
-    enabled: !!periodoActivo?.id,
+    enabled: !!periodoActivo?.id && user?.role !== 'DOCENTE' && user?.role !== 'INVITADO',
   });
 
   const stats = horarioStats.data;

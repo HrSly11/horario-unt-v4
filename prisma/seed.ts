@@ -244,12 +244,12 @@ async function main() {
     { docenteIdx: 2, assignments: [{ code: 'EE-804', group: 'A' }, { code: 'EL-702', group: 'A' }, { code: 'EE-X03', group: 'A' }] }, // Everson Agreda
     { docenteIdx: 3, assignments: [{ code: 'EE-701', group: 'A' }, { code: 'EE-801', group: 'A' }, { code: 'EE-902', group: 'A' }, { code: 'EE-X02', group: 'A' }] }, // Alberto Mendoza
     { docenteIdx: 4, assignments: [{ code: 'EP-402', group: 'A' }, { code: 'EE-802', group: 'A' }, { code: 'EE-901', group: 'A' }, { code: 'EE-904', group: 'A' }] }, // José Gómez
-    { docenteIdx: 5, assignments: [{ code: 'EI-901', group: 'B' }, { code: 'EI-X01', group: 'B' }, { code: 'EE-803', group: 'A' }, { code: 'EE-903', group: 'A' }] }, // Ricardo Mendoza (shares Tesis B)
-    { docenteIdx: 6, assignments: [{ code: 'EL-301', group: 'A' }, { code: 'EE-401', group: 'A' }, { code: 'EE-504', group: 'B' }] }, // Juan Carlos Obando (shares Sistemas Info B)
+    { docenteIdx: 5, assignments: [{ code: 'EE-803', group: 'A' }, { code: 'EE-903', group: 'A' }] }, // Ricardo Mendoza
+    { docenteIdx: 6, assignments: [{ code: 'EL-301', group: 'A' }, { code: 'EE-401', group: 'A' }] }, // Juan Carlos Obando
     { docenteIdx: 7, assignments: [{ code: 'EE-702', group: 'A' }, { code: 'EL-901', group: 'A' }, { code: 'EE-X05', group: 'A' }] }, // Oscar Alcantara
-    { docenteIdx: 8, assignments: [{ code: 'EL-401', group: 'A' }, { code: 'EE-501', group: 'A' }, { code: 'EE-504', group: 'A' }, { code: 'EE-604', group: 'A' }, { code: 'EE-704', group: 'B' }] }, // Robert Sanchez
+    { docenteIdx: 8, assignments: [{ code: 'EL-401', group: 'A' }, { code: 'EE-501', group: 'A' }, { code: 'EE-504', group: 'A' }, { code: 'EE-604', group: 'A' }] }, // Robert Sanchez
     { docenteIdx: 9, assignments: [{ code: 'EE-102', group: 'A' }, { code: 'EE-403', group: 'A' }, { code: 'EE-601', group: 'A' }] }, // Marcelino Torres (shares Intro Prog A)
-    { docenteIdx: 10, assignments: [{ code: 'EE-201', group: 'A' }, { code: 'EE-302', group: 'A' }, { code: 'EE-102', group: 'B' }] }, // Zoraida Vidal (shares Intro Prog B)
+    { docenteIdx: 10, assignments: [{ code: 'EE-201', group: 'A' }, { code: 'EE-302', group: 'A' }] }, // Zoraida Vidal
     { docenteIdx: 11, assignments: [{ code: 'EE-301', group: 'A' }] }, // Silvia Rodriguez
     { docenteIdx: 12, assignments: [{ code: 'EL-402', group: 'A' }, { code: 'EL-902', group: 'A' }] }, // Camilo Suarez
     { docenteIdx: 13, assignments: [{ code: 'EE-402', group: 'A' }, { code: 'EE-503', group: 'A' }, { code: 'EE-603', group: 'A' }, { code: 'EE-703', group: 'A' }] }, // Cesar Arellano
@@ -259,8 +259,8 @@ async function main() {
   ];
 
   // ── Grupos ─────────────────────────────────────────
-  const gruposCreated = [];
-  const sharedCourseCodes = ['EE-704', 'EI-901', 'EI-X01', 'EE-102', 'EE-504'];
+  const gruposCreated: any[] = [];
+  const sharedCourseCodes: string[] = [];
   
   // Función para crear grupos y asignaciones por periodo
   const seedPeriodo = async (periodo: any) => {
@@ -325,6 +325,16 @@ async function main() {
     } 
   });
 
+  // Secretaria de Departamento de Sistemas
+  const secretariaDpto = await prisma.user.create({
+    data: {
+      email: 'secretariadpto@unt.edu.pe',
+      password: hashedPassword,
+      nombre: 'Secretaria Dpto. de Sistemas',
+      role: UserRole.SECRETARIA_DEPARTAMENTO,
+    },
+  });
+
   // Decano
   await prisma.user.create({
     data: { 
@@ -335,10 +345,10 @@ async function main() {
     } 
   });
 
-  // Vincular Jefe al Departamento de Sistemas
+  // Vincular Jefe y Secretaria al Departamento de Sistemas
   await prisma.departamento.update({
     where: { id: deptoSistemas.id },
-    data: { directorId: jefeDeptSistemas.id }
+    data: { directorId: jefeDeptSistemas.id, secretariaId: secretariaDpto.id }
   });
 
   // ── Horario Personal y Declaraciones (Pruebas 2026-I) ────────────────
@@ -392,11 +402,15 @@ async function main() {
       ]
     });
 
-    // Actualizar Carga Lectiva para Ticona
-    await prisma.asignacionCargaLectiva.upsert({
-      where: { grupoId_periodoId_tipo: { grupoId: softwareI.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' } },
-      update: { horasAsignadas: 9, compartido: true }, // 3h Santos + 6h Ticona = 9h totales de dictado lab
-      create: { docenteId: juanSantos.id, grupoId: softwareI.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO', horasAsignadas: 9, compartido: true }
+    // Actualizar Carga Lectiva para Ticona y Santos
+    await prisma.asignacionCargaLectiva.deleteMany({
+      where: { grupoId: softwareI.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' }
+    });
+    await prisma.asignacionCargaLectiva.create({
+      data: { docenteId: juanSantos.id, grupoId: softwareI.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO', horasAsignadas: 3, compartido: true, docenteCompartidoId: robertTicona.id, grupoLaboratorio: 1 }
+    });
+    await prisma.asignacionCargaLectiva.create({
+      data: { docenteId: robertTicona.id, grupoId: softwareI.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO', horasAsignadas: 6, compartido: true, docenteCompartidoId: juanSantos.id, grupoLaboratorio: 2 }
     });
   }
 
@@ -518,7 +532,7 @@ async function main() {
   });
 
   // 4. Crear más usuarios docentes
-  for (let i = 1; i < docentes.length; i++) {
+  for (let i = 0; i < docentes.length; i++) {
     const d = docentes[i];
     const email = d.email;
     const exists = await prisma.user.findUnique({ where: { email } });

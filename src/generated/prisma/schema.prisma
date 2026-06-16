@@ -187,29 +187,30 @@ model Notification {
 }
 
 model Curso {
-  id                    String             @id @default(cuid())
-  codigo                String             @unique
-  nombre                String
-  creditos              Int
-  horasTeoria           Int                @map("horas_teoria")
-  horasPractica         Int                @default(0) @map("horas_practica")
-  horasLaboratorio      Int                @default(0) @map("horas_laboratorio")
-  numGruposLaboratorio  Int                @default(1) @map("num_grupos_laboratorio")
-  ciclo                 Int
-  requiereLaboratorio   Boolean            @default(false) @map("requiere_laboratorio")
-  perfilRequerido       String?            @map("perfil_requerido")
-  gradoRequerido        String?            @map("grado_requerido")
-  experienciaMinima     Int                @default(0) @map("experiencia_minima")
-  especialidadRequerida String?            @map("especialidad_requerida")
-  aperturado            Boolean            @default(false)
-  createdAt             DateTime           @default(now()) @map("created_at")
-  updatedAt             DateTime           @updatedAt @map("updated_at")
-  condicion             String?            @default("O")
-  departamento          String?
-  requisitos            String?
-  cursoCurriculas       CursoCurricula[]
-  grupos                Grupo[]
-  postulaciones         PostulacionCurso[]
+  id                        String             @id @default(cuid())
+  codigo                    String             @unique
+  nombre                    String
+  creditos                  Int
+  horasTeoria               Int                @map("horas_teoria")
+  horasPractica             Int                @default(0) @map("horas_practica")
+  horasLaboratorio          Int                @default(0) @map("horas_laboratorio")
+  numGruposLaboratorio      Int                @default(1) @map("num_grupos_laboratorio")
+  ciclo                     Int
+  requiereLaboratorio       Boolean            @default(false) @map("requiere_laboratorio")
+  perfilRequerido           String?            @map("perfil_requerido")
+  gradoRequerido            String?            @map("grado_requerido")
+  experienciaMinima         Int                @default(0) @map("experiencia_minima")
+  especialidadRequerida     String?            @map("especialidad_requerida")
+  aperturado                Boolean            @default(false)
+  motivoAperturaExcepcional String?            @map("motivo_apertura_excepcional")
+  createdAt                 DateTime           @default(now()) @map("created_at")
+  updatedAt                 DateTime           @updatedAt @map("updated_at")
+  condicion                 String?            @default("O")
+  departamento              String?
+  requisitos                String?
+  cursoCurriculas           CursoCurricula[]
+  grupos                    Grupo[]
+  postulaciones             PostulacionCurso[]
 
   @@map("cursos")
 }
@@ -426,6 +427,7 @@ model AsignacionCargaLectiva {
   horasAsignadas      Int              @map("horas_asignadas")
   compartido          Boolean          @default(false)
   docenteCompartidoId String?          @map("docente_compartido_id")
+  grupoLaboratorio    Int?             @map("grupo_laboratorio")
   createdAt           DateTime         @default(now()) @map("created_at")
   updatedAt           DateTime         @updatedAt @map("updated_at")
   docenteCompartido   Docente?         @relation("DocenteCompartido", fields: [docenteCompartidoId], references: [id])
@@ -433,8 +435,7 @@ model AsignacionCargaLectiva {
   grupo               Grupo            @relation(fields: [grupoId], references: [id], onDelete: Cascade)
   periodo             PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
 
-  @@unique([docenteId, grupoId, periodoId, tipo])
-  @@unique([grupoId, periodoId, tipo])
+  @@unique([docenteId, grupoId, periodoId, tipo, grupoLaboratorio])
   @@map("asignaciones_carga_lectiva")
 }
 
