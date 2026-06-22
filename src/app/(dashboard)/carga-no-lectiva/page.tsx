@@ -2,8 +2,8 @@
 
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { Plus, Pencil, Trash2, Clock, Calendar, X, BookOpen, AlertTriangle } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Plus, Pencil, Trash2, Clock, Calendar, X, BookOpen, AlertTriangle, Search } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────
 
@@ -118,6 +118,7 @@ export default function CargaNoLectivaPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [selectedPeriodoId, setSelectedPeriodoId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [tableSearch, setTableSearch] = useState('');
 
   // Queries
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
@@ -341,6 +342,33 @@ export default function CargaNoLectivaPage() {
   const totalGeneral = totalLectivas + totalNoLectivas;
   const progressPct = Math.min(100, (totalGeneral / horasContrato) * 100);
 
+  // Filter the list by the search term (tipo, descripción, horario, proyecto)
+  const filteredCargasNoLectivas = useMemo(() => {
+    if (!tableSearch.trim()) return cargasNoLectivas;
+    const term = tableSearch.toLowerCase();
+    return cargasNoLectivas.filter((c) => {
+      const tipoLabel = (TIPO_LABELS[c.tipo] || c.tipo).toLowerCase();
+      const descripcion = (c.descripcion || '').toLowerCase();
+      const codigo = (c.codigoProyecto || '').toLowerCase();
+      const nombre = (c.nombreProyecto || '').toLowerCase();
+      const ciclo = (c.cicloConsejeria || '').toLowerCase();
+      const horarios = ((c as Record<string, unknown>).horarios as HorarioBlock[] | undefined) || [];
+      const horarioStr = horarios
+        .map((h) => `${DIA_SHORT[h.dia] || h.dia} ${h.horaInicio}-${h.horaFin}`)
+        .join(' ')
+        .toLowerCase();
+      return (
+        tipoLabel.includes(term) ||
+        descripcion.includes(term) ||
+        codigo.includes(term) ||
+        nombre.includes(term) ||
+        ciclo.includes(term) ||
+        horarioStr.includes(term) ||
+        String(c.horas).includes(term)
+      );
+    });
+  }, [cargasNoLectivas, tableSearch]);
+
   // ── Access guard ─────────────────────────────────────
 
   if (!docenteId) {
@@ -383,6 +411,29 @@ export default function CargaNoLectivaPage() {
             <Plus className="h-4 w-4" /> Agregar Actividad
           </button>
         </div>
+      </div>
+
+      {/* Search bar */}
+      <div className="relative max-w-md">
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+        />
+        <input
+          type="text"
+          placeholder="Buscar por tipo, descripción, horario, proyecto..."
+          value={tableSearch}
+          onChange={(e) => setTableSearch(e.target.value)}
+          className="w-full bg-zinc-900/80 border border-zinc-800 text-white rounded-lg pl-9 pr-9 py-2 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500"
+        />
+        {tableSearch && (
+          <button
+            onClick={() => setTableSearch('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-white"
+            title="Limpiar"
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
 
       {/* Summary cards */}
@@ -438,8 +489,17 @@ export default function CargaNoLectivaPage() {
               <tr><td colSpan={4} className="px-6 py-12 text-center text-text-sub">Cargando actividades...</td></tr>
             ) : cargasNoLectivas.length === 0 ? (
               <tr><td colSpan={4} className="px-6 py-12 text-center text-text-sub">No hay actividades registradas</td></tr>
+            ) : filteredCargasNoLectivas.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-12 text-center text-text-sub">
+                  <div className="flex flex-col items-center gap-2">
+                    <Search className="h-8 w-8 opacity-30" />
+                    <p>No se encontraron actividades para "{tableSearch}"</p>
+                  </div>
+                </td>
+              </tr>
             ) : (
-              cargasNoLectivas.map((c) => (
+              filteredCargasNoLectivas.map((c) => (
                 <tr key={c.id} className="group transition-colors">
                   <td>
                     <div>
@@ -471,10 +531,10 @@ export default function CargaNoLectivaPage() {
                 </tr>
               ))
             )}
-            {cargasNoLectivas.length > 0 && (
+            {filteredCargasNoLectivas.length > 0 && (
               <tr className="border-t-2 border-zinc-700 bg-zinc-800/30">
                 <td className="px-4 py-3 font-bold text-white">Total</td>
-                <td className="px-4 py-3 text-center font-bold text-white font-mono">{totalNoLectivas}h</td>
+                <td className="px-4 py-3 text-center font-bold text-white font-mono">{filteredCargasNoLectivas.reduce((s, c) => s + c.horas, 0)}h</td>
                 <td colSpan={2} />
               </tr>
             )}

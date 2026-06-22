@@ -218,10 +218,42 @@ export const horarioRouter = createTRPCRouter({
       });
     }),
 
-  delete: adminProcedure
+  delete: secretariaProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.prisma.asignacion.delete({ where: { id: input.id } });
+    }),
+
+  update: secretariaProcedure
+    .input(z.object({
+      id: z.string(),
+      aulaId: z.string(),
+      franjaHorariaId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const service = new AvailabilityService(ctx.prisma);
+      const asignacion = await ctx.prisma.asignacion.findUniqueOrThrow({ where: { id: input.id } });
+
+      // Validate against all constraints
+      const validation = await service.validateSlotSelection(
+        asignacion.docenteId,
+        input.aulaId,
+        asignacion.grupoId,
+        input.franjaHorariaId,
+        asignacion.periodoId
+      );
+
+      if (!validation.valid) {
+        throw new Error(validation.reasons.join(', '));
+      }
+
+      return ctx.prisma.asignacion.update({
+        where: { id: input.id },
+        data: {
+          aulaId: input.aulaId,
+          franjaHorariaId: input.franjaHorariaId,
+        },
+      });
     }),
 
   // ─── Auto Scheduling (Batch) ───────────────────────

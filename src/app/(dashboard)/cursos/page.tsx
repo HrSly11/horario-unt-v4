@@ -45,12 +45,13 @@ export default function CursosPage() {
    const isAdmin = user?.role === 'ADMIN';
    const isDocente = user?.role === 'DOCENTE';
    const isSecretaria = user?.role === 'SECRETARIA_ACADEMICA';
+   const isSecretariaDepto = user?.role === 'SECRETARIA_DEPARTAMENTO';
    const isDirector = user?.role === 'DIRECTOR_ESCUELA';
 
    const [activeTab, setActiveTab] = useState<'MIS_CURSOS' | 'CATALOGO' | 'APERTURA'>('CATALOGO');
 
    useEffect(() => {
-     if (user?.role === 'SECRETARIA_ACADEMICA') setActiveTab('APERTURA');
+     if (user?.role === 'SECRETARIA_ACADEMICA' || user?.role === 'SECRETARIA_DEPARTAMENTO') setActiveTab('APERTURA');
      else if (user?.role === 'DOCENTE') setActiveTab('MIS_CURSOS');
      else setActiveTab('CATALOGO');
    }, [user?.role]);
@@ -68,8 +69,8 @@ export default function CursosPage() {
      c.codigo.toLowerCase().includes(apertureSearch.toLowerCase())
    );
 
-   const canCreateEdit = isAdmin;
-   const canToggleApertura = isAdmin || isSecretaria;
+   const canCreateEdit = isAdmin || isSecretariaDepto;
+   const canToggleApertura = isAdmin || isSecretaria || isSecretariaDepto;
 
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
   const { data: cursos = [], isLoading } = useQuery({
@@ -273,7 +274,7 @@ export default function CursosPage() {
         >
           <BookOpen className="h-4 w-4" /> Catálogo
         </button>
-        {(isAdmin || isSecretaria) && (
+        {(isAdmin || isSecretaria || isSecretariaDepto) && (
           <button
             onClick={() => setActiveTab('APERTURA')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
@@ -309,7 +310,7 @@ export default function CursosPage() {
             </button>
           )}
           
-          {activeTab === 'APERTURA' && (isAdmin || isSecretaria) && (
+          {activeTab === 'APERTURA' && (isAdmin || isSecretaria || isSecretariaDepto) && (
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => {
@@ -503,7 +504,7 @@ export default function CursosPage() {
                   )}
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      {activeTab === 'APERTURA' && (isAdmin || isSecretaria) && (
+                      {activeTab === 'APERTURA' && (isAdmin || isSecretaria || isSecretariaDepto) && (
                         <button
                           onClick={() => handleToggleApertura(c)}
                           className={`p-2 rounded-lg transition-all ${

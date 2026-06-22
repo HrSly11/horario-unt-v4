@@ -694,10 +694,21 @@ export const cargaLectivaRouter = createTRPCRouter({
 
   /** Returns all grupos for a period with full curso info — for the assignment dropdown */
   gruposDisponibles: protectedProcedure
-    .input(z.object({ periodoId: z.string() }))
+    .input(z.object({ periodoId: z.string(), curriculaId: z.string().optional() }))
     .query(async ({ ctx, input }) => {
       const grupos = await ctx.prisma.grupo.findMany({
-        where: { periodoAcademicoId: input.periodoId },
+        where: { 
+          periodoAcademicoId: input.periodoId,
+          ...(input.curriculaId ? {
+            curso: {
+              cursoCurriculas: {
+                some: {
+                  curriculaId: input.curriculaId
+                }
+              }
+            }
+          } : {})
+        },
         include: {
           curso: {
             select: {

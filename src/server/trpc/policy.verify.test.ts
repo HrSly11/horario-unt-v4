@@ -1,53 +1,114 @@
 import { describe, expect, it, vi } from 'vitest';
-import { assertCanAccessDocenteDepartamento } from './policy';
+import {
+  assertCanAccessEscuela,
+  assertCanAccessFacultad,
+  assertCanAccessDepartamento,
+  assertCanAccessDocenteDepartamento,
+  getManagedEscuelaIds,
+  getManagedFacultadIds,
+} from './policy';
 import { UserRole } from '@/generated/prisma/client';
 
-describe('Policy - assertCanAccessDocenteDepartamento with DIRECTOR_DEPARTAMENTO', () => {
-  const mockPrisma = {
-    docente: {
-      findUniqueOrThrow: vi.fn(async () => ({
-        id: 'docente-1',
-        departamentoId: 'dept-1',
-      })),
-    },
-    departamento: {
-      findUnique: vi.fn(async () => ({
-        id: 'dept-1',
-      })),
-    },
-  } as any;
+function session(id: string, role: UserRole) {
+  return { id, role };
+}
 
-  it('allows DIRECTOR_DEPARTAMENTO to access any docente (now that they are in academicManagerRoles)', async () => {
-    const session = {
-      id: 'director-user',
-      role: 'DIRECTOR_DEPARTAMENTO' as UserRole,
-    };
+describe('scoped role policy', () => {
+  it('allows a department head to access teachers from the managed department', async () => {
+    const prisma = {
+      departamento: { findUnique: vi.fn().mockResolvedValue({ id: 'dept-1' }) },
+      docente: { findUniqueOrThrow: vi.fn().mockResolvedValue({ departamentoId: 'dept-1' }) },
+    } as any;
 
-    // This should NOT throw
-    await expect(assertCanAccessDocenteDepartamento(mockPrisma, session, 'docente-1')).resolves.not.toThrow();
+    await expect(
+      assertCanAccessDocenteDepartamento(
+        prisma,
+        session('head-1', 'DIRECTOR_DEPARTAMENTO'),
+        'teacher-1'
+      )
+    ).resolves.toBeUndefined();
   });
 
-  it('allows DIRECTOR_ESCUELA to access any docente (baseline)', async () => {
-    const session = {
-      id: 'escuela-user',
-      role: 'DIRECTOR_ESCUELA' as UserRole,
-    };
+  it('rejects a department head targeting another department', async () => {
+    const prisma = {
+      departamento: { findUnique: vi.fn().mockResolvedValue({ id: 'dept-1' }) },
+      docente: { findUniqueOrThrow: vi.fn().mockResolvedValue({ departamentoId: 'dept-2' }) },
+    } as any;
 
-    await expect(assertCanAccessDocenteDepartamento(mockPrisma, session, 'docente-1')).resolves.not.toThrow();
+    await expect(
+      assertCanAccessDocenteDepartamento(
+        prisma,
+        session('head-1', 'DIRECTOR_DEPARTAMENTO'),
+        'teacher-2'
+      )
+    ).rejects.toThrow('No tiene permiso para acceder a este docente');
   });
 
-  it('restricts SECRETARIA_DEPARTAMENTO to their department', async () => {
-    const session = {
-      id: 'secretaria-user',
-      role: 'SECRETARIA_DEPARTAMENTO' as UserRole,
-    };
+  it('does not grant a school director a global department bypass', async () => {
+    const prisma = { departamento: { findUnique: vi.fn() } } as any;
 
-    // Case 1: Secretary manages the teacher's department
-    mockPrisma.departamento.findUnique.mockResolvedValueOnce({ id: 'dept-1' });
-    await expect(assertCanAccessDocenteDepartamento(mockPrisma, session, 'docente-1')).resolves.not.toThrow();
+    await expect(
+      assertCanAccessDepartamento(
+        prisma,
+        session('school-director-1', 'DIRECTOR_ESCUELA'),
+        'dept-1'
+      )
+    ).rejects.toThrow('No tiene permiso para acceder a este departamento');
+  });
 
-    // Case 2: Secretary does NOT manage the teacher's department
-    mockPrisma.departamento.findUnique.mockResolvedValueOnce({ id: 'dept-other' });
-    await expect(assertCanAccessDocenteDepartamento(mockPrisma, session, 'docente-1')).rejects.toThrow('No tiene permiso para acceder a este docente');
+  it.each([
+    ['DIRECTOR_ESCUELA', 'escuelaDirigida'],
+    ['SECRETARIA_ACADEMICA', 'escuelaSecretaria'],
+  ] as const)('scopes %s to the owned school', async (role, relation) => {
+    const prisma = {
+      escuela: { findUnique: vi.fn().mockResolvedValue({ id: 'school-1' }) },
+    } as any;
+
+    await expect(
+      getManagedEscuelaIds(prisma, session('school-user', role))
+    ).resolves.toEqual(['school-1']);
+    expect(prisma.escuela.findUnique).toHaveBeenCalledWith({
+      where: { [relation === 'escuelaDirigida' ? 'directorId' : 'secretariaId']: 'school-user' },
+      select: { id: true },
+    });
+  });
+
+  it('scopes a dean to the owned faculty while ADMIN remains unscoped', async () => {
+    const prisma = {
+      facultad: { findUnique: vi.fn().mockResolvedValue({ id: 'faculty-1' }) },
+    } as any;
+
+    await expect(
+      getManagedFacultadIds(prisma, session('dean-1', 'DECANO'))
+    ).resolves.toEqual(['faculty-1']);
+    await expect(
+      getManagedFacultadIds(prisma, session('admin-1', 'ADMIN'))
+    ).resolves.toBeNull();
+  });
+
+  it('rejects cross-school and cross-faculty access', async () => {
+    const prisma = {
+      escuela: { findUnique: vi.fn().mockResolvedValue({ id: 'school-1' }) },
+      facultad: { findUnique: vi.fn().mockResolvedValue({ id: 'faculty-1' }) },
+    } as any;
+
+    await expect(
+      assertCanAccessEscuela(prisma, session('secretary-1', 'SECRETARIA_ACADEMICA'), 'school-2')
+    ).rejects.toThrow('No tiene permiso para acceder a esta escuela');
+    await expect(
+      assertCanAccessFacultad(prisma, session('dean-1', 'DECANO'), 'faculty-2')
+    ).rejects.toThrow('No tiene permiso para acceder a esta facultad');
+  });
+
+  it('allows a teacher to access only their own identity', async () => {
+    const prisma = {} as any;
+    const teacher = { id: 'teacher-user', role: 'DOCENTE' as UserRole, docenteId: 'teacher-1' };
+
+    await expect(
+      assertCanAccessDocenteDepartamento(prisma, teacher, 'teacher-1')
+    ).resolves.toBeUndefined();
+    await expect(
+      assertCanAccessDocenteDepartamento(prisma, teacher, 'teacher-2')
+    ).rejects.toThrow('No tiene permiso para acceder a otro docente');
   });
 });

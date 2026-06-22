@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
+import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure, academicManagerProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 import { Prisma } from '@/generated/prisma/client';
+import { assertWorkflowActivationReady } from '@/server/domain/workflow-foundation';
 
 const cursoInput = z.object({
   codigo: z.string().min(2, 'El código es obligatorio'),
@@ -240,13 +241,40 @@ export const cursoRouter = createTRPCRouter({
   }),
 
   /** Start scheduling process (Representative only) */
-  startProcess: secretariaProcedure.mutation(async ({ ctx }) => {
-    const periodo = await ctx.prisma.periodoAcademico.findFirst({ where: { activo: true } });
-    if (!periodo) throw new TRPCError({ code: 'NOT_FOUND' });
+  startProcess: academicManagerProcedure.mutation(async ({ ctx }) => {
+    const client = ctx.prisma as unknown as {
+      $transaction<T>(operation: (tx: {
+        migracionReconciliacion: {
+          findMany(args: unknown): Promise<Array<{
+            codigo: string;
+            blocking: boolean;
+            resueltaEn: Date | null;
+          }>>;
+        };
+        periodoAcademico: typeof ctx.prisma.periodoAcademico;
+      }) => Promise<T>): Promise<T>;
+    };
 
-    return ctx.prisma.periodoAcademico.update({
-      where: { id: periodo.id },
-      data: { estado: 'POSTULACION' },
+    return client.$transaction(async (tx) => {
+      const issues = await tx.migracionReconciliacion.findMany({
+        where: { blocking: true, resueltaEn: null },
+        select: { codigo: true, blocking: true, resueltaEn: true },
+      });
+      assertWorkflowActivationReady(
+        issues.map((issue) => ({
+          code: issue.codigo,
+          blocking: issue.blocking,
+          resolved: issue.resueltaEn !== null,
+        }))
+      );
+
+      const periodo = await tx.periodoAcademico.findFirst({ where: { activo: true } });
+      if (!periodo) throw new TRPCError({ code: 'NOT_FOUND' });
+
+      return tx.periodoAcademico.update({
+        where: { id: periodo.id },
+        data: { estado: 'POSTULACION' },
+      });
     });
   }),
 });

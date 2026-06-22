@@ -12,7 +12,6 @@ export const academicManagerRoles: UserRole[] = [
   'SECRETARIA_ACADEMICA',
   'DIRECTOR_ESCUELA',
   'DECANO',
-  'DIRECTOR_DEPARTAMENTO',
 ];
 
 export const departmentManagerRoles: UserRole[] = [
@@ -26,8 +25,14 @@ export const departmentScopedRoles: UserRole[] = [
   'SECRETARIA_DEPARTAMENTO',
 ];
 
+const unscopedRoles: UserRole[] = ['ADMIN'];
+
 export function hasRole(session: SessionLike, roles: UserRole[]) {
   return roles.includes(session.role);
+}
+
+function isUnscoped(session: SessionLike) {
+  return hasRole(session, unscopedRoles);
 }
 
 export function assertRole(session: SessionLike, roles: UserRole[], message = 'No tiene permisos suficientes') {
@@ -90,7 +95,7 @@ export function buildDepartmentScopedUserWhere(
 export function assertDocenteSelfOrRole(
   session: SessionLike,
   docenteId: string,
-  roles: UserRole[] = academicManagerRoles
+  roles: UserRole[] = ['ADMIN']
 ) {
   if (session.role === 'DOCENTE' && session.docenteId === docenteId) return;
   if (hasRole(session, roles)) return;
@@ -99,7 +104,7 @@ export function assertDocenteSelfOrRole(
 }
 
 export async function getManagedDepartamentoIds(prisma: PrismaClient, session: SessionLike) {
-  if (hasRole(session, academicManagerRoles)) return null;
+  if (isUnscoped(session)) return null;
 
   if (session.role === 'DIRECTOR_DEPARTAMENTO') {
     const departamento = await prisma.departamento.findUnique({
@@ -117,7 +122,56 @@ export async function getManagedDepartamentoIds(prisma: PrismaClient, session: S
     return departamento ? [departamento.id] : [];
   }
 
+  if (session.role === 'DECANO') {
+    const facultad = await (prisma.facultad as any).findUnique({
+      where: { decanoId: session.id },
+      select: { departamentos: { select: { id: true } } },
+    });
+    return facultad?.departamentos.map(({ id }: { id: string }) => id) ?? [];
+  }
+
   return [];
+}
+
+export async function getManagedEscuelaIds(prisma: PrismaClient, session: SessionLike) {
+  if (isUnscoped(session)) return null;
+
+  const ownerField =
+    session.role === 'DIRECTOR_ESCUELA'
+      ? 'directorId'
+      : session.role === 'SECRETARIA_ACADEMICA'
+        ? 'secretariaId'
+        : null;
+
+  if (!ownerField) return [];
+  const escuela = await (prisma.escuela as any).findUnique({
+    where: { [ownerField]: session.id },
+    select: { id: true },
+  });
+  return escuela ? [escuela.id] : [];
+}
+
+export async function getManagedFacultadIds(prisma: PrismaClient, session: SessionLike) {
+  if (isUnscoped(session)) return null;
+  if (session.role !== 'DECANO') return [];
+
+  const facultad = await (prisma.facultad as any).findUnique({
+    where: { decanoId: session.id },
+    select: { id: true },
+  });
+  return facultad ? [facultad.id] : [];
+}
+
+async function assertManagedScope(
+  ids: string[] | null,
+  targetId: string,
+  scopeLabel: 'departamento' | 'escuela' | 'facultad'
+) {
+  if (ids === null || ids.includes(targetId)) return;
+  throw new TRPCError({
+    code: 'FORBIDDEN',
+    message: `No tiene permiso para acceder a ${scopeLabel === 'departamento' ? 'este' : 'esta'} ${scopeLabel}`,
+  });
 }
 
 export async function assertCanAccessDepartamento(
@@ -126,14 +180,23 @@ export async function assertCanAccessDepartamento(
   departamentoId: string
 ) {
   const managedDepartamentoIds = await getManagedDepartamentoIds(prisma, session);
-  if (managedDepartamentoIds === null) return;
+  await assertManagedScope(managedDepartamentoIds, departamentoId, 'departamento');
+}
 
-  if (!managedDepartamentoIds.includes(departamentoId)) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'No tiene permiso para acceder a este departamento',
-    });
-  }
+export async function assertCanAccessEscuela(
+  prisma: PrismaClient,
+  session: SessionLike,
+  escuelaId: string
+) {
+  await assertManagedScope(await getManagedEscuelaIds(prisma, session), escuelaId, 'escuela');
+}
+
+export async function assertCanAccessFacultad(
+  prisma: PrismaClient,
+  session: SessionLike,
+  facultadId: string
+) {
+  await assertManagedScope(await getManagedFacultadIds(prisma, session), facultadId, 'facultad');
 }
 
 export async function assertCanAccessDocenteDepartamento(

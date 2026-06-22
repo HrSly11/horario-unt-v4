@@ -3,6 +3,7 @@ import { PrismaClient, CategoriaDocente, TipoDocente, ModalidadDocente, TipoAula
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
+import { getTeachersWithoutAuthorityAccount } from '../src/server/domain/workflow-foundation';
 
 const connectionString = process.env.DATABASE_URL!;
 const pool = new pg.Pool({ connectionString });
@@ -11,11 +12,23 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('🌱 Seeding database...');
+  const foundationPrisma = prisma as any;
 
   // Limpiar base de datos antes de sembrar (en orden inverso de relaciones)
+  await foundationPrisma.publicacionAcademica.deleteMany();
+  await foundationPrisma.migracionReconciliacion.deleteMany();
+  await prisma.documentoFirmaDigital.deleteMany();
   await prisma.declaracionCarga.deleteMany();
   await prisma.cargaNoLectiva.deleteMany();
   await prisma.asignacionCargaLectiva.deleteMany();
+  await foundationPrisma.coberturaComponente.deleteMany();
+  await foundationPrisma.distribucionLectiva.deleteMany();
+  await foundationPrisma.demandaLineaCurricula.deleteMany();
+  await foundationPrisma.demandaLinea.deleteMany();
+  await foundationPrisma.demandaAcademica.deleteMany();
+  await foundationPrisma.procesoHorarioEscuela.deleteMany();
+  await foundationPrisma.cargoDocente.deleteMany();
+  await foundationPrisma.reglaCargaPorCargo.deleteMany();
   await prisma.cursoCurricula.deleteMany();
   await prisma.curricula.deleteMany();
   await prisma.escuela.deleteMany();
@@ -197,10 +210,25 @@ async function main() {
   const deptoMatematicas = await prisma.departamento.create({ data: { nombre: 'Departamento de Matemáticas', facultadId: facultadCiencias.id } });
   const deptoFisica = await prisma.departamento.create({ data: { nombre: 'Departamento de Física', facultadId: facultadCiencias.id } });
 
+  const departmentByLegacyName = new Map([
+    ['Dpto. de Ing. Sistemas', deptoSistemas.id],
+    ['Dpto. de Ing. Industrial', deptoIndustrial.id],
+    ['Dpto. de Matemáticas', deptoMatematicas.id],
+    ['Dpto. de Física', deptoFisica.id],
+  ]);
+  await Promise.all(
+    cursosData.map((curso) => {
+      const departamentoId = departmentByLegacyName.get(curso.departamento);
+      return departamentoId
+        ? foundationPrisma.curso.update({ where: { codigo: curso.codigo }, data: { departamentoId } })
+        : Promise.resolve();
+    })
+  );
+
   const escuelaSistemas = await prisma.escuela.create({ data: { nombre: 'Escuela de Ingeniería de Sistemas', facultadId: facultadIng.id } });
 
-  const curricula2018 = await prisma.curricula.create({
-    data: { codigo: '2018', escuelaId: escuelaSistemas.id, vigente: true, anio: 2018 },
+  const curricula2018 = await foundationPrisma.curricula.create({
+    data: { codigo: '2018', escuelaId: escuelaSistemas.id, vigente: true, estado: 'ACTIVA', estudiantesPendientes: 0, anio: 2018 },
   });
 
   const cursosCurriculaData = cursos.map((curso) => ({
@@ -312,8 +340,8 @@ async function main() {
   const docentePassword = await bcrypt.hash('docente123', 10);
 
   await prisma.user.create({ data: { email: 'admin@unt.edu.pe', password: hashedPassword, nombre: 'Administrador', role: UserRole.ADMIN } });
-  await prisma.user.create({ data: { email: 'director@unt.edu.pe', password: hashedPassword, nombre: 'Director Escuela', role: UserRole.DIRECTOR_ESCUELA } });
-  await prisma.user.create({ data: { email: 'secretaria@unt.edu.pe', password: hashedPassword, nombre: 'Secretaria Académica', role: UserRole.SECRETARIA_ACADEMICA } });
+  const directorEscuela = await prisma.user.create({ data: { email: 'director@unt.edu.pe', password: hashedPassword, nombre: 'Director Escuela', role: UserRole.DIRECTOR_ESCUELA, docenteId: docentes[1].id } });
+  const secretariaEscuela = await prisma.user.create({ data: { email: 'secretaria@unt.edu.pe', password: hashedPassword, nombre: 'Secretaria Académica', role: UserRole.SECRETARIA_ACADEMICA } });
 
   // Jefe de Departamento de Sistemas
   const jefeDeptSistemas = await prisma.user.create({
@@ -321,7 +349,8 @@ async function main() {
       email: 'dirsistemas@unt.edu.pe', 
       password: hashedPassword, 
       nombre: 'Jefe de Departamento de Sistemas', 
-      role: UserRole.DIRECTOR_DEPARTAMENTO 
+      role: UserRole.DIRECTOR_DEPARTAMENTO,
+      docenteId: docentes[0].id,
     } 
   });
 
@@ -336,12 +365,13 @@ async function main() {
   });
 
   // Decano
-  await prisma.user.create({
+  const decano = await prisma.user.create({
     data: { 
       email: 'decano@unt.edu.pe', 
       password: hashedPassword, 
       nombre: 'Decano de Facultad', 
-      role: UserRole.DECANO 
+      role: UserRole.DECANO,
+      docenteId: docentes[2].id,
     } 
   });
 
@@ -349,6 +379,38 @@ async function main() {
   await prisma.departamento.update({
     where: { id: deptoSistemas.id },
     data: { directorId: jefeDeptSistemas.id, secretariaId: secretariaDpto.id }
+  });
+  await foundationPrisma.escuela.update({
+    where: { id: escuelaSistemas.id },
+    data: { directorId: directorEscuela.id, secretariaId: secretariaEscuela.id },
+  });
+  await foundationPrisma.facultad.update({
+    where: { id: facultadIng.id },
+    data: { decanoId: decano.id },
+  });
+
+  await foundationPrisma.cargoDocente.createMany({
+    data: [
+      { docenteId: docentes[0].id, periodoId: periodo2026I.id, cargo: 'JEFE_DEPARTAMENTO', departamentoId: deptoSistemas.id, resolucion: 'SEED-JEFE-2026-I' },
+      { docenteId: docentes[1].id, periodoId: periodo2026I.id, cargo: 'DIRECTOR_ESCUELA', escuelaId: escuelaSistemas.id, resolucion: 'SEED-DIRECTOR-2026-I' },
+      { docenteId: docentes[2].id, periodoId: periodo2026I.id, cargo: 'DECANO', facultadId: facultadIng.id, resolucion: 'SEED-DECANO-2026-I' },
+    ],
+  });
+
+  const roleRules = [
+    ['JEFE_DEPARTAMENTO', 8, 4, 1, 5, 15, 1],
+    ['DIRECTOR_ESCUELA', 8, 4, 1, 5, 15, 1],
+    ['DECANO', 4, 2, 1, 5, 20, 1],
+  ] as const;
+  await foundationPrisma.reglaCargaPorCargo.createMany({
+    data: roleRules.flatMap(([cargo, lectiva, preparacion, consejeria, investigacion, administracion, proyeccion]) => [
+      { cargo, codigoActividad: 'LECTIVA_MINIMA', horasLectivasMinimas: lectiva, requiereEvidencia: false },
+      { cargo, codigoActividad: 'PREPARACION', tipoCargaNoLectiva: 'PREPARACION_EVALUACION', horasNoLectivas: preparacion, requiereEvidencia: false },
+      { cargo, codigoActividad: 'CONSEJERIA', tipoCargaNoLectiva: 'CONSEJERIA', horasNoLectivas: consejeria, requiereEvidencia: false },
+      { cargo, codigoActividad: 'INVESTIGACION', tipoCargaNoLectiva: 'INVESTIGACION', horasNoLectivas: investigacion, requiereEvidencia: true },
+      { cargo, codigoActividad: 'ADMINISTRACION', tipoCargaNoLectiva: 'ADMINISTRACION', horasNoLectivas: administracion, requiereEvidencia: true },
+      { cargo, codigoActividad: 'PROYECCION_SOCIAL', tipoCargaNoLectiva: 'RESPONSABILIDAD_SOCIAL', horasNoLectivas: proyeccion, requiereEvidencia: true },
+    ]),
   });
 
   // ── Horario Personal y Declaraciones (Pruebas 2026-I) ────────────────
@@ -532,8 +594,8 @@ async function main() {
   });
 
   // 4. Crear más usuarios docentes
-  for (let i = 0; i < docentes.length; i++) {
-    const d = docentes[i];
+  const authorityTeacherIds = [docentes[0].id, docentes[1].id, docentes[2].id];
+  for (const d of getTeachersWithoutAuthorityAccount(docentes, authorityTeacherIds)) {
     const email = d.email;
     const exists = await prisma.user.findUnique({ where: { email } });
     if (!exists) {

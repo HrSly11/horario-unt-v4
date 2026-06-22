@@ -37,12 +37,14 @@ export default function CargaLectivaPage() {
   const [selectedPeriodoId, setSelectedPeriodoId] = useState('');
   const [filterDocenteId, setFilterDocenteId] = useState('');
   const [docenteSearch, setDocenteSearch] = useState('');
+  const [tableSearch, setTableSearch] = useState('');
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'docentes' | 'cursos'>('docentes');
+  const [selectedCurriculaId, setSelectedCurriculaId] = useState<string | null>(null);
 
-  // ── Unified modal states ───────────────────────────────
+  // Unified modal states ───────────────────────────────
   const [docenteId, setDocenteId] = useState('');
   const [grupoId, setGrupoId] = useState('');
 
@@ -91,6 +93,9 @@ export default function CargaLectivaPage() {
   const { data: docentes = [] } = useQuery({
     ...trpc.docente.list.queryOptions({}),
   });
+  const { data: curriculaList = [] } = useQuery({
+    ...trpc.curricula.list.queryOptions({ vigente: true }),
+  });
 
   const uniqueDocentesList = useMemo(() => {
     const seen = new Set();
@@ -104,7 +109,7 @@ export default function CargaLectivaPage() {
   }, [docentes]);
 
   const { data: gruposDisponibles = [] } = useQuery({
-    ...trpc.cargaLectiva.gruposDisponibles.queryOptions({ periodoId }),
+    ...trpc.cargaLectiva.gruposDisponibles.queryOptions({ periodoId, curriculaId: selectedCurriculaId || undefined }),
     enabled: !!periodoId,
   });
 
@@ -181,6 +186,46 @@ export default function CargaLectivaPage() {
 
     return Object.values(groups).sort((a, b) => a.docente.nombre.localeCompare(b.docente.nombre));
   }, [cargasLectivas]);
+
+  // Filter grouped charges by the table search (applies to docente view)
+  const filteredGroupedCargas = useMemo(() => {
+    if (!tableSearch.trim()) return groupedCargas;
+    const term = tableSearch.toLowerCase();
+    return groupedCargas
+      .map((group) => {
+        const docenteMatch =
+          group.docente.nombre.toLowerCase().includes(term) ||
+          group.docente.email.toLowerCase().includes(term);
+        const matchingAsignaciones = group.asignaciones.filter((c) => {
+          return (
+            c.grupo.curso.codigo.toLowerCase().includes(term) ||
+            c.grupo.curso.nombre.toLowerCase().includes(term) ||
+            c.grupo.nombre.toLowerCase().includes(term) ||
+            c.tipo.toLowerCase().includes(term)
+          );
+        });
+        if (docenteMatch) return group;
+        if (matchingAsignaciones.length > 0) {
+          const totalHoras = matchingAsignaciones.reduce((s, c) => s + c.horasAsignadas, 0);
+          return { ...group, asignaciones: matchingAsignaciones, totalHoras };
+        }
+        return null;
+      })
+      .filter((g): g is (typeof groupedCargas)[number] => g !== null);
+  }, [groupedCargas, tableSearch]);
+
+  // Filter cursos view by the table search
+  const filteredGruposDisponibles = useMemo(() => {
+    if (!tableSearch.trim()) return gruposDisponibles;
+    const term = tableSearch.toLowerCase();
+    return gruposDisponibles.filter(
+      (g) =>
+        g.curso.codigo.toLowerCase().includes(term) ||
+        g.curso.nombre.toLowerCase().includes(term) ||
+        g.nombre.toLowerCase().includes(term) ||
+        String(g.curso.ciclo).includes(term)
+    );
+  }, [gruposDisponibles, tableSearch]);
 
   const isManager = canManage(user?.role);
 
@@ -465,6 +510,26 @@ export default function CargaLectivaPage() {
           />
         </div>
 
+        {/* Curricula selector */}
+        <div className="relative">
+          <select
+            value={selectedCurriculaId || ''}
+            onChange={(e) => setSelectedCurriculaId(e.target.value || null)}
+            className="appearance-none bg-zinc-900/80 border border-zinc-800 text-white rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:border-blue-500 min-w-[220px]"
+          >
+            <option value="">Todos los planes de estudio</option>
+            {curriculaList.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.codigo} ({c.anio}) - {c.escuela?.nombre}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={14}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
+          />
+        </div>
+
         {/* Docente filter */}
         <div className="relative">
           <select
@@ -483,6 +548,34 @@ export default function CargaLectivaPage() {
             size={14}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
           />
+        </div>
+
+        {/* Table search */}
+        <div className="relative flex-1 min-w-[240px] max-w-md">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+          />
+          <input
+            type="text"
+            placeholder={
+              activeTab === 'docentes'
+                ? 'Buscar docente, curso, código, tipo...'
+                : 'Buscar curso, código, ciclo...'
+            }
+            value={tableSearch}
+            onChange={(e) => setTableSearch(e.target.value)}
+            className="w-full bg-zinc-900/80 border border-zinc-800 text-white rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-blue-500"
+          />
+          {tableSearch && (
+            <button
+              onClick={() => setTableSearch('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-white"
+              title="Limpiar"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -555,7 +648,7 @@ export default function CargaLectivaPage() {
               </tr>
             </thead>
             <tbody>
-              {groupedCargas.map((group) => (
+              {filteredGroupedCargas.map((group) => (
                 <tr
                   key={group.docente.id}
                   className="border-t border-zinc-800 hover:bg-zinc-800/30 transition-colors"
@@ -641,6 +734,16 @@ export default function CargaLectivaPage() {
                   </td>
                 </tr>
               )}
+              {groupedCargas.length > 0 && filteredGroupedCargas.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="p-12 text-center">
+                    <div className="flex flex-col items-center gap-2 text-zinc-500">
+                      <Search size={32} className="opacity-20" />
+                      <p>No se encontraron resultados para "{tableSearch}"</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -660,7 +763,7 @@ export default function CargaLectivaPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
-                {gruposDisponibles.map((grupo) => {
+                {filteredGruposDisponibles.map((grupo) => {
                   const groupCargas = cargasLectivas.filter((c) => c.grupoId === grupo.id);
                   
                   // Teoría
@@ -818,6 +921,16 @@ export default function CargaLectivaPage() {
                       <div className="flex flex-col items-center gap-2 text-zinc-500">
                         <BookOpen size={32} className="opacity-20" />
                         <p>No hay cursos ni grupos en este periodo</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                {gruposDisponibles.length > 0 && filteredGruposDisponibles.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="p-12 text-center">
+                      <div className="flex flex-col items-center gap-2 text-zinc-500">
+                        <Search size={32} className="opacity-20" />
+                        <p>No se encontraron cursos para "{tableSearch}"</p>
                       </div>
                     </td>
                   </tr>

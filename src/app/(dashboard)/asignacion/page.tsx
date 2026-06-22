@@ -3,7 +3,7 @@
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { User, Calendar, CheckCircle2, TrendingUp, AlertTriangle } from 'lucide-react';
+import { User, Calendar, CheckCircle2, TrendingUp, AlertTriangle, Edit, Trash2, X, Save } from 'lucide-react';
 
 const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 const DIA_LABELS: Record<string, string> = {
@@ -51,6 +51,9 @@ export default function AsignacionPage() {
   
   const [selectedDocenteId, setSelectedDocenteId] = useState<string | null>(null);
   const [currentDocenteIdx, setCurrentDocenteIdx] = useState(0);
+  const [editingAsignacion, setEditingAsignacion] = useState<HorarioAsignacion | null>(null);
+  const [selectedAulaId, setSelectedAulaId] = useState<string>('');
+  const [selectedFranjaId, setSelectedFranjaId] = useState<string>('');
 
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
   const { data: approvalInfo } = useQuery({
@@ -60,6 +63,12 @@ export default function AsignacionPage() {
   const { data: docentesHierarchy = [] } = useQuery({ 
     ...trpc.horario.docentesByHierarchy.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
     enabled: !!periodoActivo?.id
+  });
+  const { data: aulas = [] } = useQuery({ 
+    ...trpc.aula.list.queryOptions(),
+  });
+  const { data: franjas = [] } = useQuery({ 
+    ...trpc.franjaHoraria.list.queryOptions(),
   });
   
   const { data: asignaciones = [], isLoading: isLoadingAsignaciones } = useQuery({
@@ -135,6 +144,26 @@ export default function AsignacionPage() {
     })
   );
 
+  const updateAsignacionMutation = useMutation(
+    trpc.horario.update.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries();
+        setEditingAsignacion(null);
+      },
+      onError: (err) => alert(err.message),
+    })
+  );
+
+  const deleteAsignacionMutation = useMutation(
+    trpc.horario.delete.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries();
+        setEditingAsignacion(null);
+      },
+      onError: (err) => alert(err.message),
+    })
+  );
+
   const autoGenerateMutation = useMutation(
     trpc.horario.autoGenerate.mutationOptions({
       onMutate: () => {
@@ -157,6 +186,28 @@ export default function AsignacionPage() {
   );
 
   const horas = [...new Set(asignaciones.map((a) => a.franjaHoraria.horaInicio))].sort();
+
+  function handleEdit(asignacion: HorarioAsignacion) {
+    setEditingAsignacion(asignacion);
+    setSelectedAulaId(asignacion.aula?.id || '');
+    setSelectedFranjaId(asignacion.franjaHoraria.id || '');
+  }
+
+  function handleSave() {
+    if (!editingAsignacion) return;
+    updateAsignacionMutation.mutate({
+      id: editingAsignacion.id,
+      aulaId: selectedAulaId,
+      franjaHorariaId: selectedFranjaId,
+    });
+  }
+
+  function handleDelete() {
+    if (!editingAsignacion) return;
+    if (confirm('¿Está seguro de eliminar esta asignación?')) {
+      deleteAsignacionMutation.mutate({ id: editingAsignacion.id });
+    }
+  }
   
   // Stable color mapping by course ID
   const uniqueCourseIds = Array.from(new Set(asignaciones.map(a => a.grupo.curso.id))).sort();
@@ -384,28 +435,32 @@ export default function AsignacionPage() {
                       {DIAS.map(dia => {
                         const a = asignaciones.find(a => a.franjaHoraria.dia === dia && a.franjaHoraria.horaInicio === hora);
                         if (!a) return <td key={dia} className="px-1 py-1" />;
-                        
-                        const colorClass = cursoColorMap.get(a.grupo.curso.id) || '';
-                        return (
-                          <td key={dia} className="px-1 py-1">
-                            <div className={`p-2 rounded-xl border flex flex-col justify-center min-h-[60px] shadow-sm transition-all hover:scale-[1.02] ${colorClass} ${!a.confirmado ? 'border-dashed ring-2 ring-primary/20' : 'border-current/10'}`}>
-                              <div className="flex items-center justify-between gap-1 mb-1">
-                                <p className="font-black text-[10px] leading-tight truncate">
-                                  {a.grupo.curso.codigo}
-                                </p>
-                                {!a.confirmado && <span className="text-[7px] bg-white/40 px-1 rounded-sm font-black animate-pulse">SUG</span>}
-                              </div>
-                              <p className="text-[9px] font-bold opacity-80 truncate leading-tight">{a.grupo.curso.nombre}</p>
-                              <div className="mt-2 flex items-center justify-between opacity-70 text-[8px] font-black uppercase tracking-tighter">
-                                <span className="bg-white/20 px-1 rounded">G{a.grupo.nombre}</span>
-                                <span className="flex items-center gap-0.5">
-                                  <Calendar className="h-2 w-2" />
-                                  {a.aula?.codigo}
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                        );
+        
+        const colorClass = cursoColorMap.get(a.grupo.curso.id) || '';
+        return (
+          <td key={dia} className="px-1 py-1">
+            <div 
+              onClick={() => canEdit && handleEdit(a)}
+              className={`p-2 rounded-xl border flex flex-col justify-center min-h-[60px] shadow-sm transition-all hover:scale-[1.02] cursor-pointer ${colorClass} ${!a.confirmado ? 'border-dashed ring-2 ring-primary/20' : 'border-current/10'}`}
+            >
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <p className="font-black text-[10px] leading-tight truncate">
+                  {a.grupo.curso.codigo}
+                </p>
+                {!a.confirmado && <span className="text-[7px] bg-white/40 px-1 rounded-sm font-black animate-pulse">SUG</span>}
+                {canEdit && <Edit className="h-2 w-2 opacity-70" />}
+              </div>
+              <p className="text-[9px] font-bold opacity-80 truncate leading-tight">{a.grupo.curso.nombre}</p>
+              <div className="mt-2 flex items-center justify-between opacity-70 text-[8px] font-black uppercase tracking-tighter">
+                <span className="bg-white/20 px-1 rounded">G{a.grupo.nombre}</span>
+                <span className="flex items-center gap-0.5">
+                  <Calendar className="h-2 w-2" />
+                  {a.aula?.codigo}
+                </span>
+              </div>
+            </div>
+          </td>
+        );
                       })}
                     </tr>
                   ))}
@@ -415,6 +470,81 @@ export default function AsignacionPage() {
           )}
         </div>
       </div>
+
+      {/* Modal de edición */}
+      {editingAsignacion && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-text-main">Editar Asignación</h2>
+              <button onClick={() => setEditingAsignacion(null)} className="rounded-lg p-1 text-text-sub hover:bg-slate-100">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-sm text-text-sub mb-2">Curso: <span className="font-bold">{editingAsignacion.grupo.curso.nombre} ({editingAsignacion.grupo.curso.codigo})</span></p>
+              <p className="text-sm text-text-sub mb-2">Grupo: <span className="font-bold">{editingAsignacion.grupo.nombre}</span></p>
+              <p className="text-sm text-text-sub mb-2">Tipo: <span className="font-bold">{editingAsignacion.tipo}</span></p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="label-standard">Aula</label>
+                <select 
+                  value={selectedAulaId} 
+                  onChange={(e) => setSelectedAulaId(e.target.value)}
+                  className="input-standard"
+                >
+                  <option value="">Seleccione una aula</option>
+                  {(aulas as any[]).map(aula => (
+                    <option key={aula.id} value={aula.id}>{aula.codigo} - {aula.nombre} ({aula.tipo})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="label-standard">Franja Horaria</label>
+                <select 
+                  value={selectedFranjaId} 
+                  onChange={(e) => setSelectedFranjaId(e.target.value)}
+                  className="input-standard"
+                >
+                  <option value="">Seleccione una franja</option>
+                  {(franjas as any[]).map(franja => (
+                    <option key={franja.id} value={franja.id}>
+                      {DIA_LABELS[franja.dia] || franja.dia} {franja.horaInicio} - {franja.horaFin}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-border">
+                <button 
+                  onClick={() => setEditingAsignacion(null)} 
+                  className="btn-secondary flex-1"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleDelete} 
+                  className="btn-secondary text-danger border-danger/30 hover:bg-danger/10"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </button>
+                <button 
+                  onClick={handleSave} 
+                  className="btn-primary flex-1"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
