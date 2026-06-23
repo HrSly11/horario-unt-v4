@@ -519,171 +519,232 @@ export interface FormatoN3Data {
   }[];
 }
 
-interface GroupedLectiva {
-  key: string;
-  cursoCodigo: string;
-  cursoNombre: string;
-  grupoNombre: string;
-  ciclo: number;
-  seccion: string;
-  aulas: string[];
-  slots: {
-    tipo: string;
-    dia: string;
-    horaInicio: string;
-    horaFin: string;
-  }[];
-  totalHoras: number;
-}
-
 export function templateFormatoN3(data: FormatoN3Data): string {
-  const groupsMap: Record<string, GroupedLectiva> = {};
-  data.asignacionesLectivas.forEach((a) => {
-    const key = `${a.cursoCodigo}-${a.grupoNombre}`;
-    if (!groupsMap[key]) {
-      groupsMap[key] = {
-        key,
-        cursoCodigo: a.cursoCodigo,
-        cursoNombre: a.cursoNombre,
-        grupoNombre: a.grupoNombre,
-        ciclo: a.ciclo,
-        seccion: a.seccion || 'A',
-        aulas: [],
-        slots: [],
-        totalHoras: 0,
-      };
-    }
-    const item = groupsMap[key];
-    if (!item.aulas.includes(a.aulaCodigo)) {
-      item.aulas.push(a.aulaCodigo);
-    }
-    item.slots.push({
-      tipo: a.tipo,
-      dia: a.dia,
-      horaInicio: a.horaInicio,
-      horaFin: a.horaFin,
-    });
-    item.totalHoras += 1;
+  // 1. Build the hourly grid slots for each day
+  const dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
+  const daySlots: Record<string, Record<string, any>> = {};
+  
+  // Initialize days
+  dias.forEach((d) => {
+    daySlots[d] = {};
   });
 
-  const filasLectivas = Object.values(groupsMap).map((g) => {
-    const horarioText = formatSlotsText(g.slots);
-    const totalHrs = g.totalHoras;
-    const aulasList = g.aulas.join(', ');
-    return `
-      <tr>
-        <td style="font-size: 8px;">${horarioText}</td>
-        <td style="font-size: 8px;">
-          <strong class="uppercase">${g.cursoNombre}</strong><br>
-          Ciclo ${g.ciclo} — Grupo ${g.grupoNombre}
-        </td>
-        <td class="text-center font-bold">F11</td>
-        <td class="text-center" style="font-size: 8px;">${aulasList}</td>
-        <td class="text-center bold">${totalHrs}</td>
-      </tr>
-    `;
-  }).join('');
+  // Populate lective slots (Asignaciones)
+  data.asignacionesLectivas.forEach((a) => {
+    const dia = a.dia.toUpperCase();
+    if (daySlots[dia]) {
+      daySlots[dia][a.horaInicio] = {
+        dia,
+        horaInicio: a.horaInicio,
+        horaFin: a.horaFin,
+        lectivo: a.cursoCodigo,
+        local: 'LOCAL',
+        aula: a.aulaCodigo,
+        totalHrs: 1,
+      };
+    }
+  });
 
-  const filasNoLectivas = data.cargasNoLectivas.map((c) => {
-    const horarioText = formatNoLectivaHorarios(c.horarios || []);
-    const label = TIPO_LABELS[c.tipo] || c.tipo;
-    const aulaStr = 'CUBÍCULO';
-    return `
-      <tr>
-        <td style="font-size: 8px;">${horarioText}</td>
-        <td style="font-size: 8px; font-weight: 500;">${label}</td>
-        <td class="text-center font-bold">F11</td>
-        <td class="text-center" style="font-size: 8px;">${aulaStr}</td>
-        <td class="text-center bold">${c.horas}</td>
-      </tr>
-    `;
-  }).join('');
+  // Populate non-lective slots
+  data.cargasNoLectivas.forEach((c) => {
+    const horarios = c.horarios || [];
+    horarios.forEach((h) => {
+      const dia = h.dia.toUpperCase();
+      if (!daySlots[dia]) return;
 
-  const totalLectivas = data.asignacionesLectivas.length;
-  const totalNoLectivas = data.cargasNoLectivas.reduce((sum, c) => sum + c.horas, 0);
-  const totalGeneral = totalLectivas + totalNoLectivas;
-  const fechaInicio = data.periodo.fechaInicio || '.../.../...';
-  const fechaFin = data.periodo.fechaFin || '.../.../...';
+      let currentHour = parseInt(h.horaInicio.split(':')[0]!);
+      const endHour = parseInt(h.horaFin.split(':')[0]!);
+      
+      while (currentHour < endHour) {
+        const startStr = `${String(currentHour).padStart(2, '0')}:00`;
+        const endStr = `${String(currentHour + 1).padStart(2, '0')}:00`;
+        
+        if (!daySlots[dia][startStr]) {
+          daySlots[dia][startStr] = {
+            dia,
+            horaInicio: startStr,
+            horaFin: endStr,
+            local: h.lugar || 'LOCAL',
+            aula: h.aula || 'CUBÍCULO',
+            totalHrs: 1,
+          };
+        }
+        
+        const slot = daySlots[dia][startStr];
+        
+        if (c.tipo === 'PREPARACION_EVALUACION') slot.preparacion = 1;
+        else if (c.tipo === 'CONSEJERIA') slot.consejeria = 1;
+        else if (c.tipo === 'INVESTIGACION') slot.investigacion = 1;
+        else if (c.tipo === 'CAPACITACION') slot.capacitacion = 1;
+        else if (c.tipo === 'GOBIERNO') slot.gobierno = 1;
+        else if (c.tipo === 'ADMINISTRACION') slot.administracion = 1;
+        else if (c.tipo === 'ASESORIA_TESIS') slot.asesoriaTesis = 1;
+        else if (c.tipo === 'RESPONSABILIDAD_SOCIAL') slot.responsabilidadSocial = 1;
+        else if (c.tipo === 'COMITES_COMISIONES' || c.tipo === 'JURADOS' || c.tipo === 'AUTOEVALUACION_ACREDITACION' || c.tipo === 'OTRAS_AUTORIZADAS') slot.comitesComisiones = 1;
+        
+        currentHour++;
+      }
+    });
+  });
+
+  // 2. Generate table rows
+  let rowHtml = '';
+  let grandTotal = 0;
+
+  dias.forEach((dia) => {
+    const slotsMap = daySlots[dia];
+    const sortedHours = Object.keys(slotsMap).sort();
+    
+    if (sortedHours.length === 0) return;
+
+    sortedHours.forEach((hora, idx) => {
+      const s = slotsMap[hora];
+      grandTotal += 1;
+      
+      rowHtml += `
+        <tr>
+          ${idx === 0 ? `<td rowspan="${sortedHours.length}" class="day-header bold text-center uppercase" style="vertical-align: middle; background-color: #f8fafc; font-size: 8px; width: 60px;">${dia}</td>` : ''}
+          <td class="text-center font-semibold" style="font-size: 8px; white-space: nowrap;">DE: ${s.horaInicio} A: ${s.horaFin}</td>
+          <td class="text-center bold uppercase" style="font-size: 8px; background-color: ${s.lectivo ? '#eff6ff' : 'transparent'};">${s.lectivo || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.preparacion || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.consejeria || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.investigacion || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.capacitacion || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.gobierno || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.administracion || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.asesoriaTesis || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.responsabilidadSocial || ''}</td>
+          <td class="text-center" style="font-size: 8px;">${s.comitesComisiones || ''}</td>
+          <td class="text-center uppercase" style="font-size: 7.5px;">${s.local || 'LOCAL'}</td>
+          <td class="text-center bold uppercase" style="font-size: 8px;">${s.aula || ''}</td>
+          <td class="text-center bold" style="font-size: 8px; background-color: #f8fafc;">1</td>
+        </tr>
+      `;
+    });
+  });
 
   const parts = data.periodo.nombre.split('-');
-  const anioAcademico = parts[0] || new Date().getFullYear().toString();
-  const cicloSemestre = parts[1] || 'I';
+  const cycle = parts[1] || 'I';
 
-  return `<!DOCTYPE html><html><head><meta charset="utf-8">${COMMON_STYLES}</head><body>
-    <div class="page">
-      <h2>HORARIO SEMANAL DE LA CARGA ACADÉMICA DOCENTE (F03-CAD)</h2>
+  // Render HTML document
+  return `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <style>
+      @page { size: A4 landscape; margin: 5mm; }
+      body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; margin: 0; padding: 0; line-height: 1.15; font-size: 8px; }
+      .container { width: 100%; margin: 0 auto; }
+      h2 { text-align: center; margin: 0 0 1px 0; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+      h3 { text-align: center; margin: 0 0 6px 0; font-size: 9.5px; font-weight: 700; color: #475569; text-transform: uppercase; }
+      
+      .info-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 8px; }
+      .info-table td { padding: 2px 3px; border: none; }
+      
+      .matrix-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+      .matrix-table th { 
+        border: 1px solid #94a3b8; 
+        padding: 3px 1px; 
+        font-weight: 800; 
+        text-align: center; 
+        background-color: #f1f5f9; 
+        font-size: 7px;
+        text-transform: uppercase;
+        color: #334155;
+        line-height: 1.1;
+      }
+      .matrix-table td { border: 1px solid #cbd5e1; padding: 2.5px 1px; }
+      
+      .text-center { text-align: center; }
+      .text-right { text-align: right; }
+      .bold { font-weight: 700; }
+      .uppercase { text-transform: uppercase; }
+      
+      .signature-section { 
+        margin-top: 20px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: flex-start;
+        padding: 0 10px;
+      }
+      .signature { 
+        text-align: center; 
+        width: 28%; 
+      }
+      .signature .line { 
+        border-top: 1px solid #475569; 
+        margin-top: 25px; 
+        padding-top: 3px; 
+        font-size: 8px; 
+        font-weight: 700;
+        color: #334155;
+      }
+    </style>
+  </head><body>
+    <div class="container">
+      <h2>FORMATO 3</h2>
+      <h3>HORARIO SEMANAL DEL PERSONAL DOCENTE</h3>
 
-      <table class="info-table no-border" style="margin-bottom: 2px;">
+      <table class="info-table">
         <tr>
-          <td><strong>Facultad / Filial:</strong> ${data.facultad}</td>
-          <td><strong>Dpto. Académico:</strong> ${data.departamento}</td>
+          <td style="width: 50%;"><strong>FACULTAD DE:</strong> <span style="border-bottom: 1px dotted #475569; padding-bottom: 1px;">${data.facultad}</span></td>
+          <td style="width: 50%;"><strong>DEPARTAMENTO ACADÉMICO:</strong> <span style="border-bottom: 1px dotted #475569; padding-bottom: 1px;">${data.departamento}</span></td>
         </tr>
         <tr>
-          <td><strong>DNI:</strong> ${data.docente.dni || '___________'} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Docente:</strong> ${data.docente.nombre}</td>
-          <td class="bold uppercase" style="font-size: 9px; line-height: 1.15;">
-            ${CATEGORIA_LABELS[data.docente.categoria] || data.docente.categoria} - 
-            ${data.docente.modalidad === 'TIEMPO_COMPLETO' ? 'TC' : data.docente.modalidad === 'DEDICACION_EXCLUSIVA' ? 'DE' : 'TP'}
+          <td colspan="2" style="padding-top: 3px;">
+            <strong>Código:</strong> <span style="border-bottom: 1px dotted #475569; width: 80px; display: inline-block;">${data.docente.codigoIBM || '___________'}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <strong>Nombre:</strong> <span style="border-bottom: 1px dotted #475569; width: 280px; display: inline-block;">${data.docente.nombre}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <strong>Semestre:</strong> <span style="border-bottom: 1px dotted #475569; width: 60px; display: inline-block; text-align: center;">${cycle}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <strong>Del:</strong> <span style="border-bottom: 1px dotted #475569; width: 85px; display: inline-block; text-align: center;">${data.periodo.fechaInicio || '___________'}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <strong>Al:</strong> <span style="border-bottom: 1px dotted #475569; width: 85px; display: inline-block; text-align: center;">${data.periodo.fechaFin || '___________'}</span>
           </td>
         </tr>
-        <tr>
-          <td><strong>AÑO ACADÉMICO:</strong> ${anioAcademico} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>SEMESTRE:</strong> ${cicloSemestre}</td>
-          <td><strong>Fecha de Inicio:</strong> ${fechaInicio} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Fecha de término:</strong> ${fechaFin}</td>
-        </tr>
       </table>
 
-      <!-- Lective Section -->
-      <table class="info-table">
+      <table class="matrix-table">
         <thead>
           <tr>
-            <th style="width: 25%;">HORARIO</th>
-            <th style="width: 45%;">CARGA HORARIA LECTIVA (CHL)</th>
-            <th style="width: 10%;">LUGAR</th>
-            <th style="width: 12%;">AULA</th>
-            <th style="width: 8%;">TOTAL</th>
+            <th style="width: 5%;">DÍA</th>
+            <th style="width: 10%;">HORA</th>
+            <th style="width: 12%;">TRABAJO LECTIVO<br><span style="font-size: 6px; font-weight: normal;">(Código del Curso)</span></th>
+            <th style="width: 7%;">PREPARACIÓN Y<br>EVALUACIÓN</th>
+            <th style="width: 6%;">CONSEJERÍA</th>
+            <th style="width: 7%;">INVESTIGACIÓN</th>
+            <th style="width: 7%;">CAPACITACIÓN</th>
+            <th style="width: 7%;">ACTIVIDADES DE<br>GOBIERNO</th>
+            <th style="width: 7%;">ACTIVIDADES DE<br>ADMINISTRACIÓN</th>
+            <th style="width: 8%;">ASESORÍA DE TESIS Y<br>EXÁMENES PROFESIONALES</th>
+            <th style="width: 7%;">EXTENSIÓN Y<br>PROYECCIÓN SOCIAL</th>
+            <th style="width: 7%;">COMITÉS TÉCNICOS Y<br>COMISIONES</th>
+            <th style="width: 6%;">LOCAL</th>
+            <th style="width: 6%;">AULA</th>
+            <th style="width: 5%;">TOTAL<br>HRS.</th>
           </tr>
         </thead>
         <tbody>
-          ${filasLectivas || '<tr><td colspan="5" class="text-center text-zinc-500">Sin carga horaria lectiva</td></tr>'}
+          ${rowHtml || '<tr><td colspan="15" class="text-center" style="padding: 15px; color: #64748b;">No hay actividades registradas en el horario semanal para este periodo académico.</td></tr>'}
+          ${rowHtml ? `
+            <tr style="background-color: #f1f5f9; font-weight: bold;">
+              <td colspan="14" class="text-right" style="padding: 3px 6px; font-size: 8px;">TOTAL HORAS ACADÉMICAS SEMANALES:</td>
+              <td class="text-center" style="font-size: 8px; border: 2px solid #475569; background-color: #f1f5f9;">${grandTotal}</td>
+            </tr>
+          ` : ''}
         </tbody>
       </table>
 
-      <!-- Non-Lective Section -->
-      <table class="info-table">
-        <thead>
-          <tr>
-            <th style="width: 25%;">HORARIO</th>
-            <th style="width: 45%;">CARGA HORARIA NO LECTIVA (CHNL)</th>
-            <th style="width: 10%;">LUGAR</th>
-            <th style="width: 12%;">AULA</th>
-            <th style="width: 8%;">TOTAL</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filasNoLectivas || '<tr><td colspan="5" class="text-center text-zinc-500">Sin carga horaria no lectiva</td></tr>'}
-          <tr class="total-row">
-            <td colspan="4" class="text-right bold" style="padding-right: 12px; font-size: 9px;">TOTAL HORAS CARGA ACADÉMICA</td>
-            <td class="text-center bold" style="font-size: 9px;">${totalGeneral}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Legend -->
-      <div class="leyenda">
-        <p><strong>T: TEORÍA - P: PRÁCTICA - L: LABORATORIO</strong></p>
-        <p>LU (LUNES); MA (MARTES); MI (MIÉRCOLES); JU (JUEVES); VI (VIERNES); SA (SÁBADO) — TIEMPO EN FORMATO DE 24 HORAS.</p>
-        <p><strong>LUGAR:</strong> ${Object.entries(LUGAR_LABELS).map(([k, v]) => `${k}: "${v}"`).join(', ')}</p>
-      </div>
-
-      <!-- Signatures -->
-      <div class="signature-section" style="margin-top: 35px;">
-        <div class="signature">
-          <div class="line"><strong>Firma del Docente</strong></div>
+      <!-- Delivery Date and Signatures -->
+      <div style="margin-top: 15px;">
+        <div style="font-size: 8px; margin-bottom: 8px;">
+          <strong>FECHA DE ENTREGA :</strong> ................................................................
         </div>
-        <div class="signature">
-          <div class="line"><strong>Firma Jefe Dpto. Académico</strong></div>
-        </div>
-        <div class="signature">
-          <div class="line"><strong>Vº Bº DECANO</strong></div>
+        
+        <div class="signature-section" style="margin-top: 25px;">
+          <div class="signature">
+            <div class="line">Decano de la Facultad</div>
+          </div>
+          <div class="signature">
+            <div class="line">FIRMA DEL PROFESOR</div>
+          </div>
+          <div class="signature">
+            <div class="line">Jefe de Departamento</div>
+          </div>
         </div>
       </div>
     </div>

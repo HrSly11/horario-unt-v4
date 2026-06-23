@@ -225,7 +225,7 @@ export const declaracionPDFRouter = createTRPCRouter({
         });
       }
 
-      const pdfBuffer = await renderPDF(html, { landscape: false });
+      const pdfBuffer = await renderPDF(html, { landscape: input.formato === 'N3' });
       return {
         pdfBase64: pdfBuffer.toString('base64'),
         filename: `Declaracion_${input.formato}_${declaracion.docente.nombre.replace(/\s+/g, '_')}_${declaracion.periodo.nombre}.pdf`,
