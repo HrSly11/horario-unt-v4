@@ -73,6 +73,7 @@ export function Sidebar() {
       { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
       { name: 'Demanda de Departamento', href: '/demanda-departamento', icon: FileText },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
+      { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
     ],
