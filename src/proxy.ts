@@ -4,6 +4,7 @@ import { decrypt } from './lib/auth';
 
 type SessionUser = {
   role?: string;
+  docenteId?: string;
 };
 
 const authRoutes = ['/login', '/registro'];
@@ -77,7 +78,10 @@ export async function proxy(request: NextRequest) {
 
   if (restrictedRoute && user) {
     const allowedRoles = routeRoles[restrictedRoute];
-    if (!user.role || !allowedRoles.includes(user.role)) {
+    const isDocenteRoute = ['/formatos', '/horario-personal', '/disponibilidad'].includes(restrictedRoute);
+    if (isDocenteRoute && user.docenteId) {
+      // Permitir acceso a docentes con otros roles
+    } else if (!user.role || !allowedRoles.includes(user.role)) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
