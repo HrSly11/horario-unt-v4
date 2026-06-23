@@ -101,6 +101,15 @@ describe('demandaDepartamentoRouter listApproved', () => {
             },
           },
         },
+        grupos: {
+          include: {
+            asignacionesCarga: {
+              include: {
+                docente: true,
+              },
+            },
+          },
+        },
       },
     });
   });

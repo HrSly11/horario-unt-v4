@@ -3,7 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { createHash } from 'node:crypto';
 import { createTRPCRouter, protectedProcedure } from '../init';
 import type { Prisma, UserRole } from '@/generated/prisma/client';
-import { academicManagerRoles, departmentScopedRoles, getManagedDepartamentoIds, hasRole } from '../policy';
+import { academicManagerRoles, departmentScopedRoles, getManagedDepartamentoIds, getManagedEscuelaIds, hasRole } from '../policy';
 import { writeAuditLog } from '@/server/services/audit';
 import {
   renderPDF,
@@ -44,6 +44,267 @@ function getErrorMessage(error: unknown) {
 }
 
 export const reporteRouter = createTRPCRouter({
+  getDirectorEscuelaStats: protectedProcedure
+    .input(z.object({ periodoId: z.string().optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      if (!hasRole(ctx.session, ['ADMIN', 'DIRECTOR_ESCUELA', 'DECANO'])) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permisos para ver estas estadísticas' });
+      }
+
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      const activePeriodo = input?.periodoId
+        ? await ctx.prisma.periodoAcademico.findUnique({ where: { id: input.periodoId } })
+        : await ctx.prisma.periodoAcademico.findFirst({ where: { activo: true }, orderBy: { fechaInicio: 'desc' } });
+
+      if (!activePeriodo) {
+        return {
+          periodo: null,
+          escuela: null,
+          contadores: { cursos: 0, grupos: 0, gruposAsignados: 0, docentes: 0 },
+          ocupacionAulas: [],
+          cargaDocente: [],
+          progresoHorarios: 0,
+        };
+      }
+
+      // Get school(s)
+      let escuelas = managedEscuelaIds
+        ? await ctx.prisma.escuela.findMany({
+            where: { id: { in: managedEscuelaIds } },
+            include: {
+              curriculas: {
+                include: {
+                  cursos: {
+                    include: {
+                      curso: {
+                        include: {
+                          grupos: {
+                            where: { periodoAcademicoId: activePeriodo.id },
+                            include: { asignaciones: true },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          })
+        : await ctx.prisma.escuela.findMany({
+            include: {
+              curriculas: {
+                include: {
+                  cursos: {
+                    include: {
+                      curso: {
+                        include: {
+                          grupos: {
+                            where: { periodoAcademicoId: activePeriodo.id },
+                            include: { asignaciones: true },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+      const escuela = escuelas.length > 0 ? escuelas[0] : null;
+
+      // Calculate stats
+      let totalCursos = 0;
+      let totalGrupos = 0;
+      let gruposAsignados = 0;
+
+      escuelas.forEach(esc => {
+        esc.curriculas.forEach(cur => {
+          cur.cursos.forEach(cc => {
+            totalCursos++;
+            totalGrupos += cc.curso.grupos.length;
+            gruposAsignados += cc.curso.grupos.filter(g => g.asignaciones.length > 0).length;
+          });
+        });
+      });
+
+      // Get aula stats for school
+      const franjasCount = await ctx.prisma.franjaHoraria.count();
+      const asignaciones = await ctx.prisma.asignacion.findMany({
+        where: {
+          periodoId: activePeriodo.id,
+          grupo: {
+            curso: {
+              cursoCurriculas: {
+                some: {
+                  curricula: {
+                    escuelaId: escuela ? { in: escuelas.map(e => e.id) } : undefined,
+                  },
+                },
+              },
+            },
+          },
+        },
+        include: { aula: true },
+      });
+
+      const aulaMap = new Map<string, { id: string; codigo: string; slotsAsignados: number }>();
+      asignaciones.forEach(a => {
+        if (a.aulaId) {
+          const existing = aulaMap.get(a.aulaId);
+          if (existing) {
+            existing.slotsAsignados++;
+          } else {
+            aulaMap.set(a.aulaId, { id: a.aulaId, codigo: a.aula?.codigo || 'Desconocido', slotsAsignados: 1 });
+          }
+        }
+      });
+
+      const ocupacionAulas = Array.from(aulaMap.values()).map(aula => ({
+        codigo: aula.codigo,
+        ocupacion: franjasCount > 0 ? Math.round((aula.slotsAsignados / franjasCount) * 100) : 0,
+      }));
+
+      // Get docente stats
+      const docentes = await ctx.prisma.docente.findMany({
+        where: {
+          asignaciones: {
+            some: {
+              periodoId: activePeriodo.id,
+              grupo: {
+                curso: {
+                  cursoCurriculas: {
+                    some: {
+                      curricula: {
+                        escuelaId: escuela ? { in: escuelas.map(e => e.id) } : undefined,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        include: {
+          asignaciones: { where: { periodoId: activePeriodo.id } },
+        },
+      });
+
+      const cargaDocente = docentes.map(d => ({
+        nombre: d.nombre,
+        horas: d.asignaciones.length,
+        categoria: d.categoria,
+      })).sort((a, b) => b.horas - a.horas);
+
+      const progresoHorarios = totalGrupos > 0 ? Math.round((gruposAsignados / totalGrupos) * 100) : 0;
+
+      return {
+        periodo: activePeriodo,
+        escuela,
+        contadores: {
+          cursos: totalCursos,
+          grupos: totalGrupos,
+          gruposAsignados,
+          docentes: docentes.length,
+        },
+        ocupacionAulas,
+        cargaDocente,
+        progresoHorarios,
+      };
+    }),
+
+  getJefeDepartamentoStats: protectedProcedure
+    .input(z.object({ periodoId: z.string().optional() }).optional())
+    .query(async ({ ctx, input }) => {
+      if (!hasRole(ctx.session, ['ADMIN', 'DIRECTOR_DEPARTAMENTO', 'DECANO'])) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permisos para ver estas estadísticas' });
+      }
+
+      const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+      const activePeriodo = input?.periodoId
+        ? await ctx.prisma.periodoAcademico.findUnique({ where: { id: input.periodoId } })
+        : await ctx.prisma.periodoAcademico.findFirst({ where: { activo: true }, orderBy: { fechaInicio: 'desc' } });
+
+      if (!activePeriodo) {
+        return {
+          periodo: null,
+          departamento: null,
+          contadores: { docentes: 0, declaraciones: 0, declaracionesFinalizadas: 0, gruposAsignados: 0 },
+          cargaDocente: [],
+          progresoDeclaraciones: 0,
+        };
+      }
+
+      // Get department(s)
+      let departamentos = managedDepartamentoIds
+        ? await ctx.prisma.departamento.findMany({
+            where: { id: { in: managedDepartamentoIds } },
+            include: { docentes: true },
+          })
+        : await ctx.prisma.departamento.findMany({ include: { docentes: true } });
+
+      const departamento = departamentos.length > 0 ? departamentos[0] : null;
+
+      // Get docentes in department
+      const docentes = await ctx.prisma.docente.findMany({
+        where: {
+          departamentoId: departamento ? { in: departamentos.map(d => d.id) } : undefined,
+        },
+        include: {
+          asignacionesCarga: { where: { periodoId: activePeriodo.id } },
+          cargasNoLectivas: { where: { periodoId: activePeriodo.id } },
+          declaraciones: { where: { periodoId: activePeriodo.id } },
+        },
+      });
+
+      // Calculate workload
+      const cargaDocente = docentes.map(d => {
+        const horasLectivas = d.asignacionesCarga.reduce((sum: number, a) => sum + a.horasAsignadas, 0);
+        const horasNoLectivas = d.cargasNoLectivas.reduce((sum: number, c) => sum + c.horas, 0);
+        const declaracion = d.declaraciones[0];
+        return {
+          nombre: d.nombre,
+          horasLectivas,
+          horasNoLectivas,
+          totalHoras: horasLectivas + horasNoLectivas,
+          horasContrato: d.horasContrato,
+          estadoDeclaracion: declaracion?.estado,
+        };
+      });
+
+      // Get declarations
+      const declaraciones = await ctx.prisma.declaracionCarga.findMany({
+        where: {
+          periodoId: activePeriodo.id,
+          docente: { departamentoId: departamento ? { in: departamentos.map(d => d.id) } : undefined },
+        },
+      });
+
+      const declaracionesFinalizadas = declaraciones.filter(d => d.estado === 'FINALIZADA').length;
+      const progresoDeclaraciones = docentes.length > 0 ? Math.round((declaracionesFinalizadas / docentes.length) * 100) : 0;
+
+      // Get groups assigned
+      const gruposAsignados = await ctx.prisma.grupo.count({
+        where: {
+          periodoAcademicoId: activePeriodo.id,
+          curso: { departamentoId: departamento ? { in: departamentos.map(d => d.id) } : undefined },
+          asignaciones: { some: {} },
+        },
+      });
+
+      return {
+        periodo: activePeriodo,
+        departamento,
+        contadores: {
+          docentes: docentes.length,
+          declaraciones: declaraciones.length,
+          declaracionesFinalizadas,
+          gruposAsignados,
+        },
+        cargaDocente,
+        progresoDeclaraciones,
+      };
+    }),
   /** Generate PDF report — returns base64-encoded PDF */
   generatePDF: protectedProcedure
     .input(z.object({
@@ -521,10 +782,16 @@ export const reporteRouter = createTRPCRouter({
 
       if (!activePeriodo) {
         return {
-          contadores: { docentes: 0, departamentos: 0, escuelas: 0, declaracionesFinalizadas: 0 },
-          progresoDeclaraciones: [],
-          cargaPorDepartamento: [],
-          estadoHorarios: [],
+          periodo: null,
+          contadores: { docentes: 0, departamentos: 0, escuelas: 0, declaracionesFinalizadas: 0, declaracionesPendientes: 0, grupos: 0, gruposAsignados: 0 },
+          graficos: {
+            distribucionDeclaraciones: [],
+            cargaGlobal: [],
+            progresoDepartamentos: [],
+            horariosEscuelas: [],
+            ocupacionAulas: [],
+            cargaDocentePorDepto: [],
+          }
         };
       }
 
@@ -535,6 +802,10 @@ export const reporteRouter = createTRPCRouter({
         declaraciones,
         departamentos,
         escuelas,
+        grupos,
+        asignaciones,
+        aulas,
+        franjasCount,
       ] = await Promise.all([
         ctx.prisma.docente.count({ where: { activo: true } }),
         ctx.prisma.departamento.count(),
@@ -552,7 +823,10 @@ export const reporteRouter = createTRPCRouter({
                   include: {
                     curso: {
                       include: {
-                        grupos: { where: { periodoAcademicoId: activePeriodo.id } }
+                        grupos: { 
+                          where: { periodoAcademicoId: activePeriodo.id },
+                          include: { asignaciones: true }
+                        }
                       }
                     }
                   }
@@ -561,18 +835,27 @@ export const reporteRouter = createTRPCRouter({
             }
           }
         }),
+        ctx.prisma.grupo.findMany({ where: { periodoAcademicoId: activePeriodo.id } }),
+        ctx.prisma.asignacion.findMany({ 
+          where: { periodoId: activePeriodo.id },
+          include: { aula: true, docente: { include: { departamento: true } } }
+        }),
+        ctx.prisma.aula.findMany(),
+        ctx.prisma.franjaHoraria.count(),
       ]);
 
-      // 1. Contadores de Declaraciones por estado
+      // 1. Contadores
       const finalizadas = declaraciones.filter(d => d.estado === 'FINALIZADA').length;
       const pendientes = declaraciones.filter(d => d.estado !== 'FINALIZADA').length;
+      const gruposAsignados = new Set(asignaciones.map(a => a.grupoId)).size;
 
-      // 2. Progreso por Departamento (Cumplimiento de Declaraciones)
+      // 2. Progreso por Departamento
       const progresoPorDepto = departamentos.map(depto => {
         const decsDepto = declaraciones.filter(d => d.docente.departamentoId === depto.id);
         const total = depto.docentes.length;
         const completadas = decsDepto.filter(d => d.estado === 'FINALIZADA').length;
         return {
+          id: depto.id,
           nombre: depto.nombre,
           total,
           completadas,
@@ -590,21 +873,64 @@ export const reporteRouter = createTRPCRouter({
           curr.cursos.flatMap(cc => cc.curso.grupos)
         );
         const totalGrupos = gruposEscuela.length;
-        // This is a simplification, ideally we'd check if all groups have assignments
+        const gruposAsignadosEscuela = gruposEscuela.filter(g => g.asignaciones.length > 0).length;
         return {
+          id: esc.id,
           nombre: esc.nombre,
-          grupos: totalGrupos,
+          totalGrupos,
+          gruposAsignados: gruposAsignadosEscuela,
+          porcentaje: totalGrupos > 0 ? Math.round((gruposAsignadosEscuela / totalGrupos) * 100) : 0,
         };
       });
 
+      // 5. Ocupación de Aulas
+      const aulaMap = new Map<string, { codigo: string; slotsAsignados: number }>();
+      asignaciones.forEach(a => {
+        if (a.aulaId) {
+          const existing = aulaMap.get(a.aulaId);
+          if (existing) {
+            existing.slotsAsignados++;
+          } else {
+            aulaMap.set(a.aulaId, { codigo: a.aula?.codigo || 'Desconocido', slotsAsignados: 1 });
+          }
+        }
+      });
+      const ocupacionAulas = Array.from(aulaMap.values()).map(aula => ({
+        codigo: aula.codigo,
+        ocupacion: franjasCount > 0 ? Math.round((aula.slotsAsignados / franjasCount) * 100) : 0,
+      })).sort((a, b) => b.ocupacion - a.ocupacion);
+
+      // 6. Carga Docente por Departamento
+      const cargaPorDepto = new Map<string, { nombre: string; horasLectivas: number; horasNoLectivas: number }>();
+      declaraciones.forEach(d => {
+        const deptoId = d.docente.departamentoId;
+        const depto = departamentos.find(dep => dep.id === deptoId);
+        if (deptoId && depto) {
+          const existing = cargaPorDepto.get(deptoId);
+          if (existing) {
+            existing.horasLectivas += d.totalHorasLectivas || 0;
+            existing.horasNoLectivas += d.totalHorasNoLectivas || 0;
+          } else {
+            cargaPorDepto.set(deptoId, {
+              nombre: depto.nombre,
+              horasLectivas: d.totalHorasLectivas || 0,
+              horasNoLectivas: d.totalHorasNoLectivas || 0,
+            });
+          }
+        }
+      });
+      const cargaDocentePorDepto = Array.from(cargaPorDepto.values());
+
       return {
-        periodo: activePeriodo.nombre,
+        periodo: activePeriodo,
         contadores: {
           docentes: totalDocentes,
           departamentos: totalDepartamentos,
           escuelas: totalEscuelas,
           declaracionesFinalizadas: finalizadas,
           declaracionesPendientes: pendientes,
+          grupos: grupos.length,
+          gruposAsignados,
         },
         graficos: {
           distribucionDeclaraciones: [
@@ -617,6 +943,8 @@ export const reporteRouter = createTRPCRouter({
           ],
           progresoDepartamentos: progresoPorDepto,
           horariosEscuelas: estadoHorarios,
+          ocupacionAulas,
+          cargaDocentePorDepto,
         }
       };
     }),

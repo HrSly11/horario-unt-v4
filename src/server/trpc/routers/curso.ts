@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure, academicManagerProcedure } from '../init';
+import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, secretariaProcedure, secretariaEscuelaProcedure, academicManagerProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
 import { Prisma } from '@/generated/prisma/client';
 import { assertWorkflowActivationReady } from '@/server/domain/workflow-foundation';
-import { assertCanAccessEscuela, assertRole } from '../policy';
+import { assertCanAccessEscuela, assertRole, getManagedEscuelaIds } from '../policy';
 
 const cursoInput = z.object({
   codigo: z.string().min(2, 'El código es obligatorio'),
@@ -21,6 +21,7 @@ const cursoInput = z.object({
   especialidadRequerida: z.string().optional(),
   aperturado: z.boolean().optional().default(false),
   departamento: z.string().optional(),
+  departamentoId: z.string().optional(),
   requisitos: z.string().optional(),
   condicion: z.string().optional().default("O"),
   motivoAperturaExcepcional: z.string().optional(), // Para casos excepcionales
@@ -42,6 +43,8 @@ export const cursoRouter = createTRPCRouter({
         periodoId: z.string().optional(),
         docenteId: z.string().optional(),
         soloAperturados: z.boolean().optional(),
+        curriculaId: z.string().optional(), // Nuevo filtro por currícula
+        invertirParidad: z.boolean().optional(), // Para apertura excepcional
       }).optional()
     )
     .query(async ({ ctx, input }) => {
@@ -55,6 +58,12 @@ export const cursoRouter = createTRPCRouter({
           { codigo: { contains: input.search, mode: 'insensitive' } },
         ];
       }
+      // Filtrar por currícula
+      if (input?.curriculaId) {
+        where.cursoCurriculas = {
+          some: { curriculaId: input.curriculaId, desasociadaEn: null }
+        };
+      }
 
       // Si es la vista de MIS_CURSOS, filtramos por el docente y el periodo específico
       if (input?.vista === 'MIS_CURSOS' && input.docenteId && input.periodoId) {
@@ -66,14 +75,6 @@ export const cursoRouter = createTRPCRouter({
                 docenteId: input.docenteId
               }
             }
-          }
-        };
-      } else if (input?.periodoId && input?.vista !== 'CATALOGO') {
-        // Para otras vistas con periodoId (como APERTURA), solo cursos con grupos en ese periodo
-        // En CATALOGO permitimos ver todos aunque no tengan grupos todavía
-        where.grupos = {
-          some: {
-            periodoAcademicoId: input.periodoId
           }
         };
       }
@@ -92,10 +93,18 @@ export const cursoRouter = createTRPCRouter({
             const esImpar = periodo.nombre.endsWith('-I');
             const esPar = periodo.nombre.endsWith('-II');
 
-            if (esImpar) {
-              where.ciclo = { in: [1, 3, 5, 7, 9, 11] };
-            } else if (esPar) {
-              where.ciclo = { in: [2, 4, 6, 8, 10, 12] };
+            if (input?.invertirParidad) {
+              if (esImpar) {
+                where.ciclo = { in: [2, 4, 6, 8, 10, 12] };
+              } else if (esPar) {
+                where.ciclo = { in: [1, 3, 5, 7, 9, 11] };
+              }
+            } else {
+              if (esImpar) {
+                where.ciclo = { in: [1, 3, 5, 7, 9, 11] };
+              } else if (esPar) {
+                where.ciclo = { in: [2, 4, 6, 8, 10, 12] };
+              }
             }
           }
         }
@@ -113,7 +122,8 @@ export const cursoRouter = createTRPCRouter({
             include: {
               curricula: true
             }
-          }
+          },
+          departamentoOwner: true
         },
         orderBy: [{ ciclo: 'asc' }, { codigo: 'asc' }],
       });
@@ -143,11 +153,11 @@ export const cursoRouter = createTRPCRouter({
       });
     }),
 
-  create: secretariaProcedure.input(cursoInput).mutation(({ ctx, input }) => {
+  create: secretariaEscuelaProcedure.input(cursoInput).mutation(({ ctx, input }) => {
     return ctx.prisma.curso.create({ data: input });
   }),
 
-  update: secretariaProcedure
+  update: secretariaEscuelaProcedure
     .input(z.object({ id: z.string() }).merge(cursoInput))
     .mutation(({ ctx, input }) => {
       const { id, ...data } = input;
@@ -176,13 +186,20 @@ export const cursoRouter = createTRPCRouter({
     });
     return cursos.map((c) => c.ciclo);
   }),
+  // Get all departamentos
+  departamentos: baseProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.departamento.findMany({
+      orderBy: { nombre: 'asc' }
+    });
+  }),
 
   /** Aperture courses for the semester */
   toggleApertura: secretariaProcedure
     .input(z.object({ 
       id: z.string(), 
       aperturado: z.boolean(),
-      motivoAperturaExcepcional: z.string().optional()
+      motivoAperturaExcepcional: z.string().optional(),
+      numGruposLaboratorio: z.number().int().optional() // Nuevo parámetro para editar grupos de laboratorio
     }))
     .mutation(async ({ ctx, input }) => {
       const curso = await ctx.prisma.curso.findUnique({ where: { id: input.id } });
@@ -211,17 +228,76 @@ export const cursoRouter = createTRPCRouter({
         });
       }
 
-      return ctx.prisma.curso.update({
-        where: { id: input.id },
-        data: { 
-          aperturado: input.aperturado,
-          motivoAperturaExcepcional: input.aperturado ? input.motivoAperturaExcepcional : null
-        },
+      // Determinar numGruposLaboratorio: si se pasa, usar ese; si no, por defecto 3 si hay horas de laboratorio, 0 si no
+      const numGruposLaboratorio = input.numGruposLaboratorio ?? (
+        input.aperturado ? (curso.horasLaboratorio > 0 ? 3 : 0) : curso.numGruposLaboratorio
+      );
+
+      // Usar transacción para actualizar curso y demanda
+      return ctx.prisma.$transaction(async (tx) => {
+        const updatedCurso = await tx.curso.update({
+          where: { id: input.id },
+          data: { 
+            aperturado: input.aperturado,
+            motivoAperturaExcepcional: input.aperturado ? input.motivoAperturaExcepcional : null,
+            numGruposLaboratorio,
+          },
+          include: { cursoCurriculas: { where: { desasociadaEn: null } } }
+        });
+
+        if (input.aperturado) {
+          // Obtener la escuela del usuario (para la demanda)
+          const managedEscuelaIds = await getManagedEscuelaIds(tx as any, ctx.session);
+          if (managedEscuelaIds && managedEscuelaIds.length > 0) {
+            for (const escuelaId of managedEscuelaIds) {
+              // Obtener o crear la demanda académica para esta escuela y periodo
+              let demanda = await tx.demandaAcademica.findUnique({
+                where: { escuelaId_periodoId: { escuelaId, periodoId: periodo.id } }
+              });
+
+              if (!demanda) {
+                demanda = await tx.demandaAcademica.create({
+                  data: { escuelaId, periodoId: periodo.id, estado: 'BORRADOR', version: 1 }
+                });
+              }
+
+              // Verificar si ya existe una línea de demanda para este curso
+              const existingLine = await tx.demandaLinea.findFirst({
+                where: { demandaId: demanda.id, cursoId: input.id }
+              });
+
+              if (!existingLine && curso.departamentoId) {
+                // Crear la línea de demanda
+                const demandaLinea = await tx.demandaLinea.create({
+                data: {
+                  demandaId: demanda.id,
+                  cursoId: input.id,
+                  departamentoId: curso.departamentoId,
+                  horasTeoria: curso.horasTeoria,
+                  horasPractica: curso.horasPractica,
+                  horasLaboratorio: curso.horasLaboratorio,
+                  numGruposLaboratorio: numGruposLaboratorio,
+                  motivoAperturaExcepcional: input.motivoAperturaExcepcional,
+                }
+              });
+
+                // Asociar las currículas del curso a la línea de demanda
+                for (const cc of updatedCurso.cursoCurriculas) {
+                  await tx.demandaLineaCurricula.create({
+                    data: { demandaLineaId: demandaLinea.id, curriculaId: cc.curriculaId, ciclo: cc.ciclo }
+                  });
+                }
+              }
+            }
+          }
+        }
+
+        return updatedCurso;
       });
     }),
 
   /** Aperture all corresponding courses for the semester */
-  aperturarTodo: secretariaProcedure.mutation(async ({ ctx }) => {
+  aperturarTodo: secretariaProcedure.input(z.object({ curriculaId: z.string().optional() })).mutation(async ({ ctx, input }) => {
     const periodo = await ctx.prisma.periodoAcademico.findFirst({ where: { activo: true } });
     if (!periodo) throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'No hay un periodo académico activo' });
 
@@ -229,15 +305,86 @@ export const cursoRouter = createTRPCRouter({
     const esImpar = periodo.nombre.endsWith('-I');
     const esPar = periodo.nombre.endsWith('-II');
 
-    let where: Record<string, any> = {};
+    let where: Prisma.CursoWhereInput = {};
     if (!esExtraordinario) {
       if (esImpar) where.ciclo = { in: [1, 3, 5, 7, 9, 11] };
       else if (esPar) where.ciclo = { in: [2, 4, 6, 8, 10, 12] };
     }
+    // Filtrar por currícula si se proporciona
+    if (input.curriculaId) {
+      where.cursoCurriculas = {
+        some: { curriculaId: input.curriculaId, desasociadaEn: null }
+      };
+    }
 
-    return ctx.prisma.curso.updateMany({
+    // Obtener los cursos que vamos a aperturar
+    const cursosToAperturar = await ctx.prisma.curso.findMany({
       where,
-      data: { aperturado: true },
+      include: { cursoCurriculas: { where: { desasociadaEn: null } } }
+    });
+
+    const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+
+    // Usar transacción para actualizar cursos y demanda
+    return ctx.prisma.$transaction(async (tx) => {
+      // Actualizar todos los cursos (aperturar y establecer numGruposLaboratorio)
+      for (const curso of cursosToAperturar) {
+        await tx.curso.update({
+          where: { id: curso.id },
+          data: {
+            aperturado: true,
+            numGruposLaboratorio: curso.horasLaboratorio > 0 ? 3 : 0,
+          }
+        });
+      }
+
+      // Actualizar la demanda
+      if (managedEscuelaIds && managedEscuelaIds.length > 0) {
+        for (const escuelaId of managedEscuelaIds) {
+          // Obtener o crear la demanda académica para esta escuela y periodo
+          let demanda = await tx.demandaAcademica.findUnique({
+            where: { escuelaId_periodoId: { escuelaId, periodoId: periodo.id } }
+          });
+
+          if (!demanda) {
+            demanda = await tx.demandaAcademica.create({
+              data: { escuelaId, periodoId: periodo.id, estado: 'BORRADOR', version: 1 }
+            });
+          }
+
+          // Agregar líneas de demanda para cada curso
+          for (const curso of cursosToAperturar) {
+            if (curso.departamentoId) {
+              const existingLine = await tx.demandaLinea.findFirst({
+                where: { demandaId: demanda.id, cursoId: curso.id }
+              });
+
+              if (!existingLine) {
+                const demandaLinea = await tx.demandaLinea.create({
+                  data: {
+                    demandaId: demanda.id,
+                    cursoId: curso.id,
+                    departamentoId: curso.departamentoId,
+                    horasTeoria: curso.horasTeoria,
+                    horasPractica: curso.horasPractica,
+                    horasLaboratorio: curso.horasLaboratorio,
+                    numGruposLaboratorio: curso.horasLaboratorio > 0 ? 3 : 0,
+                  }
+                });
+
+                // Asociar currículas
+                for (const cc of curso.cursoCurriculas) {
+                  await tx.demandaLineaCurricula.create({
+                    data: { demandaLineaId: demandaLinea.id, curriculaId: cc.curriculaId, ciclo: cc.ciclo }
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return { count: cursosToAperturar.length };
     });
   }),
 
@@ -329,9 +476,20 @@ export const cursoRouter = createTRPCRouter({
       );
 
       // Also return courses with aperturado=true for the given period so the UI
-      // can pre-load demand lines even when CursoCurricula entries are absent.
+      // can pre-load demand lines even when CursoCurricula entries are absent,
+      // but only courses that are linked to the escuela via any curricula.
       const cursosAperturados = await ctx.prisma.curso.findMany({
-        where: { aperturado: true },
+        where: {
+          aperturado: true,
+          cursoCurriculas: {
+            some: {
+              desasociadaEn: null,
+              curricula: {
+                escuelaId: input.escuelaId,
+              },
+            },
+          },
+        },
         include: {
           cursoCurriculas: {
             where: { desasociadaEn: null },

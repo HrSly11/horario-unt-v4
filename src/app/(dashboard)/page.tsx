@@ -3,7 +3,6 @@
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useState } from 'react';
 import {
   Users,
   BookOpen,
@@ -14,9 +13,6 @@ import {
   ArrowRight,
   FileText,
   CheckCircle2,
-  School,
-  ShieldCheck,
-  Plus,
 } from 'lucide-react';
 import {
   BarChart,
@@ -80,163 +76,7 @@ function StatCard({
   );
 }
 
-function WorkflowStepper({ trpc }: { trpc: any }) {
-  const { data: progress, isLoading } = useQuery({
-    ...trpc.periodo.getWorkflowProgress.queryOptions(),
-  });
 
-  if (isLoading) {
-    return (
-      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm flex items-center justify-center py-12">
-        <span className="loading loading-spinner loading-md text-primary"></span>
-        <span className="ml-3 text-sm font-semibold text-text-sub">Cargando flujo de trabajo...</span>
-      </div>
-    );
-  }
-
-  const progressAny = progress as any;
-
-  if (!progressAny) {
-    return (
-      <div className="rounded-2xl border border-dashed border-border bg-white p-6 shadow-sm text-center py-6">
-        <p className="text-sm text-text-sub font-medium">No hay un período académico activo para mostrar el flujo de trabajo.</p>
-      </div>
-    );
-  }
-
-  const { paso1, paso2, paso3, paso4, paso5, paso6 } = progressAny.pasos;
-
-  const steps = [
-    {
-      num: 1,
-      name: 'Demanda de Escuela',
-      desc: 'Planificación de cursos y grupos por escuela.',
-      status: paso1.estado,
-      statusLabel: paso1.estado === 'APROBADA' ? 'Aprobada' : paso1.estado === 'ENVIADA' ? 'Enviada' : paso1.estado === 'OBSERVADA' ? 'Observada' : paso1.estado === 'RECHAZADA' ? 'Rechazada' : 'Borrador / Pendiente',
-      badgeColor: paso1.estado === 'APROBADA' ? 'bg-success/10 text-success border-success/20' : paso1.estado === 'ENVIADA' ? 'bg-info/10 text-info border-info/20' : paso1.estado === 'OBSERVADA' ? 'bg-warning/10 text-warning border-warning/20' : 'bg-slate-100 text-text-sub border-slate-200',
-      responsible: 'Direct. Escuela / Sec. Acad.',
-      href: '/demanda-escuela',
-      icon: School,
-    },
-    {
-      num: 2,
-      name: 'Demanda de Depto.',
-      desc: 'Consolidación de cursos aprobados en el departamento.',
-      status: paso2.estado,
-      statusLabel: paso2.estado === 'ACTIVO' ? 'Activo' : 'Pendiente Paso 1',
-      badgeColor: paso2.estado === 'ACTIVO' ? 'bg-success/10 text-success border-success/20' : 'bg-slate-100 text-text-sub border-slate-200',
-      responsible: 'Sec. de Depto / Jefe Depto',
-      href: '/demanda-departamento',
-      icon: BookOpen,
-    },
-    {
-      num: 3,
-      name: 'Asignación de Carga',
-      desc: 'Asignación de docentes a cursos de teoría/laboratorio.',
-      status: paso3.estado,
-      statusLabel: paso3.estado === 'APROBADA' ? 'Aprobado' : paso3.estado === 'ENVIADA' ? 'En revisión' : paso3.estado === 'OBSERVADA' ? 'Observado' : 'Pendiente',
-      badgeColor: paso3.estado === 'APROBADA' ? 'bg-success/10 text-success border-success/20' : paso3.estado === 'ENVIADA' ? 'bg-info/10 text-info border-info/20' : paso3.estado === 'OBSERVADA' ? 'bg-warning/10 text-warning border-warning/20' : 'bg-slate-100 text-text-sub border-slate-200',
-      responsible: 'Jefe Depto / Sec. Depto',
-      href: '/carga-lectiva',
-      icon: Users,
-    },
-    {
-      num: 4,
-      name: 'Horarios y Preliminares',
-      desc: 'Programación de ambientes y publicación preliminar.',
-      status: paso4.estado,
-      statusLabel: paso4.completado ? 'Publicado' : paso4.estado === 'REVISION' ? 'En revisión' : paso4.estado === 'OBSERVADO' ? 'Observado' : 'Pendiente',
-      badgeColor: paso4.completado ? 'bg-success/10 text-success border-success/20' : paso4.estado === 'REVISION' ? 'bg-info/10 text-info border-info/20' : 'bg-slate-100 text-text-sub border-slate-200',
-      responsible: 'Secretaría de Escuela',
-      href: '/horarios',
-      icon: Calendar,
-    },
-    {
-      num: 5,
-      name: 'Carga No Lectiva',
-      desc: 'Docentes completan preparación y actividades.',
-      status: paso5.estado,
-      statusLabel: paso5.estado === 'EN_PROGRESO' ? `En progreso (${paso5.count})` : 'Pendiente',
-      badgeColor: paso5.estado === 'EN_PROGRESO' ? 'bg-info/10 text-info border-info/20' : 'bg-slate-100 text-text-sub border-slate-200',
-      responsible: 'Docentes / Sec. Depto',
-      href: '/carga-no-lectiva',
-      icon: Clock,
-    },
-    {
-      num: 6,
-      name: 'Declaraciones y Cierre',
-      desc: 'V°B° de declaraciones y publicación final congelada.',
-      status: paso6.estado,
-      statusLabel: paso6.completado ? 'Congelado' : `Firmas (${paso6.finalizadasDeclaraciones}/${paso6.totalDeclaraciones})`,
-      badgeColor: paso6.completado ? 'bg-success/10 text-success border-success/20' : 'bg-slate-100 text-text-sub border-slate-200',
-      responsible: 'Decano / Jefe Depto / Docentes',
-      href: '/publicacion-final',
-      icon: ShieldCheck,
-    },
-  ];
-
-  return (
-    <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-6">
-      <div>
-        <h2 className="text-lg font-bold text-text-main flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5 text-primary animate-pulse" />
-          Flujo de Trabajo de Programación Académica
-        </h2>
-        <p className="text-xs text-text-sub font-medium mt-1">
-          Visualizá y gestioná las fases del proceso de horarios para el período <span className="font-bold text-primary">{progressAny.periodo.nombre}</span> (Estado: {progressAny.periodo.estado}).
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {steps.map((step) => {
-          const StepIcon = step.icon;
-          return (
-            <div 
-              key={step.num}
-              className="flex flex-col justify-between p-4 rounded-xl border border-border bg-slate-50 hover:bg-white hover:shadow-md transition-all duration-200"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-extrabold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase tracking-wider">
-                    Paso {step.num}
-                  </span>
-                  <div className={`text-[9px] font-bold border px-1.5 py-0.5 rounded-full ${step.badgeColor}`}>
-                    {step.statusLabel}
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <div className="p-1.5 rounded bg-white border border-border text-primary shrink-0">
-                    <StepIcon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-bold text-text-main leading-snug">{step.name}</h3>
-                    <p className="text-[10px] text-text-sub font-medium mt-0.5 leading-normal line-clamp-2" title={step.desc}>
-                      {step.desc}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-border flex flex-col gap-2">
-                <div className="flex justify-between items-center text-[9px] text-text-sub font-bold uppercase tracking-wider">
-                  <span>Rol:</span>
-                  <span className="text-text-main truncate max-w-[80px]" title={step.responsible}>{step.responsible}</span>
-                </div>
-                <Link 
-                  href={step.href}
-                  className="btn-primary !py-1 !px-2.5 !text-[10px] uppercase font-bold tracking-wider w-full text-center flex items-center justify-center gap-1 mt-1"
-                >
-                  Ver Panel <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 function SecretariaDashboard({
   docenteStats,
@@ -430,13 +270,16 @@ function DirectorDashboard({
   categoriaData,
   cargaDocenteData,
   startAssignmentProcessMutation,
+  directorStats,
 }: any) {
+  const dStats = directorStats;
+  
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-main">Panel de Dirección de Escuela</h1>
-          <p className="text-sm text-text-sub mt-1">Supervisión y aprobación de horarios</p>
+          <p className="text-sm text-text-sub mt-1">Supervisión y aprobación de horarios · {dStats?.escuela?.nombre || '---'}</p>
         </div>
         <div className="flex gap-3">
           {periodoActivo?.estado === 'PLANIFICACION' && (
@@ -461,7 +304,7 @@ function DirectorDashboard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title="Estado Semestre"
           value={periodoActivo?.estado || '---'}
@@ -470,127 +313,152 @@ function DirectorDashboard({
           color="amber"
         />
         <StatCard
-          title="Cobertura Total"
-          value={stats?.totalGrupos ? `${Math.round((stats.gruposAsignados / stats.totalGrupos) * 100)}%` : '0%'}
-          subtitle={`${stats?.gruposAsignados || 0} de ${stats?.totalGrupos || 0} grupos`}
-          icon={Calendar}
+          title="Total Cursos"
+          value={dStats?.contadores?.cursos ?? 0}
+          subtitle="Programados"
+          icon={BookOpen}
           color="indigo"
         />
         <StatCard
-          title="Docentes con Carga"
-          value={stats?.docentesConCarga || 0}
-          subtitle={`Total: ${docenteStats?.total || 0}`}
-          icon={Users}
+          title="Cobertura"
+          value={`${dStats?.progresoHorarios ?? 0}%`}
+          subtitle={`${dStats?.contadores?.gruposAsignados ?? 0} de ${dStats?.contadores?.grupos ?? 0} grupos`}
+          icon={Calendar}
           color="emerald"
+        />
+        <StatCard
+          title="Docentes Activos"
+          value={dStats?.contadores?.docentes ?? 0}
+          subtitle="Con carga"
+          icon={Users}
+          color="cyan"
         />
         <StatCard
           title="Sesiones Programadas"
           value={stats?.totalAsignaciones || 0}
           subtitle="Horas académicas"
           icon={Clock}
-          color="cyan"
+          color="violet"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Ocupación de Ambientes Académicos (%)</h2>
-          <div className="h-[300px] min-h-[300px] w-full">
-            {ocupacionData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={ocupacionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
-                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={CHART_TOOLTIP_STYLE}
-                    labelStyle={CHART_TOOLTIP_LABEL_STYLE}
-                    cursor={{ fill: '#F8FAFC' }}
-                  />
-                  <Bar dataKey="ocupacion" fill="#1e40af" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-text-sub font-medium">
-                Sin datos de ocupación disponibles
-              </div>
-            )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Ocupación de Ambientes Académicos (%)</h2>
+            <div className="h-[300px] min-h-[300px] w-full">
+              {dStats?.ocupacionAulas?.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dStats.ocupacionAulas}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                    <XAxis dataKey="codigo" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={CHART_TOOLTIP_STYLE}
+                      labelStyle={CHART_TOOLTIP_LABEL_STYLE}
+                      cursor={{ fill: '#F8FAFC' }}
+                    />
+                    <Bar dataKey="ocupacion" fill="#1e40af" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-text-sub font-medium">
+                  Sin datos de ocupación disponibles
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Carga Lectiva por Docente</h2>
+            <div className="h-[350px] min-h-[350px] w-full">
+              {dStats?.cargaDocente?.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dStats.cargaDocente} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} horizontal={false} />
+                    <XAxis type="number" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis dataKey="nombre" type="category" stroke={CHART_AXIS_COLOR} fontSize={10} width={120} tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={CHART_TOOLTIP_STYLE}
+                      labelStyle={CHART_TOOLTIP_LABEL_STYLE}
+                    />
+                    <Bar dataKey="horas" fill="#15803d" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-text-sub font-medium">
+                  Sin carga docente registrada
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Docentes por Categoría</h2>
-          <div className="h-[300px] min-h-[300px] w-full">
-            {categoriaData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={categoriaData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={4}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {categoriaData.map((_: any, i: number) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={CHART_TOOLTIP_STYLE}
-                    labelStyle={CHART_TOOLTIP_LABEL_STYLE}
+        <div className="space-y-6">
+          <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Docentes por Categoría</h2>
+            <div className="h-[220px] min-h-[220px] w-full">
+              {categoriaData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoriaData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {categoriaData.map((_: any, i: number) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-text-sub font-medium">
+                  Sin datos de docentes
+                </div>
+              )}
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {categoriaData.map((item: any, index: number) => (
+                <div key={item.name} className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                  <span className="text-[10px] font-bold text-text-sub uppercase">{item.name}</span>
+                  <span className="text-[10px] font-black text-text-main ml-auto">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-warning/30 bg-warning/5 p-6">
+            <h2 className="text-sm font-bold text-warning mb-4 uppercase tracking-wider">Estado de la Programación</h2>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span className="text-text-main">Avance</span>
+                  <span className="text-text-sub">{dStats?.progresoHorarios ?? 0}%</span>
+                </div>
+                <div className="relative h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-border">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-warning transition-all duration-500"
+                    style={{ width: `${dStats?.progresoHorarios ?? 0}%` }}
                   />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-text-sub font-medium">
-                Sin datos de docentes
+                </div>
               </div>
-            )}
+              <Link 
+                href="/horarios"
+                className="flex items-center justify-between w-full px-4 py-3 bg-white hover:bg-slate-50 text-text-main rounded-xl text-xs font-bold transition-all border border-border"
+              >
+                Ver Programación Completa
+                <ArrowRight className="h-3.5 w-3.5 text-warning" />
+              </Link>
+            </div>
           </div>
         </div>
-
-        <div className="lg:col-span-2 rounded-xl border border-border bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Carga Lectiva Detallada</h2>
-          <div className="h-[300px] min-h-[300px] w-full">
-            {cargaDocenteData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={cargaDocenteData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
-                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={10} angle={-45} textAnchor="end" height={60} tickLine={false} axisLine={false} />
-                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={CHART_TOOLTIP_STYLE}
-                    labelStyle={CHART_TOOLTIP_LABEL_STYLE}
-                    cursor={{ fill: '#F8FAFC' }}
-                  />
-                  <Bar dataKey="horas" fill="#15803d" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-text-sub font-medium">
-                Sin carga docente registrada
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-warning/30 bg-warning/5 p-8 flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-text-main mb-2 tracking-tight">Estado de la Programación</h2>
-          <p className="text-text-sub font-medium">
-            Supervise el avance de las asignaciones y revise la propuesta final de horarios para su aprobación.
-          </p>
-        </div>
-        <Link 
-          href="/horarios"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-warning text-white rounded-lg font-bold hover:bg-amber-600 transition-all shadow-lg shadow-warning/20"
-        >
-          Ver Programación Completa <ArrowRight className="h-4 w-4" />
-        </Link>
       </div>
     </div>
   );
@@ -608,7 +476,7 @@ function DecanoDashboard({
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-main">Panel de Decanato</h1>
-          <p className="text-sm text-text-sub mt-1">Visión global de la Facultad · {dStats?.periodo || '---'}</p>
+          <p className="text-sm text-text-sub mt-1">Visión global de la Facultad · {dStats?.periodo?.nombre || '---'}</p>
         </div>
         <div className="flex gap-3">
           <Link href="/bitacora" className="btn-secondary">
@@ -620,7 +488,7 @@ function DecanoDashboard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         <StatCard
           title="Total Docentes"
           value={dStats?.contadores.docentes ?? 0}
@@ -649,6 +517,20 @@ function DecanoDashboard({
           icon={BookOpen}
           color="cyan"
         />
+        <StatCard
+          title="Total Grupos"
+          value={dStats?.contadores.grupos ?? 0}
+          subtitle="Cursos programados"
+          icon={Calendar}
+          color="violet"
+        />
+        <StatCard
+          title="Grupos Asignados"
+          value={dStats?.contadores.gruposAsignados ?? 0}
+          subtitle="Cobertura de horarios"
+          icon={Clock}
+          color="rose"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -665,7 +547,7 @@ function DecanoDashboard({
                     <span className="text-text-main">{depto.nombre}</span>
                     <span className="text-text-sub">{depto.completadas} / {depto.total} docentes</span>
                   </div>
-                  <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-border">
+                  <div className="relative h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-border">
                     <div 
                       className="absolute top-0 left-0 h-full bg-primary transition-all duration-500"
                       style={{ width: `${depto.porcentaje}%` }}
@@ -676,53 +558,118 @@ function DecanoDashboard({
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="text-sm font-bold text-text-main mb-4">Carga Lectiva vs No Lectiva</h2>
+              <div className="h-[250px] min-h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dStats?.graficos?.cargaGlobal || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                    <XAxis dataKey="name" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
+                    <Bar dataKey="horas" fill="#1e40af" radius={[4, 4, 0, 0]} barSize={60} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+              <h2 className="text-sm font-bold text-text-main mb-4">Estado de Declaraciones</h2>
+              <div className="h-[220px] min-h-[220px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={dStats?.graficos?.distribucionDeclaraciones || []}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      <Cell fill="#15803d" />
+                      <Cell fill="#b45309" />
+                    </Pie>
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex justify-center gap-4 mt-2">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2.5 w-2.5 rounded-full bg-success" />
+                  <span className="text-[10px] font-bold text-text-sub uppercase">Finalizadas</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2.5 w-2.5 rounded-full bg-warning" />
+                  <span className="text-[10px] font-bold text-text-sub uppercase">Pendientes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-bold text-text-main mb-6">Distribución de Carga Horaria Total</h2>
-            <div className="h-[250px] min-h-[250px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dStats?.graficos?.cargaGlobal || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
-                  <XAxis dataKey="name" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
-                  <Bar dataKey="horas" fill="#1e40af" radius={[4, 4, 0, 0]} barSize={60} />
-                </BarChart>
-              </ResponsiveContainer>
+            <h2 className="text-sm font-bold text-text-main mb-4">Carga Horaria por Departamento</h2>
+            <div className="h-[300px] min-h-[300px] w-full">
+              {dStats?.graficos?.cargaDocentePorDepto?.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dStats.graficos.cargaDocentePorDepto} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} horizontal={false} />
+                    <XAxis type="number" stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis type="category" dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={10} width={120} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
+                    <Bar dataKey="horasLectivas" name="Lectiva" fill="#1e40af" radius={[0, 4, 4, 0]} stackId="a" />
+                    <Bar dataKey="horasNoLectivas" name="No Lectiva" fill="#0ea5e9" radius={[0, 4, 4, 0]} stackId="a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-text-sub font-medium">
+                  Sin datos de carga horaria
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-bold text-text-main mb-4">Estado de Declaraciones</h2>
-            <div className="h-[220px] min-h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={dStats?.graficos?.distribucionDeclaraciones || []}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    <Cell fill="#15803d" />
-                    <Cell fill="#b45309" />
-                  </Pie>
-                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
-                </PieChart>
-              </ResponsiveContainer>
+            <h2 className="text-sm font-bold text-text-main mb-4">Ocupación de Aulas</h2>
+            <div className="h-[300px] min-h-[300px] w-full">
+              {dStats?.graficos?.ocupacionAulas?.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dStats.graficos.ocupacionAulas}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                    <XAxis dataKey="codigo" stroke={CHART_AXIS_COLOR} fontSize={10} tickLine={false} axisLine={false} angle={-45} textAnchor="end" height={60} />
+                    <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} domain={[0, 100]} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
+                    <Bar dataKey="ocupacion" fill="#15803d" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-text-sub font-medium">
+                  Sin datos de ocupación
+                </div>
+              )}
             </div>
-            <div className="flex justify-center gap-4 mt-2">
-              <div className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-success" />
-                <span className="text-[10px] font-bold text-text-sub uppercase">Finalizadas</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-warning" />
-                <span className="text-[10px] font-bold text-text-sub uppercase">Pendientes</span>
-              </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-main mb-4">Avance de Horarios por Escuela</h2>
+            <div className="space-y-4">
+              {dStats?.graficos?.horariosEscuelas?.map((escuela: any) => (
+                <div key={escuela.nombre} className="space-y-2">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-text-main">{escuela.nombre}</span>
+                    <span className="text-text-sub">{escuela.gruposAsignados} / {escuela.totalGrupos} grupos</span>
+                  </div>
+                  <div className="relative h-2.5 w-full bg-slate-100 rounded-full overflow-hidden border border-border">
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-emerald-500 transition-all duration-500"
+                      style={{ width: `${escuela.porcentaje}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -732,12 +679,19 @@ function DecanoDashboard({
               <p className="text-xs text-text-sub font-medium leading-relaxed">
                 Como Decano, su función es validar la carga académica final y asegurar el cumplimiento normativo de la facultad.
               </p>
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <Link 
-                  href="/reportes" 
+                  href="/reportes"
                   className="flex items-center justify-between w-full px-4 py-3 bg-white hover:bg-slate-50 text-text-main rounded-xl text-xs font-bold transition-all border border-border"
                 >
                   Reportes Consolidados
+                  <ArrowRight className="h-3.5 w-3.5 text-primary" />
+                </Link>
+                <Link 
+                  href="/declaraciones"
+                  className="flex items-center justify-between w-full px-4 py-3 bg-white hover:bg-slate-50 text-text-main rounded-xl text-xs font-bold transition-all border border-border"
+                >
+                  V°B° Declaraciones
                   <ArrowRight className="h-3.5 w-3.5 text-primary" />
                 </Link>
               </div>
@@ -750,18 +704,16 @@ function DecanoDashboard({
 }
 
 function DirectorDeptoDashboard({
-  stats,
-  docenteStats,
+  directorDeptoStats,
 }: {
-  stats: any;
-  docenteStats: any;
+  directorDeptoStats: any;
 }) {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-main">Panel de Dirección de Departamento</h1>
-          <p className="text-sm text-text-sub mt-1">Supervisión y control de carga académica</p>
+          <p className="text-sm text-text-sub mt-1">Supervisión y control de carga académica · {directorDeptoStats?.departamento?.nombre || '---'}</p>
         </div>
         <div className="flex gap-3">
           <Link href="/carga-lectiva" className="btn-primary">
@@ -772,11 +724,111 @@ function DirectorDeptoDashboard({
           </Link>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Docentes Depto" value={docenteStats?.total ?? 0} subtitle="Asignados" icon={Users} color="indigo" />
-        <StatCard title="Carga Asignada" value={stats?.totalAsignaciones ?? 0} subtitle="Horas lectivas" icon={BookOpen} color="emerald" />
-        <StatCard title="Declaraciones Pendientes" value="—" subtitle="Por aprobar" icon={FileText} color="amber" />
-        <StatCard title="Cobertura" value={stats?.totalGrupos ? `${Math.round((stats.gruposAsignados / stats.totalGrupos) * 100)}%` : '0%'} subtitle="Grupos" icon={TrendingUp} color="cyan" />
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard 
+          title="Docentes Depto" 
+          value={directorDeptoStats?.contadores?.docentes ?? 0} 
+          subtitle="Asignados" 
+          icon={Users} 
+          color="indigo" 
+        />
+        <StatCard 
+          title="Carga Asignada" 
+          value={directorDeptoStats?.contadores?.horasLectivas ?? 0} 
+          subtitle="Horas lectivas" 
+          icon={BookOpen} 
+          color="emerald" 
+        />
+        <StatCard 
+          title="Declaraciones Pendientes" 
+          value={directorDeptoStats?.contadores?.declaracionesPendientes ?? 0} 
+          subtitle="Por aprobar" 
+          icon={FileText} 
+          color="amber" 
+        />
+        <StatCard 
+          title="Declaraciones Finalizadas" 
+          value={directorDeptoStats?.contadores?.declaracionesFinalizadas ?? 0} 
+          subtitle="Aprobadas" 
+          icon={CheckCircle2} 
+          color="cyan" 
+        />
+        <StatCard 
+          title="Cobertura de Cursos" 
+          value={`${directorDeptoStats?.contadores?.gruposAsignados ?? 0}/${directorDeptoStats?.contadores?.grupos ?? 0}`} 
+          subtitle="Grupos" 
+          icon={TrendingUp} 
+          color="violet" 
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+          <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Carga Horaria por Docente</h2>
+          <div className="h-[300px] min-h-[300px] w-full">
+            {directorDeptoStats?.cargaDocente?.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={directorDeptoStats.cargaDocente}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_COLOR} vertical={false} />
+                  <XAxis dataKey="nombre" stroke={CHART_AXIS_COLOR} fontSize={10} tickLine={false} axisLine={false} angle={-45} textAnchor="end" height={60} />
+                  <YAxis stroke={CHART_AXIS_COLOR} fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
+                  <Bar dataKey="horasLectivas" name="Lectiva" fill="#1e40af" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="horasNoLectivas" name="No Lectiva" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-text-sub font-medium">
+                Sin datos de carga docente
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">Cumplimiento de Declaraciones</h2>
+            <div className="space-y-4">
+              {directorDeptoStats?.cargaDocente?.map((docente: any) => (
+                <div key={docente.nombre} className="space-y-2">
+                  <div className="flex justify-between text-xs font-semibold">
+                    <span className="text-text-main">{docente.nombre}</span>
+                    <span className={docente.declaracionCompletada ? 'text-emerald-500' : 'text-amber-500'}>
+                      {docente.declaracionCompletada ? 'Completada' : 'Pendiente'}
+                    </span>
+                  </div>
+                  <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden border border-border">
+                    <div 
+                      className={`absolute top-0 left-0 h-full transition-all duration-500 ${docente.declaracionCompletada ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                      style={{ width: `${docente.declaracionCompletada ? 100 : 50}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-primary/20 bg-primary-light p-6">
+            <h2 className="text-sm font-bold text-primary mb-4 uppercase tracking-wider">Acciones Rápidas</h2>
+            <div className="space-y-2">
+              <Link 
+                href="/carga-lectiva"
+                className="flex items-center justify-between w-full px-4 py-3 bg-white hover:bg-slate-50 text-text-main rounded-xl text-xs font-bold transition-all border border-border"
+              >
+                Asignar Carga Lectiva
+                <ArrowRight className="h-3.5 w-3.5 text-primary" />
+              </Link>
+              <Link 
+                href="/declaraciones"
+                className="flex items-center justify-between w-full px-4 py-3 bg-white hover:bg-slate-50 text-text-main rounded-xl text-xs font-bold transition-all border border-border"
+              >
+                Aprobar Declaraciones
+                <ArrowRight className="h-3.5 w-3.5 text-primary" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1181,6 +1233,16 @@ export default function DashboardPage() {
     enabled: isDecano || isAdmin,
   });
 
+  const directorEscuelaStats = useQuery({
+    ...trpc.reporte.getDirectorEscuelaStats.queryOptions({ periodoId: periodoActivo?.id }),
+    enabled: isDirector || isAdmin,
+  });
+
+  const jefeDeptoStats = useQuery({
+    ...trpc.reporte.getJefeDepartamentoStats.queryOptions({ periodoId: periodoActivo?.id }),
+    enabled: isDirectorDepto || isAdmin,
+  });
+
   const horarioStats = useQuery({
     ...trpc.horario.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
     enabled: !!periodoActivo?.id && user?.role !== 'DOCENTE' && user?.role !== 'INVITADO',
@@ -1244,9 +1306,6 @@ export default function DashboardPage() {
   // Unified Dashboard Layout
   return (
     <div className="space-y-8">
-      {/* 6-Step Workflow Stepper at the top of the dashboard */}
-      <WorkflowStepper trpc={trpc} />
-
       {/* Role-Specific Content */}
       {isSecretaria && (
         <SecretariaDashboard
@@ -1267,6 +1326,7 @@ export default function DashboardPage() {
           categoriaData={categoriaData}
           cargaDocenteData={cargaDocenteData}
           startAssignmentProcessMutation={startAssignmentProcessMutation}
+          directorStats={directorEscuelaStats.data}
         />
       )}
 
@@ -1279,8 +1339,7 @@ export default function DashboardPage() {
 
       {isDirectorDepto && (
         <DirectorDeptoDashboard
-          stats={stats}
-          docenteStats={docenteStats}
+          directorDeptoStats={jefeDeptoStats.data}
         />
       )}
 

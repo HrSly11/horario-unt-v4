@@ -48,7 +48,7 @@ const emptyLinkForm: LinkCourseFormData = {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 const canWrite = (role?: string) =>
-  role === 'ADMIN' || role === 'SECRETARIA_DEPARTAMENTO';
+  role === 'ADMIN' || role === 'SECRETARIA_DEPARTAMENTO' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA';
 
 // ── Page Component ─────────────────────────────────────────────────────────────
 

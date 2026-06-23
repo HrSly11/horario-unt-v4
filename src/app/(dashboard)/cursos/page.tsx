@@ -20,6 +20,7 @@ type FormData = {
   experienciaMinima: number;
   especialidadRequerida: string;
   departamento: string;
+  departamentoId: string;
   requisitos: string;
   condicion: string;
 };
@@ -27,7 +28,7 @@ type FormData = {
 const emptyForm: FormData = {
   codigo: '', nombre: '', creditos: 3, horasTeoria: 2, horasPractica: 0, horasLaboratorio: 2, numGruposLaboratorio: 1, ciclo: 1, requiereLaboratorio: false,
   perfilRequerido: '', gradoRequerido: '', experienciaMinima: 0, especialidadRequerida: '',
-  departamento: 'Dpto. de Ing. Sistemas', requisitos: '', condicion: 'O',
+  departamento: '', departamentoId: '', requisitos: '', condicion: 'O',
 };
 
 export default function CursosPage() {
@@ -41,6 +42,7 @@ export default function CursosPage() {
    const [form, setForm] = useState<FormData>(emptyForm);
    const [search, setSearch] = useState('');
    const [filterCiclo, setFilterCiclo] = useState<number | undefined>();
+   const [filterCurriculaId, setFilterCurriculaId] = useState<string | undefined>();
    const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
    const isAdmin = user?.role === 'ADMIN';
    const isDocente = user?.role === 'DOCENTE';
@@ -58,9 +60,24 @@ export default function CursosPage() {
 
    const [showAperturaModal, setShowAperturaModal] = useState(false);
    const [apertureSearch, setApertureSearch] = useState('');
+   const [selectedCourseForApertura, setSelectedCourseForApertura] = useState<(typeof cursos)[0] | null>(null);
+   const [numGruposLab, setNumGruposLab] = useState(3);
+
+   const canCreateEdit = isAdmin || isSecretaria;
+   const canToggleApertura = isAdmin || isSecretaria || isSecretariaDepto;
+
+  const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
+  const { data: ciclos = [] } = useQuery({ ...trpc.curso.ciclos.queryOptions() });
+  const { data: curriculas = [] } = useQuery({ ...trpc.curricula.list.queryOptions({ vigente: true }) });
+  const { data: departamentos = [] } = useQuery({ ...trpc.curso.departamentos.queryOptions() });
 
    const { data: allCursos = [] } = useQuery({
-     ...trpc.curso.list.queryOptions({ vista: 'CATALOGO' }),
+     ...trpc.curso.list.queryOptions({ 
+       vista: 'APERTURA', 
+       curriculaId: filterCurriculaId,
+       invertirParidad: true,
+       periodoId: periodoActivo?.id
+     }),
      enabled: showAperturaModal
    });
 
@@ -69,27 +86,23 @@ export default function CursosPage() {
      c.codigo.toLowerCase().includes(apertureSearch.toLowerCase())
    );
 
-   const canCreateEdit = isAdmin || isSecretariaDepto;
-   const canToggleApertura = isAdmin || isSecretaria || isSecretariaDepto;
-
-  const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
   const { data: cursos = [], isLoading } = useQuery({
     ...trpc.curso.list.queryOptions({ 
       search: search || undefined, 
       ciclo: filterCiclo,
+      curriculaId: filterCurriculaId,
       vista: activeTab === 'MIS_CURSOS' ? 'MIS_CURSOS' : activeTab === 'APERTURA' ? 'APERTURA' : 'CATALOGO',
       periodoId: periodoActivo?.id || undefined,
       docenteId: activeTab === 'MIS_CURSOS' ? (user?.docenteId || undefined) : undefined
     })
   });
-  const { data: ciclos = [] } = useQuery({ ...trpc.curso.ciclos.queryOptions() });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, search, filterCiclo]);
+  }, [activeTab, search, filterCiclo, filterCurriculaId]);
 
   const totalPages = Math.ceil(cursos.length / itemsPerPage);
   const paginatedCursos = useMemo(() => {
@@ -180,14 +193,15 @@ export default function CursosPage() {
       gradoRequerido: c.gradoRequerido || '',
       experienciaMinima: c.experienciaMinima || 0,
       especialidadRequerida: c.especialidadRequerida || '',
-      departamento: c.departamento || '',
+      departamento: c.departamentoOwner?.nombre || c.departamento || '',
+      departamentoId: c.departamentoId || '',
       requisitos: c.requisitos || '',
       condicion: c.condicion || 'O',
     });
     setShowModal(true);
   }
 
-  const handleToggleApertura = async (c: (typeof cursos)[0]) => {
+  const handleToggleApertura = async (c: (typeof cursos)[0] & { numGruposLaboratorio?: number }) => {
     const isOpening = !c.aperturado;
     let motivo: string | undefined = undefined;
 
@@ -220,7 +234,8 @@ export default function CursosPage() {
     toggleAperturaMutation.mutate({ 
       id: c.id, 
       aperturado: isOpening,
-      motivoAperturaExcepcional: motivo 
+      motivoAperturaExcepcional: motivo,
+      numGruposLaboratorio: c.numGruposLaboratorio
     });
   };
 
@@ -327,8 +342,8 @@ export default function CursosPage() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => {
-                  if (confirm('¿Desea aperturar todos los cursos correspondientes a la paridad del semestre actual?')) {
-                    aperturarTodoMutation.mutate();
+                  if (confirm(`¿Desea aperturar todos los cursos correspondientes a la paridad del semestre actual${filterCurriculaId ? ` y la currícula seleccionada (${curriculas.find(c => c.id === filterCurriculaId)?.codigo || ''})` : ''}?`)) {
+                    aperturarTodoMutation.mutate({ curriculaId: filterCurriculaId });
                   }
                 }}
                 disabled={aperturarTodoMutation.isPending}
@@ -367,7 +382,8 @@ export default function CursosPage() {
             <div>
               <p className="text-sm font-bold text-text-main">Semestre Actual: {periodoActivo.nombre}</p>
               <p className="text-xs text-text-sub">
-                Mostrando cursos de ciclos {periodoActivo.nombre.endsWith('-I') ? 'IMPARES' : 'PARES'} (Plan 2018)
+                Mostrando cursos de ciclos {periodoActivo.nombre.endsWith('-I') ? 'IMPARES' : 'PARES'} 
+                {filterCurriculaId ? ` (Curricula: ${curriculas.find(c => c.id === filterCurriculaId)?.codigo || 'Seleccionada'})` : ' (Todas las curriculas)'}
               </p>
             </div>
           </div>
@@ -461,6 +477,11 @@ export default function CursosPage() {
           <option value="">Todos los ciclos</option>
           {ciclos.map((c) => <option key={c} value={c}>Ciclo {c}</option>)}
         </select>
+        <select value={filterCurriculaId ?? ''} onChange={(e) => setFilterCurriculaId(e.target.value || undefined)}
+          className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+          <option value="">Todas las currículas</option>
+          {curriculas.map((curr) => <option key={curr.id} value={curr.id}>{curr.codigo} - {curr.anio}</option>)}
+        </select>
       </div>
 
       {/* Listado */}
@@ -531,16 +552,16 @@ export default function CursosPage() {
                         </button>
                       )}
                       {canCreateEdit && activeTab === 'CATALOGO' && (
-                        <>
-                          <button onClick={() => openEdit(c)} 
-                            className="p-2 rounded-lg text-text-sub hover:bg-primary-light hover:text-primary transition-all">
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                          <button onClick={() => deleteMutation.mutate({ id: c.id })} 
-                            className="p-2 rounded-lg text-text-sub hover:bg-red-50 hover:text-danger transition-all">
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </>
+                        <button onClick={() => openEdit(c)} 
+                          className="p-2 rounded-lg text-text-sub hover:bg-primary-light hover:text-primary transition-all">
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      )}
+                      {isAdmin && activeTab === 'CATALOGO' && (
+                        <button onClick={() => deleteMutation.mutate({ id: c.id })} 
+                          className="p-2 rounded-lg text-text-sub hover:bg-red-50 hover:text-danger transition-all">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       )}
                       {isDocente && (
                         <button 
@@ -850,6 +871,23 @@ export default function CursosPage() {
                   </select>
                 </div>
                 <div>
+                  <label className="label-standard">Departamento</label>
+                  <select 
+                    value={form.departamentoId} 
+                    onChange={e => {
+                      const selected = departamentos.find(d => d.id === e.target.value);
+                      setForm({...form, departamentoId: e.target.value, departamento: selected?.nombre || ''});
+                    }} 
+                    className="input-standard"
+                  >
+                    <option value="">Selecciona un departamento</option>
+                    {departamentos.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="label-standard">Condición</label>
                   <select value={form.condicion} onChange={e => setForm({...form, condicion: e.target.value})} className="input-standard">
                     <option value="O">Obligatorio</option>
@@ -876,47 +914,142 @@ export default function CursosPage() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-lg font-bold text-text-main">Apertura Excepcional de Cursos</h2>
-                <p className="text-xs text-text-sub font-medium">Busca y selecciona cualquier curso del catálogo para aperturarlo</p>
+                <p className="text-xs text-text-sub font-medium">
+                  {filterCurriculaId 
+                    ? `Cursos de curricula ${curriculas.find(c => c.id === filterCurriculaId)?.codigo || 'seleccionada'} (ciclos ${periodoActivo?.nombre.endsWith('-I') ? 'PARES' : 'IMPARES'})` 
+                    : 'Todos los cursos (ciclos opuestos a la paridad actual)'}
+                </p>
               </div>
-              <button onClick={() => setShowAperturaModal(false)} className="rounded-lg p-1 text-text-sub hover:bg-slate-100"><X className="h-5 w-5" /></button>
+              <button 
+                onClick={() => { setShowAperturaModal(false); setSelectedCourseForApertura(null); }} 
+                className="rounded-lg p-1 text-text-sub hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
             
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-sub" />
-              <input 
-                type="text" 
-                placeholder="Buscar curso por nombre o código..." 
-                value={apertureSearch} 
-                onChange={(e) => setApertureSearch(e.target.value)}
-                className="input-standard pl-10"
-              />
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-2">
-              <div className="grid gap-2">
-                {filteredApertureCursos.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-border hover:border-primary/30 transition-all">
-                    <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">{c.codigo}</span>
-                      <div>
-                        <p className="text-sm font-bold text-text-main leading-tight">{c.nombre}</p>
-                        <p className="text-[10px] text-text-sub font-bold uppercase tracking-wider">Ciclo {c.ciclo} • {c.departamento}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleToggleApertura(c)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        c.aperturado 
-                          ? 'bg-danger/10 text-danger border border-danger/20 hover:bg-danger/20' 
-                          : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20'
-                      }`}
-                    >
-                      {c.aperturado ? 'Cerrar' : 'Aperturar'}
-                    </button>
+            {!selectedCourseForApertura ? (
+              <>
+                <div className="flex gap-3 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-sub" />
+                    <input 
+                      type="text" 
+                      placeholder="Buscar curso por nombre o código..." 
+                      value={apertureSearch} 
+                      onChange={(e) => setApertureSearch(e.target.value)}
+                      className="input-standard pl-10"
+                    />
                   </div>
-                ))}
+                  <select 
+                    value={filterCurriculaId || ''} 
+                    onChange={(e) => setFilterCurriculaId(e.target.value || undefined)}
+                    className="rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  >
+                    <option value="">Todas las curriculas</option>
+                    {curriculas.map((curr) => (
+                      <option key={curr.id} value={curr.id}>{curr.codigo} - {curr.anio}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex-1 overflow-y-auto pr-2">
+                  <div className="grid gap-2">
+                    {filteredApertureCursos.map((c) => (
+                      <div key={c.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-border hover:border-primary/30 transition-all">
+                        <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => {
+                          setSelectedCourseForApertura(c);
+                          setNumGruposLab(c.horasLaboratorio > 0 ? (c.numGruposLaboratorio ?? 3) : 0);
+                        }}>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">{c.codigo}</span>
+                          <div className="flex-1">
+                            <p className="text-sm font-bold text-text-main leading-tight">{c.nombre}</p>
+                            <p className="text-[10px] text-text-sub font-bold uppercase tracking-wider">Ciclo {c.ciclo} • {c.departamento}</p>
+                          </div>
+                          <div className="text-xs text-text-sub font-medium">
+                            {c.horasTeoria}T/{c.horasPractica}P/{c.horasLaboratorio}L
+                          </div>
+                          {c.aperturado && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-success/10 text-success border border-success/20">Aperturado</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 bg-slate-50 rounded-xl border border-border">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-sm font-bold px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">
+                      {selectedCourseForApertura.codigo}
+                    </span>
+                    <div>
+                      <p className="text-lg font-bold text-text-main">{selectedCourseForApertura.nombre}</p>
+                      <p className="text-xs text-text-sub font-bold uppercase tracking-wider">Ciclo {selectedCourseForApertura.ciclo} • {selectedCourseForApertura.departamento}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-3">
+                    <div className="p-3 bg-white rounded-lg border border-border text-center">
+                      <p className="text-xs text-text-sub uppercase font-bold mb-1">Créditos</p>
+                      <p className="text-lg font-bold text-text-main">{selectedCourseForApertura.creditos}</p>
+                    </div>
+                    <div className="p-3 bg-white rounded-lg border border-border text-center">
+                      <p className="text-xs text-text-sub uppercase font-bold mb-1">Teoría</p>
+                      <p className="text-lg font-bold text-text-main">{selectedCourseForApertura.horasTeoria}h</p>
+                    </div>
+                    <div className="p-3 bg-white rounded-lg border border-border text-center">
+                      <p className="text-xs text-text-sub uppercase font-bold mb-1">Práctica</p>
+                      <p className="text-lg font-bold text-text-main">{selectedCourseForApertura.horasPractica}h</p>
+                    </div>
+                    <div className="p-3 bg-white rounded-lg border border-border text-center">
+                      <p className="text-xs text-text-sub uppercase font-bold mb-1">Laboratorio</p>
+                      <p className="text-lg font-bold text-text-main">{selectedCourseForApertura.horasLaboratorio}h</p>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedCourseForApertura.horasLaboratorio > 0 && (
+                  <div>
+                    <label className="label-standard">Grupos de Laboratorio</label>
+                    <input 
+                      type="number" 
+                      min={0} 
+                      max={10}
+                      value={numGruposLab} 
+                      onChange={(e) => setNumGruposLab(Number(e.target.value))}
+                      className="input-standard"
+                    />
+                    <p className="text-xs text-text-sub mt-1">
+                      Número de grupos de laboratorio para este curso.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                  <button 
+                    onClick={() => setSelectedCourseForApertura(null)}
+                    className="btn-secondary"
+                  >
+                    Volver
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleToggleApertura({
+                        ...selectedCourseForApertura,
+                        numGruposLaboratorio: numGruposLab
+                      });
+                      setSelectedCourseForApertura(null);
+                    }}
+                    disabled={toggleAperturaMutation.isPending}
+                    className="btn-primary"
+                  >
+                    {toggleAperturaMutation.isPending ? 'Procesando...' : selectedCourseForApertura.aperturado ? 'Cerrar Curso' : 'Aperturar Curso'}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

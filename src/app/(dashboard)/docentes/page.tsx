@@ -48,7 +48,7 @@ export default function DocentesPage() {
   const [search, setSearch] = useState('');
 
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
-  const canEdit = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_ACADEMICA';
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_DEPARTAMENTO';
 
   const { data: docentes = [], isLoading } = useQuery({
     ...trpc.docente.list.queryOptions({ search: search || undefined })

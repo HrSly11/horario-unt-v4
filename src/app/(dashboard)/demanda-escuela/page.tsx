@@ -42,8 +42,7 @@ const ESTADO_LABEL: Record<string, string> = {
 
 interface LineaDraft {
   cursoId: string;
-  curriculaId: string;
-  ciclo: number;
+  curriculas: Array<{ curriculaId: string; ciclo: number }>;
   numGruposLaboratorio: number;
   motivoAperturaExcepcional: string;
 }
@@ -157,22 +156,24 @@ export default function DemandaEscuelaPage() {
   const addLinea = () =>
     setLineas((prev) => [
       ...prev,
-      { cursoId: '', curriculaId: '', ciclo: 1, numGruposLaboratorio: 0, motivoAperturaExcepcional: '' },
+      { cursoId: '', curriculas: [], numGruposLaboratorio: 0, motivoAperturaExcepcional: '' },
     ]);
 
   const removeLinea = (idx: number) => setLineas((prev) => prev.filter((_, i) => i !== idx));
 
-  const updateLinea = (idx: number, field: keyof LineaDraft, value: string | number) =>
+  const updateLinea = (idx: number, field: keyof LineaDraft, value: any) =>
     setLineas((prev) => prev.map((l, i) => (i === idx ? { ...l, [field]: value } : l)));
 
   const precargarDesdeApertura = () => {
     if (pendingAperturados.length === 0) return;
-    const nuevas: LineaDraft[] = pendingAperturados.map((c) => {
-      const curricula = c.cursoCurriculas?.[0]?.curricula;
+    const nuevas: LineaDraft[] = pendingAperturados.map((c: any) => {
+      const curriculasList = (c.cursoCurriculas ?? [])
+        .filter((cc: any) => cc.curricula?.escuelaId === escuelaId)
+        .map((cc: any) => ({ curriculaId: cc.curricula.id, ciclo: cc.ciclo }));
+      
       return {
         cursoId: c.id,
-        curriculaId: curricula?.id ?? '',
-        ciclo: c.ciclo,
+        curriculas: curriculasList,
         numGruposLaboratorio: c.numGruposLaboratorio ?? 0,
         motivoAperturaExcepcional: '',
       };
@@ -195,7 +196,7 @@ export default function DemandaEscuelaPage() {
         cursoId: l.cursoId,
         numGruposLaboratorio: l.numGruposLaboratorio,
         motivoAperturaExcepcional: l.motivoAperturaExcepcional || undefined,
-        curriculas: l.curriculaId ? [{ curriculaId: l.curriculaId, ciclo: l.ciclo }] : [],
+        curriculas: l.curriculas,
       })),
     });
   };
@@ -307,7 +308,7 @@ export default function DemandaEscuelaPage() {
               </p>
             </div>
           </div>
-          <span className={ESTADO_BADGE[demanda.estado]}>
+          <span className={`${ESTADO_BADGE[demanda.estado]} text-lg px-4 py-2 font-bold uppercase tracking-wider`}>
             {ESTADO_LABEL[demanda.estado]}
           </span>
         </div>
@@ -469,99 +470,143 @@ export default function DemandaEscuelaPage() {
                 // Find the full course info for the selected cursoId
                 const cursoInfo = cursosAperturados.find((c) => c.id === linea.cursoId);
 
+                // Get all possible curriculas for this course, deduplicated by curriculaId
+                const allPossibleCurriculas = (() => {
+                  const seen = new Map();
+                  for (const ac of curriculasForCourse) {
+                    if (!seen.has(ac.curriculaId)) {
+                      seen.set(ac.curriculaId, { curriculaId: ac.curriculaId, ciclo: ac.ciclo, codigo: ac.curriculaCodigo });
+                    }
+                  }
+                  if (cursoInfo?.cursoCurriculas) {
+                    for (const cc of cursoInfo.cursoCurriculas) {
+                      if (!seen.has(cc.curricula.id) && cc.curricula.escuelaId === escuelaId) {
+                        seen.set(cc.curricula.id, { curriculaId: cc.curricula.id, ciclo: cc.ciclo, codigo: cc.curricula.codigo });
+                      }
+                    }
+                  }
+                  return [...seen.values()];
+                })();
+
                 return (
                   <div key={idx} className="bg-slate-50 border border-border rounded-xl p-4">
                     <div className="flex gap-3 items-start">
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-
-                        {/* Curso */}
-                        <div>
-                          <label className="label-standard">Curso</label>
-                          <select
-                            className="input-standard"
-                            value={linea.cursoId}
-                            onChange={(e) => {
-                              updateLinea(idx, 'cursoId', e.target.value);
-                              updateLinea(idx, 'curriculaId', '');
-                            }}
-                          >
-                            <option value="">-- Selecciona --</option>
-                            {/* Merge aperturados + curricula courses, unique by id */}
-                            {(() => {
-                              const seen = new Map<string, { id: string; codigo: string; nombre: string }>();
-                              for (const c of cursosAperturados) {
-                                seen.set(c.id, { id: c.id, codigo: c.codigo, nombre: c.nombre });
-                              }
-                              for (const ac of availableCourses) {
-                                if (!seen.has(ac.curso.id)) {
-                                  seen.set(ac.curso.id, { id: ac.curso.id, codigo: ac.curso.codigo, nombre: ac.curso.nombre });
+                      <div className="flex-1 space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {/* Curso */}
+                          <div>
+                            <label className="label-standard">Curso</label>
+                            <select
+                              className="input-standard"
+                              value={linea.cursoId}
+                              onChange={(e) => {
+                              const newCursoId = e.target.value;
+                              updateLinea(idx, 'cursoId', newCursoId);
+                              // Auto-select all curriculas for this course if available
+                              if (newCursoId) {
+                                const fromAperturados = cursosAperturados.find((c) => c.id === newCursoId);
+                                const fromAvailable = availableCourses.filter((ac) => ac.curso.id === newCursoId);
+                                const initialCurriculas: Array<{ curriculaId: string; ciclo: number }> = [];
+                                
+                                if (fromAperturados?.cursoCurriculas) {
+                                  for (const cc of fromAperturados.cursoCurriculas) {
+                                    if ((cc as any).curricula?.escuelaId === escuelaId && !cc.desasociadaEn) {
+                                      initialCurriculas.push({ curriculaId: (cc as any).curricula.id, ciclo: cc.ciclo });
+                                    }
+                                  }
+                                } else {
+                                  for (const ac of fromAvailable) {
+                                    initialCurriculas.push({ curriculaId: ac.curriculaId, ciclo: ac.ciclo });
+                                  }
                                 }
+                                
+                                updateLinea(idx, 'curriculas', initialCurriculas);
+                              } else {
+                                updateLinea(idx, 'curriculas', []);
                               }
-                              return [...seen.values()].map((c) => (
-                                <option key={c.id} value={c.id}>
-                                  [{c.codigo}] {c.nombre}
-                                </option>
-                              ));
-                            })()}
-                          </select>
-                        </div>
+                            }}
+                            >
+                              <option value="">-- Selecciona --</option>
+                              {/* Merge aperturados + curricula courses, unique by id */}
+                              {(() => {
+                                const seen = new Map<string, { id: string; codigo: string; nombre: string }>();
+                                for (const c of cursosAperturados) {
+                                  seen.set(c.id, { id: c.id, codigo: c.codigo, nombre: c.nombre });
+                                }
+                                for (const ac of availableCourses) {
+                                  if (!seen.has(ac.curso.id)) {
+                                    seen.set(ac.curso.id, { id: ac.curso.id, codigo: ac.curso.codigo, nombre: ac.curso.nombre });
+                                  }
+                                }
+                                return [...seen.values()].map((c) => (
+                                  <option key={c.id} value={c.id}>
+                                    [{c.codigo}] {c.nombre}
+                                  </option>
+                                ));
+                              })()}
+                            </select>
+                          </div>
 
-                        {/* Curricula */}
-                        <div>
-                          <label className="label-standard">Plan de estudio</label>
-                          <select
-                            className="input-standard"
-                            value={linea.curriculaId}
-                            onChange={(e) => updateLinea(idx, 'curriculaId', e.target.value)}
-                            disabled={!linea.cursoId}
-                          >
-                            <option value="">-- Plan (opcional) --</option>
-                            {curriculasForCourse.map((ac) => (
-                              <option key={`${ac.curriculaId}-${ac.ciclo}`} value={ac.curriculaId}>
-                                {ac.curriculaCodigo} &middot; Ciclo {ac.ciclo}
-                              </option>
-                            ))}
-                            {/* Also include curriculas from aperturados if present */}
-                            {cursoInfo?.cursoCurriculas?.map((cc) => {
-                              const alreadyShown = curriculasForCourse.some((ac) => ac.curriculaId === cc.curricula.id);
-                              if (alreadyShown) return null;
-                              return (
-                                <option key={cc.curricula.id} value={cc.curricula.id}>
-                                  {cc.curricula.codigo}
-                                </option>
-                              );
-                            })}
-                          </select>
-                        </div>
+                          {/* Grupos de lab */}
+                          <div>
+                            <label className="label-standard">Grupos Lab</label>
+                            <div className="relative">
+                              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-sub" />
+                              <input
+                                type="number"
+                                min={0}
+                                max={10}
+                                className="input-standard pl-9"
+                                placeholder="0"
+                                value={linea.numGruposLaboratorio}
+                                onChange={(e) => updateLinea(idx, 'numGruposLaboratorio', Number(e.target.value))}
+                              />
+                            </div>
+                          </div>
 
-                        {/* Grupos de lab */}
-                        <div>
-                          <label className="label-standard">Grupos Lab</label>
-                          <div className="relative">
-                            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-sub" />
+                          {/* Motivo excepcion */}
+                          <div>
+                            <label className="label-standard">Excepcion (opcional)</label>
                             <input
-                              type="number"
-                              min={0}
-                              max={10}
-                              className="input-standard pl-9"
-                              placeholder="0"
-                              value={linea.numGruposLaboratorio}
-                              onChange={(e) => updateLinea(idx, 'numGruposLaboratorio', Number(e.target.value))}
+                              type="text"
+                              className="input-standard"
+                              placeholder="Motivo de excepcion..."
+                              value={linea.motivoAperturaExcepcional}
+                              onChange={(e) => updateLinea(idx, 'motivoAperturaExcepcional', e.target.value)}
                             />
                           </div>
                         </div>
 
-                        {/* Motivo excepcion */}
-                        <div>
-                          <label className="label-standard">Excepcion (opcional)</label>
-                          <input
-                            type="text"
-                            className="input-standard"
-                            placeholder="Motivo de excepcion..."
-                            value={linea.motivoAperturaExcepcional}
-                            onChange={(e) => updateLinea(idx, 'motivoAperturaExcepcional', e.target.value)}
-                          />
-                        </div>
+                        {/* Curricula (checkboxes) */}
+                        {linea.cursoId && allPossibleCurriculas.length > 0 && (
+                          <div>
+                            <label className="label-standard">Plan(es) de estudio</label>
+                            <div className="flex flex-wrap gap-3">
+                              {allPossibleCurriculas.map((curr) => {
+                                const isSelected = linea.curriculas.some((c) => c.curriculaId === curr.curriculaId);
+                                return (
+                                  <label
+                                    key={curr.curriculaId}
+                                    className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg cursor-pointer hover:bg-white transition-all"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          updateLinea(idx, 'curriculas', [...linea.curriculas, { curriculaId: curr.curriculaId, ciclo: curr.ciclo }]);
+                                        } else {
+                                          updateLinea(idx, 'curriculas', linea.curriculas.filter((c) => c.curriculaId !== curr.curriculaId));
+                                        }
+                                      }}
+                                    />
+                                    <span className="text-sm text-text-main font-medium">{curr.codigo} • Ciclo {curr.ciclo}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <button

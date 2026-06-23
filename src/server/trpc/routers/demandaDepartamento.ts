@@ -54,6 +54,15 @@ export const demandaDepartamentoRouter = createTRPCRouter({
               },
             },
           },
+          grupos: {
+            include: {
+              asignacionesCarga: {
+                include: {
+                  docente: true,
+                },
+              },
+            },
+          },
         },
       });
     }),

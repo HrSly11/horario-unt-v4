@@ -15,6 +15,8 @@ ALTER TYPE "TipoDocumentoFirma" ADD VALUE IF NOT EXISTS 'F01';
 ALTER TYPE "TipoDocumentoFirma" ADD VALUE IF NOT EXISTS 'F02';
 ALTER TYPE "TipoDocumentoFirma" ADD VALUE IF NOT EXISTS 'F03';
 
+ALTER TABLE "cursos" ADD COLUMN IF NOT EXISTS "motivo_apertura_excepcional" TEXT;
+
 ALTER TABLE "grupos" ADD COLUMN "demanda_linea_id" TEXT, ADD COLUMN "proceso_horario_id" TEXT;
 ALTER TABLE "asignaciones" ADD COLUMN "proceso_horario_id" TEXT;
 ALTER TABLE "asignaciones_carga_lectiva" ADD COLUMN "distribucion_id" TEXT, ADD COLUMN "cobertura_id" TEXT,
