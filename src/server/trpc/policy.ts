@@ -97,7 +97,7 @@ export function assertDocenteSelfOrRole(
   docenteId: string,
   roles: UserRole[] = ['ADMIN']
 ) {
-  if (session.role === 'DOCENTE' && session.docenteId === docenteId) return;
+  if (session.docenteId && session.docenteId === docenteId) return;
   if (hasRole(session, roles)) return;
 
   throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para acceder a otro docente' });
