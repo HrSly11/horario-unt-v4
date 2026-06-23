@@ -204,6 +204,8 @@ export async function assertCanAccessDocenteDepartamento(
   session: SessionLike,
   docenteId: string
 ) {
+  if (session.docenteId && session.docenteId === docenteId) return;
+
   if (session.role === 'DOCENTE') {
     assertDocenteSelfOrRole(session, docenteId, []);
     return;

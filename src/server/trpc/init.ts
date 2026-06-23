@@ -107,7 +107,7 @@ export const academicManagerProcedure = protectedProcedure.use(({ ctx, next }) =
 });
 
 export const docenteProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (ctx.session.role !== 'DOCENTE' && ctx.session.role !== 'ADMIN') {
+  if (ctx.session.role !== 'DOCENTE' && ctx.session.role !== 'ADMIN' && !ctx.session.docenteId) {
     throw new TRPCError({ code: 'FORBIDDEN' });
   }
   return next();
