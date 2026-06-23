@@ -6,13 +6,39 @@ import {
   createTRPCRouter,
   protectedProcedure,
   secretariaDepartamentoProcedure,
+  directorDepartamentoProcedure,
 } from '../init';
 import { validateAll, validatePeriodMutable } from '@/server/services/workload-validator';
 import {
   assertCanAccessDepartamento,
   assertCanAccessDocenteDepartamento,
   getManagedDepartamentoIds,
+  assertFacultyPeriodNotPublished,
 } from '../policy';
+
+async function assertDistribucionNotApproved(prisma: PrismaClient, docenteId: string, periodoId: string) {
+  const docente = await prisma.docente.findUnique({
+    where: { id: docenteId },
+    select: { departamentoId: true },
+  });
+  if (docente?.departamentoId) {
+    const dist = await prisma.distribucionLectiva.findUnique({
+      where: {
+        departamentoId_periodoId: {
+          departamentoId: docente.departamentoId,
+          periodoId,
+        },
+      },
+      select: { estado: true },
+    });
+    if (dist?.estado === 'APROBADA') {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'La distribución de carga académica para este departamento ya está aprobada y bloqueada.',
+      });
+    }
+  }
+}
 
 const assignInput = z.object({
   docenteId: z.string().min(1),
@@ -167,6 +193,8 @@ export const cargaLectivaRouter = createTRPCRouter({
     .input(assignInput)
     .mutation(async ({ ctx, input }) => {
       await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, input.docenteId);
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: input.docenteId, periodoId: input.periodoId });
+      await assertDistribucionNotApproved(ctx.prisma, input.docenteId, input.periodoId);
       await assertLectivePeriodMutable(ctx.prisma, input.periodoId);
       await assertGrupoBelongsToPeriodo(ctx.prisma, input.grupoId, input.periodoId);
 
@@ -284,6 +312,8 @@ export const cargaLectivaRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, input.docenteId);
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: input.docenteId, periodoId: input.periodoId });
+      await assertDistribucionNotApproved(ctx.prisma, input.docenteId, input.periodoId);
       await assertLectivePeriodMutable(ctx.prisma, input.periodoId);
       await assertGrupoBelongsToPeriodo(ctx.prisma, input.grupoId, input.periodoId);
 
@@ -565,7 +595,9 @@ export const cargaLectivaRouter = createTRPCRouter({
         where: { id: input.id },
         select: { docenteId: true, periodoId: true },
       });
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: existing.docenteId, periodoId: existing.periodoId });
       await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, existing.docenteId);
+      await assertDistribucionNotApproved(ctx.prisma, existing.docenteId, existing.periodoId);
       await assertLectivePeriodMutable(ctx.prisma, existing.periodoId);
 
       return ctx.prisma.asignacionCargaLectiva.delete({ where: { id: input.id } });
@@ -587,7 +619,9 @@ export const cargaLectivaRouter = createTRPCRouter({
         where: { id },
         include: { grupo: { include: { curso: true } } }
       });
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: existing.docenteId, periodoId: existing.periodoId });
       await assertCanAccessDocenteDepartamento(ctx.prisma, ctx.session, existing.docenteId);
+      await assertDistribucionNotApproved(ctx.prisma, existing.docenteId, existing.periodoId);
       await assertLectivePeriodMutable(ctx.prisma, existing.periodoId);
 
       // If changing docente, validate the new docente belongs to managed dept
@@ -721,6 +755,11 @@ export const cargaLectivaRouter = createTRPCRouter({
               horasLaboratorio: true,
               numGruposLaboratorio: true,
               ciclo: true,
+              departamentoId: true,
+              cursoCurriculas: {
+                where: { desasociadaEn: null },
+                select: { curriculaId: true },
+              },
             },
           },
         },
@@ -773,6 +812,271 @@ export const cargaLectivaRouter = createTRPCRouter({
           asignaciones: d.asignacionesCarga,
           cargasNoLectivas: d.cargasNoLectivas,
         };
+      });
+    }),
+
+  getDistribucion: secretariaDepartamentoProcedure
+    .input(z.object({ periodoId: z.string(), departamentoId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      await assertCanAccessDepartamento(ctx.prisma, ctx.session, input.departamentoId);
+
+      let dist = await ctx.prisma.distribucionLectiva.findUnique({
+        where: {
+          departamentoId_periodoId: {
+            departamentoId: input.departamentoId,
+            periodoId: input.periodoId,
+          },
+        },
+        include: {
+          coberturas: {
+            include: {
+              demandaLinea: {
+                include: {
+                  curso: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!dist) {
+        dist = await ctx.prisma.distribucionLectiva.create({
+          data: {
+            departamentoId: input.departamentoId,
+            periodoId: input.periodoId,
+            estado: 'BORRADOR',
+          },
+          include: {
+            coberturas: {
+              include: {
+                demandaLinea: {
+                  include: {
+                    curso: true,
+                  },
+                },
+              },
+            },
+          },
+        }) as any;
+      }
+
+      if (!dist) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'No se pudo obtener ni crear la distribución lectiva',
+        });
+      }
+
+      const lineasAprobadas = await ctx.prisma.demandaLinea.findMany({
+        where: {
+          demanda: {
+            periodoId: input.periodoId,
+            estado: 'APROBADA',
+          },
+          departamentoId: input.departamentoId,
+        },
+        include: {
+          curso: true,
+        },
+      });
+
+      const requiredCoberturas: {
+        demandaLineaId: string;
+        componente: 'TEORIA' | 'PRACTICA' | 'LABORATORIO';
+        grupoLaboratorio: number;
+      }[] = [];
+
+      for (const linea of lineasAprobadas) {
+        if (linea.horasTeoria > 0) {
+          requiredCoberturas.push({
+            demandaLineaId: linea.id,
+            componente: 'TEORIA',
+            grupoLaboratorio: 0,
+          });
+        }
+        if (linea.horasPractica > 0) {
+          requiredCoberturas.push({
+            demandaLineaId: linea.id,
+            componente: 'PRACTICA',
+            grupoLaboratorio: 0,
+          });
+        }
+        if (linea.horasLaboratorio > 0 && linea.numGruposLaboratorio > 0) {
+          for (let g = 1; g <= linea.numGruposLaboratorio; g++) {
+            requiredCoberturas.push({
+              demandaLineaId: linea.id,
+              componente: 'LABORATORIO',
+              grupoLaboratorio: g,
+            });
+          }
+        }
+      }
+
+      const existing = await ctx.prisma.coberturaComponente.findMany({
+        where: { distribucionId: dist.id },
+      });
+
+      const toCreate = requiredCoberturas.filter(req => 
+        !existing.some(ext => 
+          ext.demandaLineaId === req.demandaLineaId &&
+          ext.componente === req.componente &&
+          ext.grupoLaboratorio === req.grupoLaboratorio
+        )
+      );
+
+      const toDelete = existing.filter(ext =>
+        !requiredCoberturas.some(req =>
+          req.demandaLineaId === ext.demandaLineaId &&
+          req.componente === ext.componente &&
+          req.grupoLaboratorio === ext.grupoLaboratorio
+        )
+      );
+
+      if (toCreate.length > 0) {
+        await ctx.prisma.coberturaComponente.createMany({
+          data: toCreate.map(req => ({
+            distribucionId: dist.id,
+            demandaLineaId: req.demandaLineaId,
+            componente: req.componente,
+            grupoLaboratorio: req.grupoLaboratorio,
+            estado: 'PENDIENTE',
+          })),
+        });
+      }
+
+      if (toDelete.length > 0) {
+        await ctx.prisma.coberturaComponente.deleteMany({
+          where: {
+            id: { in: toDelete.map(d => d.id) },
+          },
+        });
+      }
+
+      const finalDist = await ctx.prisma.distribucionLectiva.findUniqueOrThrow({
+        where: { id: dist.id },
+        include: {
+          coberturas: {
+            include: {
+              demandaLinea: {
+                include: {
+                  curso: true,
+                },
+              },
+              asignaciones: {
+                include: {
+                  docente: { select: { nombre: true } },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return finalDist;
+    }),
+
+  updateCobertura: secretariaDepartamentoProcedure
+    .input(z.object({
+      id: z.string(),
+      estado: z.enum(['CUBIERTA', 'PENDIENTE']),
+      motivoPendiente: z.string().nullable().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.prisma.coberturaComponente.findUniqueOrThrow({
+        where: { id: input.id },
+        include: { distribucion: true },
+      });
+
+      await assertFacultyPeriodNotPublished(ctx.prisma, { departamentoId: existing.distribucion.departamentoId, periodoId: existing.distribucion.periodoId });
+      await assertCanAccessDepartamento(ctx.prisma, ctx.session, existing.distribucion.departamentoId);
+
+      if (existing.distribucion.estado === 'APROBADA') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'La distribución ya está aprobada y no se pueden modificar las coberturas.',
+        });
+      }
+
+      return ctx.prisma.coberturaComponente.update({
+        where: { id: input.id },
+        data: {
+          estado: input.estado,
+          motivoPendiente: input.motivoPendiente || null,
+        },
+      });
+    }),
+
+  submitDistribucion: secretariaDepartamentoProcedure
+    .input(z.object({ periodoId: z.string(), departamentoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await assertFacultyPeriodNotPublished(ctx.prisma, { departamentoId: input.departamentoId, periodoId: input.periodoId });
+      await assertCanAccessDepartamento(ctx.prisma, ctx.session, input.departamentoId);
+
+      const dist = await ctx.prisma.distribucionLectiva.findUniqueOrThrow({
+        where: {
+          departamentoId_periodoId: {
+            departamentoId: input.departamentoId,
+            periodoId: input.periodoId,
+          },
+        },
+        include: {
+          coberturas: true,
+        },
+      });
+
+      if (dist.estado === 'APROBADA') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'La distribución ya está aprobada.',
+        });
+      }
+
+      const missingReason = dist.coberturas.some(
+        c => c.estado === 'PENDIENTE' && (!c.motivoPendiente || c.motivoPendiente.trim() === '')
+      );
+
+      if (missingReason) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Debe especificar un motivo para todos los componentes pendientes de cobertura.',
+        });
+      }
+
+      return ctx.prisma.distribucionLectiva.update({
+        where: { id: dist.id },
+        data: { estado: 'ENVIADA' },
+      });
+    }),
+
+  reviewDistribucion: directorDepartamentoProcedure
+    .input(z.object({
+      periodoId: z.string(),
+      departamentoId: z.string(),
+      aprobado: z.boolean(),
+      observacion: z.string().nullable().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await assertFacultyPeriodNotPublished(ctx.prisma, { departamentoId: input.departamentoId, periodoId: input.periodoId });
+      await assertCanAccessDepartamento(ctx.prisma, ctx.session, input.departamentoId);
+
+      const dist = await ctx.prisma.distribucionLectiva.findUniqueOrThrow({
+        where: {
+          departamentoId_periodoId: {
+            departamentoId: input.departamentoId,
+            periodoId: input.periodoId,
+          },
+        },
+      });
+
+      const nuevoEstado = input.aprobado ? 'APROBADA' : 'OBSERVADA';
+
+      return ctx.prisma.distribucionLectiva.update({
+        where: { id: dist.id },
+        data: {
+          estado: nuevoEstado,
+          observacion: input.observacion || null,
+        },
       });
     }),
 });

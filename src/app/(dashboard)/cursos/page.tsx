@@ -2,7 +2,7 @@
 
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus, Pencil, Trash2, Search, X, TrendingUp, CheckCircle2, BookOpen, User } from 'lucide-react';
 
 type FormData = {
@@ -83,6 +83,19 @@ export default function CursosPage() {
     })
   });
   const { data: ciclos = [] } = useQuery({ ...trpc.curso.ciclos.queryOptions() });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, search, filterCiclo]);
+
+  const totalPages = Math.ceil(cursos.length / itemsPerPage);
+  const paginatedCursos = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return cursos.slice(start, start + itemsPerPage);
+  }, [cursos, currentPage]);
 
   const { data: matchedCourses = [] } = useQuery({
     ...trpc.docente.matchingCourses.queryOptions(),
@@ -469,7 +482,7 @@ export default function CursosPage() {
             ) : cursos.length === 0 ? (
               <tr><td colSpan={6} className="px-6 py-12 text-center text-text-sub">No se encontraron cursos</td></tr>
             ) : (
-              cursos.map((c) => (
+              paginatedCursos.map((c: any) => (
                 <tr key={c.id} className="group hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
                     <div>
@@ -545,6 +558,29 @@ export default function CursosPage() {
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-border px-6 py-4 bg-white rounded-b-xl shadow-sm mt-3">
+          <span className="text-sm text-text-sub font-medium">
+            Mostrando pág. {currentPage} de {totalPages} ({cursos.length} cursos)
+          </span>
+          <div className="flex gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-3 py-1.5 border border-border rounded-lg text-xs font-bold text-text-main hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-transparent transition-all"
+            >
+              Anterior
+            </button>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-3 py-1.5 border border-border rounded-lg text-xs font-bold text-text-main hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-transparent transition-all"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      )}
       </>
       ) : (
         /* Vista Mis Cursos */

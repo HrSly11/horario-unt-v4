@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { createTRPCRouter, docenteProcedure, protectedProcedure } from '../init';
 import type { Prisma, PrismaClient } from '@/generated/prisma/client';
-import { academicManagerRoles, departmentScopedRoles, getManagedDepartamentoIds, hasRole } from '../policy';
+import { academicManagerRoles, departmentScopedRoles, getManagedDepartamentoIds, hasRole, assertFacultyPeriodNotPublished } from '../policy';
 import {
   calculateSlotHours,
   validateNonLectiveSchedule,
@@ -23,6 +23,7 @@ const cargaNoLectivaInput = z.object({
     'PREPARACION_EVALUACION', 'CONSEJERIA', 'INVESTIGACION',
     'CAPACITACION', 'GOBIERNO', 'ADMINISTRACION',
     'ASESORIA_TESIS', 'RESPONSABILIDAD_SOCIAL', 'COMITES_COMISIONES',
+    'JURADOS', 'AUTOEVALUACION_ACREDITACION', 'OTRAS_AUTORIZADAS'
   ]),
   horas: z.number().int().min(1),
   descripcion: z.string().optional(),
@@ -178,6 +179,7 @@ export const cargaNoLectivaRouter = createTRPCRouter({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para crear cargas no lectivas para otro docente' });
       }
 
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: input.docenteId, periodoId: input.periodoId });
       const { horarios, ...cargaData } = input;
       await assertPeriodoMutable(ctx.prisma, input.periodoId);
       await assertNonLectiveScheduleIntegrity(ctx.prisma, input.docenteId, input.periodoId, horarios);
@@ -225,6 +227,7 @@ export const cargaNoLectivaRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, horarios, ...data } = input;
       const existing = await ctx.prisma.cargaNoLectiva.findUniqueOrThrow({ where: { id } });
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: existing.docenteId, periodoId: existing.periodoId });
 
       if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== existing.docenteId) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para actualizar cargas no lectivas de otro docente' });
@@ -274,6 +277,7 @@ export const cargaNoLectivaRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.prisma.cargaNoLectiva.findUniqueOrThrow({ where: { id: input.id } });
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: existing.docenteId, periodoId: existing.periodoId });
       if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== existing.docenteId) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para eliminar cargas no lectivas de otro docente' });
       }

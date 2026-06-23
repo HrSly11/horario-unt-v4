@@ -268,4 +268,36 @@ describe('curriculaRouter', () => {
     const caller = makeCaller(prisma, 'DOCENTE');
     await expect(caller.update(updateData)).rejects.toThrow();
   });
+
+  it('blocks linking a course to a closed curriculum', async () => {
+    const prisma = {
+      user: { findUnique: vi.fn().mockResolvedValue({ id: 'test-user', activo: true }) },
+      curricula: {
+        findUniqueOrThrow: vi.fn().mockResolvedValue({ escuelaId: 'esc-1', estado: 'CERRADA' }),
+      },
+      escuela: { findUnique: vi.fn().mockResolvedValue({ id: 'esc-1' }) },
+      cursoCurricula: { upsert: vi.fn() },
+    };
+    const caller = makeCaller(prisma, 'SECRETARIA_ACADEMICA');
+    await expect(
+      caller.linkCourse({ curriculaId: 'curr-closed', cursoId: 'curso-1', ciclo: 5 })
+    ).rejects.toThrow('No se puede modificar una currícula cerrada');
+    expect(prisma.cursoCurricula.upsert).not.toHaveBeenCalled();
+  });
+
+  it('blocks unlinking a course from a closed curriculum', async () => {
+    const prisma = {
+      user: { findUnique: vi.fn().mockResolvedValue({ id: 'test-user', activo: true }) },
+      curricula: {
+        findUniqueOrThrow: vi.fn().mockResolvedValue({ escuelaId: 'esc-1', estado: 'CERRADA' }),
+      },
+      escuela: { findUnique: vi.fn().mockResolvedValue({ id: 'esc-1' }) },
+      cursoCurricula: { update: vi.fn() },
+    };
+    const caller = makeCaller(prisma, 'SECRETARIA_ACADEMICA');
+    await expect(
+      caller.unlinkCourse({ curriculaId: 'curr-closed', cursoId: 'curso-1' })
+    ).rejects.toThrow('No se puede modificar una currícula cerrada');
+    expect(prisma.cursoCurricula.update).not.toHaveBeenCalled();
+  });
 });

@@ -3,6 +3,7 @@ import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, se
 import { TRPCError } from '@trpc/server';
 import { Prisma } from '@/generated/prisma/client';
 import { assertWorkflowActivationReady } from '@/server/domain/workflow-foundation';
+import { assertCanAccessEscuela, assertRole } from '../policy';
 
 const cursoInput = z.object({
   codigo: z.string().min(2, 'El código es obligatorio'),
@@ -277,4 +278,347 @@ export const cursoRouter = createTRPCRouter({
       });
     });
   }),
+
+  getDemanda: academicManagerProcedure
+    .input(z.object({ escuelaId: z.string(), periodoId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, input.escuelaId);
+
+      const demanda = await ctx.prisma.demandaAcademica.findUnique({
+        where: {
+          escuelaId_periodoId: { escuelaId: input.escuelaId, periodoId: input.periodoId },
+        },
+        include: {
+          lineas: {
+            include: {
+              curso: true,
+              curriculas: {
+                include: {
+                  curricula: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const activeCurricula = await ctx.prisma.curricula.findMany({
+        where: {
+          escuelaId: input.escuelaId,
+          estado: 'ACTIVA',
+        },
+        include: {
+          cursos: {
+            where: {
+              desasociadaEn: null,
+            },
+            include: {
+              curso: true,
+            },
+          },
+        },
+      });
+
+      const availableCourses = activeCurricula.flatMap((curr) =>
+        curr.cursos.map((cc) => ({
+          curso: cc.curso,
+          curriculaId: curr.id,
+          curriculaCodigo: curr.codigo,
+          ciclo: cc.ciclo,
+        }))
+      );
+
+      // Also return courses with aperturado=true for the given period so the UI
+      // can pre-load demand lines even when CursoCurricula entries are absent.
+      const cursosAperturados = await ctx.prisma.curso.findMany({
+        where: { aperturado: true },
+        include: {
+          cursoCurriculas: {
+            where: { desasociadaEn: null },
+            include: { curricula: { select: { id: true, codigo: true, escuelaId: true } } },
+          },
+        },
+        orderBy: [{ ciclo: 'asc' }, { codigo: 'asc' }],
+      });
+
+      return {
+        demanda,
+        availableCourses,
+        cursosAperturados,
+      };
+    }),
+
+  saveDemanda: academicManagerProcedure
+    .input(
+      z.object({
+        escuelaId: z.string(),
+        periodoId: z.string(),
+        lineas: z.array(
+          z.object({
+            cursoId: z.string(),
+            numGruposLaboratorio: z.number().int().min(0),
+            motivoAperturaExcepcional: z.string().optional(),
+            curriculas: z.array(
+              z.object({
+                curriculaId: z.string(),
+                ciclo: z.number().int().min(1).max(12),
+              })
+            ),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, input.escuelaId);
+
+      return ctx.prisma.$transaction(async (tx) => {
+        let demanda = await tx.demandaAcademica.findUnique({
+          where: {
+            escuelaId_periodoId: { escuelaId: input.escuelaId, periodoId: input.periodoId },
+          },
+        });
+
+        if (demanda) {
+          if (demanda.estado === 'ENVIADA' || demanda.estado === 'APROBADA') {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'No se puede modificar una demanda enviada o aprobada',
+            });
+          }
+
+          await tx.demandaLinea.deleteMany({
+            where: { demandaId: demanda.id },
+          });
+
+          demanda = await tx.demandaAcademica.update({
+            where: { id: demanda.id },
+            data: {
+              estado: 'BORRADOR',
+              version: { increment: 1 },
+            },
+          });
+        } else {
+          demanda = await tx.demandaAcademica.create({
+            data: {
+              escuelaId: input.escuelaId,
+              periodoId: input.periodoId,
+              estado: 'BORRADOR',
+              version: 1,
+            },
+          });
+        }
+
+        for (const line of input.lineas) {
+          const curso = await tx.curso.findUniqueOrThrow({
+            where: { id: line.cursoId },
+          });
+
+          if (!curso.departamentoId) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: `El curso ${curso.codigo} - ${curso.nombre} no tiene un departamento asignado`,
+            });
+          }
+
+          const demandLine = await tx.demandaLinea.create({
+            data: {
+              demandaId: demanda.id,
+              cursoId: line.cursoId,
+              departamentoId: curso.departamentoId,
+              horasTeoria: curso.horasTeoria,
+              horasPractica: curso.horasPractica,
+              horasLaboratorio: curso.horasLaboratorio,
+              numGruposLaboratorio: line.numGruposLaboratorio,
+              motivoAperturaExcepcional: line.motivoAperturaExcepcional,
+            },
+          });
+
+          for (const curr of line.curriculas) {
+            await tx.demandaLineaCurricula.create({
+              data: {
+                demandaLineaId: demandLine.id,
+                curriculaId: curr.curriculaId,
+                ciclo: curr.ciclo,
+              },
+            });
+          }
+        }
+
+        await tx.log.create({
+          data: {
+            userId: ctx.session.id,
+            accion: 'GUARDAR_DEMANDA',
+            entidad: 'DemandaAcademica',
+            entidadId: demanda.id,
+            despues: JSON.stringify({
+              escuelaId: input.escuelaId,
+              periodoId: input.periodoId,
+              lineasCount: input.lineas.length,
+            }),
+          },
+        });
+
+        return demanda;
+      });
+    }),
+
+  submitDemanda: academicManagerProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const demanda = await ctx.prisma.demandaAcademica.findUniqueOrThrow({
+        where: { id: input.id },
+        include: { escuela: true },
+      });
+
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, demanda.escuelaId);
+
+      if (
+        demanda.estado !== 'BORRADOR' &&
+        demanda.estado !== 'OBSERVADA' &&
+        demanda.estado !== 'RECHAZADA'
+      ) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'La demanda no está en un estado que permita su envío',
+        });
+      }
+
+      const updated = await ctx.prisma.demandaAcademica.update({
+        where: { id: input.id },
+        data: {
+          estado: 'ENVIADA',
+          enviadaPorId: ctx.session.id,
+          enviadaEn: new Date(),
+        },
+      });
+
+      await ctx.prisma.log.create({
+        data: {
+          userId: ctx.session.id,
+          accion: 'ENVIAR_DEMANDA',
+          entidad: 'DemandaAcademica',
+          entidadId: demanda.id,
+          antes: JSON.stringify({ estado: demanda.estado }),
+          despues: JSON.stringify({ estado: 'ENVIADA' }),
+        },
+      });
+
+      if (demanda.escuela.directorId) {
+        await ctx.prisma.notification.create({
+          data: {
+            recipientUserId: demanda.escuela.directorId,
+            titulo: 'Demanda Académica Enviada',
+            mensaje: `La demanda académica para el periodo ha sido enviada por la secretaría y está lista para su revisión.`,
+            tipo: 'DEMANDA_ENVIADA',
+          },
+        });
+      }
+
+      return updated;
+    }),
+
+  reviewDemanda: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        estado: z.enum(['APROBADA', 'OBSERVADA', 'RECHAZADA']),
+        observacion: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      assertRole(ctx.session, ['DIRECTOR_ESCUELA', 'ADMIN']);
+
+      const demanda = await ctx.prisma.demandaAcademica.findUniqueOrThrow({
+        where: { id: input.id },
+        include: { escuela: true },
+      });
+
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, demanda.escuelaId);
+
+      if (demanda.estado !== 'ENVIADA') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'La demanda debe estar en estado ENVIADA para ser revisada',
+        });
+      }
+
+      if (
+        (input.estado === 'OBSERVADA' || input.estado === 'RECHAZADA') &&
+        (!input.observacion || input.observacion.trim() === '')
+      ) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Debe especificar una observación al observar o rechazar la demanda',
+        });
+      }
+
+      const updated = await ctx.prisma.demandaAcademica.update({
+        where: { id: input.id },
+        data: {
+          estado: input.estado,
+          observacion: input.observacion || null,
+          revisadaPorId: ctx.session.id,
+          revisadaEn: new Date(),
+        },
+      });
+
+      await ctx.prisma.log.create({
+        data: {
+          userId: ctx.session.id,
+          accion: `REVISAR_DEMANDA_${input.estado}`,
+          entidad: 'DemandaAcademica',
+          entidadId: demanda.id,
+          antes: JSON.stringify({ estado: demanda.estado }),
+          despues: JSON.stringify({ estado: input.estado, observacion: input.observacion }),
+        },
+      });
+
+      if (input.estado === 'APROBADA') {
+        if (demanda.escuela.secretariaId) {
+          await ctx.prisma.notification.create({
+            data: {
+              recipientUserId: demanda.escuela.secretariaId,
+              titulo: 'Demanda Académica Aprobada',
+              mensaje: `La demanda académica ha sido aprobada por el director.`,
+              tipo: 'DEMANDA_APROBADA',
+            },
+          });
+        }
+
+        const lines = await ctx.prisma.demandaLinea.findMany({
+          where: { demandaId: demanda.id },
+          include: { departamento: true },
+        });
+
+        const departmentDirectorIds = lines
+          .map((l) => l.departamento.directorId)
+          .filter((id): id is string => !!id);
+
+        const uniqueDirectorIds = [...new Set(departmentDirectorIds)];
+
+        for (const directorId of uniqueDirectorIds) {
+          await ctx.prisma.notification.create({
+            data: {
+              recipientUserId: directorId,
+              titulo: 'Demanda Aprobada Asignada',
+              mensaje: `Se ha aprobado la demanda académica de la escuela ${demanda.escuela.nombre}. Los cursos de su departamento están listos para la distribución.`,
+              tipo: 'DEMANDA_APROBADA_DEPARTAMENTO',
+            },
+          });
+        }
+      } else {
+        if (demanda.escuela.secretariaId) {
+          await ctx.prisma.notification.create({
+            data: {
+              recipientUserId: demanda.escuela.secretariaId,
+              titulo: `Demanda Académica ${input.estado === 'OBSERVADA' ? 'Observada' : 'Rechazada'}`,
+              mensaje: `La demanda académica ha sido revisada con observaciones: "${input.observacion}".`,
+              tipo: `DEMANDA_${input.estado}`,
+            },
+          });
+        }
+      }
+
+      return updated;
+    }),
 });

@@ -201,20 +201,34 @@ async function main() {
   );
   console.log(`  ✅ ${cursos.length} cursos creados`);
 
-  // ── Estructura Organizacional ─────────────────────
+  // ── Estructura Organizacional ─────────────────
   const facultadIng = await prisma.facultad.create({ data: { nombre: 'Facultad de Ingeniería', siglas: 'FI' } });
   const facultadCiencias = await prisma.facultad.create({ data: { nombre: 'Facultad de Ciencias Físicas y Matemáticas', siglas: 'FCFM' } });
+  const facultadHumanidades = await prisma.facultad.create({ data: { nombre: 'Facultad de Humanidades y Ciencias Sociales', siglas: 'FHCS' } });
+  const facultadEconomia = await prisma.facultad.create({ data: { nombre: 'Facultad de Ciencias Económicas', siglas: 'FCE' } });
 
   const deptoSistemas = await prisma.departamento.create({ data: { nombre: 'Departamento de Ingeniería de Sistemas', facultadId: facultadIng.id } });
   const deptoIndustrial = await prisma.departamento.create({ data: { nombre: 'Departamento de Ingeniería Industrial', facultadId: facultadIng.id } });
   const deptoMatematicas = await prisma.departamento.create({ data: { nombre: 'Departamento de Matemáticas', facultadId: facultadCiencias.id } });
   const deptoFisica = await prisma.departamento.create({ data: { nombre: 'Departamento de Física', facultadId: facultadCiencias.id } });
+  const deptoEstadistica = await prisma.departamento.create({ data: { nombre: 'Departamento de Estadística', facultadId: facultadCiencias.id } });
+  const deptoLengua = await prisma.departamento.create({ data: { nombre: 'Departamento de Lengua y Literatura', facultadId: facultadHumanidades.id } });
+  const deptoPsicologia = await prisma.departamento.create({ data: { nombre: 'Departamento de Ciencias Psicológicas', facultadId: facultadHumanidades.id } });
+  const deptoComunicacion = await prisma.departamento.create({ data: { nombre: 'Departamento de Comunicación Social', facultadId: facultadHumanidades.id } });
+  const deptoCienciasSociales = await prisma.departamento.create({ data: { nombre: 'Departamento de Ciencias Sociales', facultadId: facultadHumanidades.id } });
+  const deptoFilosofia = await prisma.departamento.create({ data: { nombre: 'Departamento de Filosofía y Arte', facultadId: facultadHumanidades.id } });
 
   const departmentByLegacyName = new Map([
     ['Dpto. de Ing. Sistemas', deptoSistemas.id],
     ['Dpto. de Ing. Industrial', deptoIndustrial.id],
     ['Dpto. de Matemáticas', deptoMatematicas.id],
     ['Dpto. de Física', deptoFisica.id],
+    ['Dpto. de Estadística', deptoEstadistica.id],
+    ['Dpto. de Lengua y Literatura', deptoLengua.id],
+    ['Dpto. de Ciencias Sicológicas', deptoPsicologia.id],
+    ['Dpto. de Comunicación Social', deptoComunicacion.id],
+    ['Dpto. de Ciencias Sociales', deptoCienciasSociales.id],
+    ['Dpto. de Filosofía y Arte', deptoFilosofia.id],
   ]);
   await Promise.all(
     cursosData.map((curso) => {

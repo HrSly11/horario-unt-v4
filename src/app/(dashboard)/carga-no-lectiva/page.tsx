@@ -10,7 +10,8 @@ import { Plus, Pencil, Trash2, Clock, Calendar, X, BookOpen, AlertTriangle, Sear
 type TipoCarga =
   | 'PREPARACION_EVALUACION' | 'CONSEJERIA' | 'INVESTIGACION'
   | 'CAPACITACION' | 'GOBIERNO' | 'ADMINISTRACION'
-  | 'ASESORIA_TESIS' | 'RESPONSABILIDAD_SOCIAL' | 'COMITES_COMISIONES';
+  | 'ASESORIA_TESIS' | 'RESPONSABILIDAD_SOCIAL' | 'COMITES_COMISIONES'
+  | 'JURADOS' | 'AUTOEVALUACION_ACREDITACION' | 'OTRAS_AUTORIZADAS';
 
 type DiaSemana = 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO';
 
@@ -45,6 +46,9 @@ const TIPO_OPTIONS: { value: TipoCarga; label: string }[] = [
   { value: 'ASESORIA_TESIS', label: 'Asesoría de Tesis y Exámenes Profesionales' },
   { value: 'RESPONSABILIDAD_SOCIAL', label: 'Responsabilidad Social Universitaria' },
   { value: 'COMITES_COMISIONES', label: 'Comités Técnicos y Comisiones' },
+  { value: 'JURADOS', label: 'Jurados de Exámenes/Tesis' },
+  { value: 'AUTOEVALUACION_ACREDITACION', label: 'Autoevaluación y Acreditación' },
+  { value: 'OTRAS_AUTORIZADAS', label: 'Otras Actividades Autorizadas' },
 ];
 
 const TIPO_LABELS: Record<string, string> = Object.fromEntries(
@@ -57,10 +61,13 @@ const TIPO_BADGE: Record<string, string> = {
   INVESTIGACION: 'badge-primary',
   CAPACITACION: 'badge-warning',
   GOBIERNO: 'badge-danger',
-  ADMINISTRACION: 'badge-gray',
+  ADMINISTRACION: 'badge-neutral',
   ASESORIA_TESIS: 'badge-info',
   RESPONSABILIDAD_SOCIAL: 'badge-success',
   COMITES_COMISIONES: 'badge-primary',
+  JURADOS: 'badge-warning',
+  AUTOEVALUACION_ACREDITACION: 'badge-secondary',
+  OTRAS_AUTORIZADAS: 'badge-accent',
 };
 
 const DIA_OPTIONS: { value: DiaSemana; label: string }[] = [
@@ -146,12 +153,11 @@ export default function CargaNoLectivaPage() {
   const { data: docente } = useQuery({
     ...trpc.docente.byId.queryOptions({ id: docenteId }),
     enabled: !!docenteId,
-  });
-
-  const { data: horarioLectivo = [] } = useQuery({
+  });  const { data: horarioLectivoRaw } = useQuery({
     ...trpc.horario.byDocente.queryOptions({ docenteId, periodoId }),
     enabled: !!docenteId && !!periodoId,
   });
+  const horarioLectivo = (horarioLectivoRaw ?? []) as any[];
 
   // Helper for time overlap check (local)
   function checkOverlap(

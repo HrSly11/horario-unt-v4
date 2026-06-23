@@ -60,6 +60,7 @@ export interface UnassignedItem {
   grupoId: string;
   tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO';
   reason: string;
+  viableGaps?: { franjaId: string; aulaId: string }[];
 }
 
 export interface ScheduleResult {
@@ -78,6 +79,8 @@ export interface ScheduleContext {
   existingAssignments?: Assignment[];
   /** Blocked slots per docente (restricciones, etc.) */
   blockedDocenteSlots?: Set<string>;
+  /** Hard blocked slots (restrictions only, no soft availability) */
+  hardBlockedDocenteSlots?: Set<string>;
   /** Blocked slots per docente-grupo (docenteId::grupoId::franjaId) */
   blockedDocenteGrupoSlots?: Set<string>;
   /** Blocked slots per aula (mantenimiento, etc.) */

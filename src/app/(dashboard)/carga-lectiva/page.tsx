@@ -42,11 +42,12 @@ export default function CargaLectivaPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'docentes' | 'cursos'>('docentes');
-  const [selectedCurriculaId, setSelectedCurriculaId] = useState<string | null>(null);
 
   // Unified modal states ───────────────────────────────
   const [docenteId, setDocenteId] = useState('');
   const [grupoId, setGrupoId] = useState('');
+  const [modalCurriculaId, setModalCurriculaId] = useState<string>('');
+  const [modalCiclo, setModalCiclo] = useState<string>('');
 
   // Teoría
   const [horasTeoria, setHorasTeoria] = useState(0);
@@ -109,7 +110,7 @@ export default function CargaLectivaPage() {
   }, [docentes]);
 
   const { data: gruposDisponibles = [] } = useQuery({
-    ...trpc.cargaLectiva.gruposDisponibles.queryOptions({ periodoId, curriculaId: selectedCurriculaId || undefined }),
+    ...trpc.cargaLectiva.gruposDisponibles.queryOptions({ periodoId }),
     enabled: !!periodoId,
   });
 
@@ -144,6 +145,18 @@ export default function CargaLectivaPage() {
     );
   }, [uniqueDocentesList, docenteSearch]);
 
+  // Auto-populate curricula and cycle if a group is pre-selected
+  useEffect(() => {
+    if (grupoId && gruposDisponibles.length > 0) {
+      const g = gruposDisponibles.find((x) => x.id === grupoId);
+      if (g && g.curso) {
+        const firstCurriculaId = g.curso.cursoCurriculas?.[0]?.curriculaId || '';
+        setModalCurriculaId(firstCurriculaId);
+        setModalCiclo(String(g.curso.ciclo));
+      }
+    }
+  }, [grupoId, gruposDisponibles]);
+
   // Build a flat list of unique cursos (using their first available group) for the active period
   const gruposForPeriod = useMemo(() => {
     const seenCursos = new Set();
@@ -157,8 +170,30 @@ export default function CargaLectivaPage() {
     return uniqueGroups.map((g) => ({
       grupoId: g.id,
       label: `${g.curso.codigo} - ${g.curso.nombre}`,
+      ciclo: g.curso.ciclo,
+      curriculaIds: g.curso.cursoCurriculas?.map((cc: any) => cc.curriculaId) || [],
+      departamentoId: g.curso.departamentoId,
     }));
   }, [gruposDisponibles]);
+
+  const filteredGruposForModal = useMemo(() => {
+    return gruposForPeriod.filter((g) => {
+      if (modalCurriculaId && !g.curriculaIds.includes(modalCurriculaId)) {
+        return false;
+      }
+      if (modalCiclo && g.ciclo !== Number(modalCiclo)) {
+        return false;
+      }
+      return true;
+    });
+  }, [gruposForPeriod, modalCurriculaId, modalCiclo]);
+
+  const filteredDocentesForAssign = useMemo(() => {
+    if (!selectedCursoForAssign || !selectedCursoForAssign.departamentoId) {
+      return filteredDocentes;
+    }
+    return filteredDocentes.filter((d) => d.departamentoId === selectedCursoForAssign.departamentoId);
+  }, [filteredDocentes, selectedCursoForAssign]);
 
   const totalHoras = cargasLectivas.reduce((s, c) => s + c.horasAsignadas, 0);
   const uniqueDocentesCount = new Set(cargasLectivas.map((c) => c.docenteId)).size;
@@ -283,6 +318,8 @@ export default function CargaLectivaPage() {
     setEditingId(null);
     setDocenteId('');
     setGrupoId('');
+    setModalCurriculaId('');
+    setModalCiclo('');
     setHorasTeoria(0);
     setTeoriaCompartido(false);
     setTeoriaDocenteCompartidoId('');
@@ -501,26 +538,6 @@ export default function CargaLectivaPage() {
             {periodos.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.nombre}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={14}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
-          />
-        </div>
-
-        {/* Curricula selector */}
-        <div className="relative">
-          <select
-            value={selectedCurriculaId || ''}
-            onChange={(e) => setSelectedCurriculaId(e.target.value || null)}
-            className="appearance-none bg-zinc-900/80 border border-zinc-800 text-white rounded-lg px-4 py-2 pr-10 text-sm focus:outline-none focus:border-blue-500 min-w-[220px]"
-          >
-            <option value="">Todos los planes de estudio</option>
-            {curriculaList.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.codigo} ({c.anio}) - {c.escuela?.nombre}
               </option>
             ))}
           </select>
@@ -960,7 +977,73 @@ export default function CargaLectivaPage() {
 
             {/* Body */}
             <div className="p-5 space-y-4">
-              {/* Docente */}
+              {/* Plan de estudio */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-1">
+                  Plan de estudio
+                </label>
+                <select
+                  value={modalCurriculaId}
+                  onChange={(e) => {
+                    setModalCurriculaId(e.target.value);
+                    setGrupoId('');
+                  }}
+                  disabled={!!editingId}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                >
+                  <option value="">Seleccionar plan</option>
+                  {curriculaList.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.codigo} ({c.anio}) - {c.escuela?.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Ciclo / Semestre */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-1">
+                  Ciclo / Semestre
+                </label>
+                <select
+                  value={modalCiclo}
+                  onChange={(e) => {
+                    setModalCiclo(e.target.value);
+                    setGrupoId('');
+                  }}
+                  disabled={!!editingId}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                >
+                  <option value="">Seleccionar ciclo</option>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((c) => (
+                    <option key={c} value={c}>
+                      Ciclo {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Curso */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-400 mb-1">
+                  Curso
+                </label>
+                <select
+                  value={grupoId}
+                  onChange={(e) => setGrupoId(e.target.value)}
+                  disabled={!!editingId}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                >
+                  <option value="">Seleccionar curso</option>
+                  {filteredGruposForModal.map((g) => (
+                    <option key={g.grupoId} value={g.grupoId}>
+                      {g.label} (Ciclo {g.ciclo})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Docente Principal */}
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-1">
                   Docente Principal
@@ -984,29 +1067,9 @@ export default function CargaLectivaPage() {
                   className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Seleccionar docente</option>
-                  {filteredDocentes.map((d) => (
+                  {filteredDocentesForAssign.map((d) => (
                     <option key={d.id} value={d.id}>
-                      {d.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Curso */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-1">
-                  Curso
-                </label>
-                <select
-                  value={grupoId}
-                  onChange={(e) => setGrupoId(e.target.value)}
-                  disabled={!!editingId}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
-                >
-                  <option value="">Seleccionar curso</option>
-                  {gruposForPeriod.map((g) => (
-                    <option key={g.grupoId} value={g.grupoId}>
-                      {g.label}
+                      {d.nombre} ({d.departamento?.nombre || 'Sin dpto'})
                     </option>
                   ))}
                 </select>
@@ -1105,11 +1168,11 @@ export default function CargaLectivaPage() {
                               className="w-full bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
                             >
                               <option value="">Seleccionar docente compartido</option>
-                              {uniqueDocentesList
+                              {filteredDocentesForAssign
                                 .filter((d) => d.id !== docenteId)
                                 .map((d) => (
                                   <option key={d.id} value={d.id}>
-                                    {d.nombre}
+                                    {d.nombre} ({d.departamento?.nombre || 'Sin dpto'})
                                   </option>
                                 ))}
                             </select>
@@ -1170,11 +1233,11 @@ export default function CargaLectivaPage() {
                               className="w-full bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
                             >
                               <option value="">Seleccionar docente compartido</option>
-                              {uniqueDocentesList
+                              {filteredDocentesForAssign
                                 .filter((d) => d.id !== docenteId)
                                 .map((d) => (
                                   <option key={d.id} value={d.id}>
-                                    {d.nombre}
+                                    {d.nombre} ({d.departamento?.nombre || 'Sin dpto'})
                                   </option>
                                 ))}
                             </select>
@@ -1289,11 +1352,11 @@ export default function CargaLectivaPage() {
                               className="w-full bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
                             >
                               <option value="">Seleccionar docente compartido</option>
-                              {uniqueDocentesList
+                              {filteredDocentesForAssign
                                 .filter((d) => d.id !== docenteId)
                                 .map((d) => (
                                   <option key={d.id} value={d.id}>
-                                    {d.nombre}
+                                    {d.nombre} ({d.departamento?.nombre || 'Sin dpto'})
                                   </option>
                                 ))}
                             </select>

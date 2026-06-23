@@ -23,6 +23,8 @@ interface ScheduleEngineInput {
   existingAssignments?: Assignment[];
   /** Blocked slots per docente (restricciones, etc.) */
   blockedDocenteSlots?: Set<string>;
+  /** Hard blocked slots (restrictions only, no soft availability) */
+  hardBlockedDocenteSlots?: Set<string>;
   /** Blocked slots per docente-grupo (docenteId::grupoId::franjaId) */
   blockedDocenteGrupoSlots?: Set<string>;
   /** Blocked slots per docente-grupo-tipo (docenteId::grupoId::tipo::franjaId) */
@@ -46,6 +48,7 @@ export class ScheduleEngine {
   private cycleHorasPorDia = new Map<number, Map<string, string[]>>(); // New: track cycle hours
   private franjaById = new Map<string, FranjaForSchedule>();
   private blockedDocenteSlots: Set<string>;
+  private hardBlockedDocenteSlots: Set<string>;
   private blockedDocenteGrupoSlots: Set<string>;
   private blockedDocenteGrupoTipoSlots: Set<string>;
   private blockedAulaSlots: Set<string>;
@@ -54,6 +57,7 @@ export class ScheduleEngine {
     this.input = input;
     this.checker = new ConstraintChecker();
     this.blockedDocenteSlots = new Set(input.blockedDocenteSlots || []);
+    this.hardBlockedDocenteSlots = new Set(input.hardBlockedDocenteSlots || []);
     this.blockedDocenteGrupoSlots = new Set(input.blockedDocenteGrupoSlots || []);
     this.blockedDocenteGrupoTipoSlots = new Set(input.blockedDocenteGrupoTipoSlots || []);
     this.blockedAulaSlots = new Set(input.blockedAulaSlots || []);
@@ -382,10 +386,12 @@ export class ScheduleEngine {
     }
 
     if (assignedCount < hoursNeeded) {
+      const gaps = this.findViableGaps(docenteId, grupoId, tipo, capacityEligibleAulas);
       this.unassigned.push({
         grupoId,
         tipo,
         reason: `Solo se pudieron asignar ${assignedCount} de ${hoursNeeded} horas. Posible falta de aulas o cruces de ciclo/docente.`,
+        viableGaps: gaps,
       });
       return false;
     }
@@ -393,13 +399,56 @@ export class ScheduleEngine {
     return true;
   }
 
+  private findViableGaps(
+    docenteId: string,
+    grupoId: string,
+    tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO',
+    capacityEligibleAulas: AulaForSchedule[]
+  ): { franjaId: string; aulaId: string }[] {
+    const gaps: { franjaId: string; aulaId: string }[] = [];
+    const grupo = this.input.grupos.find(g => g.id === grupoId);
+
+    for (const franja of this.input.franjas) {
+      // 1. Docente availability
+      if (this.isDocenteBlocked(docenteId, franja.id, grupoId, tipo, true)) continue;
+      if (!this.checker.isDocenteAvailable(docenteId, franja.id)) continue;
+
+      // 2. Grupo/Cycle availability
+      const isLab = tipo === 'LABORATORIO';
+      if (!isLab && !this.checker.isGrupoAvailable(grupoId, franja.id)) continue;
+      if (!isLab && grupo && !this.checker.isCycleAvailable(grupo.ciclo, franja.id)) continue;
+
+      // 3. Max hours check
+      const currentDayHoras = this.getDocenteHoras(docenteId, franja.dia);
+      if (currentDayHoras.length >= 6) continue;
+
+      // 4. Aula availability
+      for (const aula of capacityEligibleAulas) {
+        if (this.isAulaBlocked(aula.id, franja.id)) continue;
+        if (!this.checker.isSlotFullyAvailable(docenteId, aula.id, grupoId, franja.id, grupo?.ciclo, tipo)) continue;
+        
+        gaps.push({ franjaId: franja.id, aulaId: aula.id });
+        break; 
+      }
+    }
+    return gaps;
+  }
+
+
   private key(entityId: string, franjaId: string): string {
     return `${entityId}::${franjaId}`;
   }
 
-  private isDocenteBlocked(docenteId: string, franjaId: string, grupoId?: string, tipo?: string): boolean {
+  private isDocenteBlocked(
+    docenteId: string,
+    franjaId: string,
+    grupoId?: string,
+    tipo?: string,
+    ignoreSoftBlocked = false
+  ): boolean {
     const key = `${docenteId}::${franjaId}`;
-    if (this.blockedDocenteSlots.has(key)) return true;
+    if (this.hardBlockedDocenteSlots.has(key)) return true;
+    if (!ignoreSoftBlocked && this.blockedDocenteSlots.has(key)) return true;
 
     if (grupoId) {
       if (tipo) {

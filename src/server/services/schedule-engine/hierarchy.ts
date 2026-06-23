@@ -33,15 +33,12 @@ export function sortDocentesByHierarchy(
   docentes: DocenteForSchedule[]
 ): DocenteForSchedule[] {
   return [...docentes].sort((a, b) => {
-    // 1. Tipo: Nombrado first
-    const tipoDiff = TIPO_ORDER[a.tipo] - TIPO_ORDER[b.tipo];
-    if (tipoDiff !== 0) return tipoDiff;
-
-    // 2. Categoria: Principal → Asociado → Auxiliar → JP
+    // 1. Categoria: Principal → Asociado → Auxiliar → JP
     const catDiff = CATEGORIA_ORDER[a.categoria] - CATEGORIA_ORDER[b.categoria];
     if (catDiff !== 0) return catDiff;
 
-    // 3. Antigüedad: most senior (earlier date) first
+    // 2. Antigüedad: most senior (earlier date) first
     return a.antiguedad.getTime() - b.antiguedad.getTime();
   });
 }
+

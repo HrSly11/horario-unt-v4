@@ -121,6 +121,94 @@ export const periodoRouter = createTRPCRouter({
       return periodo;
     }),
 
+  getWorkflowProgress: baseProcedure.query(async ({ ctx }) => {
+    const activePeriod = await ctx.prisma.periodoAcademico.findFirst({
+      where: { activo: true },
+    });
+
+    if (!activePeriod) {
+      return null;
+    }
+
+    const prismaAny = ctx.prisma as any;
+
+    // Step 1: Demanda Académica de Escuela
+    const demandaEscuela = await prismaAny.demandaAcademica.findFirst({
+      where: { periodoId: activePeriod.id },
+      select: { id: true, estado: true, escuela: { select: { nombre: true } } },
+    });
+
+    // Step 2: Demanda de Departamento
+    const step2Active = demandaEscuela?.estado === 'APROBADA';
+
+    // Step 3: Carga Lectiva (Distribución)
+    const distribucionLectiva = await prismaAny.distribucionLectiva.findFirst({
+      where: { periodoId: activePeriod.id },
+      select: { id: true, estado: true },
+    });
+
+    // Step 4: Horarios y Preliminares (ProcesoHorarioEscuela)
+    const procesoHorario = await prismaAny.procesoHorarioEscuela.findFirst({
+      where: { periodoId: activePeriod.id },
+      select: { id: true, estado: true },
+    });
+
+    // Step 5: Carga No Lectiva
+    const cargaNoLectivaCount = await ctx.prisma.cargaNoLectiva.count({
+      where: { periodoId: activePeriod.id },
+    });
+
+    // Step 6: Declaraciones
+    const totalDeclaraciones = await ctx.prisma.declaracionCarga.count({
+      where: { periodoId: activePeriod.id },
+    });
+    const finalizadasDeclaraciones = await ctx.prisma.declaracionCarga.count({
+      where: { periodoId: activePeriod.id, estado: 'FINALIZADA' },
+    });
+
+    const publicacionFinal = await prismaAny.publicacionAcademica.findFirst({
+      where: { periodoId: activePeriod.id },
+    });
+
+    return {
+      periodo: {
+        id: activePeriod.id,
+        nombre: activePeriod.nombre,
+        estado: activePeriod.estado,
+      },
+      pasos: {
+        paso1: {
+          completado: demandaEscuela?.estado === 'APROBADA',
+          estado: demandaEscuela?.estado ?? 'PENDIENTE',
+          escuela: demandaEscuela?.escuela?.nombre ?? null,
+        },
+        paso2: {
+          completado: step2Active,
+          estado: step2Active ? 'ACTIVO' : 'PENDIENTE',
+        },
+        paso3: {
+          completado: distribucionLectiva?.estado === 'APROBADA',
+          estado: distribucionLectiva?.estado ?? 'PENDIENTE',
+        },
+        paso4: {
+          completado: procesoHorario?.estado === 'PUBLICADO_PRELIMINAR' || procesoHorario?.estado === 'APROBADO',
+          estado: procesoHorario?.estado ?? 'PENDIENTE',
+        },
+        paso5: {
+          completado: cargaNoLectivaCount > 0,
+          count: cargaNoLectivaCount,
+          estado: cargaNoLectivaCount > 0 ? 'EN_PROGRESO' : 'PENDIENTE',
+        },
+        paso6: {
+          completado: !!publicacionFinal,
+          estado: publicacionFinal ? 'PUBLICADO' : 'PENDIENTE',
+          totalDeclaraciones,
+          finalizadasDeclaraciones,
+        },
+      },
+    };
+  }),
+
   // ── Franjas Horarias ──────────────────────────
   franjas: baseProcedure.query(async ({ ctx }) => {
     return ctx.prisma.franjaHoraria.findMany({

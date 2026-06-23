@@ -179,7 +179,7 @@ export default function HorariosPage() {
 
   const horas = [...new Set(asignaciones.map((a) => a.franjaHoraria.horaInicio))].sort();
 
-  const uniqueCourseIds = Array.from(new Set(rawAsignaciones.map(a => a.grupo?.curso?.id))).filter(Boolean) as string[];
+  const uniqueCourseIds = Array.from(new Set(asignaciones.map(a => a.grupo?.curso?.id))).filter(Boolean) as string[];
   const cursoColorMap = new Map<string, string>();
   uniqueCourseIds.sort().forEach((id, i) => {
     cursoColorMap.set(id, SLOT_COLORS[i % SLOT_COLORS.length]);

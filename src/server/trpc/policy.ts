@@ -224,3 +224,80 @@ export async function assertCanAccessDocenteDepartamento(
     });
   }
 }
+
+export async function assertFacultyPeriodNotPublished(
+  prisma: any,
+  params: {
+    periodoId?: string;
+    docenteId?: string;
+    departamentoId?: string;
+    escuelaId?: string;
+    declaracionId?: string;
+    grupoId?: string;
+    facultadId?: string;
+  }
+) {
+  let facultadId = params.facultadId;
+  let periodoId = params.periodoId;
+
+  if (!facultadId) {
+    if (params.docenteId && prisma?.docente?.findUnique) {
+      const docente = await prisma.docente.findUnique({
+        where: { id: params.docenteId },
+        select: { departamento: { select: { facultadId: true } } },
+      });
+      facultadId = docente?.departamento?.facultadId;
+    } else if (params.departamentoId && prisma?.departamento?.findUnique) {
+      const dept = await prisma.departamento.findUnique({
+        where: { id: params.departamentoId },
+        select: { facultadId: true },
+      });
+      facultadId = dept?.facultadId;
+    } else if (params.escuelaId && prisma?.escuela?.findUnique) {
+      const escuela = await prisma.escuela.findUnique({
+        where: { id: params.escuelaId },
+        select: { facultadId: true },
+      });
+      facultadId = escuela?.facultadId;
+    } else if (params.declaracionId && prisma?.declaracionCarga?.findUnique) {
+      const decl = await prisma.declaracionCarga.findUnique({
+        where: { id: params.declaracionId },
+        select: {
+          periodoId: true,
+          docente: { select: { departamento: { select: { facultadId: true } } } },
+        },
+      });
+      if (decl) {
+        facultadId = decl.docente?.departamento?.facultadId;
+        if (!periodoId) {
+          periodoId = decl.periodoId;
+        }
+      }
+    } else if (params.grupoId && prisma?.grupo?.findUnique) {
+      const grupo = await prisma.grupo.findUnique({
+        where: { id: params.grupoId },
+        select: {
+          curso: { select: { departamentoOwner: { select: { facultadId: true } } } },
+        },
+      });
+      facultadId = grupo?.curso?.departamentoOwner?.facultadId;
+    }
+  }
+
+  if (facultadId && periodoId && prisma?.publicacionAcademica?.findUnique) {
+    const pub = await prisma.publicacionAcademica.findUnique({
+      where: {
+        facultadId_periodoId: {
+          facultadId,
+          periodoId,
+        },
+      },
+    });
+    if (pub) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'El periodo académico está congelado por publicación oficial final en esta facultad.',
+      });
+    }
+  }
+}

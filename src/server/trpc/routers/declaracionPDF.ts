@@ -163,13 +163,65 @@ export const declaracionPDFRouter = createTRPCRouter({
           tipo: declaracion.docente.tipo,
         });
       } else {
+        const slots = await ctx.prisma.asignacion.findMany({
+          where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId },
+          include: {
+            grupo: {
+              include: {
+                curso: true,
+              },
+            },
+            aula: true,
+            franjaHoraria: true,
+          },
+          orderBy: [
+            { franjaHoraria: { dia: 'asc' } },
+            { franjaHoraria: { numeroBloque: 'asc' } },
+          ],
+        });
+
+        const asignacionesLectivasN3 = slots.map((s) => ({
+          cursoCodigo: s.grupo.curso.codigo,
+          cursoNombre: s.grupo.curso.nombre,
+          grupoNombre: s.grupo.nombre,
+          seccion: s.grupo.seccion || undefined,
+          ciclo: s.grupo.curso.ciclo,
+          dia: s.franjaHoraria.dia,
+          horaInicio: s.franjaHoraria.horaInicio,
+          horaFin: s.franjaHoraria.horaFin,
+          tipo: s.tipo,
+          aulaCodigo: s.aula.codigo,
+        }));
+
         html = templateFormatoN3({
-          docente: { nombre: declaracion.docente.nombre, dni: declaracion.docente.dni, codigoIBM: declaracion.docente.codigoIBM },
-          periodo: declaracion.periodo.nombre,
+          docente: {
+            nombre: declaracion.docente.nombre,
+            dni: declaracion.docente.dni,
+            codigoIBM: declaracion.docente.codigoIBM,
+            categoria: declaracion.docente.categoria,
+            tipo: declaracion.docente.tipo,
+            modalidad: declaracion.docente.modalidad,
+          },
+          periodo: {
+            nombre: declaracion.periodo.nombre,
+            fechaInicio: formatDate(declaracion.periodo.fechaInicio),
+            fechaFin: formatDate(declaracion.periodo.fechaFin),
+          },
           facultad,
           departamento,
-          modalidad: declaracion.docente.modalidad,
-          tipo: declaracion.docente.tipo,
+          asignacionesLectivas: asignacionesLectivasN3,
+          cargasNoLectivas: cargasNoLectivas.map((c) => ({
+            tipo: c.tipo,
+            horas: c.horas,
+            descripcion: c.descripcion,
+            horarios: c.horarios.map((h) => ({
+              dia: h.dia,
+              horaInicio: h.horaInicio,
+              horaFin: h.horaFin,
+              lugar: h.lugar,
+              aula: h.aula,
+            })),
+          })),
         });
       }
 

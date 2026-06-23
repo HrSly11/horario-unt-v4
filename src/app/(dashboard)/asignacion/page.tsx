@@ -2,8 +2,8 @@
 
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { User, Calendar, CheckCircle2, TrendingUp, AlertTriangle, Edit, Trash2, X, Save } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { User, Calendar, CheckCircle2, TrendingUp, AlertTriangle, Edit, Trash2, X, Save, Plus, Clock, MapPin } from 'lucide-react';
 
 const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 const DIA_LABELS: Record<string, string> = {
@@ -40,20 +40,39 @@ type HorarioAsignacion = {
     curso: { id: string; codigo: string; nombre: string; ciclo: number };
   };
   docente?: { nombre: string; tipo: string; categoria: string };
-  aula?: { codigo: string; nombre: string; tipo: string };
-  franjaHoraria: { dia: string; horaInicio: string; horaFin: string };
+  aula?: { id: string; codigo: string; nombre: string; tipo: string };
+  franjaHoraria: { id: string; dia: string; horaInicio: string; horaFin: string };
 };
+
+type AulaOption = {
+  id: string;
+  codigo: string;
+  nombre: string;
+  tipo: string;
+};
+
+type FranjaOption = {
+  id: string;
+  dia: string;
+  horaInicio: string;
+  horaFin: string;
+};
+
+import { type ManualScheduleOption, resolveManualOptionStatus } from './utils';
+
 
 export default function AsignacionPage() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
   
   const [selectedDocenteId, setSelectedDocenteId] = useState<string | null>(null);
   const [currentDocenteIdx, setCurrentDocenteIdx] = useState(0);
   const [editingAsignacion, setEditingAsignacion] = useState<HorarioAsignacion | null>(null);
   const [selectedAulaId, setSelectedAulaId] = useState<string>('');
   const [selectedFranjaId, setSelectedFranjaId] = useState<string>('');
+  const [selectedManualCargaId, setSelectedManualCargaId] = useState<string>('');
+  const [manualAulaId, setManualAulaId] = useState<string>('');
+  const [manualFranjaId, setManualFranjaId] = useState<string>('');
 
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
   const { data: approvalInfo } = useQuery({
@@ -70,14 +89,24 @@ export default function AsignacionPage() {
   const { data: franjas = [] } = useQuery({ 
     ...trpc.franjaHoraria.list.queryOptions(),
   });
-  
-  const { data: asignaciones = [], isLoading: isLoadingAsignaciones } = useQuery({
+  const { data: asignacionesData, isLoading: isLoadingAsignaciones } = useQuery({
     ...trpc.horario.byDocente.queryOptions({ 
       docenteId: selectedDocenteId ?? '', 
       periodoId: periodoActivo?.id ?? '' 
     }),
     enabled: !!selectedDocenteId && !!periodoActivo?.id,
   });
+  const asignaciones = (asignacionesData ?? []) as HorarioAsignacion[];
+  const { data: manualOptionsData = [], isLoading: isLoadingManualOptions } = useQuery({
+    ...trpc.horario.manualOptions.queryOptions({
+      docenteId: selectedDocenteId ?? '',
+      periodoId: periodoActivo?.id ?? '',
+    }),
+    enabled: !!selectedDocenteId && !!periodoActivo?.id,
+  });
+  const manualOptions = manualOptionsData as ManualScheduleOption[];
+  
+
 
   const confirmTeacherScheduleMutation = useMutation(
     trpc.horario.confirmTeacherSchedule.mutationOptions({
@@ -122,7 +151,7 @@ export default function AsignacionPage() {
                grupoId: a.grupoId,
                aulaId: a.aulaId,
                franjaHorariaId: a.franjaHorariaId,
-               tipo: a.tipo as any
+               tipo: a.tipo as HorarioAsignacion['tipo']
              }))
            });
         }
@@ -149,6 +178,16 @@ export default function AsignacionPage() {
       onSuccess: () => {
         queryClient.invalidateQueries();
         setEditingAsignacion(null);
+      },
+      onError: (err) => alert(err.message),
+    })
+  );
+
+  const createAsignacionMutation = useMutation(
+    trpc.horario.create.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries();
+        setManualFranjaId('');
       },
       onError: (err) => alert(err.message),
     })
@@ -186,6 +225,25 @@ export default function AsignacionPage() {
   );
 
   const horas = [...new Set(asignaciones.map((a) => a.franjaHoraria.horaInicio))].sort();
+  const pendingManualOptions = useMemo(
+    () => manualOptions.filter((option) => option.remainingBlocks > 0),
+    [manualOptions]
+  );
+  const selectedManualOption =
+    manualOptions.find((option) => option.cargaLectivaId === selectedManualCargaId) ??
+    pendingManualOptions[0] ??
+    manualOptions[0];
+  const activeManualCargaId = selectedManualOption?.cargaLectivaId ?? '';
+  const compatibleAulas = useMemo(() => {
+    const aulasList = aulas as AulaOption[];
+    if (!selectedManualOption) return aulasList;
+    const preferred = aulasList.filter((aula) =>
+      selectedManualOption.tipo === 'LABORATORIO'
+        ? aula.tipo === 'LABORATORIO'
+        : aula.tipo !== 'LABORATORIO'
+    );
+    return preferred.length > 0 ? preferred : aulasList;
+  }, [aulas, selectedManualOption]);
 
   function handleEdit(asignacion: HorarioAsignacion) {
     setEditingAsignacion(asignacion);
@@ -207,6 +265,18 @@ export default function AsignacionPage() {
     if (confirm('¿Está seguro de eliminar esta asignación?')) {
       deleteAsignacionMutation.mutate({ id: editingAsignacion.id });
     }
+  }
+
+  function handleManualCreate() {
+    if (!selectedDocenteId || !periodoActivo?.id || !selectedManualOption || !manualAulaId || !manualFranjaId) return;
+    createAsignacionMutation.mutate({
+      docenteId: selectedDocenteId,
+      grupoId: selectedManualOption.grupoId,
+      periodoId: periodoActivo.id,
+      tipo: selectedManualOption.tipo,
+      aulaId: manualAulaId,
+      franjaHorariaId: manualFranjaId,
+    });
   }
   
   // Stable color mapping by course ID
@@ -387,7 +457,7 @@ export default function AsignacionPage() {
             >
               <div className="flex items-center justify-between gap-2">
                 <p className={`text-sm font-bold truncate ${selectedDocenteId === d.id ? 'text-primary' : 'text-text-main'}`}>{d.nombre}</p>
-                {(d as any)._count?.asignaciones > 0 && (
+                {d._count?.asignaciones > 0 && (
                   <div className="h-1.5 w-1.5 rounded-full bg-success flex-shrink-0" title="Ya tiene asignaciones" />
                 )}
               </div>
@@ -397,7 +467,169 @@ export default function AsignacionPage() {
         </div>
 
         {/* Schedule Preview */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-4">
+          {selectedDocenteId && (
+            <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <Plus className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-text-main">Programación manual de bloque</h3>
+                      <p className="text-xs font-medium text-text-sub">
+                        Elegí un componente ya asignado en carga lectiva y definí aula + franja.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 rounded-xl border border-info/20 bg-info/5 px-3 py-2 text-xs font-bold text-info">
+                  <Clock className="h-4 w-4" />
+                  {pendingManualOptions.length} componentes con bloques pendientes
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.8fr)]">
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-sub">
+                      Componentes de carga lectiva
+                    </p>
+                    {isLoadingManualOptions && (
+                      <span className="text-[10px] font-bold text-text-sub">Cargando...</span>
+                    )}
+                  </div>
+
+                  {manualOptions.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-border bg-slate-50 p-4 text-sm font-medium text-text-sub">
+                      Este docente todavía no tiene carga lectiva aprobada/asignada para programar.
+                    </div>
+                  ) : (
+                    <div className="grid gap-2 md:grid-cols-2">
+                      {manualOptions.map((option) => {
+                        const status = resolveManualOptionStatus(option);
+                        const isSelected = activeManualCargaId === option.cargaLectivaId;
+
+                        return (
+                          <button
+                            key={option.cargaLectivaId}
+                            type="button"
+                            onClick={() => {
+                              if (status.disabled || !canEdit) return;
+                              setSelectedManualCargaId(option.cargaLectivaId);
+                            }}
+                            disabled={status.disabled || !canEdit}
+                            className={`rounded-xl border p-3 text-left transition-all ${
+                              isSelected
+                                ? 'border-primary bg-primary/10 shadow-sm ring-2 ring-primary/10'
+                                : 'border-border bg-white hover:border-primary/40 hover:bg-slate-50'
+                            } disabled:cursor-not-allowed disabled:opacity-60`}
+                          >
+                            <div className="mb-2 flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-black leading-tight text-text-main">
+                                  {option.curso.codigo} · {option.tipo}
+                                </p>
+                                <p className="mt-0.5 text-xs font-semibold text-text-sub">
+                                  {option.curso.nombre}
+                                </p>
+                              </div>
+                              <span className={status.badgeClass}>{status.label}</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wide text-text-sub">
+                              <span className="rounded-full bg-slate-100 px-2 py-1">Grupo {option.grupoNombre}</span>
+                              {option.grupoLaboratorio ? (
+                                <span className="rounded-full bg-amber-50 px-2 py-1 text-amber-700">
+                                  Lab {option.grupoLaboratorio}
+                                </span>
+                              ) : null}
+                              <span className="rounded-full bg-slate-100 px-2 py-1">
+                                {option.scheduledBlocks}/{option.horasAsignadas} programados
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-xl border border-border bg-slate-50 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-text-sub">Ubicación y hora</p>
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <label className="label-standard">Aula o laboratorio</label>
+                      <select
+                        value={manualAulaId}
+                        onChange={(event) => setManualAulaId(event.target.value)}
+                        className="input-standard"
+                        disabled={!selectedManualOption || !canEdit}
+                      >
+                        <option value="">Seleccione un ambiente</option>
+                        {compatibleAulas.map((aula) => (
+                          <option key={aula.id} value={aula.id}>
+                            {aula.codigo} - {aula.nombre} ({aula.tipo})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="label-standard">Franja horaria</label>
+                      <select
+                        value={manualFranjaId}
+                        onChange={(event) => setManualFranjaId(event.target.value)}
+                        className="input-standard"
+                        disabled={!selectedManualOption || !canEdit}
+                      >
+                        <option value="">Seleccione una franja</option>
+                        {(franjas as FranjaOption[]).map((franja) => (
+                          <option key={franja.id} value={franja.id}>
+                            {DIA_LABELS[franja.dia] || franja.dia} {franja.horaInicio} - {franja.horaFin}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedManualOption ? (
+                      <div className="rounded-lg border border-primary/10 bg-white p-3 text-xs text-text-sub">
+                        <p className="font-bold text-text-main">
+                          {selectedManualOption.curso.codigo} · {selectedManualOption.tipo}
+                        </p>
+                        <p className="mt-1">
+                          Se programará un bloque para {selectedManualOption.docenteNombre}.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-border bg-white p-3 text-xs text-text-sub">
+                        Seleccioná primero un componente pendiente.
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleManualCreate}
+                      disabled={
+                        !canEdit ||
+                        !selectedManualOption ||
+                        selectedManualOption.remainingBlocks <= 0 ||
+                        !manualAulaId ||
+                        !manualFranjaId ||
+                        createAsignacionMutation.isPending
+                      }
+                      className="btn-primary w-full justify-center disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <MapPin className="mr-2 h-4 w-4" />
+                      {createAsignacionMutation.isPending ? 'Programando...' : 'Programar bloque manual'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {isLoadingAsignaciones ? (
              <div className="h-full rounded-2xl border border-border bg-white flex flex-col items-center justify-center p-12 shadow-sm">
                 <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
@@ -413,7 +645,7 @@ export default function AsignacionPage() {
              <div className="h-full rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center p-12 text-center bg-white/50">
                <AlertTriangle className="h-12 w-12 text-warning/20 mb-4" />
                <h3 className="text-text-sub font-bold">Sin asignaciones para este docente</h3>
-               <p className="text-text-sub/60 text-xs mt-1">Haga clic en "Sugerir Horario" para que el sistema asigne sus cursos automáticamente.</p>
+               <p className="text-text-sub/60 text-xs mt-1">Use la programación manual de arriba o haga clic en “Sugerir Horario”.</p>
              </div>
           ) : (
             <div className="rounded-2xl border border-border bg-white overflow-hidden shadow-sm">
@@ -497,7 +729,7 @@ export default function AsignacionPage() {
                   className="input-standard"
                 >
                   <option value="">Seleccione una aula</option>
-                  {(aulas as any[]).map(aula => (
+                  {(aulas as AulaOption[]).map(aula => (
                     <option key={aula.id} value={aula.id}>{aula.codigo} - {aula.nombre} ({aula.tipo})</option>
                   ))}
                 </select>
@@ -511,7 +743,7 @@ export default function AsignacionPage() {
                   className="input-standard"
                 >
                   <option value="">Seleccione una franja</option>
-                  {(franjas as any[]).map(franja => (
+                  {(franjas as FranjaOption[]).map(franja => (
                     <option key={franja.id} value={franja.id}>
                       {DIA_LABELS[franja.dia] || franja.dia} {franja.horaInicio} - {franja.horaFin}
                     </option>

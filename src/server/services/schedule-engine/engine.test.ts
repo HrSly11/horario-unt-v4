@@ -243,4 +243,44 @@ describe('ScheduleEngine', () => {
     expect(result.stats.assigned).toBe(1);
     expect(result.stats.unassignedCount).toBe(0);
   });
+
+  it('detects and reports viable gaps for unassigned items when conflict occurs', () => {
+    const franjas = makeFranjas(2); // franja-0, franja-1
+    const aulas = [makeAula('a1')]; // only 1 aula
+
+    const engine = new ScheduleEngine({
+      docentes: [
+        makeDocente('d-high', { categoria: 'PRINCIPAL', antiguedad: new Date('1990-01-01') }),
+        makeDocente('d-low', { categoria: 'AUXILIAR', antiguedad: new Date('2020-01-01') }),
+      ],
+      grupos: [
+        makeGrupo('g1', { horasTeoria: 1, workloads: [{ docenteId: 'd-high', tipo: 'TEORIA', horas: 1 }] }),
+        makeGrupo('g2', { horasTeoria: 1, workloads: [{ docenteId: 'd-low', tipo: 'TEORIA', horas: 1 }] }),
+      ],
+      aulas,
+      franjas,
+      docenteGrupoMap: makeMap([
+        ['d-high', ['g1']],
+        ['d-low', ['g2']],
+      ]),
+      blockedDocenteSlots: new Set(['d-low::franja-1']),
+      // d-low is soft-blocked from franja-1, so it cannot be scheduled there.
+      // But franja-1 is technically free (room is free, no hard blocks).
+    });
+
+    const result = engine.generate();
+
+    // d-high gets assigned to franja-0, leaving d-low unassigned
+    expect(result.assignments.length).toBe(1);
+    expect(result.unassigned.length).toBe(1);
+    expect(result.unassigned[0].grupoId).toBe('g2');
+    
+    // There should be a viable gap reported for franja-1 and aula a1
+    expect(result.unassigned[0].viableGaps).toBeDefined();
+    expect(result.unassigned[0].viableGaps).toContainEqual({
+      franjaId: 'franja-1',
+      aulaId: 'a1',
+    });
+  });
 });
+

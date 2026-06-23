@@ -7,9 +7,10 @@ import {
   validateDEDictaOtraUniversidad,
   validateCargaCompleta,
   validateAll,
+  validateDocenteWorkload,
   type HorarioSlot,
 } from './workload-validator';
-import { ModalidadDocente } from '@/generated/prisma/client';
+import { ModalidadDocente, TipoDocente, CategoriaDocente, CargoAcademico, TipoCargaNoLectiva } from '@/generated/prisma/client';
 
 function slot(dia: string, inicio: string, fin: string, horas: number): HorarioSlot {
   return { dia, horaInicio: inicio, horaFin: fin, horas };
@@ -245,3 +246,243 @@ describe('validateAll', () => {
     expect(result.message).toContain('15h > 14h');
   });
 });
+
+describe('validateDocenteWorkload detailed rules', () => {
+  function makeMockPrisma({
+    categoria = CategoriaDocente.PRINCIPAL,
+    tipo = TipoDocente.NOMBRADO,
+    modalidad = ModalidadDocente.TIEMPO_COMPLETO,
+    horasContrato = 40,
+    cargo = null as CargoAcademico | null,
+    cargoRuleLectiveMin = null as number | null,
+    asignaciones = [] as { horasAsignadas: number }[],
+    cargasNoLectivas = [] as any[],
+  }: {
+    categoria?: CategoriaDocente;
+    tipo?: TipoDocente;
+    modalidad?: ModalidadDocente;
+    horasContrato?: number;
+    cargo?: CargoAcademico | null;
+    cargoRuleLectiveMin?: number | null;
+    asignaciones?: { horasAsignadas: number }[];
+    cargasNoLectivas?: any[];
+  }) {
+    return {
+      docente: {
+        findUniqueOrThrow: async () => ({
+          id: 'docente-1',
+          categoria,
+          tipo,
+          modalidad,
+          horasContrato,
+          dictaOtraUniversidad: false,
+        }),
+      },
+      cargoDocente: {
+        findFirst: async () => cargo ? { cargo } : null,
+      },
+      reglaCargaPorCargo: {
+        findFirst: async () => cargoRuleLectiveMin !== null ? { horasLectivasMinimas: cargoRuleLectiveMin } : null,
+      },
+      asignacionCargaLectiva: {
+        findMany: async () => asignaciones,
+      },
+      cargaNoLectiva: {
+        findMany: async () => cargasNoLectivas,
+      },
+      asignacion: {
+        findMany: async () => [],
+      },
+      preasignacion: {
+        findMany: async () => [],
+      },
+    } as any;
+  }
+
+  it('Ordinary DE/TC: passes when lective is exactly 16h', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [{ tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(true);
+  });
+
+  it('Ordinary DE/TC: fails when lective is under 16h', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 15 }],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Mínimo de horas lectivas no cumplido');
+  });
+
+  it('Contracted DE/TC: fails when lective is under 20h', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.CONTRATADO,
+      asignaciones: [{ horasAsignadas: 19 }],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Mínimo de horas lectivas no cumplido');
+  });
+
+  it('Jefe de Práctica TC: fails when lective is under 24h', async () => {
+    const prisma = makeMockPrisma({
+      categoria: CategoriaDocente.JEFE_PRACTICA,
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.CONTRATADO,
+      asignaciones: [{ horasAsignadas: 23 }],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Mínimo de horas lectivas no cumplido');
+  });
+
+  it('Ordinary TP20: fails when lective is under 12h', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_PARCIAL,
+      tipo: TipoDocente.NOMBRADO,
+      horasContrato: 20,
+      asignaciones: [{ horasAsignadas: 11 }],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Mínimo de horas lectivas no cumplido');
+  });
+
+  it('Special-position rules override defaults (e.g. DE/TC with cargo decano needs 4h lective)', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      cargo: CargoAcademico.DECANO,
+      cargoRuleLectiveMin: 4,
+      asignaciones: [{ horasAsignadas: 4 }],
+      cargasNoLectivas: [{ tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(true);
+  });
+
+  it('Training: fails when training hours exceed 5h', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [
+        { tipo: 'CAPACITACION', horas: 6, descripcion: 'Curso de capacitacion' },
+        { tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }
+      ],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Capacitación excede el límite máximo de 5h');
+  });
+
+  it('Thesis: fails when thesis advisory hours exceed 3h', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [
+        { tipo: 'ASESORIA_TESIS', horas: 4, descripcion: 'Asesoria de tesis' },
+        { tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }
+      ],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Asesoría de tesis excede el límite máximo de 3h');
+  });
+
+  it('Juries: fails when jury hours exceed 1h', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [
+        { tipo: 'JURADOS', horas: 2, descripcion: 'Jurado de tesis' },
+        { tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }
+      ],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Jurados excede el límite máximo de 1h');
+  });
+
+  it('Research: fails when research has no project code or name', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [
+        { tipo: 'INVESTIGACION', horas: 5, descripcion: 'Investigacion cientifica' },
+        { tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }
+      ],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Investigación requiere código y nombre de proyecto registrado');
+  });
+
+  it('Research: passes when research has project code and name and >= 5h for TC', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [
+        { tipo: 'INVESTIGACION', horas: 5, descripcion: 'Investigacion cientifica', codigoProyecto: 'PRY-001', nombreProyecto: 'Proyecto Unt' },
+        { tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }
+      ],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(true);
+  });
+
+  it('Research: fails when research is under 5h for TC', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [
+        { tipo: 'INVESTIGACION', horas: 4, descripcion: 'Investigacion cientifica', codigoProyecto: 'PRY-001', nombreProyecto: 'Proyecto Unt' },
+        { tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }
+      ],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Investigación requiere un mínimo de 5h para TC/DE');
+  });
+
+  it('Social projection: fails when TC/DE lacks at least 1h of social projection', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('Dedicación Exclusiva / Tiempo Completo requiere mínimo 1h de responsabilidad social');
+  });
+
+  it('Evidence: fails when a regulated activity has no description evidence', async () => {
+    const prisma = makeMockPrisma({
+      modalidad: ModalidadDocente.TIEMPO_COMPLETO,
+      tipo: TipoDocente.NOMBRADO,
+      asignaciones: [{ horasAsignadas: 16 }],
+      cargasNoLectivas: [
+        { tipo: 'ASESORIA_TESIS', horas: 2, descripcion: '' },
+        { tipo: 'RESPONSABILIDAD_SOCIAL', horas: 1, descripcion: 'Proyeccion social' }
+      ],
+    });
+    const result = await validateDocenteWorkload(prisma, 'docente-1', 'period-1');
+    expect(result.valid).toBe(false);
+    expect(result.message).toContain('requiere descripción de evidencia');
+  });
+});
+

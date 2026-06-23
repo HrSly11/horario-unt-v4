@@ -68,7 +68,7 @@ export default function FormatosPage() {
   const formatos = [
     { key: 'N1', label: 'Formato N° 1', desc: 'Declaración de Carga Horaria Asignada' },
     { key: 'N2', label: 'Formato N° 2', desc: 'Declaración Jurada — Sede Central' },
-    { key: 'N3', label: 'Formato N° 3', desc: 'Declaración Jurada — Sedes Descentralizadas' },
+    { key: 'N3', label: 'Formato N° 3', desc: 'Horario Semanal de la Carga Académica Docente (F03-CAD)' },
   ];
 
   return (

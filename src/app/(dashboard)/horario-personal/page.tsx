@@ -65,7 +65,7 @@ export default function HorarioPersonalPage() {
   });
 
   // ─── Teaching assignments (grid data) ───────────────
-  const { data: asignaciones = [] } = useQuery({
+  const { data: asignacionesData } = useQuery({
     ...trpc.horario.byDocente.queryOptions({
       docenteId,
       periodoId: activePeriodo,
@@ -73,6 +73,7 @@ export default function HorarioPersonalPage() {
     enabled: !!docenteId && !!activePeriodo,
     refetchInterval: 30000,
   });
+  const asignaciones = (asignacionesData ?? []) as any[];
 
   // ─── Non-teaching activities with horarios ──────────
   const { data: cargasNoLectivas = [] } = useQuery({

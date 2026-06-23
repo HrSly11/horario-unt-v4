@@ -1,9 +1,148 @@
 import { z } from 'zod';
-import { createTRPCRouter, adminProcedure, protectedProcedure, secretariaProcedure, directorProcedure } from '../init';
+import { createTRPCRouter, protectedProcedure, secretariaProcedure, secretariaEscuelaProcedure, directorProcedure } from '../init';
+import type { Session } from '../init';
 import { TRPCError } from '@trpc/server';
 import { AvailabilityService } from '@/server/services/availability';
 import { ScheduleEngine } from '@/server/services/schedule-engine';
 import { AssignmentService } from '@/server/services/assignment.service';
+import { assertCanAccessEscuela, getManagedEscuelaIds, getManagedDepartamentoIds, assertFacultyPeriodNotPublished } from '../policy';
+import type { Prisma, PrismaClient } from '@/generated/prisma/client';
+
+type SnapshotAsignacion = {
+  docenteId?: string | null;
+  aulaId?: string | null;
+  franjaHoraria?: {
+    dia?: string | null;
+  } | null;
+  [key: string]: unknown;
+};
+
+function getSnapshotAsignaciones(snapshot: unknown): SnapshotAsignacion[] | null {
+  if (!snapshot || typeof snapshot !== 'object') return null;
+  const asignaciones = (snapshot as { asignaciones?: unknown }).asignaciones;
+  return Array.isArray(asignaciones) ? (asignaciones as SnapshotAsignacion[]) : null;
+}
+
+async function assertHorarioNotLocked(prisma: PrismaClient, grupoId: string, periodoId: string) {
+  const grupo = await prisma.grupo.findUnique({
+    where: { id: grupoId },
+    include: {
+      curso: {
+        include: {
+          cursoCurriculas: {
+            include: {
+              curricula: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  const escuelaId = grupo?.curso?.cursoCurriculas?.[0]?.curricula?.escuelaId;
+  if (escuelaId) {
+    const proc = await prisma.procesoHorarioEscuela.findFirst({
+      where: { escuelaId, periodoId },
+      select: { estado: true },
+    });
+    if (proc?.estado === 'PUBLICADO_PRELIMINAR') {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'El horario preliminar de esta escuela ya está publicado y bloqueado.',
+      });
+    }
+  }
+}
+
+async function getGrupoEscuelaIds(prisma: PrismaClient, grupoId: string) {
+  const grupo = await prisma.grupo.findUnique({
+    where: { id: grupoId },
+    select: {
+      demandaLinea: {
+        select: {
+          demanda: { select: { escuelaId: true } },
+        },
+      },
+      procesoHorario: { select: { escuelaId: true } },
+      curso: {
+        select: {
+          cursoCurriculas: {
+            where: { desasociadaEn: null },
+            select: {
+              curricula: { select: { escuelaId: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const ids = new Set<string>();
+  if (grupo?.demandaLinea?.demanda?.escuelaId) ids.add(grupo.demandaLinea.demanda.escuelaId);
+  if (grupo?.procesoHorario?.escuelaId) ids.add(grupo.procesoHorario.escuelaId);
+  grupo?.curso?.cursoCurriculas?.forEach((cc) => {
+    if (cc.curricula?.escuelaId) ids.add(cc.curricula.escuelaId);
+  });
+
+  return Array.from(ids);
+}
+
+async function assertCanManageHorarioForGrupo(prisma: PrismaClient, session: Session, grupoId: string) {
+  if (session.role === 'ADMIN') return;
+
+  const managedEscuelaIds = await getManagedEscuelaIds(prisma, session);
+  const grupoEscuelaIds = await getGrupoEscuelaIds(prisma, grupoId);
+
+  if (grupoEscuelaIds.length === 0) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: 'El grupo no está asociado a una escuela para programación de horarios.',
+    });
+  }
+
+  if (managedEscuelaIds === null) return;
+
+  const canManage = grupoEscuelaIds.some((escuelaId) => managedEscuelaIds.includes(escuelaId));
+  if (!canManage) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'No tiene permiso para programar horarios de esta escuela.',
+    });
+  }
+}
+
+function buildEscuelaScopedGrupoWhere(escuelaIds: string[] | null) {
+  if (escuelaIds === null) return {};
+  if (escuelaIds.length === 0) return { id: { in: [] } };
+
+  return {
+    OR: [
+      {
+        demandaLinea: {
+          demanda: {
+            escuelaId: { in: escuelaIds },
+          },
+        },
+      },
+      {
+        procesoHorario: {
+          escuelaId: { in: escuelaIds },
+        },
+      },
+      {
+        curso: {
+          cursoCurriculas: {
+            some: {
+              desasociadaEn: null,
+              curricula: {
+                escuelaId: { in: escuelaIds },
+              },
+            },
+          },
+        },
+      },
+    ],
+  };
+}
 
 export const horarioRouter = createTRPCRouter({
   // ─── Availability (Real-time) ────────────────────────
@@ -39,6 +178,30 @@ export const horarioRouter = createTRPCRouter({
       diaSemana: z.number().min(1).max(7).optional()
     }))
     .query(async ({ ctx, input }) => {
+      const publications = await ctx.prisma.publicacionAcademica.findMany({
+        where: { periodoId: input.periodoId },
+      });
+      if (publications.length > 0) {
+        let snapAsignaciones: SnapshotAsignacion[] = [];
+        for (const pub of publications) {
+          const snapshotAsignaciones = getSnapshotAsignaciones(pub.snapshot);
+          if (snapshotAsignaciones) {
+            let matches = snapshotAsignaciones;
+            if (input.docenteId) matches = matches.filter((a) => a.docenteId === input.docenteId);
+            if (input.aulaId) matches = matches.filter((a) => a.aulaId === input.aulaId);
+            if (input.diaSemana) {
+              const diaNames = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+              const diaName = diaNames[input.diaSemana - 1];
+              matches = matches.filter((a) => a.franjaHoraria?.dia === diaName);
+            }
+            snapAsignaciones = [...snapAsignaciones, ...matches];
+          }
+        }
+        if (snapAsignaciones.length > 0) {
+          return snapAsignaciones;
+        }
+      }
+
       const periodo = await ctx.prisma.periodoAcademico.findUnique({
         where: { id: input.periodoId },
         select: { estado: true }
@@ -48,17 +211,37 @@ export const horarioRouter = createTRPCRouter({
       const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA' || role === 'DECANO';
       const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
 
+      const where: Prisma.AsignacionWhereInput = {
+        periodoId: input.periodoId,
+        ...(input.docenteId ? { docenteId: input.docenteId } : {}),
+        ...(input.aulaId ? { aulaId: input.aulaId } : {}),
+        ...(input.diaSemana ? { diaSemana: input.diaSemana } : {}),
+      };
+
       if (!isPrivileged && !isPublished) {
-        return [];
+        const publishedSchools = await ctx.prisma.procesoHorarioEscuela.findMany({
+          where: { periodoId: input.periodoId, estado: 'PUBLICADO_PRELIMINAR' },
+          select: { escuelaId: true },
+        });
+        const publishedEscuelaIds = publishedSchools.map(p => p.escuelaId);
+        if (publishedEscuelaIds.length === 0) {
+          return [];
+        }
+        where.grupo = {
+          curso: {
+            cursoCurriculas: {
+              some: {
+                curricula: {
+                  escuelaId: { in: publishedEscuelaIds }
+                }
+              }
+            }
+          }
+        };
       }
 
       return ctx.prisma.asignacion.findMany({
-        where: {
-          periodoId: input.periodoId,
-          ...(input.docenteId ? { docenteId: input.docenteId } : {}),
-          ...(input.aulaId ? { aulaId: input.aulaId } : {}),
-          ...(input.diaSemana ? { diaSemana: input.diaSemana } : {}),
-        },
+        where,
         include: {
           docente: true,
           aula: true,
@@ -75,18 +258,56 @@ export const horarioRouter = createTRPCRouter({
   byAula: protectedProcedure
     .input(z.object({ aulaId: z.string(), periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
+      const publications = await ctx.prisma.publicacionAcademica.findMany({
+        where: { periodoId: input.periodoId },
+      });
+      if (publications.length > 0) {
+        let snapAsignaciones: SnapshotAsignacion[] = [];
+        for (const pub of publications) {
+          const snapshotAsignaciones = getSnapshotAsignaciones(pub.snapshot);
+          if (snapshotAsignaciones) {
+            const matches = snapshotAsignaciones.filter((a) => a.aulaId === input.aulaId);
+            snapAsignaciones = [...snapAsignaciones, ...matches];
+          }
+        }
+        if (snapAsignaciones.length > 0) {
+          return snapAsignaciones;
+        }
+      }
+
       const periodo = await ctx.prisma.periodoAcademico.findUnique({
         where: { id: input.periodoId },
         select: { estado: true },
       });
       const isPrivileged = ['ADMIN', 'SECRETARIA_ACADEMICA', 'DIRECTOR_ESCUELA', 'DECANO'].includes(ctx.session.role);
       const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
+      
+      const where: Prisma.AsignacionWhereInput = { aulaId: input.aulaId, periodoId: input.periodoId };
+
       if (!isPrivileged && !isPublished) {
-        return [];
+        const publishedSchools = await ctx.prisma.procesoHorarioEscuela.findMany({
+          where: { periodoId: input.periodoId, estado: 'PUBLICADO_PRELIMINAR' },
+          select: { escuelaId: true },
+        });
+        const publishedEscuelaIds = publishedSchools.map(p => p.escuelaId);
+        if (publishedEscuelaIds.length === 0) {
+          return [];
+        }
+        where.grupo = {
+          curso: {
+            cursoCurriculas: {
+              some: {
+                curricula: {
+                  escuelaId: { in: publishedEscuelaIds }
+                }
+              }
+            }
+          }
+        };
       }
 
       return ctx.prisma.asignacion.findMany({
-        where: { aulaId: input.aulaId, periodoId: input.periodoId },
+        where,
         include: {
           grupo: { include: { curso: true } },
           docente: true,
@@ -99,6 +320,27 @@ export const horarioRouter = createTRPCRouter({
   byDocente: protectedProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .query(async ({ ctx, input }) => {
+      const docente = await ctx.prisma.docente.findUnique({
+        where: { id: input.docenteId },
+        select: { departamento: { select: { facultadId: true } } },
+      });
+      if (docente?.departamento?.facultadId) {
+        const pub = await ctx.prisma.publicacionAcademica.findUnique({
+          where: {
+            facultadId_periodoId: {
+              facultadId: docente.departamento.facultadId,
+              periodoId: input.periodoId,
+            },
+          },
+        });
+        if (pub) {
+          const snapshotAsignaciones = getSnapshotAsignaciones(pub.snapshot);
+          if (snapshotAsignaciones) {
+            return snapshotAsignaciones.filter((a) => a.docenteId === input.docenteId);
+          }
+        }
+      }
+
       const role = ctx.session.role;
       const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA' || role === 'DIRECTOR_DEPARTAMENTO' || role === 'DECANO';
       const isSelf = ctx.session.docenteId === input.docenteId;
@@ -109,8 +351,28 @@ export const horarioRouter = createTRPCRouter({
       });
       const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
 
+      const where: Prisma.AsignacionWhereInput = { docenteId: input.docenteId, periodoId: input.periodoId };
+
       if (!isPrivileged && !isSelf && !isPublished) {
-        return [];
+        const publishedSchools = await ctx.prisma.procesoHorarioEscuela.findMany({
+          where: { periodoId: input.periodoId, estado: 'PUBLICADO_PRELIMINAR' },
+          select: { escuelaId: true },
+        });
+        const publishedEscuelaIds = publishedSchools.map(p => p.escuelaId);
+        if (publishedEscuelaIds.length === 0) {
+          return [];
+        }
+        where.grupo = {
+          curso: {
+            cursoCurriculas: {
+              some: {
+                curricula: {
+                  escuelaId: { in: publishedEscuelaIds }
+                }
+              }
+            }
+          }
+        };
       }
 
       return ctx.prisma.asignacion.findMany({
@@ -181,7 +443,81 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Create a single assignment (from filling session or admin) */
-  create: secretariaProcedure
+  manualOptions: secretariaEscuelaProcedure
+    .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      const grupoScope = buildEscuelaScopedGrupoWhere(managedEscuelaIds);
+
+      const [cargas, asignaciones] = await Promise.all([
+        ctx.prisma.asignacionCargaLectiva.findMany({
+          where: {
+            periodoId: input.periodoId,
+            OR: [{ docenteId: input.docenteId }, { docenteCompartidoId: input.docenteId }],
+            grupo: {
+              periodoAcademicoId: input.periodoId,
+              ...grupoScope,
+            },
+          },
+          include: {
+            docente: { select: { id: true, nombre: true } },
+            docenteCompartido: { select: { id: true, nombre: true } },
+            grupo: {
+              include: {
+                curso: { select: { id: true, codigo: true, nombre: true, ciclo: true } },
+                demandaLinea: {
+                  include: {
+                    demanda: {
+                      include: {
+                        escuela: { select: { id: true, nombre: true } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          orderBy: [{ createdAt: 'asc' }],
+        }),
+        ctx.prisma.asignacion.findMany({
+          where: { docenteId: input.docenteId, periodoId: input.periodoId },
+          select: { grupoId: true, tipo: true },
+        }),
+      ]);
+
+      const scheduledByComponent = new Map<string, number>();
+      asignaciones.forEach((asignacion) => {
+        const key = `${asignacion.grupoId}::${asignacion.tipo}`;
+        scheduledByComponent.set(key, (scheduledByComponent.get(key) ?? 0) + 1);
+      });
+
+      return cargas.map((carga) => {
+        const key = `${carga.grupoId}::${carga.tipo}`;
+        const scheduledBlocks = scheduledByComponent.get(key) ?? 0;
+        const effectiveDocente =
+          carga.docenteId === input.docenteId
+            ? carga.docente
+            : carga.docenteCompartido ?? carga.docente;
+
+        return {
+          cargaLectivaId: carga.id,
+          docenteId: input.docenteId,
+          docenteNombre: effectiveDocente.nombre,
+          grupoId: carga.grupoId,
+          grupoNombre: carga.grupo.nombre,
+          tipo: carga.tipo,
+          horasAsignadas: carga.horasAsignadas,
+          grupoLaboratorio: carga.grupoLaboratorio,
+          rol: carga.rol,
+          scheduledBlocks,
+          remainingBlocks: Math.max(0, carga.horasAsignadas - scheduledBlocks),
+          curso: carga.grupo.curso,
+          escuela: carga.grupo.demandaLinea?.demanda?.escuela ?? null,
+        };
+      });
+    }),
+
+  create: secretariaEscuelaProcedure
     .input(z.object({
       docenteId: z.string(),
       aulaId: z.string(),
@@ -191,6 +527,9 @@ export const horarioRouter = createTRPCRouter({
       tipo: z.enum(['TEORIA', 'PRACTICA', 'LABORATORIO']),
     }))
     .mutation(async ({ ctx, input }) => {
+      await assertFacultyPeriodNotPublished(ctx.prisma, { grupoId: input.grupoId, periodoId: input.periodoId });
+      await assertHorarioNotLocked(ctx.prisma, input.grupoId, input.periodoId);
+      await assertCanManageHorarioForGrupo(ctx.prisma, ctx.session, input.grupoId);
       const service = new AvailabilityService(ctx.prisma);
 
       // Validate against all constraints
@@ -218,13 +557,20 @@ export const horarioRouter = createTRPCRouter({
       });
     }),
 
-  delete: secretariaProcedure
+  delete: secretariaEscuelaProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.prisma.asignacion.findUniqueOrThrow({
+        where: { id: input.id },
+        select: { grupoId: true, periodoId: true },
+      });
+      await assertFacultyPeriodNotPublished(ctx.prisma, { grupoId: existing.grupoId, periodoId: existing.periodoId });
+      await assertHorarioNotLocked(ctx.prisma, existing.grupoId, existing.periodoId);
+      await assertCanManageHorarioForGrupo(ctx.prisma, ctx.session, existing.grupoId);
       return ctx.prisma.asignacion.delete({ where: { id: input.id } });
     }),
 
-  update: secretariaProcedure
+  update: secretariaEscuelaProcedure
     .input(z.object({
       id: z.string(),
       aulaId: z.string(),
@@ -233,6 +579,9 @@ export const horarioRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const service = new AvailabilityService(ctx.prisma);
       const asignacion = await ctx.prisma.asignacion.findUniqueOrThrow({ where: { id: input.id } });
+      await assertFacultyPeriodNotPublished(ctx.prisma, { grupoId: asignacion.grupoId, periodoId: asignacion.periodoId });
+      await assertHorarioNotLocked(ctx.prisma, asignacion.grupoId, asignacion.periodoId);
+      await assertCanManageHorarioForGrupo(ctx.prisma, ctx.session, asignacion.grupoId);
 
       // Validate against all constraints
       const validation = await service.validateSlotSelection(
@@ -256,33 +605,59 @@ export const horarioRouter = createTRPCRouter({
       });
     }),
 
-  // ─── Auto Scheduling (Batch) ───────────────────────
-
-  autoGenerate: secretariaProcedure
+  autoGenerate: secretariaEscuelaProcedure
     .input(z.object({
       periodoId: z.string(),
       overwrite: z.boolean().optional().default(true),
     }))
     .mutation(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      const grupoScope = buildEscuelaScopedGrupoWhere(managedEscuelaIds);
+      if (managedEscuelaIds !== null && managedEscuelaIds.length > 0) {
+        for (const escId of managedEscuelaIds) {
+          await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: escId, periodoId: input.periodoId });
+        }
+      }
+      if (managedEscuelaIds !== null) {
+        const published = await ctx.prisma.procesoHorarioEscuela.findFirst({
+          where: {
+            escuelaId: { in: managedEscuelaIds },
+            periodoId: input.periodoId,
+            estado: 'PUBLICADO_PRELIMINAR',
+          },
+        });
+        if (published) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'El horario preliminar ya está publicado y bloqueado.',
+          });
+        }
+      }
       console.log(`[TRPC] autoGenerate iniciado. Periodo: ${input.periodoId}`);
       try {
         // 1. Fetch all data needed for the engine
         const [docentes, grupos, aulas, franjas, docenteGrupos, restricciones, mantenimientos, disponibilidades, asignacionesCarga] = await Promise.all([
           ctx.prisma.docente.findMany({ where: { activo: true } }),
           ctx.prisma.grupo.findMany({ 
-            where: { periodoAcademicoId: input.periodoId },
+            where: { periodoAcademicoId: input.periodoId, ...grupoScope },
             include: { curso: true }
           }),
           ctx.prisma.aula.findMany(),
           ctx.prisma.franjaHoraria.findMany(),
           ctx.prisma.docenteGrupo.findMany({
-            where: { grupo: { periodoAcademicoId: input.periodoId } }
+            where: { grupo: { periodoAcademicoId: input.periodoId, ...grupoScope } }
           }),
           ctx.prisma.restriccionDocente.findMany(),
           ctx.prisma.mantenimientoAula.findMany(),
           ctx.prisma.disponibilidadDocente.findMany(),
           ctx.prisma.asignacionCargaLectiva.findMany({
-            where: { periodoId: input.periodoId }
+            where: {
+              periodoId: input.periodoId,
+              grupo: {
+                periodoAcademicoId: input.periodoId,
+                ...grupoScope,
+              },
+            }
           })
         ]);
 
@@ -420,8 +795,32 @@ export const horarioRouter = createTRPCRouter({
 
         const engine = new ScheduleEngine(engineInput);
         const result = engine.generate();
-        
-        console.log(`[TRPC] Motor generó ${result.assignments.length} asignaciones y ${result.unassigned.length} fallos.`);
+
+        // Trigger notifications for viable gaps
+        for (const item of result.unassigned) {
+          if (item.viableGaps && item.viableGaps.length > 0) {
+            const workloads = engineInput.grupos.find(g => g.id === item.grupoId)?.workloads;
+            const docenteId = workloads?.find(w => w.tipo === item.tipo)?.docenteId;
+            if (docenteId) {
+              const docenteObj = await ctx.prisma.docente.findUnique({
+                where: { id: docenteId },
+                select: { user: { select: { id: true } } },
+              });
+              const recipientUserId = docenteObj?.user?.id;
+              if (recipientUserId) {
+                const gapStrings = item.viableGaps.map(g => `Bloque ${g.franjaId}`).join(', ');
+                await ctx.prisma.notification.create({
+                  data: {
+                    recipientUserId,
+                    titulo: 'Espacios viables para horario',
+                    mensaje: `El curso con grupo ${item.grupoId} tiene cruces de horario. Espacios viables: ${gapStrings}`,
+                    tipo: 'CONFLITO_HORARIO',
+                  },
+                });
+              }
+            }
+          }
+        }
 
         if (result.assignments.length === 0) {
           return {
@@ -478,6 +877,18 @@ export const horarioRouter = createTRPCRouter({
   processAssignments: secretariaProcedure
     .input(z.object({ periodoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      if (managedEscuelaIds !== null && managedEscuelaIds.length > 0) {
+        for (const escId of managedEscuelaIds) {
+          await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: escId, periodoId: input.periodoId });
+        }
+      }
+      const managedDepartamentoIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+      if (managedDepartamentoIds !== null && managedDepartamentoIds.length > 0) {
+        for (const deptId of managedDepartamentoIds) {
+          await assertFacultyPeriodNotPublished(ctx.prisma, { departamentoId: deptId, periodoId: input.periodoId });
+        }
+      }
       console.log(`[TRPC] processAssignments iniciado para periodo: ${input.periodoId}`);
       try {
         const service = new AssignmentService(ctx.prisma);
@@ -494,9 +905,17 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Confirm a teacher's schedule (Secretaria confirms) */
-  confirmTeacherSchedule: secretariaProcedure
+  confirmTeacherSchedule: secretariaEscuelaProcedure
     .input(z.object({ docenteId: z.string(), periodoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: input.docenteId, periodoId: input.periodoId });
+      const assignments = await ctx.prisma.asignacion.findMany({
+        where: { docenteId: input.docenteId, periodoId: input.periodoId },
+        select: { grupoId: true },
+      });
+      for (const grupoId of [...new Set(assignments.map((assignment) => assignment.grupoId))]) {
+        await assertCanManageHorarioForGrupo(ctx.prisma, ctx.session, grupoId);
+      }
       return ctx.prisma.asignacion.updateMany({
         where: { docenteId: input.docenteId, periodoId: input.periodoId },
         data: { confirmado: true }
@@ -504,9 +923,15 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Send whole schedule to Director for revision */
-  sendToRevision: secretariaProcedure
+  sendToRevision: secretariaEscuelaProcedure
     .input(z.object({ periodoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      if (managedEscuelaIds !== null && managedEscuelaIds.length > 0) {
+        for (const escId of managedEscuelaIds) {
+          await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: escId, periodoId: input.periodoId });
+        }
+      }
       return ctx.prisma.periodoAcademico.update({
         where: { id: input.periodoId },
         data: { estado: 'REVISION', comentariosDirector: null }
@@ -517,6 +942,12 @@ export const horarioRouter = createTRPCRouter({
   approveSchedule: directorProcedure
     .input(z.object({ periodoId: z.string(), comentarios: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      if (managedEscuelaIds !== null && managedEscuelaIds.length > 0) {
+        for (const escId of managedEscuelaIds) {
+          await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: escId, periodoId: input.periodoId });
+        }
+      }
       return ctx.prisma.periodoAcademico.update({
         where: { id: input.periodoId },
         data: { 
@@ -532,6 +963,12 @@ export const horarioRouter = createTRPCRouter({
   rejectSchedule: directorProcedure
     .input(z.object({ periodoId: z.string(), comentarios: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      if (managedEscuelaIds !== null && managedEscuelaIds.length > 0) {
+        for (const escId of managedEscuelaIds) {
+          await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: escId, periodoId: input.periodoId });
+        }
+      }
       return ctx.prisma.periodoAcademico.update({
         where: { id: input.periodoId },
         data: { 
@@ -545,6 +982,12 @@ export const horarioRouter = createTRPCRouter({
   publishSchedule: directorProcedure
     .input(z.object({ periodoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      if (managedEscuelaIds !== null && managedEscuelaIds.length > 0) {
+        for (const escId of managedEscuelaIds) {
+          await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: escId, periodoId: input.periodoId });
+        }
+      }
       return ctx.prisma.periodoAcademico.update({
         where: { id: input.periodoId },
         data: { estado: 'FINALIZADO' }
@@ -576,28 +1019,39 @@ export const horarioRouter = createTRPCRouter({
   }),
 
   /** Get docentes sorted by hierarchy for the secretary to process one by one */
-  docentesByHierarchy: secretariaProcedure
+  docentesByHierarchy: secretariaEscuelaProcedure
     .input(z.object({ periodoId: z.string() }))
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx, input }) => {
+      const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+      const grupoScope = buildEscuelaScopedGrupoWhere(managedEscuelaIds);
       const docentes = await ctx.prisma.docente.findMany({
-        where: { activo: true },
+        where: {
+          activo: true,
+          ...(managedEscuelaIds === null
+            ? {}
+            : {
+                asignacionesCarga: {
+                  some: {
+                    periodoId: input.periodoId,
+                    grupo: grupoScope,
+                  },
+                },
+              }),
+        },
         include: {
           _count: {
             select: {
-              asignaciones: { where: { periodoId: ctx.session.role === 'ADMIN' ? undefined : undefined } } // Placeholder
+              asignaciones: { where: { periodoId: input.periodoId } }
             }
           }
         }
       });
 
       const CATEGORIA_ORDER = { PRINCIPAL: 1, ASOCIADO: 2, AUXILIAR: 3, JEFE_PRACTICA: 4 };
-      const TIPO_ORDER = { NOMBRADO: 1, CONTRATADO: 2 };
 
       const result = docentes.sort((a, b) => {
         if (CATEGORIA_ORDER[a.categoria] !== CATEGORIA_ORDER[b.categoria]) 
           return CATEGORIA_ORDER[a.categoria] - CATEGORIA_ORDER[b.categoria];
-        if (TIPO_ORDER[a.tipo] !== TIPO_ORDER[b.tipo])
-          return TIPO_ORDER[a.tipo] - TIPO_ORDER[b.tipo];
         return a.antiguedad.getTime() - b.antiguedad.getTime();
       });
 
@@ -606,16 +1060,18 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Suggest assignments for a specific docente based on their assigned groups and availability */
-  suggestDocenteAssignments: secretariaProcedure
+  suggestDocenteAssignments: secretariaEscuelaProcedure
     .input(z.object({ periodoId: z.string(), docenteId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       console.log(`[TRPC] suggestDocenteAssignments para docente: ${input.docenteId}`);
       try {
+        const managedEscuelaIds = await getManagedEscuelaIds(ctx.prisma, ctx.session);
+        const grupoScope = buildEscuelaScopedGrupoWhere(managedEscuelaIds);
         // 1. Fetch all data needed for this specific docente
         const [docente, docenteGrupos, aulas, franjas, restricciones, mantenimientos, disponibilidades, existingAssignments, asignacionesCarga] = await Promise.all([
           ctx.prisma.docente.findUniqueOrThrow({ where: { id: input.docenteId } }),
           ctx.prisma.docenteGrupo.findMany({
-            where: { docenteId: input.docenteId, grupo: { periodoAcademicoId: input.periodoId } },
+            where: { docenteId: input.docenteId, grupo: { periodoAcademicoId: input.periodoId, ...grupoScope } },
             include: { grupo: { include: { curso: true } } }
           }),
           ctx.prisma.aula.findMany(),
@@ -623,9 +1079,24 @@ export const horarioRouter = createTRPCRouter({
           ctx.prisma.restriccionDocente.findMany({ where: { docenteId: input.docenteId } }),
           ctx.prisma.mantenimientoAula.findMany(),
           ctx.prisma.disponibilidadDocente.findMany({ where: { docenteId: input.docenteId } }),
-          ctx.prisma.asignacion.findMany({ where: { periodoId: input.periodoId } }),
+          ctx.prisma.asignacion.findMany({
+            where: {
+              periodoId: input.periodoId,
+              grupo: {
+                periodoAcademicoId: input.periodoId,
+                ...grupoScope,
+              },
+            },
+          }),
           ctx.prisma.asignacionCargaLectiva.findMany({
-            where: { docenteId: input.docenteId, periodoId: input.periodoId }
+            where: {
+              periodoId: input.periodoId,
+              OR: [{ docenteId: input.docenteId }, { docenteCompartidoId: input.docenteId }],
+              grupo: {
+                periodoAcademicoId: input.periodoId,
+                ...grupoScope,
+              },
+            }
           })
         ]);
 
@@ -760,7 +1231,7 @@ export const horarioRouter = createTRPCRouter({
     }),
 
   /** Apply suggestions for a docente */
-  applySuggestions: secretariaProcedure
+  applySuggestions: secretariaEscuelaProcedure
     .input(z.object({ 
       periodoId: z.string(), 
       docenteId: z.string(),
@@ -772,6 +1243,14 @@ export const horarioRouter = createTRPCRouter({
       }))
     }))
     .mutation(async ({ ctx, input }) => {
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: input.docenteId, periodoId: input.periodoId });
+      if (input.assignments.length > 0) {
+        const grupoIds = [...new Set(input.assignments.map((assignment) => assignment.grupoId))];
+        for (const grupoId of grupoIds) {
+          await assertCanManageHorarioForGrupo(ctx.prisma, ctx.session, grupoId);
+          await assertHorarioNotLocked(ctx.prisma, grupoId, input.periodoId);
+        }
+      }
       console.log(`[TRPC] applySuggestions iniciado para docente: ${input.docenteId}, Asignaciones: ${input.assignments.length}`);
       try {
         // 1. Delete existing unconfirmed assignments for this docente
@@ -810,5 +1289,125 @@ export const horarioRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const service = new AvailabilityService(ctx.prisma);
       return service.suggestAulaForGroup(input.grupoId, input.periodoId, input.tipo);
+    }),
+
+  getProceso: protectedProcedure
+    .input(z.object({ escuelaId: z.string(), periodoId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, input.escuelaId);
+
+      let proc = await ctx.prisma.procesoHorarioEscuela.findUnique({
+        where: {
+          escuelaId_periodoId: {
+            escuelaId: input.escuelaId,
+            periodoId: input.periodoId,
+          },
+        },
+      });
+
+      if (!proc) {
+        proc = await ctx.prisma.procesoHorarioEscuela.create({
+          data: {
+            escuelaId: input.escuelaId,
+            periodoId: input.periodoId,
+            estado: 'BORRADOR',
+          },
+        });
+      }
+
+      return proc;
+    }),
+
+  submitProceso: secretariaEscuelaProcedure
+    .input(z.object({ escuelaId: z.string(), periodoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, input.escuelaId);
+      await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: input.escuelaId, periodoId: input.periodoId });
+
+      const proc = await ctx.prisma.procesoHorarioEscuela.findUniqueOrThrow({
+        where: {
+          escuelaId_periodoId: {
+            escuelaId: input.escuelaId,
+            periodoId: input.periodoId,
+          },
+        },
+      });
+
+      if (proc.estado === 'PUBLICADO_PRELIMINAR') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'El proceso ya está publicado preliminarmente y no se puede editar.',
+        });
+      }
+
+      return ctx.prisma.procesoHorarioEscuela.update({
+        where: { id: proc.id },
+        data: { estado: 'REVISION' },
+      });
+    }),
+
+  reviewProceso: directorProcedure
+    .input(z.object({
+      escuelaId: z.string(),
+      periodoId: z.string(),
+      aprobado: z.boolean(),
+      observacion: z.string().nullable().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, input.escuelaId);
+      await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: input.escuelaId, periodoId: input.periodoId });
+
+      const proc = await ctx.prisma.procesoHorarioEscuela.findUniqueOrThrow({
+        where: {
+          escuelaId_periodoId: {
+            escuelaId: input.escuelaId,
+            periodoId: input.periodoId,
+          },
+        },
+      });
+
+      const nuevoEstado = input.aprobado ? 'APROBADO' : 'OBSERVADO';
+
+      return ctx.prisma.procesoHorarioEscuela.update({
+        where: { id: proc.id },
+        data: {
+          estado: nuevoEstado,
+          observacion: input.observacion || null,
+          revisadoPorId: ctx.session.id,
+          revisadoEn: new Date(),
+        },
+      });
+    }),
+
+  publishPreliminary: directorProcedure
+    .input(z.object({ escuelaId: z.string(), periodoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      await assertCanAccessEscuela(ctx.prisma, ctx.session, input.escuelaId);
+      await assertFacultyPeriodNotPublished(ctx.prisma, { escuelaId: input.escuelaId, periodoId: input.periodoId });
+
+      const proc = await ctx.prisma.procesoHorarioEscuela.findUniqueOrThrow({
+        where: {
+          escuelaId_periodoId: {
+            escuelaId: input.escuelaId,
+            periodoId: input.periodoId,
+          },
+        },
+      });
+
+      if (proc.estado !== 'APROBADO') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'El proceso debe estar aprobado por el director antes de ser publicado.',
+        });
+      }
+
+      return ctx.prisma.procesoHorarioEscuela.update({
+        where: { id: proc.id },
+        data: {
+          estado: 'PUBLICADO_PRELIMINAR',
+          publicadoPorId: ctx.session.id,
+          publicadoEn: new Date(),
+        },
+      });
     }),
 });

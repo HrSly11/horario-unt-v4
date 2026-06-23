@@ -17,6 +17,7 @@ import { declaracionPDFRouter } from './declaracionPDF';
 import { helpRouter } from './help';
 import { curriculaRouter } from './curricula';
 import { franjaHorariaRouter } from './franjaHoraria';
+import { demandaDepartamentoRouter } from './demandaDepartamento';
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
@@ -37,6 +38,7 @@ export const appRouter = createTRPCRouter({
   help: helpRouter,
   curricula: curriculaRouter,
   franjaHoraria: franjaHorariaRouter,
+  demandaDepartamento: demandaDepartamentoRouter,
 });
 
 export type AppRouter = typeof appRouter;

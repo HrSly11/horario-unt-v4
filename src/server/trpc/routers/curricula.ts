@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 import {
   academicManagerProcedure,
   createTRPCRouter,
@@ -96,7 +97,7 @@ export const curriculaRouter = createTRPCRouter({
       if (input?.escuelaId) {
         await assertCanAccessEscuela(ctx.prisma, ctx.session, input.escuelaId);
         where.escuelaId = input.escuelaId;
-      } else if (managedEscuelaIds !== null) {
+      } else if (managedEscuelaIds !== null && managedEscuelaIds.length > 0) {
         where.escuelaId = { in: managedEscuelaIds };
       }
       if (input?.vigente !== undefined) where.vigente = input.vigente;
@@ -206,9 +207,15 @@ export const curriculaRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const curriculum = await ctx.prisma.curricula.findUniqueOrThrow({
         where: { id: input.curriculaId },
-        select: { escuelaId: true },
+        select: { escuelaId: true, estado: true },
       });
       await assertCanAccessEscuela(ctx.prisma, ctx.session, curriculum.escuelaId);
+      if (curriculum.estado === 'CERRADA') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'No se puede modificar una currícula cerrada',
+        });
+      }
       const membership = ctx.prisma.cursoCurricula as unknown as {
         upsert(args: unknown): Promise<unknown>;
       };
@@ -232,9 +239,15 @@ export const curriculaRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const curriculum = await ctx.prisma.curricula.findUniqueOrThrow({
         where: { id: input.curriculaId },
-        select: { escuelaId: true },
+        select: { escuelaId: true, estado: true },
       });
       await assertCanAccessEscuela(ctx.prisma, ctx.session, curriculum.escuelaId);
+      if (curriculum.estado === 'CERRADA') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'No se puede modificar una currícula cerrada',
+        });
+      }
       const membership = ctx.prisma.cursoCurricula as unknown as {
         update(args: unknown): Promise<unknown>;
       };

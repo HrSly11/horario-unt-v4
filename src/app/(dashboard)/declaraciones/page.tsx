@@ -30,7 +30,6 @@ const ESTADO_BADGES: Record<string, string> = {
   BORRADOR: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
   ENVIADA: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   APROBADA_DEPARTAMENTO: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  APROBADA_ESCUELA: 'bg-green-500/20 text-green-400 border-green-500/30',
   RECHAZADA: 'bg-red-500/20 text-red-400 border-red-500/30',
   FINALIZADA: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
 };
@@ -39,7 +38,6 @@ const ESTADO_LABELS: Record<string, string> = {
   BORRADOR: 'Borrador',
   ENVIADA: 'Enviada',
   APROBADA_DEPARTAMENTO: 'Aprob. Departamento',
-  APROBADA_ESCUELA: 'Aprob. Escuela',
   RECHAZADA: 'Rechazada',
   FINALIZADA: 'Finalizada',
 };
@@ -60,7 +58,6 @@ const STEPS = [
   { label: 'Borrador', key: 'BORRADOR' },
   { label: 'Enviada', key: 'ENVIADA' },
   { label: 'Aprob. Depto', key: 'APROBADA_DEPARTAMENTO' },
-  { label: 'Aprob. Escuela', key: 'APROBADA_ESCUELA' },
   { label: 'Finalizada', key: 'FINALIZADA' },
 ];
 
@@ -85,6 +82,13 @@ export default function DeclaracionesPage() {
   const isDirectorEscuela = user?.role === 'DIRECTOR_ESCUELA';
   const isDecano = user?.role === 'DECANO';
   const isAdmin = user?.role === 'ADMIN';
+
+  const [selectedDocenteIdForCreate, setSelectedDocenteIdForCreate] = useState<string>('');
+
+  const { data: docentes = [] } = useQuery({
+    ...trpc.docente.list.queryOptions({}),
+    enabled: isAdmin,
+  });
 
   const { data: declaraciones = [], isLoading } = useQuery({
     ...trpc.declaracion.list.queryOptions({ periodoId }),
@@ -116,7 +120,10 @@ export default function DeclaracionesPage() {
 
   const createMutation = useMutation(
     trpc.declaracion.create.mutationOptions({
-      onSuccess: () => invalidateAll(),
+      onSuccess: () => {
+        invalidateAll();
+        setSelectedDocenteIdForCreate('');
+      },
     })
   );
 
@@ -183,8 +190,9 @@ export default function DeclaracionesPage() {
     reabrirMutation.isPending || deleteMutation.isPending || updateTotalsMutation.isPending;
 
   function handleCreate() {
-    if (!user?.docenteId || !periodoId) return;
-    createMutation.mutate({ docenteId: user.docenteId, periodoId });
+    const targetDocenteId = isAdmin ? selectedDocenteIdForCreate : user?.docenteId;
+    if (!targetDocenteId || !periodoId) return;
+    createMutation.mutate({ docenteId: targetDocenteId, periodoId });
   }
 
   function handleRejectSubmit() {
@@ -198,17 +206,17 @@ export default function DeclaracionesPage() {
       case 'enviar':
         // El docente puede enviar su propia declaración
         // El director de departamento también puede enviar si el docente no lo hace (opcional, pero ayuda al flujo)
-        return (isDocente && user?.docenteId === decDocenteId && (estado === 'BORRADOR' || estado === 'RECHAZADA')) ||
-               (isDirectorDepto && (estado === 'BORRADOR' || estado === 'RECHAZADA'));
+        return (isDocente && user?.docenteId === decDocenteId && (estado === 'BORRADOR' || estado === 'RECHAZADA' || estado === 'OBSERVADA')) ||
+               (isDirectorDepto && (estado === 'BORRADOR' || estado === 'RECHAZADA' || estado === 'OBSERVADA'));
       case 'aprobarDepto':
-        return isDirectorDepto && estado === 'ENVIADA';
+        return isDirectorDepto && (estado === 'ENVIADA' || estado === 'OBSERVADA');
       case 'aprobarEscuela':
-        return isDirectorEscuela && estado === 'APROBADA_DEPARTAMENTO';
+        return false;
       case 'vbDecano':
-        return isDecano && estado === 'APROBADA_ESCUELA';
+        return isDecano && estado === 'APROBADA_DEPARTAMENTO';
       case 'rechazar':
-        return (isDirectorDepto || isDirectorEscuela || isDecano) &&
-          ['ENVIADA', 'APROBADA_DEPARTAMENTO', 'APROBADA_ESCUELA'].includes(estado);
+        return (isDirectorDepto || isDecano) &&
+          ['ENVIADA', 'APROBADA_DEPARTAMENTO'].includes(estado);
       case 'reabrir':
         return isDocente && user?.docenteId === decDocenteId && estado === 'RECHAZADA';
       case 'eliminar':
@@ -229,14 +237,28 @@ export default function DeclaracionesPage() {
           <p className="text-zinc-400 text-sm mt-1">Flujo de aprobación de carga académica</p>
         </div>
         {(isDocente || isAdmin) && (
-          <button
-            onClick={handleCreate}
-            disabled={anyMutationPending || !periodoId}
-            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25 disabled:opacity-50"
-          >
-            <Plus className="h-4 w-4" />
-            Crear Declaración
-          </button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <select
+                value={selectedDocenteIdForCreate}
+                onChange={(e) => setSelectedDocenteIdForCreate(e.target.value)}
+                className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              >
+                <option value="">-- Seleccionar Docente --</option>
+                {docentes.map((d) => (
+                  <option key={d.id} value={d.id}>{d.nombre}</option>
+                ))}
+              </select>
+            )}
+            <button
+              onClick={handleCreate}
+              disabled={anyMutationPending || !periodoId || (isAdmin && !selectedDocenteIdForCreate)}
+              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25 disabled:opacity-50"
+            >
+              <Plus className="h-4 w-4" />
+              Crear Declaración
+            </button>
+          </div>
         )}
       </div>
 
@@ -403,15 +425,14 @@ function DeclaracionCard({
 
   const showEnviar = canPerformAction(dec.docenteId, dec.estado, 'enviar');
   const showAprobarDepto = canPerformAction(dec.docenteId, dec.estado, 'aprobarDepto');
-  const showAprobarEscuela = canPerformAction(dec.docenteId, dec.estado, 'aprobarEscuela');
   const showVbDecano = canPerformAction(dec.docenteId, dec.estado, 'vbDecano');
   const showRechazar = canPerformAction(dec.docenteId, dec.estado, 'rechazar');
   const showReabrir = canPerformAction(dec.docenteId, dec.estado, 'reabrir');
   const showEliminar = canPerformAction(dec.docenteId, dec.estado, 'eliminar');
   const showActualizar = canPerformAction(dec.docenteId, dec.estado, 'actualizar');
-  const showFormatos = dec.estado === 'FINALIZADA' || dec.estado === 'APROBADA_ESCUELA';
+  const showFormatos = dec.estado === 'FINALIZADA' || dec.estado === 'APROBADA_DEPARTAMENTO';
 
-  const hasActions = showEnviar || showAprobarDepto || showAprobarEscuela ||
+  const hasActions = showEnviar || showAprobarDepto ||
     showVbDecano || showRechazar || showReabrir || showEliminar || showActualizar || showFormatos;
 
   return (
@@ -532,16 +553,7 @@ function DeclaracionCard({
                 Aprobar (Depto)
               </button>
             )}
-            {showAprobarEscuela && (
-              <button
-                onClick={onAprobarEscuela}
-                disabled={mutationPending}
-                className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 transition-all active:scale-95"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                Aprobar (Escuela)
-              </button>
-            )}
+
             {showVbDecano && (
               <button
                 onClick={onVbDecano}

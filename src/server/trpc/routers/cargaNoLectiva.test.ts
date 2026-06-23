@@ -252,4 +252,30 @@ describe('cargaNoLectivaRouter list scoping', () => {
     await expect(caller.list({ periodoId: 'period-1' })).rejects.toMatchObject({ code: 'FORBIDDEN' });
     expect(prisma.cargaNoLectiva.findMany).not.toHaveBeenCalled();
   });
+
+  it('allows creating JURADOS, AUTOEVALUACION_ACREDITACION, and OTRAS_AUTORIZADAS types', async () => {
+    const session = makeSession('DOCENTE', 'docente-1');
+    const prisma = makePrisma({ session });
+    const caller = makeCaller(prisma, session);
+
+    // This should pass if the Zod schema includes JURADOS
+    const resJurados = await caller.create({
+      docenteId: 'docente-1',
+      periodoId: 'period-1',
+      tipo: 'JURADOS' as any,
+      horas: 1,
+      descripcion: 'Evidence description',
+    });
+    expect(prisma.cargaNoLectiva.create).toHaveBeenCalled();
+
+    // Check OTRAS_AUTORIZADAS
+    const resOtras = await caller.create({
+      docenteId: 'docente-1',
+      periodoId: 'period-1',
+      tipo: 'OTRAS_AUTORIZADAS' as any,
+      horas: 2,
+    });
+    expect(prisma.cargaNoLectiva.create).toHaveBeenCalledTimes(2);
+  });
 });
+

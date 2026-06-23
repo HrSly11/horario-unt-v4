@@ -17,6 +17,7 @@ import {
   LogOut,
   ChevronRight,
   Clock,
+
 } from 'lucide-react';
 import { useTRPC } from '@/trpc/client';
 import { useRouter } from 'next/navigation';
@@ -48,9 +49,12 @@ export function Sidebar() {
       { name: 'Planes de Estudio', href: '/planes-estudio', icon: GraduationCap },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Demanda Escolar', href: '/demanda-escuela', icon: FileText },
+      { name: 'Demanda Dpto.', href: '/demanda-departamento', icon: FileText },
       { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
+      { name: 'Publicación Final', href: '/publicacion-final', icon: ShieldCheck },
       { name: 'Reportes', href: '/reportes', icon: FileText },
       { name: 'Asignación', href: '/asignacion', icon: Calendar },
       { name: 'Gestión Usuarios', href: '/usuarios', icon: ShieldCheck },
@@ -62,10 +66,12 @@ export function Sidebar() {
       { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Reportes', href: '/reportes', icon: FileText },
       { name: 'Docentes', href: '/docentes', icon: Users },
+      { name: 'Publicación Final', href: '/publicacion-final', icon: ShieldCheck },
     ],
     DIRECTOR_DEPARTAMENTO: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
       { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
+      { name: 'Demanda de Departamento', href: '/demanda-departamento', icon: FileText },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
@@ -76,6 +82,7 @@ export function Sidebar() {
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
       { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
+      { name: 'Demanda de Departamento', href: '/demanda-departamento', icon: FileText },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
@@ -88,6 +95,7 @@ export function Sidebar() {
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Demanda Escolar', href: '/demanda-escuela', icon: FileText },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
       { name: 'Reportes', href: '/reportes', icon: FileText },
       { name: 'Asignación', href: '/asignacion', icon: Calendar },
@@ -98,6 +106,7 @@ export function Sidebar() {
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Aulas', href: '/aulas', icon: Building2 },
       { name: 'Periodos', href: '/periodos', icon: CalendarDays },
+      { name: 'Demanda Escolar', href: '/demanda-escuela', icon: FileText },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
       { name: 'Reportes', href: '/reportes', icon: FileText },
     ],

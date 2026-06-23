@@ -58,11 +58,34 @@ function makePrisma({
       })),
     },
     docente: {
-      findUniqueOrThrow: vi.fn(async () => ({
+      findUnique: vi.fn(async () => ({
+        id: 'docente-1',
+        departamentoId: 'dept-1',
         modalidad: ModalidadDocente.TIEMPO_PARCIAL,
         horasContrato: 40,
         dictaOtraUniversidad: false,
       })),
+      findUniqueOrThrow: vi.fn(async () => ({
+        id: 'docente-1',
+        departamentoId: 'dept-1',
+        modalidad: ModalidadDocente.TIEMPO_PARCIAL,
+        horasContrato: 40,
+        dictaOtraUniversidad: false,
+      })),
+    },
+    distribucionLectiva: {
+      findUnique: vi.fn(async () => null),
+      findUniqueOrThrow: vi.fn(async () => ({
+        id: 'dist-1',
+        estado: 'BORRADOR',
+      })),
+    },
+    coberturaComponente: {
+      findMany: vi.fn(async () => []),
+      createMany: vi.fn(async () => ({ count: 0 })),
+    },
+    demandaLinea: {
+      findMany: vi.fn(async () => []),
     },
     asignacionCargaLectiva: {
       findFirst: vi.fn(async () => duplicateAssignment),
@@ -251,4 +274,91 @@ describe('cargaLectivaRouter assignment rules', () => {
       expect(result).toBe(4);
     });
   });
+
+  describe('DistribucionLectiva workflow', () => {
+    it('retrieves and initializes DistribucionLectiva with coberturas', async () => {
+      const prisma = makePrisma() as any;
+      prisma.distribucionLectiva = {
+        findUnique: vi.fn(async () => null),
+        create: vi.fn(async (args: any) => ({ id: 'dist-1', ...args.data })),
+        findUniqueOrThrow: vi.fn(async () => ({ id: 'dist-1', coberturas: [] })),
+      };
+      prisma.demandaLinea = {
+        findMany: vi.fn(async () => [
+          {
+            id: 'dl-1',
+            horasTeoria: 4,
+            horasPractica: 2,
+            horasLaboratorio: 2,
+            numGruposLaboratorio: 1,
+            curso: { horasTeoria: 4, horasPractica: 2, horasLaboratorio: 2, numGruposLaboratorio: 1 },
+          },
+        ]),
+      };
+      prisma.coberturaComponente = {
+        findMany: vi.fn(async () => []),
+        createMany: vi.fn(async () => ({ count: 3 })),
+      };
+
+      const caller = makeCaller(prisma);
+      const res = await caller.getDistribucion({ periodoId: 'period-1', departamentoId: 'dept-1' });
+
+      expect(prisma.distribucionLectiva.create).toHaveBeenCalled();
+      expect(prisma.coberturaComponente.createMany).toHaveBeenCalled();
+    });
+
+    it('rejects submitDistribucion if there is an uncovered component without a reason', async () => {
+      const prisma = makePrisma() as any;
+      prisma.distribucionLectiva = {
+        findUniqueOrThrow: vi.fn(async () => ({
+          id: 'dist-1',
+          estado: 'BORRADOR',
+          coberturas: [
+            { id: 'cob-1', componente: 'LABORATORIO', grupoLaboratorio: 1, estado: 'PENDIENTE', motivoPendiente: null },
+          ],
+        })),
+        update: vi.fn(),
+      };
+
+      const caller = makeCaller(prisma);
+      await expect(
+        caller.submitDistribucion({ periodoId: 'period-1', departamentoId: 'dept-1' })
+      ).rejects.toMatchObject({
+        code: 'BAD_REQUEST',
+        message: /motivo/i,
+      });
+    });
+
+    it('successfully submits if all pending components have a reason', async () => {
+      const prisma = makePrisma() as any;
+      prisma.distribucionLectiva = {
+        findUniqueOrThrow: vi.fn(async () => ({
+          id: 'dist-1',
+          estado: 'BORRADOR',
+          coberturas: [
+            { id: 'cob-1', componente: 'LABORATORIO', grupoLaboratorio: 1, estado: 'PENDIENTE', motivoPendiente: 'Falta docente' },
+          ],
+        })),
+        update: vi.fn(async () => ({ id: 'dist-1', estado: 'ENVIADA' })),
+      };
+
+      const caller = makeCaller(prisma);
+      const res = await caller.submitDistribucion({ periodoId: 'period-1', departamentoId: 'dept-1' });
+      expect(res.estado).toBe('ENVIADA');
+    });
+
+    it('locks assignments when distribution is approved', async () => {
+      const prisma = makePrisma() as any;
+      prisma.distribucionLectiva = {
+        findUnique: vi.fn(async () => ({ id: 'dist-1', estado: 'APROBADA' })),
+      };
+
+      const caller = makeCaller(prisma);
+      await expect(caller.assign(validAssignment)).rejects.toMatchObject({
+        code: 'BAD_REQUEST',
+        message: /bloqueado|aprobado|cerrado|lock/i,
+      });
+    });
+  });
 });
+
