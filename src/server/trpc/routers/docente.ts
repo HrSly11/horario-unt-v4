@@ -596,4 +596,35 @@ export const docenteRouter = createTRPCRouter({
       orderBy: { prioridad: 'asc' },
     });
   }),
+
+  /**
+   * Returns all active docentes in the same department as the requester.
+   * Used by the shared-teacher picker in the workload assignment modal.
+   * A plain DOCENTE may call this (unlike `list`, which is self-only for docentes).
+   */
+  listColegas: protectedProcedure.query(async ({ ctx }) => {
+    // Resolve the department of the calling user
+    let departamentoId: string | undefined;
+
+    if (ctx.session.docenteId) {
+      const docente = await ctx.prisma.docente.findUnique({
+        where: { id: ctx.session.docenteId },
+        select: { departamentoId: true },
+      });
+      departamentoId = docente?.departamentoId ?? undefined;
+    }
+
+    return ctx.prisma.docente.findMany({
+      where: {
+        activo: true,
+        // If we resolved a department, scope to it; otherwise return all (admin case)
+        ...(departamentoId ? { departamentoId } : {}),
+        // Exclude the caller so they don't appear as their own shared teacher
+        ...(ctx.session.docenteId ? { id: { not: ctx.session.docenteId } } : {}),
+      },
+      select: { id: true, nombre: true, email: true, categoria: true },
+      orderBy: { nombre: 'asc' },
+    });
+  }),
 });
+

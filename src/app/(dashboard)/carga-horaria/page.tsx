@@ -172,9 +172,9 @@ export default function CargaHorariaPage() {
   // ── Course Assignment Modal State ───────────────────────
   const [showAssignModal, setShowAssignModal] = useState(false);
 
-  // List for the shared-teacher picker — loaded as soon as the modal opens
+  // List for the shared-teacher picker — colleagues in same dept, excludes self
   const { data: docentesParaCompartir = [] } = useQuery({
-    ...trpc.docente.list.queryOptions({}),
+    ...trpc.docente.listColegas.queryOptions(),
     enabled: showAssignModal,
   });
   const [selectedGrupoId, setSelectedGrupoId] = useState('');
