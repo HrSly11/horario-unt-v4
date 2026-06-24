@@ -222,6 +222,13 @@ export default function CargaNoLectivaPage() {
   }
 
   function validateLocalHorarios(newHorarios: HorarioBlock[]) {
+    // 0. Check horaFin > horaInicio for each block
+    for (let i = 0; i < newHorarios.length; i++) {
+      if (newHorarios[i].horaFin <= newHorarios[i].horaInicio) {
+        return `Bloque ${i + 1}: la hora de fin debe ser posterior a la hora de inicio.`;
+      }
+    }
+
     // 1. Check overlaps within the new blocks themselves
     for (let i = 0; i < newHorarios.length; i++) {
       for (let j = i + 1; j < newHorarios.length; j++) {
@@ -354,8 +361,14 @@ export default function CargaNoLectivaPage() {
         descripcion: form.descripcion || '',
         codigoProyecto: form.tipo === 'INVESTIGACION' ? form.codigoProyecto || undefined : undefined,
         nombreProyecto: form.tipo === 'INVESTIGACION' ? form.nombreProyecto || undefined : undefined,
-        numAlumnos: form.tipo === 'CONSEJERIA' && form.numAlumnos !== '' ? Number(form.numAlumnos) : undefined,
-        cicloConsejeria: form.tipo === 'CONSEJERIA' ? form.cicloConsejeria || undefined : undefined,
+        numAlumnos:
+          (form.tipo === 'CONSEJERIA' || form.tipo === 'ASESORIA_TESIS') && form.numAlumnos !== ''
+            ? Number(form.numAlumnos)
+            : undefined,
+        cicloConsejeria:
+          form.tipo === 'CONSEJERIA' || form.tipo === 'ASESORIA_TESIS'
+            ? form.cicloConsejeria || undefined
+            : undefined,
         horarios: mappedHorarios,
       });
     } else {
@@ -367,8 +380,14 @@ export default function CargaNoLectivaPage() {
         descripcion: form.descripcion || '',
         codigoProyecto: form.tipo === 'INVESTIGACION' ? form.codigoProyecto || undefined : undefined,
         nombreProyecto: form.tipo === 'INVESTIGACION' ? form.nombreProyecto || undefined : undefined,
-        numAlumnos: form.tipo === 'CONSEJERIA' && form.numAlumnos !== '' ? Number(form.numAlumnos) : undefined,
-        cicloConsejeria: form.tipo === 'CONSEJERIA' ? form.cicloConsejeria || undefined : undefined,
+        numAlumnos:
+          (form.tipo === 'CONSEJERIA' || form.tipo === 'ASESORIA_TESIS') && form.numAlumnos !== ''
+            ? Number(form.numAlumnos)
+            : undefined,
+        cicloConsejeria:
+          form.tipo === 'CONSEJERIA' || form.tipo === 'ASESORIA_TESIS'
+            ? form.cicloConsejeria || undefined
+            : undefined,
         horarios: mappedHorarios,
       });
     }
@@ -711,7 +730,7 @@ export default function CargaNoLectivaPage() {
                 </div>
               )}
 
-              {form.tipo === 'CONSEJERIA' && (
+              {(form.tipo === 'CONSEJERIA' || form.tipo === 'ASESORIA_TESIS') && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="label-standard">Número de Alumnos</label>
@@ -723,13 +742,13 @@ export default function CargaNoLectivaPage() {
                     />
                   </div>
                   <div>
-                    <label className="label-standard">Ciclo de Consejería</label>
+                    <label className="label-standard">Semestre al que corresponde</label>
                     <input
                       type="text"
                       value={form.cicloConsejeria}
                       onChange={(e) => setForm({ ...form, cicloConsejeria: e.target.value })}
                       className="input-standard"
-                      placeholder="Ej: 2024-I"
+                      placeholder="Ej: 2026-I"
                     />
                   </div>
                 </div>

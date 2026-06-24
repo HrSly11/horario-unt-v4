@@ -133,6 +133,34 @@ export default function CursosPage() {
     enabled: isDocente,
   });
 
+  const misCursosUnificados = useMemo(() => {
+    if (!personalDocente?.asignacionesCarga) return [];
+    
+    const groupsMap = new Map<string, any>();
+    
+    personalDocente.asignacionesCarga.forEach((ac: any) => {
+      const existing = groupsMap.get(ac.grupoId);
+      if (existing) {
+        existing.horasAsignadas += ac.horasAsignadas;
+      } else {
+        const groupAssignments = (personalDocente.assignments || []).filter(
+          (a: any) => a.grupoId === ac.grupoId
+        );
+        
+        groupsMap.set(ac.grupoId, {
+          id: ac.grupoId,
+          grupo: {
+            ...ac.grupo,
+            asignaciones: groupAssignments,
+          },
+          horasAsignadas: ac.horasAsignadas,
+        });
+      }
+    });
+    
+    return Array.from(groupsMap.values());
+  }, [personalDocente?.asignacionesCarga, personalDocente?.assignments]);
+
   const postulateMutation = useMutation(
     trpc.docente.postulateToGroup.mutationOptions({
       onSuccess: () => {
@@ -606,74 +634,74 @@ export default function CursosPage() {
       ) : (
         /* Vista Mis Cursos */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(personalDocente?.docente?.docenteGrupos || []).map((dg: any) => (
+          {misCursosUnificados.map((dg: any) => (
             <div key={dg.id} className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm hover:border-primary/50 transition-all group">
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-4">
-                  <span className="text-[10px] font-bold px-2 py-1 rounded bg-primary/10 text-primary uppercase border border-primary/20">
-                    {dg.grupo.curso.codigo}
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-1 rounded bg-success/10 text-success uppercase border border-success/20">
-                    Grupo {dg.grupo.nombre}
-                  </span>
-                </div>
-                
-                <h3 className="text-lg font-bold text-text-main mb-2 group-hover:text-primary transition-colors">
-                  {dg.grupo.curso.nombre}
-                </h3>
-                
-                <div className="grid grid-cols-2 gap-4 py-4 border-y border-border my-4">
-                  <div>
-                    <p className="text-[10px] text-text-sub uppercase font-bold mb-1">Carga Horaria</p>
-                    <p className="text-sm text-text-main font-semibold">
-                      {dg.grupo.curso.horasTeoria + dg.grupo.curso.horasLaboratorio} horas/sem
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-text-sub uppercase font-bold mb-1">Ciclo</p>
-                    <p className="text-sm text-text-main font-semibold">Ciclo {dg.grupo.curso.ciclo}</p>
-                  </div>
-                </div>
+               <div className="p-5">
+                 <div className="flex justify-between items-start mb-4">
+                   <span className="text-[10px] font-bold px-2 py-1 rounded bg-primary/10 text-primary uppercase border border-primary/20">
+                     {dg.grupo.curso.codigo}
+                   </span>
+                   <span className="text-[10px] font-bold px-2 py-1 rounded bg-success/10 text-success uppercase border border-success/20">
+                     Grupo {dg.grupo.nombre}
+                   </span>
+                 </div>
+                 
+                 <h3 className="text-lg font-bold text-text-main mb-2 group-hover:text-primary transition-colors">
+                   {dg.grupo.curso.nombre}
+                 </h3>
+                 
+                 <div className="grid grid-cols-2 gap-4 py-4 border-y border-border my-4">
+                   <div>
+                     <p className="text-[10px] text-text-sub uppercase font-bold mb-1">Carga Horaria</p>
+                     <p className="text-sm text-text-main font-semibold">
+                       {dg.grupo.curso.horasTeoria + dg.grupo.curso.horasLaboratorio} horas/sem
+                     </p>
+                   </div>
+                   <div>
+                     <p className="text-[10px] text-text-sub uppercase font-bold mb-1">Ciclo</p>
+                     <p className="text-sm text-text-main font-semibold">Ciclo {dg.grupo.curso.ciclo}</p>
+                   </div>
+                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-text-sub font-medium">Estado Asignación</span>
-                    <span className="text-success font-bold">Asignado</span>
-                  </div>
-                  
-                  {dg.grupo.asignaciones && dg.grupo.asignaciones.length > 0 ? (
-                    <div className="p-3 rounded-lg bg-slate-50 border border-border">
-                      <p className="text-[10px] text-text-sub uppercase font-bold mb-2">Horario Seleccionado</p>
-                      <div className="space-y-1.5">
-                        {dg.grupo.asignaciones.map((a: any) => (
-                          <div key={a.id} className="flex items-center gap-2 text-[11px] text-text-sub">
-                            <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                            <span className="font-bold">{a.franjaHoraria.dia}:</span>
-                            <span>{a.franjaHoraria.horaInicio} - {a.franjaHoraria.horaFin}</span>
-                            <span className="text-text-sub/60">({a.aula.codigo})</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-3 rounded-lg bg-warning/5 border border-warning/20 text-center">
-                      <p className="text-[11px] text-warning font-bold">Pendiente de seleccionar horario</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="p-4 bg-slate-50 border-t border-border flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-[9px] text-text-sub uppercase font-bold">Sede/Edificio</span>
-                  <span className="text-xs text-text-main">Facultad de Ingeniería</span>
-                </div>
-                <button className="text-xs font-bold text-primary hover:text-primary-hover">Ver detalles &rarr;</button>
-              </div>
+                 <div className="space-y-3">
+                   <div className="flex items-center justify-between text-xs">
+                     <span className="text-text-sub font-medium">Estado Asignación</span>
+                     <span className="text-success font-bold">Asignado</span>
+                   </div>
+                   
+                   {dg.grupo.asignaciones && dg.grupo.asignaciones.length > 0 ? (
+                     <div className="p-3 rounded-lg bg-slate-50 border border-border">
+                       <p className="text-[10px] text-text-sub uppercase font-bold mb-2">Horario Seleccionado</p>
+                       <div className="space-y-1.5">
+                         {dg.grupo.asignaciones.map((a: any) => (
+                           <div key={a.id} className="flex items-center gap-2 text-[11px] text-text-sub">
+                             <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                             <span className="font-bold">{a.franjaHoraria.dia}:</span>
+                             <span>{a.franjaHoraria.horaInicio} - {a.franjaHoraria.horaFin}</span>
+                             <span className="text-text-sub/60">({a.aula.codigo})</span>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                   ) : (
+                     <div className="p-3 rounded-lg bg-warning/5 border border-warning/20 text-center">
+                       <p className="text-[11px] text-warning font-bold">Pendiente de seleccionar horario</p>
+                     </div>
+                   )}
+                 </div>
+               </div>
+               
+               <div className="p-4 bg-slate-50 border-t border-border flex justify-between items-center">
+                 <div className="flex flex-col">
+                   <span className="text-[9px] text-text-sub uppercase font-bold">Sede/Edificio</span>
+                   <span className="text-xs text-text-main">Facultad de Ingeniería</span>
+                 </div>
+                 <button className="text-xs font-bold text-primary hover:text-primary-hover">Ver detalles &rarr;</button>
+               </div>
             </div>
           ))}
           
-          {(personalDocente?.docente?.docenteGrupos || []).length === 0 && (
+          {misCursosUnificados.length === 0 && (
             <div className="col-span-full py-20 text-center">
               <div className="inline-flex p-4 rounded-full bg-slate-100 mb-4">
                 <BookOpen className="h-8 w-8 text-slate-400" />

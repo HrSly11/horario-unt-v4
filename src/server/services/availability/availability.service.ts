@@ -322,7 +322,9 @@ export class AvailabilityService {
     aulaId: string,
     grupoId: string,
     franjaId: string,
-    periodoId: string
+    periodoId: string,
+    tipo?: 'TEORIA' | 'PRACTICA' | 'LABORATORIO',
+    excludeAsignacionId?: string
   ): Promise<ValidationResult> {
     const reasons: string[] = [];
 
@@ -335,7 +337,7 @@ export class AvailabilityService {
         }),
         this.prisma.grupo.findUniqueOrThrow({
           where: { id: grupoId },
-          select: { numAlumnos: true },
+          include: { curso: true },
         }),
         // Check aula + grupo occupancy for this franja
         this.prisma.asignacion.findMany({
@@ -343,6 +345,7 @@ export class AvailabilityService {
             periodoId,
             franjaHorariaId: franjaId,
             OR: [{ aulaId }, { docenteId }, { grupoId }],
+            ...(excludeAsignacionId ? { NOT: { id: excludeAsignacionId } } : {}),
           },
         }),
         // All docente's assignments for this period (for continuous-hours / lunch)
@@ -397,8 +400,12 @@ export class AvailabilityService {
     }
 
     // 6. Capacity check
-    if (aula.capacidad < grupo.numAlumnos) {
-      reasons.push('El aula no tiene capacidad suficiente para el grupo');
+    let targetNumAlumnos = grupo.numAlumnos;
+    if (tipo === 'LABORATORIO' && grupo.curso.numGruposLaboratorio > 1) {
+      targetNumAlumnos = Math.ceil(grupo.numAlumnos / grupo.curso.numGruposLaboratorio);
+    }
+    if (aula.capacidad < targetNumAlumnos) {
+      reasons.push(`El aula no tiene capacidad suficiente para el grupo (${targetNumAlumnos} alumnos requeridos vs ${aula.capacidad} capacidad)`);
     }
 
     // 7. Continuous hours check

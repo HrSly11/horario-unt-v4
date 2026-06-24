@@ -61,7 +61,7 @@ describe('AvailabilityService capacity validation', () => {
     );
 
     expect(result.valid).toBe(false);
-    expect(result.reasons).toContain('El aula no tiene capacidad suficiente para el grupo');
+    expect(result.reasons[0]).toContain('El aula no tiene capacidad suficiente para el grupo');
   });
 
   it('allows a slot when aula capacity covers group enrollment', async () => {

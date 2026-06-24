@@ -86,7 +86,8 @@ export function validateNonLectiveSchedule(
     const current = newSlots[i];
     const currentHours = calculateSlotHours(current);
     if (currentHours <= 0) {
-      return fail(`Horario invÃ¡lido: ${current.dia} ${current.horaInicio}-${current.horaFin}`);
+      return fail(`Horario inválido: ${current.dia} ${current.horaInicio}-${current.horaFin}`);
+
     }
 
     const overlapResult = validateNoOverlap(newSlots.slice(0, i), [current]);

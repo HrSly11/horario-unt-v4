@@ -579,7 +579,8 @@ export const horarioRouter = createTRPCRouter({
         input.aulaId,
         input.grupoId,
         input.franjaHorariaId,
-        input.periodoId
+        input.periodoId,
+        input.tipo
       );
 
       if (!validation.valid) {
@@ -630,7 +631,9 @@ export const horarioRouter = createTRPCRouter({
         input.aulaId,
         asignacion.grupoId,
         input.franjaHorariaId,
-        asignacion.periodoId
+        asignacion.periodoId,
+        asignacion.tipo,
+        asignacion.id
       );
 
       if (!validation.valid) {

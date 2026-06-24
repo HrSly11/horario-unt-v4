@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { createTRPCRouter, adminProcedure, protectedProcedure, secretariaProcedure } from '../init';
 import { TRPCError } from '@trpc/server';
-import { CategoriaDocente, TipoDocente, TipoAsignacion, Prisma } from '@/generated/prisma/client';
+import { CategoriaDocente, TipoDocente, TipoAsignacion, Prisma, ModalidadDocente } from '@/generated/prisma/client';
 import type { PrismaClient } from '@/generated/prisma/client';
 import {
   academicManagerRoles,
@@ -23,6 +23,8 @@ const docenteInput = z.object({
   experienciaAnios: z.number().int().min(0).default(0),
   perfilAcademico: z.string().optional(),
   departamentoId: z.string().optional().nullable(),
+  modalidad: z.nativeEnum(ModalidadDocente).optional(),
+  horasContrato: z.number().int().min(0).optional(),
 });
 
 type CompatibilityDocente = {
@@ -198,6 +200,13 @@ export const docenteRouter = createTRPCRouter({
           dni: true,
           codigoIBM: true,
           departamentoId: true,
+          departamento: {
+            select: {
+              id: true,
+              nombre: true,
+              facultad: { select: { id: true, nombre: true, siglas: true } },
+            },
+          },
           horasContrato: true,
           dictaOtraUniversidad: true,
           createdAt: true,

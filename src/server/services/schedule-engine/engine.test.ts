@@ -273,7 +273,7 @@ describe('ScheduleEngine', () => {
         { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f1', tipo: 'TEORIA', confirmado: true },
         { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f2', tipo: 'TEORIA', confirmado: true },
         { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f3', tipo: 'TEORIA', confirmado: true },
-        { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f4', tipo: 'TEORIA', confirmed: true },
+        { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f4', tipo: 'TEORIA', confirmado: true },
       ],
     });
 

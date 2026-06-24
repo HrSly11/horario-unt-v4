@@ -42,6 +42,9 @@ const TIPO_LABELS: Record<string, string> = {
   ASESORIA_TESIS: 'ASESORÍA DE TESIS Y EXAMENES PROFESIONALES',
   RESPONSABILIDAD_SOCIAL: 'RESPONSABILIDAD SOCIAL UNIVERSITARIA',
   COMITES_COMISIONES: 'COMITES O COMISIONES ESPECIALES',
+  JURADOS: 'JURADOS DE EXÁMENES Y TESIS',
+  AUTOEVALUACION_ACREDITACION: 'AUTOEVALUACIÓN Y ACREDITACIÓN',
+  OTRAS_AUTORIZADAS: 'OTRAS ACTIVIDADES AUTORIZADAS',
 };
 
 const MODALIDAD_LABELS: Record<string, string> = {
@@ -252,7 +255,28 @@ export interface FormatoN1Data {
 }
 
 export function templateFormatoN1(data: FormatoN1Data): string {
-  const filasLectivas = data.asignaciones.map((a) => {
+  const consolidatedMap = new Map<string, typeof data.asignaciones[number]>();
+  
+  data.asignaciones.forEach((a) => {
+    const key = `${a.cursoCodigo}-${a.grupo}`;
+    const existing = consolidatedMap.get(key);
+    
+    if (existing) {
+      existing.horasTeoria += a.horasTeoria;
+      existing.horasPractica += a.horasPractica;
+      existing.horasLaboratorio += a.horasLaboratorio;
+      existing.numAlumnos = Math.max(existing.numAlumnos, a.numAlumnos);
+      if (a.cursoAbrev === 'E' || a.tipo === 'E' || (a as any).esElectivo) {
+        (existing as any).esElectivo = true;
+      }
+    } else {
+      consolidatedMap.set(key, { ...a });
+    }
+  });
+
+  const consolidatedAsignaciones = Array.from(consolidatedMap.values());
+
+  const filasLectivas = consolidatedAsignaciones.map((a) => {
     const isElectivo = a.cursoAbrev === 'E' || a.tipo === 'E' || (a as any).esElectivo;
     const oMark = !isElectivo ? 'X' : '';
     const eMark = isElectivo ? 'X' : '';
@@ -290,6 +314,9 @@ export function templateFormatoN1(data: FormatoN1Data): string {
     { tipo: 'ASESORIA_TESIS', label: '7. ASESORÍA DE TESIS, EXÁMENES PROFESIONALES Y EXPERIENCIA PROFESIONAL: Indicar el número de Resolución Decanal, precisando el nombre y duración de la actividad programada.' },
     { tipo: 'RESPONSABILIDAD_SOCIAL', label: '8. EXTENSIÓN Y PROYECCIÓN SOCIAL: Señalar actividad, proyecto programa a ejecutarse en beneficio de la comunidad local o regional. (Como máximo 02 horas semanales)' },
     { tipo: 'COMITES_COMISIONES', label: '9. COMITÉS TÉCNICOS Y COMISIONES: Consignar el número de Resolución autoritativa indicando el lapso de vigencia.' },
+    { tipo: 'JURADOS', label: '10. JURADOS DE EXÁMENES Y TESIS: Consignar detalle de jurados, tesis y exámenes.' },
+    { tipo: 'AUTOEVALUACION_ACREDITACION', label: '11. AUTOEVALUACIÓN Y ACREDITACIÓN: Consignar detalle de actividades de autoevaluación o acreditación.' },
+    { tipo: 'OTRAS_AUTORIZADAS', label: '12. OTRAS ACTIVIDADES AUTORIZADAS: Consignar detalle de otras actividades autorizadas por resolución.' },
   ];
 
   const filasNoLectivas = rowsNoLectivas.map((row) => {

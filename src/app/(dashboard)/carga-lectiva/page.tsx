@@ -17,6 +17,8 @@ import {
   Check,
   Award,
   AlertCircle,
+  GraduationCap,
+  FlaskConical,
 } from 'lucide-react';
 
 const TIPO_OPTIONS = ['TEORIA', 'PRACTICA', 'LABORATORIO'] as const;
@@ -1035,80 +1037,89 @@ export default function CargaLectivaPage() {
       )}
 
       {/* ── Assign Modal ────────────────────────────────── */}
+      {/* ── Assign Modal ────────────────────────────────── */}
       {showAssignModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-xl mx-4 shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md transition-all duration-300">
+          <div className="bg-zinc-950 border border-zinc-800/80 rounded-2xl w-full max-w-2xl mx-4 shadow-[0_0_50px_-12px_rgba(0,0,0,0.7)] overflow-y-auto max-h-[90vh] transition-all duration-300 transform scale-100">
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-zinc-800">
-              <h2 className="text-lg font-semibold text-white">
-                {editingId ? 'Editar Carga Lectiva' : 'Asignar Carga Lectiva'}
-              </h2>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-800/60 bg-zinc-900/20">
+              <div>
+                <h2 className="text-xl font-bold tracking-tight text-white">
+                  {editingId ? 'Editar Asignación Académica' : 'Nueva Asignación de Carga'}
+                </h2>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Define la distribución de horas y el docente a cargo para este curso.
+                </p>
+              </div>
               <button
                 onClick={() => setShowAssignModal(false)}
-                className="text-zinc-400 hover:text-white transition-colors"
+                className="text-zinc-400 hover:text-white hover:bg-zinc-900 p-2 rounded-xl transition-all"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-5 space-y-4">
-              {/* Plan de estudio */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-1">
-                  Plan de estudio
-                </label>
-                <select
-                  value={modalCurriculaId}
-                  onChange={(e) => {
-                    setModalCurriculaId(e.target.value);
-                    setGrupoId('');
-                  }}
-                  disabled={!!editingId}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
-                >
-                  <option value="">Seleccionar plan</option>
-                  {curriculaList.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.codigo} ({c.anio}) - {c.escuela?.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="p-6 space-y-5">
+              {/* Plan y Ciclo en Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Plan de estudio */}
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                    Plan de estudio
+                  </label>
+                  <select
+                    value={modalCurriculaId}
+                    onChange={(e) => {
+                      setModalCurriculaId(e.target.value);
+                      setGrupoId('');
+                    }}
+                    disabled={!!editingId}
+                    className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/30 disabled:opacity-50 transition-all cursor-pointer"
+                  >
+                    <option value="">Seleccionar plan</option>
+                    {curriculaList.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.codigo} ({c.anio}) - {c.escuela?.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Ciclo / Semestre */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-1">
-                  Ciclo / Semestre
-                </label>
-                <select
-                  value={modalCiclo}
-                  onChange={(e) => {
-                    setModalCiclo(e.target.value);
-                    setGrupoId('');
-                  }}
-                  disabled={!!editingId}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
-                >
-                  <option value="">Seleccionar ciclo</option>
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((c) => (
-                    <option key={c} value={c}>
-                      Ciclo {c}
-                    </option>
-                  ))}
-                </select>
+                {/* Ciclo / Semestre */}
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                    Ciclo / Semestre
+                  </label>
+                  <select
+                    value={modalCiclo}
+                    onChange={(e) => {
+                      setModalCiclo(e.target.value);
+                      setGrupoId('');
+                    }}
+                    disabled={!!editingId}
+                    className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/30 disabled:opacity-50 transition-all cursor-pointer"
+                  >
+                    <option value="">Seleccionar ciclo</option>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((c) => (
+                      <option key={c} value={c}>
+                        Ciclo {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Curso */}
               <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-1">
-                  Curso
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+                  Curso / Asignatura
                 </label>
                 <select
                   value={grupoId}
                   onChange={(e) => setGrupoId(e.target.value)}
                   disabled={!!editingId}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
+                  className="w-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/30 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   <option value="">Seleccionar curso</option>
                   {filteredGruposForModal.map((g) => (
@@ -1120,94 +1131,113 @@ export default function CargaLectivaPage() {
               </div>
 
               {/* Docente Principal */}
-              <div>
-                <label className="block text-sm font-medium text-zinc-400 mb-1">
+              <div className="bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-4 space-y-3.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-300">
                   Docente Principal
                 </label>
-                <div className="relative mb-2">
-                  <Search
-                    size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Buscar docente..."
-                    value={docenteSearch}
-                    onChange={(e) => setDocenteSearch(e.target.value)}
-                    className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg pl-9 pr-3 py-2 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-blue-500"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="relative">
+                    <Search
+                      size={14}
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Buscar docente..."
+                      value={docenteSearch}
+                      onChange={(e) => setDocenteSearch(e.target.value)}
+                      className="w-full bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700 text-white rounded-xl pl-9 pr-3 py-2 text-sm placeholder:text-zinc-500 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/30 transition-all"
+                    />
+                  </div>
+                  <select
+                    value={docenteId}
+                    onChange={(e) => setDocenteId(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700 text-zinc-100 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/30 transition-all cursor-pointer"
+                  >
+                    <option value="">Seleccionar docente</option>
+                    {filteredDocentesForAssign.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.nombre} ({d.departamento?.nombre || 'Sin dpto'})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <select
-                  value={docenteId}
-                  onChange={(e) => setDocenteId(e.target.value)}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Seleccionar docente</option>
-                  {filteredDocentesForAssign.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.nombre} ({d.departamento?.nombre || 'Sin dpto'})
-                    </option>
-                  ))}
-                </select>
                 {filteredDocentesForAssign.length === 0 && (
-                  <p className="text-xs text-amber-400 mt-1.5">
-                    {docentes.length === 0
-                      ? 'No hay docentes registrados en el sistema.'
-                      : !selectedCursoForAssign
-                        ? 'Selecciona un curso para ver los docentes disponibles.'
-                        : selectedCursoForAssign.departamentoId
-                          ? 'No hay docentes visibles para el departamento de este curso. Roles directivos pueden reasignar.'
-                          : 'Este curso no tiene departamento asignado.'}
+                  <p className="text-xs text-amber-400/90 mt-1 flex items-center gap-1.5">
+                    <AlertCircle size={13} className="shrink-0" />
+                    <span>
+                      {docentes.length === 0
+                        ? 'No hay docentes registrados en el sistema.'
+                        : !selectedCursoForAssign
+                          ? 'Selecciona un curso para ver los docentes disponibles.'
+                          : selectedCursoForAssign.departamentoId
+                            ? 'No hay docentes visibles para el departamento de este curso. Roles directivos pueden reasignar.'
+                            : 'Este curso no tiene departamento asignado.'}
+                    </span>
                   </p>
                 )}
               </div>
 
               {/* Postulantes al curso */}
               {grupoId && !editingId && (
-                <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg overflow-hidden">
-                  <div className="px-3 py-2 bg-zinc-800 border-b border-zinc-700 flex items-center justify-between">
-                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Award size={14} className="text-amber-500" />
+                <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-sm">
+                  <div className="px-4 py-3 bg-zinc-900 border-b border-zinc-800/60 flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                      <Award size={14} className="text-amber-400" />
                       Postulantes al curso
                     </span>
                     {isLoadingPostulantes && (
                       <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                     )}
                   </div>
-                  <div className="max-h-[140px] overflow-y-auto">
+                  <div className="max-h-[160px] overflow-y-auto divide-y divide-zinc-800/60">
                     {postulantes.length > 0 ? (
-                      <div className="divide-y divide-zinc-800">
-                        {postulantes.map((p) => (
+                      postulantes.map((p) => {
+                        const isSelected = docenteId === p.docente.id;
+                        return (
                           <div 
-                             key={p.docente.id} 
-                             className={`p-2.5 flex items-center justify-between hover:bg-zinc-800 transition-colors ${docenteId === p.docente.id ? 'bg-blue-500/5' : ''}`}
+                            key={p.docente.id} 
+                            className={`p-3 flex items-center justify-between hover:bg-zinc-900/60 transition-colors ${
+                              isSelected ? 'bg-blue-500/5' : ''
+                            }`}
                           >
-                            <div className="flex flex-col gap-0.5 min-w-0">
-                              <span className={`text-xs font-medium truncate ${docenteId === p.docente.id ? 'text-blue-400' : 'text-zinc-200'}`}>
+                            <div className="flex flex-col gap-1 min-w-0 pr-2">
+                              <span className={`text-xs font-semibold truncate transition-colors ${
+                                isSelected ? 'text-blue-400' : 'text-zinc-200'
+                              }`}>
                                 {p.docente.nombre}
                               </span>
                               <div className="flex items-center gap-2">
-                                <span className="text-[9px] text-zinc-500 uppercase font-bold">Prioridad {p.prioridad}</span>
-                                <span className="text-[9px] text-emerald-500 font-bold bg-emerald-500/10 px-1 py-0.5 rounded border border-emerald-500/20">
+                                <span className="text-[10px] text-zinc-500 font-bold bg-zinc-900/80 px-1.5 py-0.5 rounded uppercase">
+                                  Prioridad {p.prioridad}
+                                </span>
+                                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
                                   {p.compatibilidad.toFixed(0)}% compatibilidad
                                 </span>
                               </div>
                             </div>
                             <button
                               onClick={() => setDocenteId(p.docente.id)}
-                              className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-all ${
-                                docenteId === p.docente.id
-                                  ? 'bg-blue-600 text-white shadow-lg'
-                                  : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-300'
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                isSelected
+                                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/15'
+                                  : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
                               }`}
                             >
-                              {docenteId === p.docente.id ? 'Seleccionado' : 'Seleccionar'}
+                              {isSelected ? (
+                                <>
+                                  <Check size={12} />
+                                  <span>Asignado</span>
+                                </>
+                              ) : (
+                                'Asignar'
+                              )}
                             </button>
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })
                     ) : !isLoadingPostulantes ? (
-                      <div className="p-4 text-center">
+                      <div className="p-5 text-center bg-zinc-900/10">
                         <p className="text-[11px] text-zinc-500">No hay docentes postulados para este curso</p>
                       </div>
                     ) : null}
@@ -1217,42 +1247,50 @@ export default function CargaLectivaPage() {
 
               {/* Asignación de Horas HT / HP / HL */}
               {selectedCursoForAssign && (
-                <div className="space-y-3 pt-2">
-                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Asignación de Horas por Tipo</p>
+                <div className="space-y-4 pt-2">
+                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Asignación de Horas por Tipo</h3>
 
                   {/* Teoría */}
                   {selectedCursoForAssign.horasTeoria > 0 && (
-                    <div className="bg-zinc-800/30 border border-zinc-800 rounded-lg p-3 space-y-2.5">
+                    <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4 space-y-4 hover:border-zinc-800/100 transition-all">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-zinc-300">Horas de Teoría (Límite: {selectedCursoForAssign.horasTeoria}h)</span>
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-2 bg-blue-500/10 rounded-xl text-blue-400">
+                            <GraduationCap size={16} />
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-zinc-200 block">Horas de Teoría</span>
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Límite: {selectedCursoForAssign.horasTeoria}h</span>
+                          </div>
+                        </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-zinc-500">Principal:</span>
+                          <span className="text-xs text-zinc-400">Horas Principal:</span>
                           <input
                             type="number"
                             min={0}
                             max={selectedCursoForAssign.horasTeoria}
                             value={horasTeoria}
                             onChange={(e) => setHorasTeoria(Number(e.target.value))}
-                            className="w-16 bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-0.5 text-center text-xs focus:outline-none focus:border-blue-500"
+                            className="w-16 bg-zinc-950 border border-zinc-800 focus:border-blue-500/80 rounded-xl px-2 py-1 text-center text-sm font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
                           />
                         </div>
                       </div>
-                      <div className="flex flex-col gap-1.5 pt-2 border-t border-zinc-800/40">
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                      <div className="flex flex-col gap-2 pt-3 border-t border-zinc-800/60">
+                        <label className="flex items-center gap-2.5 cursor-pointer select-none">
                           <input
                             type="checkbox"
                             checked={teoriaCompartido}
                             onChange={(e) => setTeoriaCompartido(e.target.checked)}
-                            className="w-3.5 h-3.5 rounded border-zinc-600 bg-zinc-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                            className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-blue-500 focus:ring-blue-500 focus:ring-offset-0 focus:ring-1"
                           />
-                          <span className="text-[11px] text-zinc-400">Compartido con otro docente</span>
+                          <span className="text-xs text-zinc-400 font-medium">Compartido con otro docente</span>
                         </label>
                         {teoriaCompartido && (
-                          <div className="space-y-2 pl-5 pt-1">
+                          <div className="space-y-3 pl-6.5 pt-1.5">
                             <select
                               value={teoriaDocenteCompartidoId}
                               onChange={(e) => setTeoriaDocenteCompartidoId(e.target.value)}
-                              className="w-full bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
+                              className="w-full bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-zinc-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-500/80 transition-all cursor-pointer"
                             >
                               <option value="">Seleccionar docente compartido</option>
                               {filteredDocentesForAssign
@@ -1263,20 +1301,21 @@ export default function CargaLectivaPage() {
                                   </option>
                                 ))}
                             </select>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-zinc-400">Horas Docente Compartido:</span>
+                            <div className="flex items-center justify-between bg-zinc-950/40 p-2.5 rounded-xl border border-zinc-800/40">
+                              <span className="text-xs text-zinc-400">Horas Docente Compartido:</span>
                               <input
                                 type="number"
                                 min={0}
                                 max={selectedCursoForAssign.horasTeoria}
                                 value={horasTeoriaCompartido}
                                 onChange={(e) => setHorasTeoriaCompartido(Number(e.target.value))}
-                                className="w-16 bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-0.5 text-center text-xs focus:outline-none focus:border-blue-500"
+                                className="w-16 bg-zinc-950 border border-zinc-800 focus:border-blue-500/80 rounded-xl px-2 py-1 text-center text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
                               />
                             </div>
                             {horasTeoria + horasTeoriaCompartido > selectedCursoForAssign.horasTeoria && (
-                              <p className="text-[10px] text-red-400 font-semibold flex items-center gap-1">
-                                <AlertCircle size={10} /> La suma ({horasTeoria + horasTeoriaCompartido}h) excede el límite ({selectedCursoForAssign.horasTeoria}h)
+                              <p className="text-[11px] text-red-400 font-semibold flex items-center gap-1.5 bg-red-500/5 border border-red-500/10 rounded-lg p-2">
+                                <AlertCircle size={13} className="shrink-0" />
+                                <span>La suma de horas ({horasTeoria + horasTeoriaCompartido}h) excede el límite permitido ({selectedCursoForAssign.horasTeoria}h)</span>
                               </p>
                             )}
                           </div>
@@ -1287,37 +1326,45 @@ export default function CargaLectivaPage() {
 
                   {/* Práctica */}
                   {selectedCursoForAssign.horasPractica > 0 && (
-                    <div className="bg-zinc-800/30 border border-zinc-800 rounded-lg p-3 space-y-2.5">
+                    <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4 space-y-4 hover:border-zinc-800/100 transition-all">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-zinc-300">Horas de Práctica (Límite: {selectedCursoForAssign.horasPractica}h)</span>
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-400">
+                            <BookOpen size={16} />
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-zinc-200 block">Horas de Práctica</span>
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">Límite: {selectedCursoForAssign.horasPractica}h</span>
+                          </div>
+                        </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-zinc-500">Principal:</span>
+                          <span className="text-xs text-zinc-400">Horas Principal:</span>
                           <input
                             type="number"
                             min={0}
                             max={selectedCursoForAssign.horasPractica}
                             value={horasPractica}
                             onChange={(e) => setHorasPractica(Number(e.target.value))}
-                            className="w-16 bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-0.5 text-center text-xs focus:outline-none focus:border-blue-500"
+                            className="w-16 bg-zinc-950 border border-zinc-800 focus:border-blue-500/80 rounded-xl px-2 py-1 text-center text-sm font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
                           />
                         </div>
                       </div>
-                      <div className="flex flex-col gap-1.5 pt-2 border-t border-zinc-800/40">
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                      <div className="flex flex-col gap-2 pt-3 border-t border-zinc-800/60">
+                        <label className="flex items-center gap-2.5 cursor-pointer select-none">
                           <input
                             type="checkbox"
                             checked={practicaCompartido}
                             onChange={(e) => setPracticaCompartido(e.target.checked)}
-                            className="w-3.5 h-3.5 rounded border-zinc-600 bg-zinc-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                            className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-blue-500 focus:ring-blue-500 focus:ring-offset-0 focus:ring-1"
                           />
-                          <span className="text-[11px] text-zinc-400">Compartido con otro docente</span>
+                          <span className="text-xs text-zinc-400 font-medium">Compartido con otro docente</span>
                         </label>
                         {practicaCompartido && (
-                          <div className="space-y-2 pl-5 pt-1">
+                          <div className="space-y-3 pl-6.5 pt-1.5">
                             <select
                               value={practicaDocenteCompartidoId}
                               onChange={(e) => setPracticaDocenteCompartidoId(e.target.value)}
-                              className="w-full bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
+                              className="w-full bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-zinc-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-500/80 transition-all cursor-pointer"
                             >
                               <option value="">Seleccionar docente compartido</option>
                               {filteredDocentesForAssign
@@ -1328,20 +1375,21 @@ export default function CargaLectivaPage() {
                                   </option>
                                 ))}
                             </select>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-zinc-400">Horas Docente Compartido:</span>
+                            <div className="flex items-center justify-between bg-zinc-950/40 p-2.5 rounded-xl border border-zinc-800/40">
+                              <span className="text-xs text-zinc-400">Horas Docente Compartido:</span>
                               <input
                                 type="number"
                                 min={0}
                                 max={selectedCursoForAssign.horasPractica}
                                 value={horasPracticaCompartido}
                                 onChange={(e) => setHorasPracticaCompartido(Number(e.target.value))}
-                                className="w-16 bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-0.5 text-center text-xs focus:outline-none focus:border-blue-500"
+                                className="w-16 bg-zinc-950 border border-zinc-800 focus:border-blue-500/80 rounded-xl px-2 py-1 text-center text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
                               />
                             </div>
                             {horasPractica + horasPracticaCompartido > selectedCursoForAssign.horasPractica && (
-                              <p className="text-[10px] text-red-400 font-semibold flex items-center gap-1">
-                                <AlertCircle size={10} /> La suma ({horasPractica + horasPracticaCompartido}h) excede el límite ({selectedCursoForAssign.horasPractica}h)
+                              <p className="text-[11px] text-red-400 font-semibold flex items-center gap-1.5 bg-red-500/5 border border-red-500/10 rounded-lg p-2">
+                                <AlertCircle size={13} className="shrink-0" />
+                                <span>La suma de horas ({horasPractica + horasPracticaCompartido}h) excede el límite permitido ({selectedCursoForAssign.horasPractica}h)</span>
                               </p>
                             )}
                           </div>
@@ -1352,26 +1400,34 @@ export default function CargaLectivaPage() {
 
                   {/* Laboratorio */}
                   {selectedCursoForAssign.horasLaboratorio > 0 && (
-                    <div className="bg-zinc-800/30 border border-zinc-800 rounded-lg p-3 space-y-2.5">
+                    <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-4 space-y-4 hover:border-zinc-800/100 transition-all">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-zinc-300">
-                          Horas de Lab (Límite: {selectedCursoForAssign.horasLaboratorio}h • {selectedCursoForAssign.numGruposLaboratorio} grupos)
-                        </span>
+                        <div className="flex items-center gap-2.5">
+                          <div className="p-2 bg-amber-500/10 rounded-xl text-amber-400">
+                            <FlaskConical size={16} />
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-zinc-200 block">Horas de Laboratorio</span>
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold">
+                              Límite: {selectedCursoForAssign.horasLaboratorio}h • {selectedCursoForAssign.numGruposLaboratorio} grupos
+                            </span>
+                          </div>
+                        </div>
                         
                         {selectedCursoForAssign.numGruposLaboratorio <= 1 ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-zinc-500">Principal:</span>
+                            <span className="text-xs text-zinc-400">Horas Principal:</span>
                             <input
                               type="number"
                               min={0}
                               max={selectedCursoForAssign.horasLaboratorio}
                               value={horasLaboratorioRaw}
                               onChange={(e) => setHorasLaboratorioRaw(Number(e.target.value))}
-                              className="w-16 bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-0.5 text-center text-xs focus:outline-none focus:border-blue-500"
+                              className="w-16 bg-zinc-950 border border-zinc-800 focus:border-blue-500/80 rounded-xl px-2 py-1 text-center text-sm font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
                             />
                           </div>
                         ) : (
-                          <span className="text-xs font-bold text-blue-400">
+                          <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20">
                             Principal: {horasLaboratorio}h ({gruposLaboratorio.length} grupo(s))
                           </span>
                         )}
@@ -1379,11 +1435,11 @@ export default function CargaLectivaPage() {
 
                       {/* Checkboxes for primary lab groups */}
                       {selectedCursoForAssign.numGruposLaboratorio > 1 && (
-                        <div className="space-y-1.5 pl-2">
-                          <span className="text-[11px] font-medium text-zinc-400 block mb-1">
-                            Grupos Lab (Principal):
+                        <div className="space-y-2 pl-1.5">
+                          <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">
+                            Grupos de Laboratorio (Asignados al Principal)
                           </span>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-2.5">
                             {Array.from({ length: selectedCursoForAssign.numGruposLaboratorio }, (_, i) => {
                               const gNum = i + 1;
                               const isChecked = gruposLaboratorio.includes(gNum);
@@ -1391,12 +1447,12 @@ export default function CargaLectivaPage() {
                               return (
                                 <label 
                                   key={gNum} 
-                                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium transition-colors ${
+                                  className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold select-none transition-all duration-200 ${
                                     isSharedOwned 
-                                      ? 'bg-zinc-900/40 border-zinc-800 text-zinc-600 cursor-not-allowed opacity-50' 
+                                      ? 'bg-zinc-950 border-zinc-900 text-zinc-600 cursor-not-allowed opacity-40' 
                                       : isChecked 
-                                        ? 'bg-blue-500/10 border-blue-500/40 text-blue-400 cursor-pointer' 
-                                        : 'bg-zinc-800/50 border-zinc-700/60 text-zinc-400 hover:border-zinc-600 cursor-pointer'
+                                        ? 'bg-blue-500/10 border-blue-500/40 text-blue-400 cursor-pointer shadow-sm shadow-blue-500/5' 
+                                        : 'bg-zinc-950 border-zinc-800/80 text-zinc-400 hover:border-zinc-700/80 cursor-pointer'
                                   }`}
                                 >
                                   <input
@@ -1413,6 +1469,7 @@ export default function CargaLectivaPage() {
                                     }}
                                     className="hidden"
                                   />
+                                  <span className={`w-1.5 h-1.5 rounded-full ${isChecked ? 'bg-blue-400' : 'bg-transparent border border-zinc-500'}`}></span>
                                   <span>Grupo {gNum}</span>
                                 </label>
                               );
@@ -1421,22 +1478,22 @@ export default function CargaLectivaPage() {
                         </div>
                       )}
 
-                      <div className="flex flex-col gap-1.5 pt-2 border-t border-zinc-800/40">
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                      <div className="flex flex-col gap-2 pt-3 border-t border-zinc-800/60">
+                        <label className="flex items-center gap-2.5 cursor-pointer select-none">
                           <input
                             type="checkbox"
                             checked={laboratorioCompartido}
                             onChange={(e) => setLaboratorioCompartido(e.target.checked)}
-                            className="w-3.5 h-3.5 rounded border-zinc-600 bg-zinc-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                            className="w-4 h-4 rounded border-zinc-800 bg-zinc-950 text-blue-500 focus:ring-blue-500 focus:ring-offset-0 focus:ring-1"
                           />
-                          <span className="text-[11px] text-zinc-400">Compartido con otro docente</span>
+                          <span className="text-xs text-zinc-400 font-medium">Compartido con otro docente</span>
                         </label>
                         {laboratorioCompartido && (
-                          <div className="space-y-2.5 pl-5 pt-1">
+                          <div className="space-y-3.5 pl-6.5 pt-1.5">
                             <select
                               value={laboratorioDocenteCompartidoId}
                               onChange={(e) => setLaboratorioDocenteCompartidoId(e.target.value)}
-                              className="w-full bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-500"
+                              className="w-full bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-zinc-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-500/80 transition-all cursor-pointer"
                             >
                               <option value="">Seleccionar docente compartido</option>
                               {filteredDocentesForAssign
@@ -1448,9 +1505,11 @@ export default function CargaLectivaPage() {
                                 ))}
                             </select>
                             
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] text-zinc-400">
-                                {selectedCursoForAssign.numGruposLaboratorio <= 1 ? "Horas Docente Compartido:" : `Horas Compartido: ${horasLaboratorioCompartido}h (${gruposLaboratorioCompartido.length} grupo(s))`}
+                            <div className="flex items-center justify-between bg-zinc-950/40 p-2.5 rounded-xl border border-zinc-800/40">
+                              <span className="text-xs text-zinc-400 font-medium">
+                                {selectedCursoForAssign.numGruposLaboratorio <= 1 
+                                  ? "Horas Docente Compartido:" 
+                                  : `Compartido: ${horasLaboratorioCompartido}h (${gruposLaboratorioCompartido.length} grupo(s))`}
                               </span>
                               {selectedCursoForAssign.numGruposLaboratorio <= 1 && (
                                 <input
@@ -1459,18 +1518,18 @@ export default function CargaLectivaPage() {
                                   max={selectedCursoForAssign.horasLaboratorio}
                                   value={horasLaboratorioCompartidoRaw}
                                   onChange={(e) => setHorasLaboratorioCompartidoRaw(Number(e.target.value))}
-                                  className="w-16 bg-zinc-800 border border-zinc-700 text-white rounded px-2 py-0.5 text-center text-xs focus:outline-none focus:border-blue-500"
+                                  className="w-16 bg-zinc-950 border border-zinc-800 focus:border-blue-500/80 rounded-xl px-2 py-1 text-center text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all"
                                 />
                               )}
                             </div>
 
                             {/* Checkboxes for shared lab groups */}
                             {selectedCursoForAssign.numGruposLaboratorio > 1 && (
-                              <div className="space-y-1.5 pt-0.5">
-                                <span className="text-[11px] font-medium text-zinc-400 block mb-1">
-                                  Grupos Lab (Docente Compartido):
+                              <div className="space-y-2 pt-0.5">
+                                <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">
+                                  Grupos de Laboratorio (Asignados al Compartido)
                                 </span>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2.5">
                                   {Array.from({ length: selectedCursoForAssign.numGruposLaboratorio }, (_, i) => {
                                     const gNum = i + 1;
                                     const isPrimaryOwned = gruposLaboratorio.includes(gNum);
@@ -1478,12 +1537,12 @@ export default function CargaLectivaPage() {
                                     return (
                                       <label 
                                         key={gNum} 
-                                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium transition-colors ${
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold select-none transition-all duration-200 ${
                                           isPrimaryOwned 
-                                            ? 'bg-zinc-900/40 border-zinc-800 text-zinc-600 cursor-not-allowed opacity-50' 
+                                            ? 'bg-zinc-950 border-zinc-900 text-zinc-600 cursor-not-allowed opacity-40' 
                                             : isChecked 
-                                              ? 'bg-purple-500/10 border-purple-500/40 text-purple-400 cursor-pointer' 
-                                              : 'bg-zinc-800/50 border-zinc-700/60 text-zinc-400 hover:border-zinc-600 cursor-pointer'
+                                              ? 'bg-purple-500/10 border-purple-500/40 text-purple-400 cursor-pointer shadow-sm shadow-purple-500/5' 
+                                              : 'bg-zinc-950 border-zinc-800/80 text-zinc-400 hover:border-zinc-700/80 cursor-pointer'
                                         }`}
                                       >
                                         <input
@@ -1500,6 +1559,7 @@ export default function CargaLectivaPage() {
                                           }}
                                           className="hidden"
                                         />
+                                        <span className={`w-1.5 h-1.5 rounded-full ${isChecked ? 'bg-purple-400' : 'bg-transparent border border-zinc-500'}`}></span>
                                         <span>Grupo {gNum}</span>
                                       </label>
                                     );
@@ -1510,16 +1570,17 @@ export default function CargaLectivaPage() {
 
                             {/* Validate lab limit for single group */}
                             {selectedCursoForAssign.numGruposLaboratorio === 1 && horasLaboratorio + horasLaboratorioCompartido > selectedCursoForAssign.horasLaboratorio && (
-                              <p className="text-[10px] text-red-400 font-semibold flex items-center gap-1">
-                                <AlertCircle size={10} /> La suma ({horasLaboratorio + horasLaboratorioCompartido}h) excede el límite ({selectedCursoForAssign.horasLaboratorio}h)
+                              <p className="text-[11px] text-red-400 font-semibold flex items-center gap-1.5 bg-red-500/5 border border-red-500/10 rounded-lg p-2">
+                                <AlertCircle size={13} className="shrink-0" />
+                                <span>La suma de horas ({horasLaboratorio + horasLaboratorioCompartido}h) excede el límite permitido ({selectedCursoForAssign.horasLaboratorio}h)</span>
                               </p>
                             )}
                           </div>
                         )}
                       </div>
                       {selectedCursoForAssign.numGruposLaboratorio > 1 && (gruposLaboratorio.length + (laboratorioCompartido ? gruposLaboratorioCompartido.length : 0) !== selectedCursoForAssign.numGruposLaboratorio) && (
-                        <p className="text-[11px] text-amber-400/90 font-medium flex items-center gap-1.5 bg-amber-500/5 border border-amber-500/20 rounded-md p-2 mt-1">
-                          <AlertCircle size={14} className="shrink-0" />
+                        <p className="text-[11px] text-amber-400/90 font-medium flex items-center gap-1.5 bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 mt-1.5">
+                          <AlertCircle size={15} className="shrink-0 text-amber-400" />
                           <span>Falta asignar {selectedCursoForAssign.numGruposLaboratorio - (gruposLaboratorio.length + (laboratorioCompartido ? gruposLaboratorioCompartido.length : 0))} grupo(s) de laboratorio.</span>
                         </p>
                       )}
@@ -1527,32 +1588,32 @@ export default function CargaLectivaPage() {
                   )}
 
                   {/* Calculated Hours Summary */}
-                  <div className="bg-blue-600/10 border border-blue-500/20 rounded-xl p-4 mt-2 text-xs space-y-1.5">
+                  <div className="bg-gradient-to-br from-blue-500/5 to-indigo-500/5 border border-blue-500/10 rounded-2xl p-4.5 text-xs space-y-2.5">
                     <div className="flex items-center justify-between font-semibold">
                       <span className="text-zinc-400">LECTIVAS Totales Requeridas:</span>
-                      <span className="text-white">
+                      <span className="text-white font-bold bg-zinc-900/60 px-2 py-0.5 rounded-lg border border-zinc-800">
                         {selectedCursoForAssign.horasTeoria + selectedCursoForAssign.horasPractica + ((selectedCursoForAssign.numGruposLaboratorio ?? 1) * selectedCursoForAssign.horasLaboratorio)}h
                       </span>
                     </div>
-                    <div className="border-t border-zinc-800/40 my-1 pt-1.5 space-y-1">
+                    <div className="border-t border-zinc-800/60 my-2 pt-2.5 space-y-1.5">
                       <div className="flex items-center justify-between text-zinc-400">
                         <span>Horas Docente Principal:</span>
-                        <span className="text-white font-medium">
+                        <span className="text-white font-semibold">
                           {horasTeoria + horasPractica + horasLaboratorio}h
                         </span>
                       </div>
                       {(teoriaCompartido || practicaCompartido || laboratorioCompartido) && (
                         <div className="flex items-center justify-between text-zinc-400">
                           <span>Horas Docente Compartido:</span>
-                          <span className="text-white font-medium">
+                          <span className="text-white font-semibold">
                             {horasTeoriaCompartido + horasPracticaCompartido + horasLaboratorioCompartido}h
                           </span>
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center justify-between font-bold mt-2 pt-2 border-t border-zinc-800">
+                    <div className="flex items-center justify-between font-bold mt-3 pt-3 border-t border-zinc-800/80">
                       <span className="text-blue-400">LECTIVAS a Asignar en esta Carga:</span>
-                      <span className="text-blue-400">
+                      <span className="text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-xl text-sm shadow-sm">
                         {horasTeoria + horasPractica + horasLaboratorio + (teoriaCompartido ? horasTeoriaCompartido : 0) + (practicaCompartido ? horasPracticaCompartido : 0) + (laboratorioCompartido ? horasLaboratorioCompartido : 0)}h
                       </span>
                     </div>
@@ -1562,26 +1623,31 @@ export default function CargaLectivaPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-zinc-800">
-              <button
-                onClick={() => setShowAssignModal(false)}
-                className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={assignmentValidation.disabled}
-                title={assignmentValidation.reason}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                {assignCursoCompletoMutation.isPending ? 'Guardando...' : 'Guardar Carga'}
-              </button>
-              {assignmentValidation.disabled && assignmentValidation.reason && !assignCursoCompletoMutation.isPending && (
-                <span className="text-xs text-amber-400 mr-2">
-                  {assignmentValidation.reason}
-                </span>
-              )}
+            <div className="flex items-center justify-between gap-4 px-6 py-5 border-t border-zinc-800/60 bg-zinc-900/10">
+              <div className="flex-1 min-w-0 pr-4">
+                {assignmentValidation.disabled && assignmentValidation.reason && !assignCursoCompletoMutation.isPending && (
+                  <span className="text-xs font-medium text-amber-400/90 flex items-center gap-1.5 bg-amber-500/5 border border-amber-500/10 px-3 py-1.5 rounded-xl">
+                    <AlertCircle size={14} className="shrink-0" />
+                    <span className="truncate">{assignmentValidation.reason}</span>
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => setShowAssignModal(false)}
+                  className="px-4.5 py-2 text-sm text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-xl transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={assignmentValidation.disabled}
+                  title={assignmentValidation.reason}
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:from-zinc-800 disabled:to-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-500/10 active:scale-98 transition-all"
+                >
+                  {assignCursoCompletoMutation.isPending ? 'Guardando...' : 'Guardar Carga'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
