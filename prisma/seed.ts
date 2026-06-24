@@ -490,40 +490,142 @@ async function main() {
     });
   }
 
-  // Asignaciones Redes I (EE-703) - Cesar Arellano
-  if (redesI) {
-    // Lab 1: Lunes 10-13 (Cruce visual con Software I Teoria)
+  // ── CARGA LECTIVA COMPLETA PARA CESAR ARELLANO ───────────────────────────
+  // Cursos asignados: EE-402 (Sistemas Digitales), EE-503 (Arquitectura), EE-603 (SO), EE-703 (Redes I)
+  
+  const sistemasDigitales = gruposCreated.find(g => g.curso.codigo === 'EE-402' && g.periodoAcademicoId === periodo2026I.id && g.nombre === 'A');
+  const arquitectura = gruposCreated.find(g => g.curso.codigo === 'EE-503' && g.periodoAcademicoId === periodo2026I.id && g.nombre === 'A');
+  const sistemasOperativos = gruposCreated.find(g => g.curso.codigo === 'EE-603' && g.periodoAcademicoId === periodo2026I.id && g.nombre === 'A');
+
+  // EE-402 Sistemas Digitales (1T, 2P, 2L = 5h)
+  if (sistemasDigitales) {
+    // Teoria: Martes 7-8 (1h)
     await prisma.asignacion.createMany({
       data: [
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 4)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 5)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 6)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+        { grupoId: sistemasDigitales.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-315' } }))!.id, franjaHorariaId: getFranja('MARTES', 1)!.id, periodoId: periodo2026I.id, tipo: 'TEORIA' },
       ]
     });
-    // Lab 2: Lunes 13-16
+    // Practica: Martes 8-10 (2h)
     await prisma.asignacion.createMany({
       data: [
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 7)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 8)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 9)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+        { grupoId: sistemasDigitales.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-315' } }))!.id, franjaHorariaId: getFranja('MARTES', 2)!.id, periodoId: periodo2026I.id, tipo: 'PRACTICA' },
+        { grupoId: sistemasDigitales.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-315' } }))!.id, franjaHorariaId: getFranja('MARTES', 3)!.id, periodoId: periodo2026I.id, tipo: 'PRACTICA' },
       ]
     });
-    // Lab 3: Lunes 16-19
+    // Laboratorio: Martes 10-12 (2h)
     await prisma.asignacion.createMany({
       data: [
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 10)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 11)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('LUNES', 12)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
-      ]
-    });
-    // Teoria: Viernes 16-18 (2h)
-    await prisma.asignacion.createMany({
-      data: [
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-307' } }))!.id, franjaHorariaId: getFranja('VIERNES', 10)!.id, periodoId: periodo2026I.id, tipo: 'TEORIA' },
-        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-307' } }))!.id, franjaHorariaId: getFranja('VIERNES', 11)!.id, periodoId: periodo2026I.id, tipo: 'TEORIA' },
+        { grupoId: sistemasDigitales.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-4' } }))!.id, franjaHorariaId: getFranja('MARTES', 4)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+        { grupoId: sistemasDigitales.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-4' } }))!.id, franjaHorariaId: getFranja('MARTES', 5)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
       ]
     });
   }
+
+  // EE-503 Arquitectura y Organización de Computadoras (1T, 2P, 2L = 5h)
+  if (arquitectura) {
+    // Teoria: Miercoles 7-8 (1h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: arquitectura.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-319' } }))!.id, franjaHorariaId: getFranja('MIERCOLES', 1)!.id, periodoId: periodo2026I.id, tipo: 'TEORIA' },
+      ]
+    });
+    // Practica: Miercoles 8-10 (2h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: arquitectura.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-319' } }))!.id, franjaHorariaId: getFranja('MIERCOLES', 2)!.id, periodoId: periodo2026I.id, tipo: 'PRACTICA' },
+        { grupoId: arquitectura.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-319' } }))!.id, franjaHorariaId: getFranja('MIERCOLES', 3)!.id, periodoId: periodo2026I.id, tipo: 'PRACTICA' },
+      ]
+    });
+    // Laboratorio: Miercoles 10-12 (2h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: arquitectura.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-5' } }))!.id, franjaHorariaId: getFranja('MIERCOLES', 4)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+        { grupoId: arquitectura.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-5' } }))!.id, franjaHorariaId: getFranja('MIERCOLES', 5)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+      ]
+    });
+  }
+
+  // EE-603 Sistemas Operativos (1T, 2P, 2L = 5h)
+  if (sistemasOperativos) {
+    // Teoria: Jueves 7-8 (1h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: sistemasOperativos.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-323' } }))!.id, franjaHorariaId: getFranja('JUEVES', 1)!.id, periodoId: periodo2026I.id, tipo: 'TEORIA' },
+      ]
+    });
+    // Practica: Jueves 8-10 (2h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: sistemasOperativos.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-323' } }))!.id, franjaHorariaId: getFranja('JUEVES', 2)!.id, periodoId: periodo2026I.id, tipo: 'PRACTICA' },
+        { grupoId: sistemasOperativos.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-323' } }))!.id, franjaHorariaId: getFranja('JUEVES', 3)!.id, periodoId: periodo2026I.id, tipo: 'PRACTICA' },
+      ]
+    });
+    // Laboratorio: Jueves 10-12 (2h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: sistemasOperativos.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-1' } }))!.id, franjaHorariaId: getFranja('JUEVES', 4)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+        { grupoId: sistemasOperativos.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-1' } }))!.id, franjaHorariaId: getFranja('JUEVES', 5)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+      ]
+    });
+  }
+
+  // Asignaciones Redes I (EE-703) - Cesar Arellano (1T, 1P, 3L = 5h)
+  if (redesI) {
+    // Teoria: Viernes 7-8 (1h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-307' } }))!.id, franjaHorariaId: getFranja('VIERNES', 1)!.id, periodoId: periodo2026I.id, tipo: 'TEORIA' },
+      ]
+    });
+    // Practica: Viernes 8-9 (1h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'EPG-307' } }))!.id, franjaHorariaId: getFranja('VIERNES', 2)!.id, periodoId: periodo2026I.id, tipo: 'PRACTICA' },
+      ]
+    });
+    // Laboratorio: Viernes 9-12 (3h)
+    await prisma.asignacion.createMany({
+      data: [
+        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('VIERNES', 3)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('VIERNES', 4)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+        { grupoId: redesI.id, docenteId: cesarArellano.id, aulaId: (await prisma.aula.findUnique({ where: { codigo: 'LAB-3' } }))!.id, franjaHorariaId: getFranja('VIERNES', 5)!.id, periodoId: periodo2026I.id, tipo: 'LABORATORIO' },
+      ]
+    });
+  }
+
+  // Total horas lectivas Arellano: 5 + 5 + 5 + 5 = 20h
+
+  // ── CARGA NO LECTIVA PARA CESAR ARELLANO (19h para llegar a 39h, falta 1h) ──
+  const cargasArellano = [
+    { tipo: TipoCargaNoLectiva.PREPARACION_EVALUACION, horas: 6, descripcion: 'Preparación de clases y evaluación de 4 cursos' },
+    { tipo: TipoCargaNoLectiva.INVESTIGACION, horas: 8, descripcion: 'Investigación en Sistemas Operativos', codigoProyecto: 'INV-2026-014', nombreProyecto: 'Optimización de SO' },
+    { tipo: TipoCargaNoLectiva.CONSEJERIA, horas: 3, descripcion: 'Tutoría IV ciclo', numAlumnos: 12, cicloConsejeria: '2026-I' },
+    { tipo: TipoCargaNoLectiva.ADMINISTRACION, horas: 2, descripcion: 'Comisión de laboratorios' },
+  ];
+
+  for (const c of cargasArellano) {
+    const carga = await prisma.cargaNoLectiva.create({
+      data: { ...c, docenteId: cesarArellano.id, periodoId: periodo2026I.id }
+    });
+    if (c.tipo === TipoCargaNoLectiva.INVESTIGACION) {
+      await prisma.horarioCargaNoLectiva.create({
+        data: { cargaNoLectivaId: carga.id, dia: 'LUNES', horaInicio: '14:00', horaFin: '18:00', lugar: 'Gabinete de Investigación' }
+      });
+    }
+  }
+
+  // ── DECLARACIÓN DE CARGA PARA CESAR ARELLANO (EN PROCESO - FALTA 1h) ──
+  await prisma.declaracionCarga.create({
+    data: {
+      docenteId: cesarArellano.id,
+      periodoId: periodo2026I.id,
+      estado: EstadoDeclaracion.BORRADOR,
+      totalHorasLectivas: 20,
+      totalHorasNoLectivas: 19,
+      totalHoras: 39,
+      observaciones: 'Falta agregar 1 hora de responsabilidad social para completar las 40 horas',
+    }
+  });
 
   // Otros cursos de Juan Santos para completar su carga lectiva (12h lectivas totales solicitadas)
   // Ya tiene 3h Lab + 3h Teoria/Prac = 6h de Software I.

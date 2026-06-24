@@ -462,126 +462,155 @@ export const cargaLectivaRouter = createTRPCRouter({
         }
       }
 
-      // 4. Save assignments in transaction (delete existing for group+period, then create new)
+      // 4. Save assignments in transaction (idempotent: delete existing for group+period,
+      //    then insert all desired rows in a single createMany with skipDuplicates).
+      //    skipDuplicates protects against transient races between the DELETE and the
+      //    subsequent INSERTs (e.g., when materializer-derived Lab-N rows already exist).
       return await ctx.prisma.$transaction(async (tx) => {
-        // Delete all existing assignments for this group and period
+        // Borrar todas las asignaciones previas para este grupo+periodo.
         await tx.asignacionCargaLectiva.deleteMany({
           where: { grupoId: input.grupoId, periodoId: input.periodoId },
         });
 
-        // Helper to insert an assignment
-        const insertAsignacion = async (
-          docenteId: string,
-          tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO',
-          horas: number,
-          compartido: boolean,
-          docenteCompartidoId: string | null,
-          grupoLaboratorio: number | null
-        ) => {
-          await tx.asignacionCargaLectiva.create({
-            data: {
-              docenteId,
-              grupoId: input.grupoId,
-              periodoId: input.periodoId,
-              tipo,
-              horasAsignadas: horas,
-              compartido,
-              docenteCompartidoId,
-              grupoLaboratorio,
-            },
-          });
+        // Construir el batch de filas a insertar. Cada fila es única por la
+        // combinación [docenteId, grupoId, periodoId, tipo, grupoLaboratorio].
+        type RowData = {
+          docenteId: string;
+          grupoId: string;
+          periodoId: string;
+          tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO';
+          horasAsignadas: number;
+          compartido: boolean;
+          docenteCompartidoId: string | null;
+          grupoLaboratorio: number | null;
         };
+
+        const rows: RowData[] = [];
+        const baseRow = (): Pick<RowData, 'grupoId' | 'periodoId'> => ({
+          grupoId: input.grupoId,
+          periodoId: input.periodoId,
+        });
 
         // Teoría
         if (input.teoria.horas > 0) {
-          await insertAsignacion(
-            input.docenteId,
-            'TEORIA',
-            input.teoria.horas,
-            input.teoria.compartido,
-            input.teoria.compartido ? input.teoria.docenteCompartidoId || null : null,
-            null
-          );
+          rows.push({
+            ...baseRow(),
+            docenteId: input.docenteId,
+            tipo: 'TEORIA',
+            horasAsignadas: input.teoria.horas,
+            compartido: input.teoria.compartido,
+            docenteCompartidoId: input.teoria.compartido ? input.teoria.docenteCompartidoId || null : null,
+            grupoLaboratorio: null,
+          });
         }
         if (input.teoria.compartido && (input.teoria.horasCompartido || 0) > 0 && input.teoria.docenteCompartidoId) {
-          await insertAsignacion(
-            input.teoria.docenteCompartidoId,
-            'TEORIA',
-            input.teoria.horasCompartido || 0,
-            true,
-            input.docenteId,
-            null
-          );
+          rows.push({
+            ...baseRow(),
+            docenteId: input.teoria.docenteCompartidoId,
+            tipo: 'TEORIA',
+            horasAsignadas: input.teoria.horasCompartido || 0,
+            compartido: true,
+            docenteCompartidoId: input.docenteId,
+            grupoLaboratorio: null,
+          });
         }
 
         // Práctica
         if (input.practica.horas > 0) {
-          await insertAsignacion(
-            input.docenteId,
-            'PRACTICA',
-            input.practica.horas,
-            input.practica.compartido,
-            input.practica.compartido ? input.practica.docenteCompartidoId || null : null,
-            null
-          );
+          rows.push({
+            ...baseRow(),
+            docenteId: input.docenteId,
+            tipo: 'PRACTICA',
+            horasAsignadas: input.practica.horas,
+            compartido: input.practica.compartido,
+            docenteCompartidoId: input.practica.compartido ? input.practica.docenteCompartidoId || null : null,
+            grupoLaboratorio: null,
+          });
         }
         if (input.practica.compartido && (input.practica.horasCompartido || 0) > 0 && input.practica.docenteCompartidoId) {
-          await insertAsignacion(
-            input.practica.docenteCompartidoId,
-            'PRACTICA',
-            input.practica.horasCompartido || 0,
-            true,
-            input.docenteId,
-            null
-          );
+          rows.push({
+            ...baseRow(),
+            docenteId: input.practica.docenteCompartidoId,
+            tipo: 'PRACTICA',
+            horasAsignadas: input.practica.horasCompartido || 0,
+            compartido: true,
+            docenteCompartidoId: input.docenteId,
+            grupoLaboratorio: null,
+          });
         }
 
         // Laboratorio
+        const horasPorGrupo = grupo.curso.horasLaboratorio;
+        const numGrupos = grupo.curso.numGruposLaboratorio || 1;
+
         if (input.laboratorio.horas > 0) {
-          if (grupo.curso.numGruposLaboratorio > 1 && input.laboratorio.gruposLaboratorio.length > 0) {
+          if (numGrupos > 1 && input.laboratorio.gruposLaboratorio.length > 0) {
             for (const grupoLabIndex of input.laboratorio.gruposLaboratorio) {
-              await insertAsignacion(
-                input.docenteId,
-                'LABORATORIO',
-                grupo.curso.horasLaboratorio,
-                input.laboratorio.compartido,
-                input.laboratorio.compartido ? input.laboratorio.docenteCompartidoId || null : null,
-                grupoLabIndex
-              );
+              rows.push({
+                ...baseRow(),
+                docenteId: input.docenteId,
+                tipo: 'LABORATORIO',
+                horasAsignadas: horasPorGrupo,
+                compartido: input.laboratorio.compartido,
+                docenteCompartidoId: input.laboratorio.compartido ? input.laboratorio.docenteCompartidoId || null : null,
+                grupoLaboratorio: grupoLabIndex,
+              });
             }
           } else {
-            await insertAsignacion(
-              input.docenteId,
-              'LABORATORIO',
-              input.laboratorio.horas,
-              input.laboratorio.compartido,
-              input.laboratorio.compartido ? input.laboratorio.docenteCompartidoId || null : null,
-              null
-            );
+            rows.push({
+              ...baseRow(),
+              docenteId: input.docenteId,
+              tipo: 'LABORATORIO',
+              horasAsignadas: input.laboratorio.horas,
+              compartido: input.laboratorio.compartido,
+              docenteCompartidoId: input.laboratorio.compartido ? input.laboratorio.docenteCompartidoId || null : null,
+              grupoLaboratorio: null,
+            });
           }
         }
         if (input.laboratorio.compartido && (input.laboratorio.horasCompartido || 0) > 0 && input.laboratorio.docenteCompartidoId) {
-          if (grupo.curso.numGruposLaboratorio > 1 && input.laboratorio.gruposLaboratorioCompartido.length > 0) {
+          if (numGrupos > 1 && input.laboratorio.gruposLaboratorioCompartido.length > 0) {
             for (const grupoLabIndex of input.laboratorio.gruposLaboratorioCompartido) {
-              await insertAsignacion(
-                input.laboratorio.docenteCompartidoId,
-                'LABORATORIO',
-                grupo.curso.horasLaboratorio,
-                true,
-                input.docenteId,
-                grupoLabIndex
-              );
+              rows.push({
+                ...baseRow(),
+                docenteId: input.laboratorio.docenteCompartidoId,
+                tipo: 'LABORATORIO',
+                horasAsignadas: horasPorGrupo,
+                compartido: true,
+                docenteCompartidoId: input.docenteId,
+                grupoLaboratorio: grupoLabIndex,
+              });
             }
           } else {
-            await insertAsignacion(
-              input.laboratorio.docenteCompartidoId,
-              'LABORATORIO',
-              input.laboratorio.horasCompartido || 0,
-              true,
-              input.docenteId,
-              null
-            );
+            rows.push({
+              ...baseRow(),
+              docenteId: input.laboratorio.docenteCompartidoId,
+              tipo: 'LABORATORIO',
+              horasAsignadas: input.laboratorio.horasCompartido || 0,
+              compartido: true,
+              docenteCompartidoId: input.docenteId,
+              grupoLaboratorio: null,
+            });
           }
+        }
+
+        // Deduplicar filas idénticas dentro del batch (defensa contra duplicados
+        // generados por el frontend o por escenarios de doble envío).
+        const seen = new Set<string>();
+        const deduped: RowData[] = [];
+        for (const row of rows) {
+          const key = `${row.docenteId}|${row.grupoId}|${row.periodoId}|${row.tipo}|${row.grupoLaboratorio ?? 'null'}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            deduped.push(row);
+          }
+        }
+
+        if (deduped.length > 0) {
+          await tx.asignacionCargaLectiva.createMany({
+            data: deduped,
+            skipDuplicates: true,
+          });
         }
 
         return { success: true };

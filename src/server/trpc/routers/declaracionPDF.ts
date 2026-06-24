@@ -6,6 +6,7 @@ import {
   templateFormatoN1,
   templateFormatoN2,
   templateFormatoN3,
+  templateFormatoN3Grid,
 } from '@/server/services/reports/declaracion-templates';
 
 const formatDate = (date?: Date | null) => {
@@ -22,6 +23,7 @@ export const declaracionPDFRouter = createTRPCRouter({
     .input(z.object({
       declaracionId: z.string(),
       formato: z.enum(['N1', 'N2', 'N3']),
+      disenoN3: z.enum(['FORMAL', 'TABLA']).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const declaracion = await ctx.prisma.declaracionCarga.findUniqueOrThrow({
@@ -36,6 +38,7 @@ export const declaracionPDFRouter = createTRPCRouter({
               categoria: true,
               modalidad: true,
               tipo: true,
+              horasContrato: true,
               departamento: {
                 select: {
                   nombre: true,
@@ -163,6 +166,7 @@ export const declaracionPDFRouter = createTRPCRouter({
           tipo: declaracion.docente.tipo,
         });
       } else {
+        const disenoN3 = input.disenoN3 ?? 'FORMAL';
         const slots = await ctx.prisma.asignacion.findMany({
           where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId },
           include: {
@@ -193,7 +197,7 @@ export const declaracionPDFRouter = createTRPCRouter({
           aulaCodigo: s.aula.codigo,
         }));
 
-        html = templateFormatoN3({
+        const formatoN3Data = {
           docente: {
             nombre: declaracion.docente.nombre,
             dni: declaracion.docente.dni,
@@ -201,6 +205,7 @@ export const declaracionPDFRouter = createTRPCRouter({
             categoria: declaracion.docente.categoria,
             tipo: declaracion.docente.tipo,
             modalidad: declaracion.docente.modalidad,
+            horasContrato: declaracion.docente.horasContrato,
           },
           periodo: {
             nombre: declaracion.periodo.nombre,
@@ -222,13 +227,20 @@ export const declaracionPDFRouter = createTRPCRouter({
               aula: h.aula,
             })),
           })),
-        });
+        };
+
+        html = disenoN3 === 'TABLA'
+          ? templateFormatoN3Grid(formatoN3Data)
+          : templateFormatoN3(formatoN3Data);
       }
 
-      const pdfBuffer = await renderPDF(html, { landscape: input.formato === 'N3' });
+      const pdfBuffer = await renderPDF(html, {
+        landscape: input.formato === 'N3' && input.disenoN3 === 'TABLA',
+      });
+      const n3Suffix = input.formato === 'N3' ? `_${input.disenoN3 ?? 'FORMAL'}` : '';
       return {
         pdfBase64: pdfBuffer.toString('base64'),
-        filename: `Declaracion_${input.formato}_${declaracion.docente.nombre.replace(/\s+/g, '_')}_${declaracion.periodo.nombre}.pdf`,
+        filename: `Declaracion_${input.formato}${n3Suffix}_${declaracion.docente.nombre.replace(/\s+/g, '_')}_${declaracion.periodo.nombre}.pdf`,
       };
     }),
 });

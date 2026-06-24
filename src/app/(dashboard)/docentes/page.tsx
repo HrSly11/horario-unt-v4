@@ -20,6 +20,7 @@ type FormData = {
   codigoIBM: string;
   modalidad: 'TIEMPO_COMPLETO' | 'DEDICACION_EXCLUSIVA' | 'TIEMPO_PARCIAL';
   horasContrato: number;
+  departamentoId: string;
 };
 
 const emptyForm: FormData = {
@@ -27,6 +28,7 @@ const emptyForm: FormData = {
   tipo: 'CONTRATADO', antiguedad: '', activo: true,
   gradoAcademico: '', especialidad: '', experienciaAnios: 0, perfilAcademico: '',
   dni: '', codigoIBM: '', modalidad: 'TIEMPO_COMPLETO', horasContrato: 40,
+  departamentoId: '',
 };
 
 const CATEGORIA_LABELS: Record<string, string> = {
@@ -48,7 +50,9 @@ export default function DocentesPage() {
   const [search, setSearch] = useState('');
 
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
+  const { data: departamentos = [] } = useQuery({ ...trpc.curso.departamentos.queryOptions() });
   const canEdit = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_DEPARTAMENTO';
+  const canPickDepartamento = user?.role === 'ADMIN' || user?.role === 'SECRETARIA_ACADEMICA';
 
   const { data: docentes = [], isLoading } = useQuery({
     ...trpc.docente.list.queryOptions({ search: search || undefined })
@@ -103,13 +107,18 @@ export default function DocentesPage() {
       codigoIBM: (d as any).codigoIBM || '',
       modalidad: (d as any).modalidad || 'TIEMPO_COMPLETO',
       horasContrato: (d as any).horasContrato || 40,
+      departamentoId: d.departamentoId || '',
     });
     setShowModal(true);
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const payload = { ...form, antiguedad: new Date(form.antiguedad) };
+    const payload = {
+      ...form,
+      antiguedad: new Date(form.antiguedad),
+      departamentoId: form.departamentoId || null,
+    };
     if (editId) {
       updateMutation.mutate({ id: editId, ...payload });
     } else {
@@ -296,6 +305,27 @@ export default function DocentesPage() {
                     className="input-standard" />
                 </div>
               </div>
+              {canPickDepartamento && (
+                <div>
+                  <label className="label-standard">Departamento</label>
+                  <select
+                    value={form.departamentoId}
+                    onChange={(e) => setForm({ ...form, departamentoId: e.target.value })}
+                    className="input-standard"
+                  >
+                    <option value="">— Sin departamento —</option>
+                    {departamentos.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.nombre}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-text-sub mt-1">
+                    Selecciona el departamento al que se asignará el docente. Esto es
+                    necesario para que aparezca como opción al distribuir carga lectiva.
+                  </p>
+                </div>
+              )}
               <div>
                 <label className="label-standard">Perfil Académico / Especialidad</label>
                 <textarea value={form.perfilAcademico} onChange={(e) => setForm({ ...form, perfilAcademico: e.target.value })}

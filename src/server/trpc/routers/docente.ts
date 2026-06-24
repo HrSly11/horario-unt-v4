@@ -22,6 +22,7 @@ const docenteInput = z.object({
   especialidad: z.string().optional(),
   experienciaAnios: z.number().int().min(0).default(0),
   perfilAcademico: z.string().optional(),
+  departamentoId: z.string().optional().nullable(),
 });
 
 type CompatibilityDocente = {
@@ -217,15 +218,67 @@ export const docenteRouter = createTRPCRouter({
       });
     }),
 
-  create: secretariaProcedure.input(docenteInput).mutation(({ ctx, input }) => {
-    return ctx.prisma.docente.create({ data: input });
-  }),
+  create: secretariaProcedure
+    .input(docenteInput)
+    .mutation(async ({ ctx, input }) => {
+      // SECRETARIA_DEPARTAMENTO solo puede crear docentes en su(s) departamento(s) gestionado(s).
+      // Si no especifica departamentoId, se asigna automáticamente al primero que gestione.
+      let departamentoId = input.departamentoId ?? null;
+      if (
+        ctx.session.role === 'SECRETARIA_DEPARTAMENTO' ||
+        ctx.session.role === 'DIRECTOR_DEPARTAMENTO'
+      ) {
+        const managedIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+        if (!managedIds || managedIds.length === 0) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'No tiene un departamento asignado para crear docentes.',
+          });
+        }
+        if (departamentoId && !managedIds.includes(departamentoId)) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Solo puede crear docentes en los departamentos que gestiona.',
+          });
+        }
+        departamentoId = departamentoId ?? managedIds[0];
+      }
+
+      return ctx.prisma.docente.create({
+        data: { ...input, departamentoId },
+      });
+    }),
 
   update: secretariaProcedure
     .input(z.object({ id: z.string() }).merge(docenteInput))
-    .mutation(({ ctx, input }) => {
-      const { id, ...data } = input;
-      return ctx.prisma.docente.update({ where: { id }, data });
+    .mutation(async ({ ctx, input }) => {
+      const { id, departamentoId, ...data } = input;
+
+      if (departamentoId !== undefined) {
+        if (
+          ctx.session.role === 'SECRETARIA_DEPARTAMENTO' ||
+          ctx.session.role === 'DIRECTOR_DEPARTAMENTO'
+        ) {
+          const managedIds = await getManagedDepartamentoIds(ctx.prisma, ctx.session);
+          if (!managedIds || managedIds.length === 0) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: 'No tiene un departamento asignado para modificar docentes.',
+            });
+          }
+          if (departamentoId !== null && !managedIds.includes(departamentoId)) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: 'Solo puede asignar docentes a los departamentos que gestiona.',
+            });
+          }
+        }
+      }
+
+      return ctx.prisma.docente.update({
+        where: { id },
+        data: { ...data, ...(departamentoId !== undefined ? { departamentoId } : {}) },
+      });
     }),
 
   delete: adminProcedure.input(z.object({ id: z.string() })).mutation(({ ctx, input }) => {

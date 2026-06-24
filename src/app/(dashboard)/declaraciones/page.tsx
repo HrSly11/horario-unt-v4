@@ -430,7 +430,16 @@ function DeclaracionCard({
   const showReabrir = canPerformAction(dec.docenteId, dec.estado, 'reabrir');
   const showEliminar = canPerformAction(dec.docenteId, dec.estado, 'eliminar');
   const showActualizar = canPerformAction(dec.docenteId, dec.estado, 'actualizar');
-  const showFormatos = dec.estado === 'FINALIZADA' || dec.estado === 'APROBADA_DEPARTAMENTO';
+  // Mostrar el botón de descarga cuando:
+  //  - La declaración está FINALIZADA o APROBADA_DEPARTAMENTO (flujo formal)
+  //  - O el docente ya completó el total de horas de su contrato, permitiéndole
+  //    descargar el Formato 1 incluso antes de enviar/aprobar la declaración.
+  const cargaCompleta =
+    dec.totalHoras >= dec.docente.horasContrato && dec.docente.horasContrato > 0;
+  const showFormatos =
+    dec.estado === 'FINALIZADA' ||
+    dec.estado === 'APROBADA_DEPARTAMENTO' ||
+    cargaCompleta;
 
   const hasActions = showEnviar || showAprobarDepto ||
     showVbDecano || showRechazar || showReabrir || showEliminar || showActualizar || showFormatos;
@@ -588,6 +597,11 @@ function DeclaracionCard({
               <button
                 onClick={onDownload}
                 disabled={isDownloading || mutationPending}
+                title={
+                  cargaCompleta && dec.estado !== 'FINALIZADA' && dec.estado !== 'APROBADA_DEPARTAMENTO'
+                    ? 'Formato 1 disponible: la carga horaria está completa'
+                    : 'Descargar Formato 1: Declaración de carga horaria'
+                }
                 className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50 transition-all active:scale-95"
               >
                 {isDownloading ? (
@@ -595,7 +609,7 @@ function DeclaracionCard({
                 ) : (
                   <Download className="h-3.5 w-3.5" />
                 )}
-                Descargar PDF
+                Descargar Formato 1
               </button>
             )}
           </div>

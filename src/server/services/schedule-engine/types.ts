@@ -54,6 +54,8 @@ export interface Assignment {
   franjaHorariaId: string;
   tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO';
   confirmado?: boolean;
+  ajustadaPorCruce?: boolean;
+  motivoAjuste?: string;
 }
 
 export interface UnassignedItem {
@@ -71,6 +73,8 @@ export interface ScheduleResult {
     assigned: number;
     unassignedCount: number;
     conflictsAvoided: number;
+    preferredAssignments: number;
+    adjustedAssignments: number;
   };
 }
 

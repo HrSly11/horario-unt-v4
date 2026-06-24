@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { evaluateAssignmentForm } from './assignment-validation';
 import {
   BookOpen,
   Clock,
@@ -188,12 +189,30 @@ export default function CargaLectivaPage() {
     });
   }, [gruposForPeriod, modalCurriculaId, modalCiclo]);
 
+  // Docentes visibles en el modal de asignación. Reglas:
+  // 1. Si todavía no hay curso seleccionado, mostramos todos los docentes que el
+  //    backend autorizó a este usuario.
+  // 2. Si hay curso seleccionado con departamento: filtramos por ese departamento.
+  //    Los roles directivos (ADMIN / SECRETARIA_ACADEMICA / DIRECTOR_ESCUELA /
+  //    DECANO) también ven docentes sin departamento para poder reasignar.
+  // 3. Los roles con scope departamental (DIRECTOR_DEPARTAMENTO /
+  //    SECRETARIA_DEPARTAMENTO) solo ven docentes de su departamento o los
+  //    docentes sin departamento que ya existían (para no perderlos).
   const filteredDocentesForAssign = useMemo(() => {
     if (!selectedCursoForAssign || !selectedCursoForAssign.departamentoId) {
       return filteredDocentes;
     }
-    return filteredDocentes.filter((d) => d.departamentoId === selectedCursoForAssign.departamentoId);
-  }, [filteredDocentes, selectedCursoForAssign]);
+    const cursoDeptoId = selectedCursoForAssign.departamentoId;
+    const isDirectivo =
+      user?.role === 'ADMIN' ||
+      user?.role === 'SECRETARIA_ACADEMICA' ||
+      user?.role === 'DIRECTOR_ESCUELA' ||
+      user?.role === 'DECANO';
+    return filteredDocentes.filter((d) => {
+      if (!d.departamentoId) return isDirectivo;
+      return d.departamentoId === cursoDeptoId;
+    });
+  }, [filteredDocentes, selectedCursoForAssign, user?.role]);
 
   const totalHoras = cargasLectivas.reduce((s, c) => s + c.horasAsignadas, 0);
   const uniqueDocentesCount = new Set(cargasLectivas.map((c) => c.docenteId)).size;
@@ -291,7 +310,11 @@ export default function CargaLectivaPage() {
   const assignCursoCompletoMutation = useMutation(
     trpc.cargaLectiva.assignCursoCompleto.mutationOptions({
       onSuccess: () => {
+        // Invalidar todas las queries relacionadas con carga lectiva
+        // para que los cambios se reflejen en todas las vistas (incluida la
+        // vista del docente y Gestión de Carga Lectiva).
         queryClient.invalidateQueries({ queryKey: trpc.cargaLectiva.list.queryKey() });
+        queryClient.invalidateQueries({ queryKey: trpc.cargaLectiva.byDocente.queryKey() });
         setShowAssignModal(false);
         resetModalForm();
       },
@@ -305,6 +328,7 @@ export default function CargaLectivaPage() {
     trpc.cargaLectiva.unassign.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: trpc.cargaLectiva.list.queryKey() });
+        queryClient.invalidateQueries({ queryKey: trpc.cargaLectiva.byDocente.queryKey() });
         setDeletingId(null);
       },
       onError: (err) => {
@@ -419,6 +443,58 @@ export default function CargaLectivaPage() {
       },
     });
   }
+
+  // Validación centralizada del formulario para el botón "Guardar Carga"
+  const assignmentValidation = useMemo(
+    () =>
+      evaluateAssignmentForm({
+        selectedCurso: selectedCursoForAssign
+          ? {
+              horasTeoria: selectedCursoForAssign.horasTeoria,
+              horasPractica: selectedCursoForAssign.horasPractica,
+              horasLaboratorio: selectedCursoForAssign.horasLaboratorio,
+              numGruposLaboratorio: selectedCursoForAssign.numGruposLaboratorio,
+            }
+          : null,
+        docenteId,
+        grupoId,
+        horasTeoria,
+        horasPractica,
+        horasLaboratorio,
+        horasTeoriaCompartido,
+        horasPracticaCompartido,
+        horasLaboratorioCompartido,
+        teoriaCompartido,
+        practicaCompartido,
+        laboratorioCompartido,
+        teoriaDocenteCompartidoId,
+        practicaDocenteCompartidoId,
+        laboratorioDocenteCompartidoId,
+        gruposLaboratorio,
+        gruposLaboratorioCompartido,
+        isPending: assignCursoCompletoMutation.isPending,
+      }),
+    [
+      selectedCursoForAssign,
+      docenteId,
+      grupoId,
+      horasTeoria,
+      horasPractica,
+      horasLaboratorio,
+      horasTeoriaCompartido,
+      horasPracticaCompartido,
+      horasLaboratorioCompartido,
+      teoriaCompartido,
+      practicaCompartido,
+      laboratorioCompartido,
+      teoriaDocenteCompartidoId,
+      practicaDocenteCompartidoId,
+      laboratorioDocenteCompartidoId,
+      gruposLaboratorio,
+      gruposLaboratorioCompartido,
+      assignCursoCompletoMutation.isPending,
+    ]
+  );
 
   // ── DOCENTE view (read-only own loads) ─────────────────
   if (isDocente) {
@@ -1073,6 +1149,17 @@ export default function CargaLectivaPage() {
                     </option>
                   ))}
                 </select>
+                {filteredDocentesForAssign.length === 0 && (
+                  <p className="text-xs text-amber-400 mt-1.5">
+                    {docentes.length === 0
+                      ? 'No hay docentes registrados en el sistema.'
+                      : !selectedCursoForAssign
+                        ? 'Selecciona un curso para ver los docentes disponibles.'
+                        : selectedCursoForAssign.departamentoId
+                          ? 'No hay docentes visibles para el departamento de este curso. Roles directivos pueden reasignar.'
+                          : 'Este curso no tiene departamento asignado.'}
+                  </p>
+                )}
               </div>
 
               {/* Postulantes al curso */}
@@ -1484,26 +1571,17 @@ export default function CargaLectivaPage() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={
-                  !docenteId ||
-                  !grupoId ||
-                  (horasTeoria === 0 && horasPractica === 0 && horasLaboratorio === 0 &&
-                   horasTeoriaCompartido === 0 && horasPracticaCompartido === 0 && horasLaboratorioCompartido === 0) ||
-                  (teoriaCompartido && !teoriaDocenteCompartidoId) ||
-                  (practicaCompartido && !practicaDocenteCompartidoId) ||
-                  (laboratorioCompartido && !laboratorioDocenteCompartidoId) ||
-                  horasTeoria + (teoriaCompartido ? horasTeoriaCompartido : 0) > (selectedCursoForAssign?.horasTeoria ?? 0) ||
-                  horasPractica + (practicaCompartido ? horasPracticaCompartido : 0) > (selectedCursoForAssign?.horasPractica ?? 0) ||
-                  (selectedCursoForAssign?.numGruposLaboratorio && selectedCursoForAssign.numGruposLaboratorio > 1 ?
-                    (selectedCursoForAssign.horasLaboratorio > 0 && (gruposLaboratorio.length + (laboratorioCompartido ? gruposLaboratorioCompartido.length : 0) !== selectedCursoForAssign.numGruposLaboratorio)) :
-                    horasLaboratorio + (laboratorioCompartido ? horasLaboratorioCompartido : 0) > (selectedCursoForAssign?.horasLaboratorio ?? 0)
-                  ) ||
-                  assignCursoCompletoMutation.isPending
-                }
+                disabled={assignmentValidation.disabled}
+                title={assignmentValidation.reason}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
               >
                 {assignCursoCompletoMutation.isPending ? 'Guardando...' : 'Guardar Carga'}
               </button>
+              {assignmentValidation.disabled && assignmentValidation.reason && !assignCursoCompletoMutation.isPending && (
+                <span className="text-xs text-amber-400 mr-2">
+                  {assignmentValidation.reason}
+                </span>
+              )}
             </div>
           </div>
         </div>

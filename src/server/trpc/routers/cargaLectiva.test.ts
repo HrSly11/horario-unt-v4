@@ -186,6 +186,7 @@ describe('cargaLectivaRouter assignment rules', () => {
       const mockTx = {
         asignacionCargaLectiva: {
           deleteMany: vi.fn(),
+          createMany: vi.fn(),
           create: vi.fn(),
         },
       };
@@ -206,7 +207,100 @@ describe('cargaLectivaRouter assignment rules', () => {
       expect(mockTx.asignacionCargaLectiva.deleteMany).toHaveBeenCalledWith({
         where: { grupoId: 'grupo-1', periodoId: 'period-1' },
       });
-      expect(mockTx.asignacionCargaLectiva.create).toHaveBeenCalledTimes(5); // Theory (prim + comp), Practice, Lab (prim + comp)
+      // Use createMany with skipDuplicates for idempotency
+      expect(mockTx.asignacionCargaLectiva.createMany).toHaveBeenCalledTimes(1);
+      const createArgs = mockTx.asignacionCargaLectiva.createMany.mock.calls[0][0];
+      expect(createArgs.skipDuplicates).toBe(true);
+      // 5 rows: theory (prim + comp), practice (prim only since not compartido),
+      // lab (prim [group 1] + comp [group 2])
+      expect(createArgs.data).toHaveLength(5);
+      expect(createArgs.data.map((r: any) => `${r.docenteId}|${r.tipo}|${r.grupoLaboratorio}`)).toEqual([
+        'docente-1|TEORIA|null',
+        'docente-2|TEORIA|null',
+        'docente-1|PRACTICA|null',
+        'docente-1|LABORATORIO|1',
+        'docente-3|LABORATORIO|2',
+      ]);
+    });
+
+    it('does not duplicate rows when input contains duplicate lab group indices', async () => {
+      const mockTx = {
+        asignacionCargaLectiva: {
+          deleteMany: vi.fn(),
+          createMany: vi.fn(),
+          create: vi.fn(),
+        },
+      };
+      const prisma = makePrisma();
+      prisma.$transaction = vi.fn(async (cb: any) => cb(mockTx));
+
+      const caller = makeCaller(prisma);
+
+      // The validation upstream should prevent this scenario, but the backend
+      // must defensively deduplicate identical rows to avoid unique-constraint failures.
+      // Validation rules: numGruposLaboratorio=2, horasPorGrupo=4, labHorasPrim=4,
+      // labHorasComp=4, gruposLaboratorio=[1], gruposLaboratorioCompartido=[2].
+      // expectedPrimGroups=1 (matches), expectedCompGroups=1 (matches), totalSelected=2 (matches).
+      await caller.assignCursoCompleto({
+        docenteId: 'docente-1',
+        grupoId: 'grupo-1',
+        periodoId: 'period-1',
+        teoria: { horas: 4, compartido: false },
+        practica: { horas: 0, compartido: false },
+        laboratorio: {
+          horas: 4,
+          compartido: true,
+          docenteCompartidoId: 'docente-3',
+          horasCompartido: 4,
+          gruposLaboratorio: [1],
+          gruposLaboratorioCompartido: [2],
+        },
+      });
+
+      const createArgs = mockTx.asignacionCargaLectiva.createMany.mock.calls[0][0];
+      // 1 theory + 1 lab prim (group 1) + 1 lab comp (group 2) = 3 rows
+      const labRows = createArgs.data.filter((r: any) => r.tipo === 'LABORATORIO');
+      expect(labRows).toHaveLength(2);
+      expect(new Set(labRows.map((r: any) => `${r.docenteId}|${r.grupoLaboratorio}`))).toEqual(
+        new Set(['docente-1|1', 'docente-3|2'])
+      );
+    });
+
+    it('persists through skipDuplicates when prior assignments already exist (idempotent re-assign)', async () => {
+      // Simulates: an external race inserts a row between deleteMany and createMany.
+      // skipDuplicates prevents the unique-constraint failure.
+      const mockTx = {
+        asignacionCargaLectiva: {
+          deleteMany: vi.fn(),
+          createMany: vi.fn(async () => ({ count: 3 })), // pretend 3 inserted
+          create: vi.fn(),
+        },
+      };
+      const prisma = makePrisma();
+      prisma.$transaction = vi.fn(async (cb: any) => cb(mockTx));
+
+      const caller = makeCaller(prisma);
+
+      const result = await caller.assignCursoCompleto({
+        docenteId: 'docente-1',
+        grupoId: 'grupo-1',
+        periodoId: 'period-1',
+        teoria: { horas: 4, compartido: false },
+        practica: { horas: 0, compartido: false },
+        laboratorio: {
+          horas: 4,
+          compartido: true,
+          docenteCompartidoId: 'docente-3',
+          horasCompartido: 4,
+          gruposLaboratorio: [1],
+          gruposLaboratorioCompartido: [2],
+        },
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(mockTx.asignacionCargaLectiva.createMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skipDuplicates: true })
+      );
     });
 
     it('rejects if theory hours exceed course limit', async () => {

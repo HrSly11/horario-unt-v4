@@ -144,6 +144,47 @@ function buildEscuelaScopedGrupoWhere(escuelaIds: string[] | null) {
   };
 }
 
+async function notifyDocenteScheduleAdjusted(
+  prisma: PrismaClient,
+  docenteId: string,
+  periodoId: string,
+  totalAdjustedAssignments: number
+) {
+  if (totalAdjustedAssignments <= 0) return;
+
+  await prisma.notification.create({
+    data: {
+      docenteId,
+      titulo: 'Horario sugerido ajustado por cruces',
+      mensaje: `Tu horario sugerido para el periodo fue ajustado en ${totalAdjustedAssignments} bloque(s) debido a cruces de aula, ciclo o profesor. Revisa tu horario actualizado y, si es necesario, coordina con la secretaria académica.`,
+      tipo: 'HORARIO_AJUSTADO',
+      link: `/horarios?periodo=${periodoId}`,
+    },
+  });
+}
+
+async function notifyDocenteViableGaps(
+  prisma: PrismaClient,
+  docenteId: string,
+  grupoId: string,
+  tipo: 'TEORIA' | 'PRACTICA' | 'LABORATORIO',
+  viableGaps: { franjaId: string; aulaId: string }[],
+  periodoId: string
+) {
+  if (viableGaps.length === 0) return;
+
+  const gapStrings = viableGaps.map((gap) => `franja ${gap.franjaId} / aula ${gap.aulaId}`).join(', ');
+  await prisma.notification.create({
+    data: {
+      docenteId,
+      titulo: 'Cruces detectados en tu sugerencia horaria',
+      mensaje: `Se detectaron cruces al intentar respetar tu sugerencia para el grupo ${grupoId} (${tipo}). El sistema identificó espacios alternativos: ${gapStrings}. Revisa tu horario actualizado y coordina ajustes si corresponde.`,
+      tipo: 'CONFLICTO_HORARIO',
+      link: `/horarios?periodo=${periodoId}`,
+    },
+  });
+}
+
 export const horarioRouter = createTRPCRouter({
   // ─── Availability (Real-time) ────────────────────────
 
@@ -649,7 +690,9 @@ export const horarioRouter = createTRPCRouter({
           }),
           ctx.prisma.restriccionDocente.findMany(),
           ctx.prisma.mantenimientoAula.findMany(),
-          ctx.prisma.disponibilidadDocente.findMany(),
+          ctx.prisma.disponibilidadDocente.findMany({
+            where: { periodoId: input.periodoId },
+          }),
           ctx.prisma.asignacionCargaLectiva.findMany({
             where: {
               periodoId: input.periodoId,
@@ -674,10 +717,11 @@ export const horarioRouter = createTRPCRouter({
         });
 
         const blockedDocenteSlots = new Set<string>();
+        const hardBlockedDocenteSlots = new Set<string>();
         const blockedDocenteGrupoSlots = new Set<string>();
         const blockedDocenteGrupoTipoSlots = new Set<string>();
         restricciones.forEach(r => {
-          blockedDocenteSlots.add(`${r.docenteId}::${r.franjaHorariaId}`);
+          hardBlockedDocenteSlots.add(`${r.docenteId}::${r.franjaHorariaId}`);
         });
 
         // 1. Process general availability (grupoId is null)
@@ -787,6 +831,7 @@ export const horarioRouter = createTRPCRouter({
           })),
           docenteGrupoMap,
           blockedDocenteSlots,
+          hardBlockedDocenteSlots,
           blockedDocenteGrupoSlots,
           blockedDocenteGrupoTipoSlots,
           blockedAulaSlots: new Set(mantenimientos.map(m => `${m.aulaId}::${m.franjaHorariaId}`)),
@@ -796,28 +841,33 @@ export const horarioRouter = createTRPCRouter({
         const engine = new ScheduleEngine(engineInput);
         const result = engine.generate();
 
+        const adjustedCountByDocente = new Map<string, number>();
+        result.assignments.forEach((assignment) => {
+          if (!assignment.ajustadaPorCruce) return;
+          adjustedCountByDocente.set(
+            assignment.docenteId,
+            (adjustedCountByDocente.get(assignment.docenteId) ?? 0) + 1
+          );
+        });
+
+        for (const [docenteId, adjustedCount] of adjustedCountByDocente) {
+          await notifyDocenteScheduleAdjusted(ctx.prisma, docenteId, input.periodoId, adjustedCount);
+        }
+
         // Trigger notifications for viable gaps
         for (const item of result.unassigned) {
           if (item.viableGaps && item.viableGaps.length > 0) {
             const workloads = engineInput.grupos.find(g => g.id === item.grupoId)?.workloads;
             const docenteId = workloads?.find(w => w.tipo === item.tipo)?.docenteId;
             if (docenteId) {
-              const docenteObj = await ctx.prisma.docente.findUnique({
-                where: { id: docenteId },
-                select: { user: { select: { id: true } } },
-              });
-              const recipientUserId = docenteObj?.user?.id;
-              if (recipientUserId) {
-                const gapStrings = item.viableGaps.map(g => `Bloque ${g.franjaId}`).join(', ');
-                await ctx.prisma.notification.create({
-                  data: {
-                    recipientUserId,
-                    titulo: 'Espacios viables para horario',
-                    mensaje: `El curso con grupo ${item.grupoId} tiene cruces de horario. Espacios viables: ${gapStrings}`,
-                    tipo: 'CONFLITO_HORARIO',
-                  },
-                });
-              }
+              await notifyDocenteViableGaps(
+                ctx.prisma,
+                docenteId,
+                item.grupoId,
+                item.tipo,
+                item.viableGaps,
+                input.periodoId
+              );
             }
           }
         }
@@ -828,7 +878,8 @@ export const horarioRouter = createTRPCRouter({
             reason: result.unassigned[0]?.reason || 'El motor no pudo generar ninguna asignación válida.',
             createdCount: 0,
             unassignedCount: result.unassigned.length,
-            unassigned: result.unassigned
+            unassigned: result.unassigned,
+            stats: result.stats,
           };
         }
 
@@ -862,7 +913,8 @@ export const horarioRouter = createTRPCRouter({
           success: true,
           createdCount: createdCount.length,
           unassignedCount: result.unassigned.length,
-          unassigned: result.unassigned
+          unassigned: result.unassigned,
+          stats: result.stats,
         };
       } catch (error) {
         console.error(`[TRPC] Error crítico en autoGenerate:`, error);
@@ -1078,7 +1130,9 @@ export const horarioRouter = createTRPCRouter({
           ctx.prisma.franjaHoraria.findMany(),
           ctx.prisma.restriccionDocente.findMany({ where: { docenteId: input.docenteId } }),
           ctx.prisma.mantenimientoAula.findMany(),
-          ctx.prisma.disponibilidadDocente.findMany({ where: { docenteId: input.docenteId } }),
+          ctx.prisma.disponibilidadDocente.findMany({
+            where: { docenteId: input.docenteId, periodoId: input.periodoId },
+          }),
           ctx.prisma.asignacion.findMany({
             where: {
               periodoId: input.periodoId,
@@ -1150,6 +1204,7 @@ export const horarioRouter = createTRPCRouter({
           })),
           docenteGrupoMap: new Map([[docente.id, docenteGrupos.map(dg => dg.grupoId)]]),
           blockedDocenteSlots: new Set<string>(),
+          hardBlockedDocenteSlots: new Set<string>(),
           blockedDocenteGrupoSlots: new Set<string>(),
           blockedDocenteGrupoTipoSlots: new Set<string>(),
           blockedAulaSlots: new Set<string>(),
@@ -1208,7 +1263,7 @@ export const horarioRouter = createTRPCRouter({
         }
 
         restricciones.forEach(r => {
-          engineInput.blockedDocenteSlots.add(`${docente.id}::${r.franjaHorariaId}`);
+          engineInput.hardBlockedDocenteSlots.add(`${docente.id}::${r.franjaHorariaId}`);
         });
 
         mantenimientos.forEach(m => {

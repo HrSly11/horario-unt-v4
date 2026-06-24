@@ -136,19 +136,36 @@ describe('cursoRouter demand procedures', () => {
     const prisma = {
       user: { findUnique: vi.fn().mockResolvedValue({ id: 'secretary-1', activo: true }) },
       escuela: { findUnique: vi.fn().mockResolvedValue({ id: 'esc-1', secretariaId: 'secretary-1' }) },
+      periodoAcademico: {
+        findFirst: vi.fn().mockResolvedValue({ id: 'period-1' }),
+        findUnique: vi.fn().mockResolvedValue({ id: 'period-1', estado: 'BORRADOR' }),
+      },
       demandaAcademica: {
         findUnique: vi.fn().mockResolvedValue(null),
         create: vi.fn().mockResolvedValue({ id: 'demand-new', escuelaId: 'esc-1', periodoId: 'period-1', estado: 'BORRADOR', version: 1 })
       },
       curso: {
-        findUniqueOrThrow: vi.fn().mockResolvedValue(mockCourse)
+        findUniqueOrThrow: vi.fn().mockResolvedValue(mockCourse),
+        findFirst: vi.fn().mockResolvedValue(null),
+        findMany: vi.fn().mockResolvedValue([]),
       },
       demandaLinea: {
         deleteMany: vi.fn(),
-        create: vi.fn().mockResolvedValue({ id: 'line-1' })
+        create: vi.fn().mockResolvedValue({ id: 'line-1' }),
+        findFirst: vi.fn().mockResolvedValue(null),
       },
       demandaLineaCurricula: {
         create: vi.fn()
+      },
+      grupo: {
+        findMany: vi.fn().mockResolvedValue([]),
+        findUnique: vi.fn().mockResolvedValue(null),
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: 'g-1' }),
+        updateMany: vi.fn().mockResolvedValue({ count: 0 }),
+      },
+      cursoCurricula: {
+        findMany: vi.fn().mockResolvedValue([]),
       },
       log: {
         create: vi.fn()

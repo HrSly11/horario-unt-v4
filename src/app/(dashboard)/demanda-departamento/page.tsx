@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { evaluateAssignmentForm } from '../carga-lectiva/assignment-validation';
 import {
   BookOpen,
   Search,
@@ -130,12 +131,31 @@ export default function DemandaDepartamentoPage() {
     return uniqueDocentesList;
   }, [uniqueDocentesList]);
 
+  // Docentes visibles en el modal de asignación. Reglas:
+  // 1. Si todavía no hay curso seleccionado (p.ej. el usuario abrió el modal pero
+  //    no hay grupos materializados para el curso), mostramos TODOS los docentes
+  //    que el backend ya autorizó a este usuario.
+  // 2. Si hay curso seleccionado con departamento: filtramos por ese departamento.
+  //    Los roles directivos (ADMIN / SECRETARIA_ACADEMICA / DIRECTOR_ESCUELA /
+  //    DECANO) también ven docentes sin departamento asignado para poder reasignar.
+  // 3. Los roles con scope departamental (DIRECTOR_DEPARTAMENTO /
+  //    SECRETARIA_DEPARTAMENTO) solo ven docentes de su departamento o, en su
+  //    defecto, los docentes sin departamento que ya existían (para no perderlos).
   const filteredDocentesForAssign = useMemo(() => {
     if (!selectedCursoForAssign || !selectedCursoForAssign.departamentoId) {
       return filteredDocentes;
     }
-    return filteredDocentes.filter((d) => d.departamentoId === selectedCursoForAssign.departamentoId);
-  }, [filteredDocentes, selectedCursoForAssign]);
+    const cursoDeptoId = selectedCursoForAssign.departamentoId;
+    const isDirectivo =
+      user?.role === 'ADMIN' ||
+      user?.role === 'SECRETARIA_ACADEMICA' ||
+      user?.role === 'DIRECTOR_ESCUELA' ||
+      user?.role === 'DECANO';
+    return filteredDocentes.filter((d) => {
+      if (!d.departamentoId) return isDirectivo;
+      return d.departamentoId === cursoDeptoId;
+    });
+  }, [filteredDocentes, selectedCursoForAssign, user?.role]);
 
   // Auto-populate curricula and cycle if a group is pre-selected
   useEffect(() => {
@@ -172,7 +192,10 @@ export default function DemandaDepartamentoPage() {
   const assignCursoCompletoMutation = useMutation(
     trpc.cargaLectiva.assignCursoCompleto.mutationOptions({
       onSuccess: () => {
+        // Invalidar TODAS las queries relacionadas para que los cambios se vean
+        // reflejados en Gestión de Carga Lectiva, vista del docente y reportes.
         queryClient.invalidateQueries({ queryKey: trpc.cargaLectiva.list.queryKey() });
+        queryClient.invalidateQueries({ queryKey: trpc.cargaLectiva.byDocente.queryKey() });
         queryClient.invalidateQueries({ queryKey: trpc.demandaDepartamento.listApproved.queryKey() });
         setShowAssignModal(false);
         resetModalForm();
@@ -250,6 +273,58 @@ export default function DemandaDepartamentoPage() {
       },
     });
   }
+
+  // Validación centralizada del formulario para el botón "Guardar Asignación"
+  const assignmentValidation = useMemo(
+    () =>
+      evaluateAssignmentForm({
+        selectedCurso: selectedCursoForAssign
+          ? {
+              horasTeoria: selectedCursoForAssign.horasTeoria,
+              horasPractica: selectedCursoForAssign.horasPractica,
+              horasLaboratorio: selectedCursoForAssign.horasLaboratorio,
+              numGruposLaboratorio: selectedCursoForAssign.numGruposLaboratorio,
+            }
+          : null,
+        docenteId,
+        grupoId,
+        horasTeoria,
+        horasPractica,
+        horasLaboratorio,
+        horasTeoriaCompartido,
+        horasPracticaCompartido,
+        horasLaboratorioCompartido,
+        teoriaCompartido,
+        practicaCompartido,
+        laboratorioCompartido,
+        teoriaDocenteCompartidoId,
+        practicaDocenteCompartidoId,
+        laboratorioDocenteCompartidoId,
+        gruposLaboratorio,
+        gruposLaboratorioCompartido,
+        isPending: assignCursoCompletoMutation.isPending,
+      }),
+    [
+      selectedCursoForAssign,
+      docenteId,
+      grupoId,
+      horasTeoria,
+      horasPractica,
+      horasLaboratorio,
+      horasTeoriaCompartido,
+      horasPracticaCompartido,
+      horasLaboratorioCompartido,
+      teoriaCompartido,
+      practicaCompartido,
+      laboratorioCompartido,
+      teoriaDocenteCompartidoId,
+      practicaDocenteCompartidoId,
+      laboratorioDocenteCompartidoId,
+      gruposLaboratorio,
+      gruposLaboratorioCompartido,
+      assignCursoCompletoMutation.isPending,
+    ]
+  );
 
   const filteredLineas = useMemo(() => {
     if (!searchTerm) return lineas;
@@ -562,23 +637,33 @@ export default function DemandaDepartamentoPage() {
               </div>
 
               {/* Docente principal */}
-              {selectedCursoForAssign && (
-                <div>
-                  <label className="block text-sm font-medium text-text-main mb-1.5">Docente Principal</label>
-                  <select
-                    className="input-standard"
-                    value={docenteId}
-                    onChange={(e) => setDocenteId(e.target.value)}
-                  >
-                    <option value="">Seleccione un docente</option>
-                    {filteredDocentesForAssign.map((doc) => (
-                      <option key={doc.id} value={doc.id}>
-                        {doc.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-text-main mb-1.5">Docente Principal</label>
+                <select
+                  className="input-standard"
+                  value={docenteId}
+                  onChange={(e) => setDocenteId(e.target.value)}
+                >
+                  <option value="">Seleccione un docente</option>
+                  {filteredDocentesForAssign.map((doc) => (
+                    <option key={doc.id} value={doc.id}>
+                      {doc.nombre}
+                      {doc.departamentoId ? '' : ' (sin departamento)'}
+                    </option>
+                  ))}
+                </select>
+                {filteredDocentesForAssign.length === 0 && (
+                  <p className="text-xs text-amber-600 mt-1.5">
+                    {docentes.length === 0
+                      ? 'No hay docentes registrados en el sistema.'
+                      : !selectedCursoForAssign
+                        ? 'Selecciona un grupo para continuar.'
+                        : selectedCursoForAssign.departamentoId
+                          ? `No hay docentes visibles para el departamento de este curso. Roles directivos pueden reasignar docentes.`
+                          : 'Este curso no tiene departamento asignado.'}
+                  </p>
+                )}
+              </div>
 
               {/* Teoría */}
               {selectedCursoForAssign && selectedCursoForAssign.horasTeoria > 0 && (
@@ -891,7 +976,12 @@ export default function DemandaDepartamentoPage() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-2 border-t border-border">
+              <div className="flex justify-end gap-3 pt-2 border-t border-border items-center">
+                {assignmentValidation.disabled && assignmentValidation.reason && !assignCursoCompletoMutation.isPending && (
+                  <span className="text-xs text-amber-600 mr-auto">
+                    {assignmentValidation.reason}
+                  </span>
+                )}
                 <button
                   onClick={closeAssignModal}
                   className="px-4 py-2 text-text-sub hover:text-text-main transition-colors text-sm font-medium"
@@ -900,7 +990,8 @@ export default function DemandaDepartamentoPage() {
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={!docenteId || !grupoId}
+                  disabled={assignmentValidation.disabled}
+                  title={assignmentValidation.reason}
                   className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Guardar Asignación

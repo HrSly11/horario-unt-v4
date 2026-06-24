@@ -284,4 +284,90 @@ export const cargaNoLectivaRouter = createTRPCRouter({
       await assertPeriodoMutable(ctx.prisma, existing.periodoId);
       return ctx.prisma.cargaNoLectiva.delete({ where: { id: input.id } });
     }),
+
+  /**
+   * Asigna (o reemplaza) las franjas horarias de una carga no lectiva. Pensado
+   * para que el docente pueda, desde "Mi horario personal", asignar la franja
+   * horaria de una actividad registrada sin horario (o editar las existentes).
+   *
+   * Si `horarios` está vacío, se eliminan todos los horarios de la actividad.
+   * Si se pasan horarios, reemplazan a los anteriores (deleteMany + createMany).
+   *
+   * La validación de solapamientos y horas diarias se delega a
+   * `assertNonLectiveScheduleIntegrity`, que ya considera carga lectiva,
+   * preasignaciones y otras cargas no lectivas del mismo docente/período.
+   */
+  asignarHorario: docenteProcedure
+    .input(z.object({
+      cargaNoLectivaId: z.string(),
+      horarios: z.array(horarioInput),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.prisma.cargaNoLectiva.findUniqueOrThrow({
+        where: { id: input.cargaNoLectivaId },
+      });
+      await assertFacultyPeriodNotPublished(ctx.prisma, {
+        docenteId: existing.docenteId,
+        periodoId: existing.periodoId,
+      });
+
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== existing.docenteId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'No tiene permiso para asignar horario a una carga no lectiva de otro docente',
+        });
+      }
+      await assertPeriodoMutable(ctx.prisma, existing.periodoId);
+      await assertNonLectiveScheduleIntegrity(
+        ctx.prisma,
+        existing.docenteId,
+        existing.periodoId,
+        input.horarios.length > 0 ? input.horarios : undefined,
+        existing.id // excluir la propia carga del chequeo de solapamientos
+      );
+
+      // Transaction: reemplazar horarios (delete old → create new)
+      return ctx.prisma.$transaction(async (tx) => {
+        await tx.horarioCargaNoLectiva.deleteMany({
+          where: { cargaNoLectivaId: existing.id },
+        });
+        if (input.horarios.length > 0) {
+          await tx.horarioCargaNoLectiva.createMany({
+            data: input.horarios.map((h) => ({
+              ...h,
+              cargaNoLectivaId: existing.id,
+            })),
+          });
+        }
+
+        return tx.cargaNoLectiva.findUniqueOrThrow({
+          where: { id: existing.id },
+          include: includeHorarios,
+        });
+      });
+    }),
+
+  removeHorario: docenteProcedure
+    .input(z.object({ horarioId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const horario = await ctx.prisma.horarioCargaNoLectiva.findUniqueOrThrow({
+        where: { id: input.horarioId },
+        include: { cargaNoLectiva: { select: { docenteId: true, periodoId: true } } },
+      });
+
+      await assertFacultyPeriodNotPublished(ctx.prisma, {
+        docenteId: horario.cargaNoLectiva.docenteId,
+        periodoId: horario.cargaNoLectiva.periodoId,
+      });
+
+      if (ctx.session.role === 'DOCENTE' && ctx.session.docenteId !== horario.cargaNoLectiva.docenteId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'No tiene permiso para eliminar horarios de otro docente',
+        });
+      }
+      await assertPeriodoMutable(ctx.prisma, horario.cargaNoLectiva.periodoId);
+
+      return ctx.prisma.horarioCargaNoLectiva.delete({ where: { id: input.horarioId } });
+    }),
 });

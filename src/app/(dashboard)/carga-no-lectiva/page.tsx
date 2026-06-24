@@ -3,7 +3,25 @@
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
-import { Plus, Pencil, Trash2, Clock, Calendar, X, BookOpen, AlertTriangle, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Clock, Calendar, X, BookOpen, AlertTriangle, Search, Download, FileCheck, Loader2 } from 'lucide-react';
+
+// ── Helpers ────────────────────────────────────────────
+
+function downloadBase64PDF(base64: string, filename: string) {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 // ── Types ──────────────────────────────────────────────
 
@@ -123,6 +141,7 @@ export default function CargaNoLectivaPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [selectedPeriodoId, setSelectedPeriodoId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [tableSearch, setTableSearch] = useState('');
@@ -158,6 +177,36 @@ export default function CargaNoLectivaPage() {
     enabled: !!docenteId && !!periodoId,
   });
   const horarioLectivo = (horarioLectivoRaw ?? []) as any[];
+
+  // Declaración del docente en el periodo actual (necesaria para generar el PDF).
+  const { data: declaraciones = [] } = useQuery({
+    ...trpc.declaracion.list.queryOptions({ periodoId }),
+    enabled: !!periodoId,
+  });
+  const declaracionActual = declaraciones[0];
+
+  // ── PDF generation ───────────────────────────────────
+  const generatePDFMutation = useMutation(
+    trpc.declaracionPDF.generate.mutationOptions({
+      onSuccess: (data) => {
+        downloadBase64PDF(data.pdfBase64, data.filename);
+        setDownloadingPdf(false);
+      },
+      onError: () => {
+        setDownloadingPdf(false);
+        alert('Error al generar el PDF. Verifique que la declaración tenga carga asignada.');
+      },
+    })
+  );
+
+  function handleDescargarFormato1() {
+    if (!declaracionActual) {
+      alert('Primero crea tu declaración de carga en el módulo Declaraciones para poder descargar el Formato 1.');
+      return;
+    }
+    setDownloadingPdf(true);
+    generatePDFMutation.mutate({ declaracionId: declaracionActual.id, formato: 'N1' });
+  }
 
   // Helper for time overlap check (local)
   function checkOverlap(
@@ -347,6 +396,11 @@ export default function CargaNoLectivaPage() {
   const totalNoLectivas = cargaData?.totalNoLectivas || 0;
   const totalGeneral = totalLectivas + totalNoLectivas;
   const progressPct = Math.min(100, (totalGeneral / horasContrato) * 100);
+  // Marca para mostrar el botón de descarga: el docente ya cumplió el total
+  // (o lo superó). La carga lectiva aporta al total desde `byDocente`,
+  // pero el materializer aún puede no haber creado asignaciones si el curso
+  // fue recién aperturado, por eso verificamos también los datos crudos.
+  const horasCargaCompletas = totalGeneral >= horasContrato && horasContrato > 0;
 
   // Filter the list by the search term (tipo, descripción, horario, proyecto)
   const filteredCargasNoLectivas = useMemo(() => {
@@ -465,18 +519,61 @@ export default function CargaNoLectivaPage() {
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="space-y-1">
-        <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all rounded-full ${progressPct >= 100 ? 'bg-red-500' : progressPct >= 80 ? 'bg-amber-500' : 'bg-green-500'}`}
-            style={{ width: `${progressPct}%` }}
-          />
+      {/* Progress bar + descarga de Formato 1 */}
+      <div className="bg-zinc-900/80 border border-zinc-800 rounded-lg p-4 space-y-3">
+        <div className="space-y-1">
+          <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all rounded-full ${progressPct >= 100 ? 'bg-red-500' : progressPct >= 80 ? 'bg-amber-500' : 'bg-green-500'}`}
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-xs text-zinc-500">
+            <span>{totalGeneral}h usadas</span>
+            <span>{Math.max(0, horasContrato - totalGeneral)}h disponibles</span>
+          </div>
         </div>
-        <div className="flex justify-between text-xs text-zinc-500">
-          <span>{totalGeneral}h usadas</span>
-          <span>{Math.max(0, horasContrato - totalGeneral)}h disponibles</span>
-        </div>
+
+        {horasCargaCompletas ? (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-zinc-800">
+            <div className="flex items-center gap-2 text-emerald-400 text-sm">
+              <FileCheck className="h-4 w-4" />
+              <span className="font-medium">
+                Carga completa: {totalGeneral}h / {horasContrato}h. Puedes descargar el Formato 1.
+              </span>
+            </div>
+            <button
+              onClick={handleDescargarFormato1}
+              disabled={downloadingPdf || generatePDFMutation.isPending}
+              className="flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+              title={
+                declaracionActual
+                  ? 'Descargar Formato 1: Declaración de carga horaria'
+                  : 'Crea primero tu declaración de carga'
+              }
+            >
+              {downloadingPdf || generatePDFMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generando PDF…
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Descargar Formato 1
+                </>
+              )}
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 text-zinc-500 text-xs pt-2 border-t border-zinc-800">
+            <Calendar className="h-3.5 w-3.5" />
+            <span>
+              Completa {horasContrato - totalGeneral}h más (lectivas o no lectivas)
+              para habilitar la descarga del Formato 1.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Table */}

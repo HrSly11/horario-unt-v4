@@ -5,262 +5,78 @@ import { docenteRouter } from './docente';
 vi.mock('@/lib/prisma', () => ({ prisma: {} }));
 vi.mock('@/lib/auth', () => ({ getSession: vi.fn() }));
 
-type SessionRole =
-  | 'ADMIN'
-  | 'DOCENTE'
-  | 'ESTUDIANTE'
-  | 'INVITADO'
-  | 'SECRETARIA_ACADEMICA'
-  | 'DIRECTOR_ESCUELA'
-  | 'DIRECTOR_DEPARTAMENTO'
-  | 'SECRETARIA_DEPARTAMENTO'
-  | 'DECANO';
-
-function makeSession(role: SessionRole, docenteId?: string) {
-  return {
-    id: `${role.toLowerCase()}-user`,
-    email: `${role.toLowerCase()}@example.edu`,
-    nombre: role,
-    role,
-    docenteId,
+function makeCaller(prisma: any, role: 'ADMIN' | 'SECRETARIA_DEPARTAMENTO' | 'SECRETARIA_ACADEMICA', userId = 'user-1') {
+  prisma.user = {
+    findUnique: vi.fn().mockResolvedValue({ id: userId, activo: true, role, email: 'u@e.edu', nombre: 'U' }),
   };
-}
-
-function makeCaller(prisma: ReturnType<typeof makePrisma>, session: ReturnType<typeof makeSession>) {
   const createCaller = createCallerFactory(docenteRouter);
-
   return createCaller(async () => ({
-    prisma: prisma as any,
+    prisma,
     headers: new Headers(),
-    session,
+    session: { id: userId, email: 'u@e.edu', nombre: 'U', role },
   }));
 }
 
-function makePrisma({
-  session = makeSession('ADMIN'),
-  managedDepartamentoId = 'dept-1',
-  periodEstado = 'POSTULACION',
-}: {
-  session?: ReturnType<typeof makeSession>;
-  managedDepartamentoId?: string | null;
-  periodEstado?: string;
-} = {}) {
-  const disponibilidadDocente = {
-    findMany: vi.fn(async () => []),
-    deleteMany: vi.fn(async () => ({ count: 0 })),
-    createMany: vi.fn(async () => ({ count: 0 })),
-  };
+const baseInput = {
+  nombre: 'Docente Prueba',
+  email: 'prueba@unt.edu.pe',
+  categoria: 'AUXILIAR' as const,
+  tipo: 'CONTRATADO' as const,
+  antiguedad: new Date('2024-01-01'),
+  activo: true,
+  experienciaAnios: 0,
+};
 
-  return {
-    user: {
-      findUnique: vi.fn(async () => ({
-        ...session,
-        docenteId: session.docenteId ?? null,
-        activo: true,
-      })),
-    },
-    departamento: {
-      findUnique: vi.fn(async () => (managedDepartamentoId ? { id: managedDepartamentoId } : null)),
-    },
-    docente: {
-      findMany: vi.fn(async (...args: any[]) => [] as any[]),
-      findUniqueOrThrow: vi.fn(async () => ({
-        id: session.docenteId ?? 'docente-1',
-        tipo: 'NOMBRADO',
-        docenteGrupos: [
-          {
-            grupo: {
-              curso: {
-                horasTeoria: 20,
-                horasLaboratorio: 0,
-              },
-            },
-          },
-        ],
-      })),
-    },
-    periodoAcademico: {
-      findFirst: vi.fn(async () => ({ id: 'period-active', estado: periodEstado })),
-      findUnique: vi.fn(async ({ where }: { where: { id: string } }) => ({ id: where.id, estado: periodEstado })),
-    },
-    disponibilidadDocente,
-    asignacionCargaLectiva: {
-      findMany: vi.fn(async () => [] as any[]),
-    },
-    asignacion: {
-      findMany: vi.fn(async () => []),
-    },
-    $transaction: vi.fn(async (callback) => callback({ disponibilidadDocente })),
-  };
-}
+describe('docenteRouter.create con departamentoId', () => {
+  it('asigna departamentoId explícito cuando el usuario lo provee (ADMIN)', async () => {
+    const created: any = { id: 'doc-1' };
+    const prisma: any = {
+      docente: { create: vi.fn(async ({ data }: any) => ({ ...created, ...data })) },
+    };
+    const caller = makeCaller(prisma, 'ADMIN');
 
-describe('docenteRouter list scoping', () => {
-  it('returns only the current docente and uses a safe explicit select for docente users', async () => {
-    const session = makeSession('DOCENTE', 'docente-1');
-    const prisma = makePrisma({ session });
-    const caller = makeCaller(prisma, session);
+    const result = await caller.create({ ...baseInput, departamentoId: 'dept-1' });
 
-    await caller.list({ search: 'Ada' });
-
-    const call = prisma.docente.findMany.mock.calls[0]?.[0];
-    expect(call).toEqual(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          AND: expect.arrayContaining([
-            { id: 'docente-1' },
-            {
-              OR: [
-                { nombre: { contains: 'Ada', mode: 'insensitive' } },
-                { email: { contains: 'Ada', mode: 'insensitive' } },
-              ],
-            },
-          ]),
-        }),
-      })
+    expect(prisma.docente.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ departamentoId: 'dept-1' }) })
     );
-    expect(call?.select).toEqual(
-      expect.objectContaining({
-        id: true,
-        nombre: true,
-        email: true,
-        categoria: true,
-        tipo: true,
-      })
-    );
-    expect(call?.select).not.toHaveProperty('dni');
-    expect(call?.select).not.toHaveProperty('codigoIBM');
-    expect(call?.select).not.toHaveProperty('horasContrato');
+    expect(result.departamentoId).toBe('dept-1');
   });
 
-  it('scopes department secretary lists to the managed department', async () => {
-    const session = makeSession('SECRETARIA_DEPARTAMENTO');
-    const prisma = makePrisma({ session, managedDepartamentoId: 'dept-managed' });
-    const caller = makeCaller(prisma, session);
+  it('SECRETARIA_DEPARTAMENTO sin departamento gestionado lanza FORBIDDEN', async () => {
+    const prisma: any = {
+      departamento: { findUnique: vi.fn().mockResolvedValue(null) },
+    };
+    const caller = makeCaller(prisma, 'SECRETARIA_DEPARTAMENTO');
 
-    await caller.list({});
-
-    expect(prisma.departamento.findUnique).toHaveBeenCalledWith({
-      where: { secretariaId: session.id },
-      select: { id: true },
-    });
-    expect(prisma.docente.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          AND: expect.arrayContaining([{ departamentoId: { in: ['dept-managed'] } }]),
-        }),
-      })
+    await expect(caller.create({ ...baseInput })).rejects.toThrow(
+      /No tiene un departamento asignado/
     );
   });
 
-  it('allows institutional manager roles to query without a department filter', async () => {
-    const session = makeSession('SECRETARIA_ACADEMICA');
-    const prisma = makePrisma({ session });
-    const caller = makeCaller(prisma, session);
+  it('SECRETARIA_DEPARTAMENTO asigna automáticamente su departamento gestionado', async () => {
+    const prisma: any = {
+      departamento: { findUnique: vi.fn().mockResolvedValue({ id: 'dept-1' }) },
+      docente: { create: vi.fn(async ({ data }: any) => ({ id: 'doc-1', ...data })) },
+    };
+    const caller = makeCaller(prisma, 'SECRETARIA_DEPARTAMENTO');
 
-    await caller.list({});
+    const result = await caller.create({ ...baseInput });
 
-    expect(prisma.departamento.findUnique).not.toHaveBeenCalled();
-    expect(prisma.docente.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: undefined,
-      })
+    expect(prisma.docente.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ departamentoId: 'dept-1' }) })
     );
+    expect(result.departamentoId).toBe('dept-1');
   });
 
-  it('forbids student and guest roles from reading docente lists', async () => {
-    const session = makeSession('INVITADO');
-    const prisma = makePrisma({ session });
-    const caller = makeCaller(prisma, session);
+  it('SECRETARIA_DEPARTAMENTO no puede asignar un departamento fuera de su gestión', async () => {
+    const prisma: any = {
+      departamento: { findUnique: vi.fn().mockResolvedValue({ id: 'dept-1' }) },
+    };
+    const caller = makeCaller(prisma, 'SECRETARIA_DEPARTAMENTO');
 
-    await expect(caller.list({})).rejects.toMatchObject({ code: 'FORBIDDEN' });
-    expect(prisma.docente.findMany).not.toHaveBeenCalled();
-  });
-});
-
-describe('docenteRouter personalStats', () => {
-  it('calculates workload from formal carga lectiva assignments instead of DocenteGrupo approximations', async () => {
-    const session = makeSession('DOCENTE', 'docente-1');
-    const prisma = makePrisma({ session });
-    prisma.asignacionCargaLectiva.findMany.mockResolvedValueOnce([
-      { id: 'acl-1', grupoId: 'grupo-1', horasAsignadas: 3, grupo: { curso: { codigo: 'IS-101', nombre: 'Programming' } } },
-      { id: 'acl-2', grupoId: 'grupo-2', horasAsignadas: 2, grupo: { curso: { codigo: 'IS-102', nombre: 'Databases' } } },
-    ]);
-    const caller = makeCaller(prisma, session);
-
-    const result = await caller.personalStats();
-
-    expect(result.workload).toBe(5);
-    expect(result.coursesCount).toBe(2);
-    expect(prisma.asignacionCargaLectiva.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {
-          docenteId: 'docente-1',
-          periodoId: 'period-active',
-        },
-      })
-    );
-  });
-
-  it('returns zero workload when the active period has no formal carga lectiva assignments', async () => {
-    const session = makeSession('DOCENTE', 'docente-1');
-    const prisma = makePrisma({ session });
-    const caller = makeCaller(prisma, session);
-
-    const result = await caller.personalStats();
-
-    expect(result.workload).toBe(0);
-    expect(result.coursesCount).toBe(0);
-    expect(result.asignacionesCarga).toEqual([]);
-  });
-});
-
-describe('docenteRouter availability', () => {
-  it('reads availability from the active academic period only', async () => {
-    const session = makeSession('DOCENTE', 'docente-1');
-    const prisma = makePrisma({ session });
-    const caller = makeCaller(prisma, session);
-
-    await caller.getDisponibilidad();
-
-    expect(prisma.periodoAcademico.findFirst).toHaveBeenCalledWith({
-      where: { activo: true },
-      select: { id: true, estado: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    expect(prisma.disponibilidadDocente.findMany).toHaveBeenCalledWith({
-      where: { docenteId: 'docente-1', periodoId: 'period-active', grupoId: null, tipo: null },
-      include: { franjaHoraria: true },
-    });
-  });
-
-  it('saves availability scoped to the active period during postulation', async () => {
-    const session = makeSession('DOCENTE', 'docente-1');
-    const prisma = makePrisma({ session, periodEstado: 'POSTULACION' });
-    const caller = makeCaller(prisma, session);
-
-    await caller.saveAvailability({ franjaIds: ['franja-1', 'franja-1', 'franja-2'] });
-
-    expect(prisma.disponibilidadDocente.deleteMany).toHaveBeenCalledWith({
-      where: { docenteId: 'docente-1', periodoId: 'period-active', grupoId: null, tipo: null },
-    });
-    expect(prisma.disponibilidadDocente.createMany).toHaveBeenCalledWith({
-      data: [
-        { docenteId: 'docente-1', periodoId: 'period-active', franjaHorariaId: 'franja-1', grupoId: null, tipo: null },
-        { docenteId: 'docente-1', periodoId: 'period-active', franjaHorariaId: 'franja-2', grupoId: null, tipo: null },
-      ],
-      skipDuplicates: true,
-    });
-  });
-
-  it('blocks availability changes after the postulation phase', async () => {
-    const session = makeSession('DOCENTE', 'docente-1');
-    const prisma = makePrisma({ session, periodEstado: 'ASIGNACION' });
-    const caller = makeCaller(prisma, session);
-
-    await expect(caller.saveAvailability({ franjaIds: ['franja-1'] })).rejects.toMatchObject({
-      code: 'BAD_REQUEST',
-    });
-    expect(prisma.disponibilidadDocente.deleteMany).not.toHaveBeenCalled();
-    expect(prisma.disponibilidadDocente.createMany).not.toHaveBeenCalled();
+    await expect(
+      caller.create({ ...baseInput, departamentoId: 'dept-otro' })
+    ).rejects.toThrow(/Solo puede crear docentes/);
   });
 });

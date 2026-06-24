@@ -25,6 +25,11 @@ const LUGAR_LABELS: Record<string, string> = {
   F11: 'Ingeniería',
   F12: 'Ingeniería Química',
   F13: 'Medicina',
+  F14: 'Filial Valle Jequetepeque',
+  F15: 'Filial Huamachuco',
+  F16: 'Filial Santiago de Chuco',
+  OA: 'Oficina Administrativa',
+  SC: 'Salida de Campo',
 };
 
 const TIPO_LABELS: Record<string, string> = {
@@ -495,6 +500,7 @@ export interface FormatoN3Data {
     categoria: string;
     tipo: string;
     modalidad: string;
+    horasContrato?: number | null;
   };
   periodo: { nombre: string; fechaInicio?: string; fechaFin?: string };
   facultad: string;
@@ -519,232 +525,817 @@ export interface FormatoN3Data {
   }[];
 }
 
-export function templateFormatoN3(data: FormatoN3Data): string {
-  // 1. Build the hourly grid slots for each day
-  const dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
-  const daySlots: Record<string, Record<string, any>> = {};
-  
-  // Initialize days
-  dias.forEach((d) => {
-    daySlots[d] = {};
+const N3_DIAS: DiaSemana[] = [
+  DiaSemana.LUNES,
+  DiaSemana.MARTES,
+  DiaSemana.MIERCOLES,
+  DiaSemana.JUEVES,
+  DiaSemana.VIERNES,
+  DiaSemana.SABADO,
+];
+
+const N3_DIA_LABELS: Record<DiaSemana, string> = {
+  LUNES: 'Lun',
+  MARTES: 'Mar',
+  MIERCOLES: 'Mie',
+  JUEVES: 'Jue',
+  VIERNES: 'Vie',
+  SABADO: 'Sab',
+};
+
+const N3_NO_LECTIVA_LABELS: Record<string, string> = {
+  PREPARACION_EVALUACION: 'Prep. y Eval.',
+  CONSEJERIA: 'Consejeria',
+  INVESTIGACION: 'Investigacion',
+  CAPACITACION: 'Capacitacion',
+  GOBIERNO: 'Gobierno',
+  ADMINISTRACION: 'Administracion',
+  ASESORIA_TESIS: 'Asesoria Tesis',
+  RESPONSABILIDAD_SOCIAL: 'Resp. Social',
+  COMITES_COMISIONES: 'Comites',
+  JURADOS: 'Jurados',
+  AUTOEVALUACION_ACREDITACION: 'Autoeval.',
+  OTRAS_AUTORIZADAS: 'Otras',
+};
+
+const N3_GRID_TYPE_STYLES: Record<string, { bg: string; border: string; text: string }> = {
+  TEORIA: { bg: '#dbeafe', border: '#60a5fa', text: '#1e3a8a' },
+  PRACTICA: { bg: '#dcfce7', border: '#4ade80', text: '#166534' },
+  LABORATORIO: { bg: '#f3e8ff', border: '#a78bfa', text: '#6b21a8' },
+  PREPARACION_EVALUACION: { bg: '#fef9c3', border: '#facc15', text: '#854d0e' },
+  CONSEJERIA: { bg: '#fce7f3', border: '#f472b6', text: '#9d174d' },
+  INVESTIGACION: { bg: '#e0e7ff', border: '#818cf8', text: '#3730a3' },
+  CAPACITACION: { bg: '#ffedd5', border: '#fb923c', text: '#9a3412' },
+  GOBIERNO: { bg: '#fee2e2', border: '#f87171', text: '#991b1b' },
+  ADMINISTRACION: { bg: '#e5e7eb', border: '#9ca3af', text: '#1f2937' },
+  ASESORIA_TESIS: { bg: '#ccfbf1', border: '#2dd4bf', text: '#115e59' },
+  RESPONSABILIDAD_SOCIAL: { bg: '#ecfccb', border: '#a3e635', text: '#3f6212' },
+  COMITES_COMISIONES: { bg: '#cffafe', border: '#22d3ee', text: '#155e75' },
+  JURADOS: { bg: '#fae8ff', border: '#e879f9', text: '#86198f' },
+  AUTOEVALUACION_ACREDITACION: { bg: '#ede9fe', border: '#a78bfa', text: '#5b21b6' },
+  OTRAS_AUTORIZADAS: { bg: '#d1fae5', border: '#34d399', text: '#065f46' },
+};
+
+type FormatoN3TraditionalSlot = {
+  dia: DiaSemana;
+  horaInicio: string;
+  horaFin: string;
+  lectivo?: string;
+  preparacion?: number;
+  consejeria?: number;
+  investigacion?: number;
+  capacitacion?: number;
+  gobierno?: number;
+  administracion?: number;
+  asesoriaTesis?: number;
+  responsabilidadSocial?: number;
+  comitesComisiones?: number;
+  local: string;
+  aula: string;
+};
+
+type FormatoN3GridCell = {
+  tipo: string;
+  label: string;
+  detail: string;
+};
+
+type N3Interval = {
+  dia: DiaSemana;
+  horaInicio: string;
+  horaFin: string;
+  aula?: string | null;
+};
+
+type N3GroupedLectiveRow = {
+  cursoCodigo: string;
+  cursoNombre: string;
+  grupoNombre: string;
+  seccion?: string;
+  ciclo: number;
+  slots: FormatoN3Data['asignacionesLectivas'];
+};
+
+const N3_TEACHING_TYPE_LABELS: Record<string, string> = {
+  TEORIA: 'T',
+  PRACTICA: 'P',
+  LABORATORIO: 'L',
+};
+
+const N3_PRESENTATION_NO_LECTIVE_ROWS = [
+  { tipo: 'PREPARACION_EVALUACION', label: 'PREPARACION Y EVALUACION' },
+  { tipo: 'CONSEJERIA', label: 'TUTORIA Y CONSEJERIA' },
+  { tipo: 'INVESTIGACION', label: 'INVESTIGACION' },
+  { tipo: 'RESPONSABILIDAD_SOCIAL', label: 'RESPONSABILIDAD SOCIAL UNIVERSITARIA' },
+  { tipo: 'ASESORIA_TESIS', label: 'ASESORIA DE TESIS Y EXAMENES PROFESIONALES' },
+  { tipo: 'CAPACITACION', label: 'FORMACION ACADEMICA Y CAPACITACION' },
+  { tipo: 'AUTOEVALUACION_ACREDITACION', label: 'AUTOEVALUACION Y/O ACREDITACION DE LA ESCUELA PROFESIONAL' },
+  { tipo: 'COMITES_COMISIONES', label: 'COMITES O COMISIONES ESPECIALES' },
+  { tipo: 'GOBIERNO', label: 'ACTIVIDADES DE GOBIERNO O AUTORIDAD' },
+  { tipo: 'ADMINISTRACION', label: 'ACTIVIDADES DE GESTION INSTITUCIONAL' },
+] as const;
+
+function stripAccents(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function expandHourRange(horaInicio: string, horaFin: string): Array<{ horaInicio: string; horaFin: string }> {
+  const startHour = parseInt(horaInicio.split(':')[0] || '0', 10);
+  const endHour = parseInt(horaFin.split(':')[0] || '0', 10);
+  const result: Array<{ horaInicio: string; horaFin: string }> = [];
+
+  for (let currentHour = startHour; currentHour < endHour; currentHour++) {
+    result.push({
+      horaInicio: `${String(currentHour).padStart(2, '0')}:00`,
+      horaFin: `${String(currentHour + 1).padStart(2, '0')}:00`,
+    });
+  }
+
+  return result;
+}
+
+function normalizeDia(dia: string): DiaSemana | null {
+  const upperDia = dia.toUpperCase() as DiaSemana;
+  return N3_DIAS.includes(upperDia) ? upperDia : null;
+}
+
+function getFormatoN3Cycle(periodoNombre: string): string {
+  const parts = periodoNombre.split('-');
+  return parts[1] || 'I';
+}
+
+function getFormatoN3Year(periodoNombre: string): string {
+  const parts = periodoNombre.split('-');
+  return parts[0] || new Date().getFullYear().toString();
+}
+
+function formatShortDate(value?: string): string {
+  if (!value) return '___/___/____';
+  const [day = '', month = '', year = ''] = value.split('/');
+  if (!day || !month || !year) return value;
+  return `${Number(day)}/${month}/${year}`;
+}
+
+function inferFacultyCode(facultad: string): string {
+  const normalized = stripAccents(facultad).toUpperCase();
+  const exact = Object.entries(LUGAR_LABELS).find(([, label]) => stripAccents(label).toUpperCase() === normalized);
+  if (exact) return exact[0];
+
+  const partial = Object.entries(LUGAR_LABELS).find(([, label]) => normalized.includes(stripAccents(label).toUpperCase()));
+  return partial?.[0] || 'F11';
+}
+
+function getCategoriaDisplay(categoria: string): string {
+  return (CATEGORIA_LABELS[categoria] || categoria).toUpperCase();
+}
+
+function getModalidadDisplay(modalidad: string, horasContrato?: number | null): string {
+  if (modalidad === 'DEDICACION_EXCLUSIVA') return 'DE';
+  if (modalidad === 'TIEMPO_COMPLETO') return 'TC';
+  if (modalidad === 'TIEMPO_PARCIAL') {
+    return horasContrato ? `TP ${horasContrato}H` : 'TP';
+  }
+  return modalidad;
+}
+
+function getDurationInHours(horaInicio: string, horaFin: string): number {
+  const startHour = parseInt(horaInicio.split(':')[0] || '0', 10);
+  const endHour = parseInt(horaFin.split(':')[0] || '0', 10);
+  return Math.max(0, endHour - startHour);
+}
+
+function mergeIntervals(intervals: N3Interval[]): N3Interval[] {
+  const sorted = [...intervals].sort((a, b) => {
+    const dayDiff = N3_DIAS.indexOf(a.dia) - N3_DIAS.indexOf(b.dia);
+    if (dayDiff !== 0) return dayDiff;
+    return a.horaInicio.localeCompare(b.horaInicio);
   });
 
-  // Populate lective slots (Asignaciones)
-  data.asignacionesLectivas.forEach((a) => {
-    const dia = a.dia.toUpperCase();
-    if (daySlots[dia]) {
-      daySlots[dia][a.horaInicio] = {
-        dia,
-        horaInicio: a.horaInicio,
-        horaFin: a.horaFin,
-        lectivo: a.cursoCodigo,
-        local: 'LOCAL',
-        aula: a.aulaCodigo,
-        totalHrs: 1,
-      };
+  const merged: N3Interval[] = [];
+  for (const current of sorted) {
+    const previous = merged[merged.length - 1];
+    if (
+      previous &&
+      previous.dia === current.dia &&
+      previous.horaFin === current.horaInicio &&
+      (previous.aula || '') === (current.aula || '')
+    ) {
+      previous.horaFin = current.horaFin;
+    } else {
+      merged.push({ ...current });
+    }
+  }
+
+  return merged;
+}
+
+function formatHorarioIntervals(intervals: N3Interval[], separator = ', '): { text: string; aulas: string[] } {
+  const merged = mergeIntervals(intervals);
+  return {
+    text: merged
+      .map((interval) => `${DIA_ABREV[interval.dia] || interval.dia}(${interval.horaInicio}-${interval.horaFin})`)
+      .join(separator),
+    aulas: merged.map((interval) => interval.aula || '---'),
+  };
+}
+
+function buildPresentationLectiveRows(data: FormatoN3Data): { rowsHtml: string; totalLectivas: number } {
+  const grouped = new Map<string, N3GroupedLectiveRow>();
+
+  data.asignacionesLectivas.forEach((slot) => {
+    const key = [slot.cursoCodigo, slot.grupoNombre, slot.seccion || '', slot.ciclo].join('|');
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.slots.push(slot);
+      return;
+    }
+    grouped.set(key, {
+      cursoCodigo: slot.cursoCodigo,
+      cursoNombre: slot.cursoNombre,
+      grupoNombre: slot.grupoNombre,
+      seccion: slot.seccion,
+      ciclo: slot.ciclo,
+      slots: [slot],
+    });
+  });
+
+  const lugar = inferFacultyCode(data.facultad);
+  const rows = Array.from(grouped.values()).map((item) => {
+    const horarioLines: string[] = [];
+    const aulas: string[] = [];
+
+    ['TEORIA', 'PRACTICA', 'LABORATORIO'].forEach((tipo) => {
+      const slotsByType = item.slots.filter((slot) => slot.tipo === tipo);
+      if (slotsByType.length === 0) return;
+
+      const formatted = formatHorarioIntervals(
+        slotsByType.map((slot) => ({
+          dia: normalizeDia(slot.dia) || DiaSemana.LUNES,
+          horaInicio: slot.horaInicio,
+          horaFin: slot.horaFin,
+          aula: slot.aulaCodigo,
+        }))
+      );
+
+      horarioLines.push(`${N3_TEACHING_TYPE_LABELS[tipo]}: ${formatted.text}`);
+      aulas.push(...formatted.aulas);
+    });
+
+    const total = item.slots.reduce(
+      (sum, slot) => sum + getDurationInHours(slot.horaInicio, slot.horaFin),
+      0
+    );
+    const detalleGrupo = [item.cursoCodigo, item.grupoNombre, item.seccion].filter(Boolean).join(' - ');
+
+    return `
+      <tr>
+        <td>${horarioLines.join('<br>') || '&nbsp;'}</td>
+        <td>
+          <div class="row-title">${item.cursoNombre}</div>
+          <div class="row-subtitle">${detalleGrupo}</div>
+          <div class="row-subtitle">Ciclo ${item.ciclo}</div>
+        </td>
+        <td class="text-center">${lugar}</td>
+        <td>${aulas.join(', ') || '&nbsp;'}</td>
+        <td class="text-center">${total || ''}</td>
+      </tr>
+    `;
+  });
+
+  const totalLectivas = data.asignacionesLectivas.reduce(
+    (sum, slot) => sum + getDurationInHours(slot.horaInicio, slot.horaFin),
+    0
+  );
+
+  return {
+    rowsHtml: rows.join(''),
+    totalLectivas,
+  };
+}
+
+function buildPresentationNoLectiveRows(data: FormatoN3Data): { rowsHtml: string; totalNoLectivas: number } {
+  const rows = N3_PRESENTATION_NO_LECTIVE_ROWS.map((definition) => {
+    const carga = data.cargasNoLectivas.find((item) => item.tipo === definition.tipo);
+    if (!carga) {
+      return `
+        <tr>
+          <td>&nbsp;</td>
+          <td>${definition.label}</td>
+          <td class="text-center">&nbsp;</td>
+          <td>&nbsp;</td>
+          <td class="text-center">&nbsp;</td>
+        </tr>
+      `;
+    }
+
+    const horarios = (carga.horarios || [])
+      .map((horario) => ({
+        dia: normalizeDia(horario.dia),
+        horaInicio: horario.horaInicio,
+        horaFin: horario.horaFin,
+        aula: horario.aula || 'CUBICULO',
+      }))
+      .filter((horario): horario is N3Interval => Boolean(horario.dia));
+
+    const formatted = formatHorarioIntervals(horarios, ', <br>');
+    const lugar =
+      carga.horarios?.find((horario) => horario.lugar)?.lugar ||
+      inferFacultyCode(data.facultad);
+    const aulaText =
+      formatted.aulas.length > 0
+        ? formatted.aulas.join(', ')
+        : carga.horarios?.find((horario) => horario.aula)?.aula || 'CUBICULO';
+
+    return `
+      <tr>
+        <td>${formatted.text || '&nbsp;'}</td>
+        <td>${definition.label}</td>
+        <td class="text-center">${lugar}</td>
+        <td>${aulaText}</td>
+        <td class="text-center">${carga.horas || ''}</td>
+      </tr>
+    `;
+  });
+
+  const totalNoLectivas = data.cargasNoLectivas.reduce((sum, carga) => sum + carga.horas, 0);
+
+  return {
+    rowsHtml: rows.join(''),
+    totalNoLectivas,
+  };
+}
+
+function buildLugarLegend(): string {
+  const orderedCodes = [
+    'F01', 'F02', 'F03', 'F04', 'F05', 'F06', 'F07', 'F08',
+    'F09', 'F10', 'F11', 'F12', 'F13', 'F14', 'F15', 'F16', 'OA', 'SC',
+  ];
+
+  return orderedCodes
+    .filter((code) => LUGAR_LABELS[code])
+    .map((code) => `${code}: "${LUGAR_LABELS[code]}"`)
+    .join('; ');
+}
+
+function getLectiveCellDetail(asignacion: FormatoN3Data['asignacionesLectivas'][number]): string {
+  const groupLabel = asignacion.seccion
+    ? `${asignacion.grupoNombre} / ${asignacion.seccion}`
+    : asignacion.grupoNombre;
+  const detailParts = [groupLabel, asignacion.aulaCodigo].filter(Boolean);
+  return detailParts.join(' | ');
+}
+
+function getNoLectiveCellDetail(
+  horario: NonNullable<FormatoN3Data['cargasNoLectivas'][number]['horarios']>[number]
+): string {
+  const detailParts = [horario.lugar, horario.aula].filter(Boolean);
+  return detailParts.join(' | ');
+}
+
+function buildFormatoN3GridMatrix(data: FormatoN3Data) {
+  const matrix: Record<DiaSemana, Record<string, FormatoN3GridCell | null>> = {
+    LUNES: {},
+    MARTES: {},
+    MIERCOLES: {},
+    JUEVES: {},
+    VIERNES: {},
+    SABADO: {},
+  };
+
+  N3_DIAS.forEach((dia) => {
+    for (let hour = 7; hour <= 21; hour++) {
+      matrix[dia][`${String(hour).padStart(2, '0')}:00`] = null;
     }
   });
 
-  // Populate non-lective slots
-  data.cargasNoLectivas.forEach((c) => {
-    const horarios = c.horarios || [];
-    horarios.forEach((h) => {
-      const dia = h.dia.toUpperCase();
-      if (!daySlots[dia]) return;
+  data.asignacionesLectivas.forEach((asignacion) => {
+    const dia = normalizeDia(asignacion.dia);
+    if (!dia) return;
 
-      let currentHour = parseInt(h.horaInicio.split(':')[0]!);
-      const endHour = parseInt(h.horaFin.split(':')[0]!);
-      
-      while (currentHour < endHour) {
-        const startStr = `${String(currentHour).padStart(2, '0')}:00`;
-        const endStr = `${String(currentHour + 1).padStart(2, '0')}:00`;
-        
-        if (!daySlots[dia][startStr]) {
-          daySlots[dia][startStr] = {
-            dia,
-            horaInicio: startStr,
-            horaFin: endStr,
-            local: h.lugar || 'LOCAL',
-            aula: h.aula || 'CUBÍCULO',
-            totalHrs: 1,
-          };
-        }
-        
-        const slot = daySlots[dia][startStr];
-        
-        if (c.tipo === 'PREPARACION_EVALUACION') slot.preparacion = 1;
-        else if (c.tipo === 'CONSEJERIA') slot.consejeria = 1;
-        else if (c.tipo === 'INVESTIGACION') slot.investigacion = 1;
-        else if (c.tipo === 'CAPACITACION') slot.capacitacion = 1;
-        else if (c.tipo === 'GOBIERNO') slot.gobierno = 1;
-        else if (c.tipo === 'ADMINISTRACION') slot.administracion = 1;
-        else if (c.tipo === 'ASESORIA_TESIS') slot.asesoriaTesis = 1;
-        else if (c.tipo === 'RESPONSABILIDAD_SOCIAL') slot.responsabilidadSocial = 1;
-        else if (c.tipo === 'COMITES_COMISIONES' || c.tipo === 'JURADOS' || c.tipo === 'AUTOEVALUACION_ACREDITACION' || c.tipo === 'OTRAS_AUTORIZADAS') slot.comitesComisiones = 1;
-        
-        currentHour++;
-      }
+    expandHourRange(asignacion.horaInicio, asignacion.horaFin).forEach((hourBlock) => {
+      matrix[dia][hourBlock.horaInicio] = {
+        tipo: asignacion.tipo,
+        label: `${asignacion.cursoCodigo} - ${asignacion.grupoNombre}`,
+        detail: getLectiveCellDetail(asignacion),
+      };
     });
   });
 
-  // 2. Generate table rows
-  let rowHtml = '';
-  let grandTotal = 0;
+  data.cargasNoLectivas.forEach((carga) => {
+    const horarios = carga.horarios || [];
 
-  dias.forEach((dia) => {
-    const slotsMap = daySlots[dia];
-    const sortedHours = Object.keys(slotsMap).sort();
-    
-    if (sortedHours.length === 0) return;
+    horarios.forEach((horario) => {
+      const dia = normalizeDia(horario.dia);
+      if (!dia) return;
 
-    sortedHours.forEach((hora, idx) => {
-      const s = slotsMap[hora];
-      grandTotal += 1;
-      
-      rowHtml += `
-        <tr>
-          ${idx === 0 ? `<td rowspan="${sortedHours.length}" class="day-header bold text-center uppercase" style="vertical-align: middle; background-color: #f8fafc; font-size: 8px; width: 60px;">${dia}</td>` : ''}
-          <td class="text-center font-semibold" style="font-size: 8px; white-space: nowrap;">DE: ${s.horaInicio} A: ${s.horaFin}</td>
-          <td class="text-center bold uppercase" style="font-size: 8px; background-color: ${s.lectivo ? '#eff6ff' : 'transparent'};">${s.lectivo || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.preparacion || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.consejeria || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.investigacion || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.capacitacion || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.gobierno || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.administracion || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.asesoriaTesis || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.responsabilidadSocial || ''}</td>
-          <td class="text-center" style="font-size: 8px;">${s.comitesComisiones || ''}</td>
-          <td class="text-center uppercase" style="font-size: 7.5px;">${s.local || 'LOCAL'}</td>
-          <td class="text-center bold uppercase" style="font-size: 8px;">${s.aula || ''}</td>
-          <td class="text-center bold" style="font-size: 8px; background-color: #f8fafc;">1</td>
-        </tr>
-      `;
+      expandHourRange(horario.horaInicio, horario.horaFin).forEach((hourBlock) => {
+        if (matrix[dia][hourBlock.horaInicio]) return;
+
+        matrix[dia][hourBlock.horaInicio] = {
+          tipo: carga.tipo,
+          label: N3_NO_LECTIVA_LABELS[carga.tipo] || carga.tipo,
+          detail: getNoLectiveCellDetail(horario),
+        };
+      });
     });
   });
 
-  const parts = data.periodo.nombre.split('-');
-  const cycle = parts[1] || 'I';
+  return matrix;
+}
 
-  // Render HTML document
+export function templateFormatoN3(data: FormatoN3Data): string {
+  const cycle = getFormatoN3Cycle(data.periodo.nombre);
+  const year = getFormatoN3Year(data.periodo.nombre);
+  const { rowsHtml: lectiveRowsHtml, totalLectivas } = buildPresentationLectiveRows(data);
+  const { rowsHtml: noLectiveRowsHtml, totalNoLectivas } = buildPresentationNoLectiveRows(data);
+  const totalGeneral = totalLectivas + totalNoLectivas;
+
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
     <style>
-      @page { size: A4 landscape; margin: 5mm; }
-      body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1e293b; margin: 0; padding: 0; line-height: 1.15; font-size: 8px; }
-      .container { width: 100%; margin: 0 auto; }
-      h2 { text-align: center; margin: 0 0 1px 0; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
-      h3 { text-align: center; margin: 0 0 6px 0; font-size: 9.5px; font-weight: 700; color: #475569; text-transform: uppercase; }
-      
-      .info-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 8px; }
-      .info-table td { padding: 2px 3px; border: none; }
-      
-      .matrix-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
-      .matrix-table th { 
-        border: 1px solid #94a3b8; 
-        padding: 3px 1px; 
-        font-weight: 800; 
-        text-align: center; 
-        background-color: #f1f5f9; 
-        font-size: 7px;
+      @page { size: A4 portrait; margin: 8mm; }
+      * { box-sizing: border-box; }
+      body {
+        font-family: 'Times New Roman', Times, serif;
+        color: #000;
+        margin: 0;
+        font-size: 9.2px;
+        line-height: 1.2;
+      }
+      .page { width: 100%; }
+      .title {
+        text-align: center;
+        font-size: 12px;
+        font-weight: bold;
         text-transform: uppercase;
-        color: #334155;
-        line-height: 1.1;
+        margin-bottom: 8px;
       }
-      .matrix-table td { border: 1px solid #cbd5e1; padding: 2.5px 1px; }
-      
+      .meta-table, .section-table, .total-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .meta-table td {
+        padding: 2px 3px;
+        border: none;
+        vertical-align: top;
+      }
+      .meta-label {
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .meta-value {
+        display: inline-block;
+        min-width: 50px;
+        padding-left: 3px;
+      }
+      .section-table {
+        margin-top: 6px;
+      }
+      .section-table th,
+      .section-table td {
+        border: 1px solid #000;
+        padding: 3px 4px;
+        vertical-align: top;
+      }
+      .section-table th {
+        text-align: center;
+        background: #f1f1f1;
+        font-size: 8.5px;
+        text-transform: uppercase;
+      }
+      .row-title {
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .row-subtitle {
+        margin-top: 1px;
+      }
+      .total-table {
+        margin-top: 4px;
+      }
+      .total-table td {
+        border: 1px solid #000;
+        padding: 4px 6px;
+        font-weight: bold;
+      }
+      .total-label {
+        text-transform: uppercase;
+      }
       .text-center { text-align: center; }
-      .text-right { text-align: right; }
-      .bold { font-weight: 700; }
-      .uppercase { text-transform: uppercase; }
-      
-      .signature-section { 
-        margin-top: 20px; 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: flex-start;
-        padding: 0 10px;
+      .notes {
+        margin-top: 8px;
+        font-size: 8px;
+        line-height: 1.35;
       }
-      .signature { 
-        text-align: center; 
-        width: 28%; 
+      .notes p {
+        margin: 2px 0;
       }
-      .signature .line { 
-        border-top: 1px solid #475569; 
-        margin-top: 25px; 
-        padding-top: 3px; 
-        font-size: 8px; 
-        font-weight: 700;
-        color: #334155;
+      .signatures {
+        margin-top: 34px;
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+      .signatures td {
+        width: 33.33%;
+        text-align: center;
+        vertical-align: bottom;
+        border: none;
+        padding: 0 8px;
+      }
+      .signature-line {
+        border-top: 1px solid #000;
+        padding-top: 4px;
+        margin-top: 38px;
+        font-size: 8.5px;
+        font-weight: bold;
       }
     </style>
   </head><body>
-    <div class="container">
-      <h2>FORMATO 3</h2>
-      <h3>HORARIO SEMANAL DEL PERSONAL DOCENTE</h3>
+    <div class="page">
+      <div class="title">HORARIO SEMANAL DE LA CARGA ACADEMICA DOCENTE (F03-CAD)</div>
 
-      <table class="info-table">
+      <table class="meta-table">
         <tr>
-          <td style="width: 50%;"><strong>FACULTAD DE:</strong> <span style="border-bottom: 1px dotted #475569; padding-bottom: 1px;">${data.facultad}</span></td>
-          <td style="width: 50%;"><strong>DEPARTAMENTO ACADÉMICO:</strong> <span style="border-bottom: 1px dotted #475569; padding-bottom: 1px;">${data.departamento}</span></td>
+          <td style="width:50%;">
+            <span class="meta-label">Facultad / Filial:</span>
+            <span class="meta-value">${data.facultad}</span>
+          </td>
+          <td style="width:50%;">
+            <span class="meta-label">Dpto. Academico:</span>
+            <span class="meta-value">${data.departamento}</span>
+          </td>
         </tr>
         <tr>
-          <td colspan="2" style="padding-top: 3px;">
-            <strong>Código:</strong> <span style="border-bottom: 1px dotted #475569; width: 80px; display: inline-block;">${data.docente.codigoIBM || '___________'}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <strong>Nombre:</strong> <span style="border-bottom: 1px dotted #475569; width: 280px; display: inline-block;">${data.docente.nombre}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <strong>Semestre:</strong> <span style="border-bottom: 1px dotted #475569; width: 60px; display: inline-block; text-align: center;">${cycle}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <strong>Del:</strong> <span style="border-bottom: 1px dotted #475569; width: 85px; display: inline-block; text-align: center;">${data.periodo.fechaInicio || '___________'}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <strong>Al:</strong> <span style="border-bottom: 1px dotted #475569; width: 85px; display: inline-block; text-align: center;">${data.periodo.fechaFin || '___________'}</span>
+          <td style="width:18%;">
+            <span class="meta-label">DNI</span>
+            <span class="meta-value">${data.docente.dni || '________'}</span>
+          </td>
+          <td style="width:52%;">
+            <span class="meta-label">Docente:</span>
+            <span class="meta-value">${data.docente.nombre}</span>
+          </td>
+          <td style="width:18%;" class="text-center">
+            <span class="meta-label">${getCategoriaDisplay(data.docente.categoria)}</span>
+          </td>
+          <td style="width:12%;" class="text-center">
+            <span class="meta-label">${getModalidadDisplay(data.docente.modalidad, data.docente.horasContrato)}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="4">
+            <span class="meta-label">Ano academico:</span>
+            <span class="meta-value">${year}</span>
+            <span class="meta-label" style="margin-left: 18px;">Semestre:</span>
+            <span class="meta-value">${cycle}</span>
+            <span class="meta-label" style="margin-left: 18px;">Fecha de Inicio:</span>
+            <span class="meta-value">${formatShortDate(data.periodo.fechaInicio)}</span>
+            <span class="meta-label" style="margin-left: 18px;">Fecha de termino:</span>
+            <span class="meta-value">${formatShortDate(data.periodo.fechaFin)}</span>
           </td>
         </tr>
       </table>
 
-      <table class="matrix-table">
+      <table class="section-table">
         <thead>
           <tr>
-            <th style="width: 5%;">DÍA</th>
-            <th style="width: 10%;">HORA</th>
-            <th style="width: 12%;">TRABAJO LECTIVO<br><span style="font-size: 6px; font-weight: normal;">(Código del Curso)</span></th>
-            <th style="width: 7%;">PREPARACIÓN Y<br>EVALUACIÓN</th>
-            <th style="width: 6%;">CONSEJERÍA</th>
-            <th style="width: 7%;">INVESTIGACIÓN</th>
-            <th style="width: 7%;">CAPACITACIÓN</th>
-            <th style="width: 7%;">ACTIVIDADES DE<br>GOBIERNO</th>
-            <th style="width: 7%;">ACTIVIDADES DE<br>ADMINISTRACIÓN</th>
-            <th style="width: 8%;">ASESORÍA DE TESIS Y<br>EXÁMENES PROFESIONALES</th>
-            <th style="width: 7%;">EXTENSIÓN Y<br>PROYECCIÓN SOCIAL</th>
-            <th style="width: 7%;">COMITÉS TÉCNICOS Y<br>COMISIONES</th>
-            <th style="width: 6%;">LOCAL</th>
-            <th style="width: 6%;">AULA</th>
-            <th style="width: 5%;">TOTAL<br>HRS.</th>
+            <th style="width:22%;">Horario</th>
+            <th>Carga Horaria Lectiva (CHL)</th>
+            <th style="width:10%;">Lugar</th>
+            <th style="width:18%;">Aula</th>
+            <th style="width:8%;">Total</th>
           </tr>
         </thead>
         <tbody>
-          ${rowHtml || '<tr><td colspan="15" class="text-center" style="padding: 15px; color: #64748b;">No hay actividades registradas en el horario semanal para este periodo académico.</td></tr>'}
-          ${rowHtml ? `
-            <tr style="background-color: #f1f5f9; font-weight: bold;">
-              <td colspan="14" class="text-right" style="padding: 3px 6px; font-size: 8px;">TOTAL HORAS ACADÉMICAS SEMANALES:</td>
-              <td class="text-center" style="font-size: 8px; border: 2px solid #475569; background-color: #f1f5f9;">${grandTotal}</td>
-            </tr>
-          ` : ''}
+          ${lectiveRowsHtml || '<tr><td colspan="5" class="text-center">No hay carga lectiva con horario registrado.</td></tr>'}
         </tbody>
       </table>
 
-      <!-- Delivery Date and Signatures -->
-      <div style="margin-top: 15px;">
-        <div style="font-size: 8px; margin-bottom: 8px;">
-          <strong>FECHA DE ENTREGA :</strong> ................................................................
+      <table class="section-table">
+        <thead>
+          <tr>
+            <th style="width:22%;">Horario</th>
+            <th>Carga Horaria No Lectiva (CHNL)</th>
+            <th style="width:10%;">Lugar</th>
+            <th style="width:18%;">Aula</th>
+            <th style="width:8%;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${noLectiveRowsHtml}
+        </tbody>
+      </table>
+
+      <table class="total-table">
+        <tr>
+          <td class="total-label">TOTAL HORAS CARGA ACADEMICA</td>
+          <td style="width:80px;" class="text-center">${totalGeneral}</td>
+        </tr>
+      </table>
+
+      <div class="notes">
+        <p><strong>T: TEORIA - P: PRACTICA - L: LABORATORIO</strong></p>
+        <p><strong>LU</strong> (LUNES); <strong>MA</strong> (MARTES); <strong>MI</strong> (MIERCOLES); <strong>JU</strong> (JUEVES); <strong>VI</strong> (VIERNES); <strong>SA</strong> (SABADO); TIEMPO EN FORMATO DE 24 HORAS.</p>
+        <p><strong>LUGAR:</strong> (${buildLugarLegend()})</p>
+      </div>
+
+      <table class="signatures">
+        <tr>
+          <td><div class="signature-line">FIRMA DEL DOCENTE</div></td>
+          <td><div class="signature-line">FIRMA Y SELLO DEL DIRECTOR DE DPTO. ACADEMICO</div></td>
+          <td><div class="signature-line">V°B° DECANO</div></td>
+        </tr>
+      </table>
+    </div>
+  </body></html>`;
+}
+
+export function templateFormatoN3Grid(data: FormatoN3Data): string {
+  const matrix = buildFormatoN3GridMatrix(data);
+  const cycle = getFormatoN3Cycle(data.periodo.nombre);
+  const hours = Array.from({ length: 15 }, (_, index) => `${String(7 + index).padStart(2, '0')}:00`);
+  const dailyTotals = N3_DIAS.reduce<Record<DiaSemana, number>>((acc, dia) => {
+    acc[dia] = hours.filter((hora) => matrix[dia][hora]).length;
+    return acc;
+  }, {
+    LUNES: 0,
+    MARTES: 0,
+    MIERCOLES: 0,
+    JUEVES: 0,
+    VIERNES: 0,
+    SABADO: 0,
+  });
+
+  const rowsHtml = hours.map((hora) => {
+    const cellsHtml = N3_DIAS.map((dia) => {
+      const cell = matrix[dia][hora];
+      if (!cell) {
+        return `<td class="slot-empty"></td>`;
+      }
+
+      const style = N3_GRID_TYPE_STYLES[cell.tipo] || {
+        bg: '#f3f4f6',
+        border: '#d1d5db',
+        text: '#111827',
+      };
+
+      return `
+        <td style="background: ${style.bg}; border: 1px solid ${style.border}; color: ${style.text};">
+          <div class="slot-card">
+            <div class="slot-label">${cell.label}</div>
+            ${cell.detail ? `<div class="slot-detail">${cell.detail}</div>` : ''}
+          </div>
+        </td>
+      `;
+    }).join('');
+
+    return `
+      <tr>
+        <td class="hour-cell">${hora}</td>
+        ${cellsHtml}
+      </tr>
+    `;
+  }).join('');
+
+  const legendHtml = Object.entries(N3_GRID_TYPE_STYLES).map(([tipo, style]) => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${style.bg}; border-color:${style.border};"></span>
+      <span>${tipo === 'TEORIA' || tipo === 'PRACTICA' || tipo === 'LABORATORIO' ? tipo : (N3_NO_LECTIVA_LABELS[tipo] || tipo)}</span>
+    </div>
+  `).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <style>
+      @page { size: A4 landscape; margin: 6mm; }
+      * { box-sizing: border-box; }
+      body { font-family: Arial, Helvetica, sans-serif; color: #111827; margin: 0; font-size: 8px; }
+      .page { width: 100%; }
+      h2 { text-align: center; margin: 0 0 2px 0; font-size: 12px; text-transform: uppercase; }
+      h3 { text-align: center; margin: 0 0 8px 0; font-size: 9px; color: #374151; text-transform: uppercase; }
+      .summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 12px;
+        margin-bottom: 8px;
+        padding: 6px 8px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: #f9fafb;
+      }
+      .summary strong { color: #111827; }
+      .grid-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+      .grid-table th {
+        border: 1px solid #d1d5db;
+        background: #f3f4f6;
+        padding: 5px 3px;
+        font-size: 8px;
+        text-transform: uppercase;
+      }
+      .grid-table td { border: 1px solid #e5e7eb; height: 38px; padding: 2px; vertical-align: top; }
+      .hour-cell {
+        width: 54px;
+        text-align: center;
+        font-weight: bold;
+        background: #f9fafb;
+        color: #4b5563;
+      }
+      .day-header small {
+        display: block;
+        margin-top: 1px;
+        font-size: 7px;
+        font-weight: normal;
+        color: #6b7280;
+      }
+      .slot-empty { background: #fafafa; }
+      .slot-card {
+        min-height: 33px;
+        border-radius: 4px;
+        padding: 2px 3px;
+      }
+      .slot-label {
+        font-size: 7.4px;
+        font-weight: bold;
+        line-height: 1.15;
+      }
+      .slot-detail {
+        margin-top: 2px;
+        font-size: 6.8px;
+        line-height: 1.15;
+      }
+      .legend {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        font-size: 7px;
+      }
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border: 1px solid;
+        border-radius: 2px;
+      }
+      .signature-section {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      .signature {
+        width: 30%;
+        text-align: center;
+      }
+      .signature .line {
+        border-top: 1px solid #374151;
+        margin-top: 28px;
+        padding-top: 4px;
+        font-size: 7.5px;
+        font-weight: bold;
+      }
+    </style>
+  </head><body>
+    <div class="page">
+      <h2>FORMATO 3</h2>
+      <h3>HORARIO SEMANAL DEL DOCENTE - DISEÑO GRILLA</h3>
+
+      <div class="summary">
+        <div><strong>Docente:</strong> ${data.docente.nombre}</div>
+        <div><strong>Codigo IBM:</strong> ${data.docente.codigoIBM || '___________'}</div>
+        <div><strong>Facultad:</strong> ${data.facultad}</div>
+        <div><strong>Departamento:</strong> ${data.departamento}</div>
+        <div><strong>Periodo:</strong> ${data.periodo.nombre}</div>
+        <div><strong>Semestre:</strong> ${cycle}</div>
+        <div><strong>Del:</strong> ${data.periodo.fechaInicio || '___________'}</div>
+        <div><strong>Al:</strong> ${data.periodo.fechaFin || '___________'}</div>
+      </div>
+
+      <table class="grid-table">
+        <thead>
+          <tr>
+            <th style="width: 54px;">Hora</th>
+            ${N3_DIAS.map((dia) => `<th class="day-header">${N3_DIA_LABELS[dia]}<small>${dailyTotals[dia]}h</small></th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+
+      <div class="legend">${legendHtml}</div>
+
+      <div class="signature-section">
+        <div class="signature">
+          <div class="line">Decano de la Facultad</div>
         </div>
-        
-        <div class="signature-section" style="margin-top: 25px;">
-          <div class="signature">
-            <div class="line">Decano de la Facultad</div>
-          </div>
-          <div class="signature">
-            <div class="line">FIRMA DEL PROFESOR</div>
-          </div>
-          <div class="signature">
-            <div class="line">Jefe de Departamento</div>
-          </div>
+        <div class="signature">
+          <div class="line">Firma del Profesor</div>
+        </div>
+        <div class="signature">
+          <div class="line">Jefe de Departamento</div>
         </div>
       </div>
     </div>

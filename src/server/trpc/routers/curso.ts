@@ -3,6 +3,7 @@ import { createTRPCRouter, baseProcedure, adminProcedure, protectedProcedure, se
 import { TRPCError } from '@trpc/server';
 import { Prisma } from '@/generated/prisma/client';
 import { assertWorkflowActivationReady } from '@/server/domain/workflow-foundation';
+import { materializeGruposForCurso } from '@/server/domain/grupo-materializer';
 import { assertCanAccessEscuela, assertRole, getManagedEscuelaIds } from '../policy';
 
 const cursoInput = z.object({
@@ -153,8 +154,27 @@ export const cursoRouter = createTRPCRouter({
       });
     }),
 
-  create: secretariaEscuelaProcedure.input(cursoInput).mutation(({ ctx, input }) => {
-    return ctx.prisma.curso.create({ data: input });
+  create: secretariaEscuelaProcedure.input(cursoInput).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.$transaction(async (tx) => {
+      const curso = await tx.curso.create({ data: input });
+
+      // Materializar Grupo "A" (y turnos de laboratorio) en el periodo activo
+      // para que la carga lectiva pueda asignarse inmediatamente si el curso
+      // es aperturado en este mismo flujo.
+      const periodoActivo = await tx.periodoAcademico.findFirst({
+        where: { activo: true },
+        select: { id: true },
+      });
+      if (periodoActivo) {
+        await materializeGruposForCurso(tx, {
+          cursoId: curso.id,
+          periodoId: periodoActivo.id,
+          numGruposLaboratorio: curso.numGruposLaboratorio,
+        });
+      }
+
+      return curso;
+    });
   }),
 
   update: secretariaEscuelaProcedure
@@ -287,6 +307,23 @@ export const cursoRouter = createTRPCRouter({
                     data: { demandaLineaId: demandaLinea.id, curriculaId: cc.curriculaId, ciclo: cc.ciclo }
                   });
                 }
+
+                // Materializar los Grupo (sección "A" + Lab-1..Lab-N) vinculados a la línea
+                await materializeGruposForCurso(tx, {
+                  cursoId: input.id,
+                  periodoId: periodo.id,
+                  numGruposLaboratorio,
+                  demandaLineaId: demandaLinea.id,
+                });
+              } else if (existingLine) {
+                // Si la línea ya existía pero los Grupo no se materializaron,
+                // asegurar la asociación a la línea y completar los turnos faltantes.
+                await materializeGruposForCurso(tx, {
+                  cursoId: input.id,
+                  periodoId: periodo.id,
+                  numGruposLaboratorio,
+                  demandaLineaId: existingLine.id,
+                });
               }
             }
           }
@@ -355,10 +392,12 @@ export const cursoRouter = createTRPCRouter({
           // Agregar líneas de demanda para cada curso
           for (const curso of cursosToAperturar) {
             if (curso.departamentoId) {
+              const numGruposLab = curso.horasLaboratorio > 0 ? 3 : 0;
               const existingLine = await tx.demandaLinea.findFirst({
                 where: { demandaId: demanda.id, cursoId: curso.id }
               });
 
+              let demandaLineaId: string;
               if (!existingLine) {
                 const demandaLinea = await tx.demandaLinea.create({
                   data: {
@@ -368,9 +407,10 @@ export const cursoRouter = createTRPCRouter({
                     horasTeoria: curso.horasTeoria,
                     horasPractica: curso.horasPractica,
                     horasLaboratorio: curso.horasLaboratorio,
-                    numGruposLaboratorio: curso.horasLaboratorio > 0 ? 3 : 0,
+                    numGruposLaboratorio: numGruposLab,
                   }
                 });
+                demandaLineaId = demandaLinea.id;
 
                 // Asociar currículas
                 for (const cc of curso.cursoCurriculas) {
@@ -378,7 +418,18 @@ export const cursoRouter = createTRPCRouter({
                     data: { demandaLineaId: demandaLinea.id, curriculaId: cc.curriculaId, ciclo: cc.ciclo }
                   });
                 }
+              } else {
+                demandaLineaId = existingLine.id;
               }
+
+              // Materializar los Grupo (sección "A" + Lab-1..Lab-N) por curso.
+              // Es idempotente: respeta el unique @@unique([cursoId, nombre, periodoAcademicoId]).
+              await materializeGruposForCurso(tx, {
+                cursoId: curso.id,
+                periodoId: periodo.id,
+                numGruposLaboratorio: numGruposLab,
+                demandaLineaId,
+              });
             }
           }
         }
@@ -600,6 +651,16 @@ export const cursoRouter = createTRPCRouter({
               },
             });
           }
+
+          // Materializar los Grupo (sección "A" + Lab-1..Lab-N) vinculados a la línea.
+          // Idempotente: respeta el unique @@unique([cursoId, nombre, periodoAcademicoId])
+          // y vuelve a vincular los Grupo existentes que aún no tengan demandaLineaId.
+          await materializeGruposForCurso(tx, {
+            cursoId: line.cursoId,
+            periodoId: input.periodoId,
+            numGruposLaboratorio: line.numGruposLaboratorio,
+            demandaLineaId: demandLine.id,
+          });
         }
 
         await tx.log.create({
