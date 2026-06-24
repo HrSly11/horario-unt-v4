@@ -55,10 +55,12 @@ export default function CargaHorariaPage() {
   }, [user]);
 
   // ── Docentes list for search ────────────────────────────
+  // List used for the teacher-search selector (only shown to admin/secretary roles)
   const { data: docentes = [] } = useQuery({
     ...trpc.docente.list.queryOptions({}),
     enabled: showTeacherSearch,
   });
+
 
   const filteredDocentes = useMemo(() => {
     const seen = new Set();
@@ -169,6 +171,12 @@ export default function CargaHorariaPage() {
 
   // ── Course Assignment Modal State ───────────────────────
   const [showAssignModal, setShowAssignModal] = useState(false);
+
+  // List for the shared-teacher picker — loaded as soon as the modal opens
+  const { data: docentesParaCompartir = [] } = useQuery({
+    ...trpc.docente.list.queryOptions({}),
+    enabled: showAssignModal,
+  });
   const [selectedGrupoId, setSelectedGrupoId] = useState('');
   
   // Theory Form State
@@ -1095,7 +1103,7 @@ export default function CargaHorariaPage() {
                                 className="w-full rounded border border-slate-200 px-2 py-1 text-xs mt-1 bg-white"
                               >
                                 <option value="">Seleccione Docente</option>
-                                {filteredDocentes.map((d) => (
+                                {docentesParaCompartir.map((d) => (
                                   <option key={d.id} value={d.id}>
                                     {d.nombre}
                                   </option>
@@ -1153,7 +1161,7 @@ export default function CargaHorariaPage() {
                                 className="w-full rounded border border-slate-200 px-2 py-1 text-xs mt-1 bg-white"
                               >
                                 <option value="">Seleccione Docente</option>
-                                {filteredDocentes.map((d) => (
+                                {docentesParaCompartir.map((d) => (
                                   <option key={d.id} value={d.id}>
                                     {d.nombre}
                                   </option>
@@ -1213,7 +1221,7 @@ export default function CargaHorariaPage() {
                                 className="w-full rounded border border-slate-200 px-2 py-1 text-xs mt-1 bg-white"
                               >
                                 <option value="">Seleccione Docente</option>
-                                {filteredDocentes.map((d) => (
+                                {docentesParaCompartir.map((d) => (
                                   <option key={d.id} value={d.id}>
                                     {d.nombre}
                                   </option>
