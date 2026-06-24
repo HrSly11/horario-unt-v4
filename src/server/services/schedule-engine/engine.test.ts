@@ -245,40 +245,49 @@ describe('ScheduleEngine', () => {
   });
 
   it('detects and reports viable gaps for unassigned items when conflict occurs', () => {
-    const franjas = makeFranjas(2); // franja-0, franja-1
-    const aulas = [makeAula('a1')]; // only 1 aula
+    const franjas: FranjaForSchedule[] = [
+      { id: 'f0', dia: 'LUNES', numeroBloque: 0, horaInicio: '08:00', horaFin: '09:00' },
+      { id: 'f1', dia: 'LUNES', numeroBloque: 1, horaInicio: '09:00', horaFin: '10:00' },
+      { id: 'f2', dia: 'LUNES', numeroBloque: 2, horaInicio: '10:00', horaFin: '11:00' },
+      { id: 'f3', dia: 'LUNES', numeroBloque: 3, horaInicio: '11:00', horaFin: '12:00' },
+      { id: 'f4', dia: 'LUNES', numeroBloque: 4, horaInicio: '12:00', horaFin: '13:00' },
+      { id: 'f5', dia: 'LUNES', numeroBloque: 5, horaInicio: '13:00', horaFin: '14:00' },
+    ];
+    const aulas = [makeAula('a1')];
 
     const engine = new ScheduleEngine({
       docentes: [
-        makeDocente('d-high', { categoria: 'PRINCIPAL', antiguedad: new Date('1990-01-01') }),
-        makeDocente('d-low', { categoria: 'AUXILIAR', antiguedad: new Date('2020-01-01') }),
+        makeDocente('d-low'),
       ],
       grupos: [
-        makeGrupo('g1', { horasTeoria: 1, workloads: [{ docenteId: 'd-high', tipo: 'TEORIA', horas: 1 }] }),
+        makeGrupo('g-pre', { horasTeoria: 5 }),
         makeGrupo('g2', { horasTeoria: 1, workloads: [{ docenteId: 'd-low', tipo: 'TEORIA', horas: 1 }] }),
       ],
       aulas,
       franjas,
       docenteGrupoMap: makeMap([
-        ['d-high', ['g1']],
-        ['d-low', ['g2']],
+        ['d-low', ['g-pre', 'g2']],
       ]),
-      blockedDocenteSlots: new Set(['d-low::franja-1']),
-      // d-low is soft-blocked from franja-1, so it cannot be scheduled there.
-      // But franja-1 is technically free (room is free, no hard blocks).
+      existingAssignments: [
+        { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f0', tipo: 'TEORIA', confirmado: true },
+        { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f1', tipo: 'TEORIA', confirmado: true },
+        { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f2', tipo: 'TEORIA', confirmado: true },
+        { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f3', tipo: 'TEORIA', confirmado: true },
+        { grupoId: 'g-pre', docenteId: 'd-low', aulaId: 'a1', franjaHorariaId: 'f4', tipo: 'TEORIA', confirmed: true },
+      ],
     });
 
     const result = engine.generate();
 
-    // d-high gets assigned to franja-0, leaving d-low unassigned
-    expect(result.assignments.length).toBe(1);
+    // El motor no asignará g2 a f5 porque d-low superaría las 5 horas continuas.
+    // Pero f5 es viable en findViableGaps porque no verifica horas continuas.
+    expect(result.assignments.length).toBe(0);
     expect(result.unassigned.length).toBe(1);
     expect(result.unassigned[0].grupoId).toBe('g2');
     
-    // There should be a viable gap reported for franja-1 and aula a1
     expect(result.unassigned[0].viableGaps).toBeDefined();
     expect(result.unassigned[0].viableGaps).toContainEqual({
-      franjaId: 'franja-1',
+      franjaId: 'f5',
       aulaId: 'a1',
     });
   });

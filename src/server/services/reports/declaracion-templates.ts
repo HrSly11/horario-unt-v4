@@ -828,14 +828,18 @@ function buildPresentationNoLectiveRows(data: FormatoN3Data): { rowsHtml: string
       `;
     }
 
-    const horarios = (carga.horarios || [])
-      .map((horario) => ({
-        dia: normalizeDia(horario.dia),
-        horaInicio: horario.horaInicio,
-        horaFin: horario.horaFin,
-        aula: horario.aula || 'CUBICULO',
-      }))
-      .filter((horario): horario is N3Interval => Boolean(horario.dia));
+    const horarios: N3Interval[] = [];
+    for (const h of carga.horarios || []) {
+      const dia = normalizeDia(h.dia);
+      if (dia) {
+        horarios.push({
+          dia,
+          horaInicio: h.horaInicio,
+          horaFin: h.horaFin,
+          aula: h.aula || 'CUBICULO',
+        });
+      }
+    }
 
     const formatted = formatHorarioIntervals(horarios, ', <br>');
     const lugar =
