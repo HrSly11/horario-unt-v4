@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: horario-unt-v4
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: horario-unt-v4-db
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5.4-mini
+
+databases:
+  - name: horario-unt-v4-db
+    plan: free
+    databaseName: horario_unt_v4

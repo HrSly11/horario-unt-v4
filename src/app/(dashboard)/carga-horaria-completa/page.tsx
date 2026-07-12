@@ -28,6 +28,7 @@ type BloqueColocado = BloquePendiente & {
   horaInicioMin: number;
   horaFinMin: number;
   bloqueId?: string;
+  readOnly?: boolean;
 };
 
 const COLORES: Record<string, string> = {

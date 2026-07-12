@@ -895,6 +895,7 @@ export const horarioRouter = createTRPCRouter({
             cursoCodigo: g.curso.codigo,
             ciclo: g.curso.ciclo,
             numAlumnos: g.numAlumnos,
+            numGruposLaboratorio: g.curso.numGruposLaboratorio,
             horasTeoria: g.curso.horasTeoria,
             horasPractica: g.curso.horasPractica,
             horasLaboratorio: g.curso.horasLaboratorio,
