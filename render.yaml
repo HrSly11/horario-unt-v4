@@ -3,7 +3,7 @@ services:
     name: horario-unt-v4
     runtime: node
     plan: free
-    buildCommand: npm ci --include=dev && npm run build
+    buildCommand: npm ci --include=dev && npm run build && npm run db:seed
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
