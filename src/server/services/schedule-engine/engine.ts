@@ -215,8 +215,16 @@ export class ScheduleEngine {
     }
 
     const grupo = this.input.grupos.find(g => g.id === grupoId);
+    
+    // Calculate effective number of students per lab session
+    // If the course divides students into multiple lab groups, each session only needs capacity for the subgroup
+    let targetAlumnos = grupo?.numAlumnos ?? 0;
+    if (tipo === 'LABORATORIO' && grupo?.numGruposLaboratorio && grupo.numGruposLaboratorio > 1) {
+      targetAlumnos = Math.ceil(targetAlumnos / grupo.numGruposLaboratorio);
+    }
+
     let capacityEligibleAulas = grupo
-      ? availableAulas.filter((aula) => aula.capacidad >= grupo.numAlumnos)
+      ? availableAulas.filter((aula) => aula.capacidad >= targetAlumnos)
       : availableAulas;
 
     // FIX: If no aula matches capacity exactly, don't fail immediately.

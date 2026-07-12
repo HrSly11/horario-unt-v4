@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -874,6 +875,71 @@ function DocenteDashboard({
   user: any;
   personalDocente: any;
 }) {
+  // Helper: parse "HH:00" to number
+  const parseHour = (time: string) => parseInt(time.split(':')[0], 10);
+
+  // Merge consecutive assignments
+  const mergedAssignments = useMemo(() => {
+    if (!personalDocente?.assignments?.length) return [];
+
+    // Step 1: Sort assignments by day, then start time
+    const sorted = [...personalDocente.assignments].sort((a, b) => {
+      const dayOrder = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+      const dayA = a.franjaHoraria?.dia || '';
+      const dayB = b.franjaHoraria?.dia || '';
+      const dayDiff = dayOrder.indexOf(dayA) - dayOrder.indexOf(dayB);
+      if (dayDiff !== 0) return dayDiff;
+      return parseHour(a.franjaHoraria?.horaInicio || '00:00') - parseHour(b.franjaHoraria?.horaInicio || '00:00');
+    });
+
+    // Step 2: Merge consecutive slots with same group, course, and classroom
+    const merged: any[] = [];
+    let current: any = null;
+
+    for (const assignment of sorted) {
+      const key = `${assignment.grupo?.id || '-'}-${assignment.aula?.id || '-'}-${assignment.franjaHoraria?.dia || '-'}`;
+      
+      if (!current || current.key !== key) {
+        // Start new group
+        current = {
+          key,
+          assignments: [assignment],
+          curso: assignment.grupo?.curso,
+          grupo: assignment.grupo,
+          aula: assignment.aula,
+          dia: assignment.franjaHoraria?.dia,
+          horaInicio: assignment.franjaHoraria?.horaInicio,
+          horaFin: `${parseHour(assignment.franjaHoraria?.horaInicio || '00:00') + 1}:00`
+        };
+        merged.push(current);
+      } else {
+        // Check if consecutive
+        const currentEnd = parseHour(current.horaFin);
+        const nextStart = parseHour(assignment.franjaHoraria?.horaInicio || '00:00');
+        if (currentEnd === nextStart) {
+          // Merge
+          current.assignments.push(assignment);
+          current.horaFin = `${nextStart + 1}:00`;
+        } else {
+          // Start new group even if same key but not consecutive
+          current = {
+            key,
+            assignments: [assignment],
+            curso: assignment.grupo?.curso,
+            grupo: assignment.grupo,
+            aula: assignment.aula,
+            dia: assignment.franjaHoraria?.dia,
+            horaInicio: assignment.franjaHoraria?.horaInicio,
+            horaFin: `${parseHour(assignment.franjaHoraria?.horaInicio || '00:00') + 1}:00`
+          };
+          merged.push(current);
+        }
+      }
+    }
+
+    return merged;
+  }, [personalDocente?.assignments]);
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -915,17 +981,17 @@ function DocenteDashboard({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 rounded-xl border border-border bg-white p-6 shadow-sm">
           <h2 className="text-sm font-bold text-text-main mb-4">Mis Horarios Asignados</h2>
-          {personalDocente?.assignments?.length > 0 ? (
+          {mergedAssignments.length > 0 ? (
             <div className="space-y-3">
-              {personalDocente.assignments.map((a: any) => (
-                <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-border hover:border-primary/20 transition-all">
+              {mergedAssignments.map((item, index) => (
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-border hover:border-primary/20 transition-all">
                   <div>
-                    <p className="text-sm font-bold text-text-main">{a.grupo?.curso?.nombre || 'Curso sin nombre'}</p>
-                    <p className="text-xs text-text-sub font-medium">Grupo {a.grupo?.nombre || '-'} · {a.aula?.codigo || 'Sin aula'}</p>
+                    <p className="text-sm font-bold text-text-main">{item.curso?.nombre || 'Curso sin nombre'}</p>
+                    <p className="text-xs text-text-sub font-medium">Grupo {item.grupo?.nombre || '-'} · {item.aula?.codigo || 'Sin aula'}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold text-primary">{a.franjaHoraria?.dia}</p>
-                    <p className="text-[10px] text-text-sub font-semibold">{a.franjaHoraria?.horaInicio}</p>
+                    <p className="text-xs font-bold text-primary">{item.dia}</p>
+                    <p className="text-[10px] text-text-sub font-semibold">{item.horaInicio}–{item.horaFin}</p>
                   </div>
                 </div>
               ))}
@@ -1214,7 +1280,10 @@ export default function DashboardPage() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data: user } = useQuery({ ...trpc.auth.me.queryOptions() });
-  const { data: docenteStats } = useQuery({ ...trpc.docente.stats.queryOptions() });
+  const { data: docenteStats } = useQuery({ 
+    ...trpc.docente.stats.queryOptions(),
+    enabled: !!user
+  });
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
   const { data: personalDocente } = useQuery({
     ...trpc.docente.personalStats.queryOptions(),
@@ -1230,27 +1299,27 @@ export default function DashboardPage() {
 
   const decanoStats = useQuery({
     ...trpc.reporte.getDecanoStats.queryOptions({ periodoId: periodoActivo?.id }),
-    enabled: isDecano || isAdmin,
+    enabled: !!user && (isDecano || isAdmin),
   });
 
   const directorEscuelaStats = useQuery({
     ...trpc.reporte.getDirectorEscuelaStats.queryOptions({ periodoId: periodoActivo?.id }),
-    enabled: isDirector || isAdmin,
+    enabled: !!user && (isDirector || isAdmin),
   });
 
   const jefeDeptoStats = useQuery({
     ...trpc.reporte.getJefeDepartamentoStats.queryOptions({ periodoId: periodoActivo?.id }),
-    enabled: isDirectorDepto || isAdmin,
+    enabled: !!user && (isDirectorDepto || isAdmin),
   });
 
   const horarioStats = useQuery({
     ...trpc.horario.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
-    enabled: !!periodoActivo?.id && user?.role !== 'DOCENTE' && user?.role !== 'INVITADO',
+    enabled: !!user && !!periodoActivo?.id && user?.role !== 'DOCENTE' && user?.role !== 'INVITADO',
   });
 
   const aulaStats = useQuery({
     ...trpc.aula.stats.queryOptions({ periodoId: periodoActivo?.id ?? '' }),
-    enabled: !!periodoActivo?.id && user?.role !== 'DOCENTE' && user?.role !== 'INVITADO',
+    enabled: !!user && !!periodoActivo?.id && user?.role !== 'DOCENTE' && user?.role !== 'INVITADO',
   });
 
   const stats = horarioStats.data;

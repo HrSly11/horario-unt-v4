@@ -18,6 +18,7 @@ export interface GrupoForSchedule {
   cursoCodigo: string;
   ciclo: number;
   numAlumnos: number;
+  numGruposLaboratorio: number;
   horasTeoria: number;
   horasPractica: number;
   horasLaboratorio: number;

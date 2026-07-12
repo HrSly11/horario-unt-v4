@@ -52,6 +52,9 @@ const TIPO_NO_LECTIVA_LABELS: Record<string, string> = {
   ASESORIA_TESIS: 'Asesoría de Tesis',
   RESPONSABILIDAD_SOCIAL: 'Responsabilidad Social',
   COMITES_COMISIONES: 'Comités y Comisiones',
+  JURADOS: 'Jurados',
+  AUTOEVALUACION_ACREDITACION: 'Autoevaluación y Acreditación',
+  OTRAS_AUTORIZADAS: 'Otras actividades autorizadas',
 };
 
 const STEPS = [

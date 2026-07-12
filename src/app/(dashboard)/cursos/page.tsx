@@ -31,6 +31,48 @@ const emptyForm: FormData = {
   departamento: '', departamentoId: '', requisitos: '', condicion: 'O',
 };
 
+// Helper para fusionar horarios consecutivos mismo día y aula
+function mergeHorarios(asignaciones: any[]) {
+  if (!asignaciones || asignaciones.length === 0) return [];
+  
+  // Ordenar por día y hora
+  const diasOrden = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const sorted = [...asignaciones].sort((a, b) => {
+    const diaA = diasOrden.indexOf(a.franjaHoraria.dia);
+    const diaB = diasOrden.indexOf(b.franjaHoraria.dia);
+    if (diaA !== diaB) return diaA - diaB;
+    return a.franjaHoraria.horaInicio.localeCompare(b.franjaHoraria.horaInicio);
+  });
+
+  const grupos = [];
+  let grupoActual = null;
+
+  for (const a of sorted) {
+    const key = `${a.franjaHoraria.dia}-${a.aula.id}`;
+    if (grupoActual && grupoActual.key === key) {
+      // Verificar si la hora es consecutiva
+      const horaFinAnterior = grupoActual.horaFin;
+      const horaInicioActual = a.franjaHoraria.horaInicio;
+      if (horaFinAnterior === horaInicioActual) {
+        // Fusionar
+        grupoActual.horaFin = a.franjaHoraria.horaFin;
+        continue;
+      }
+    }
+    // Nuevo grupo
+    grupoActual = {
+      key,
+      dia: a.franjaHoraria.dia,
+      horaInicio: a.franjaHoraria.horaInicio,
+      horaFin: a.franjaHoraria.horaFin,
+      aula: a.aula,
+      id: a.id // Usar id de la primera asignación como key
+    };
+    grupos.push(grupoActual);
+  }
+  return grupos;
+}
+
 export default function CursosPage() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -634,7 +676,10 @@ export default function CursosPage() {
       ) : (
         /* Vista Mis Cursos */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {misCursosUnificados.map((dg: any) => (
+          {misCursosUnificados.map((dg: any) => {
+        const mergedHorarios = mergeHorarios(dg.grupo.asignaciones);
+
+        return (
             <div key={dg.id} className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm hover:border-primary/50 transition-all group">
                <div className="p-5">
                  <div className="flex justify-between items-start mb-4">
@@ -669,16 +714,16 @@ export default function CursosPage() {
                      <span className="text-success font-bold">Asignado</span>
                    </div>
                    
-                   {dg.grupo.asignaciones && dg.grupo.asignaciones.length > 0 ? (
+                   {mergedHorarios.length > 0 ? (
                      <div className="p-3 rounded-lg bg-slate-50 border border-border">
                        <p className="text-[10px] text-text-sub uppercase font-bold mb-2">Horario Seleccionado</p>
                        <div className="space-y-1.5">
-                         {dg.grupo.asignaciones.map((a: any) => (
-                           <div key={a.id} className="flex items-center gap-2 text-[11px] text-text-sub">
+                         {mergedHorarios.map((h: any) => (
+                           <div key={h.id} className="flex items-center gap-2 text-[11px] text-text-sub">
                              <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                             <span className="font-bold">{a.franjaHoraria.dia}:</span>
-                             <span>{a.franjaHoraria.horaInicio} - {a.franjaHoraria.horaFin}</span>
-                             <span className="text-text-sub/60">({a.aula.codigo})</span>
+                             <span className="font-bold">{h.dia}:</span>
+                             <span>{h.horaInicio} - {h.horaFin}</span>
+                             <span className="text-text-sub/60">({h.aula.codigo})</span>
                            </div>
                          ))}
                        </div>
@@ -699,7 +744,8 @@ export default function CursosPage() {
                  <button className="text-xs font-bold text-primary hover:text-primary-hover">Ver detalles &rarr;</button>
                </div>
             </div>
-          ))}
+        );
+      })}
           
           {misCursosUnificados.length === 0 && (
             <div className="col-span-full py-20 text-center">

@@ -18,6 +18,7 @@ import { helpRouter } from './help';
 import { curriculaRouter } from './curricula';
 import { franjaHorariaRouter } from './franjaHoraria';
 import { demandaDepartamentoRouter } from './demandaDepartamento';
+import { horarioBloqueRouter } from './horarioBloque';
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
@@ -39,6 +40,7 @@ export const appRouter = createTRPCRouter({
   curricula: curriculaRouter,
   franjaHoraria: franjaHorariaRouter,
   demandaDepartamento: demandaDepartamentoRouter,
+  horarioBloque: horarioBloqueRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -17,7 +17,7 @@ import {
   LogOut,
   ChevronRight,
   Clock,
-
+  CalendarClock,
 } from 'lucide-react';
 import { useTRPC } from '@/trpc/client';
 import { useRouter } from 'next/navigation';
@@ -54,7 +54,7 @@ export function Sidebar() {
       { name: 'Gestión de Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
-      { name: 'Carga Horaria', href: '/carga-horaria', icon: Clock },
+      { name: 'Carga Horaria Completa', href: '/carga-horaria-completa', icon: CalendarClock },
       { name: 'Publicación Final', href: '/publicacion-final', icon: ShieldCheck },
       { name: 'Reportes', href: '/reportes', icon: FileText },
       { name: 'Asignación', href: '/asignacion', icon: Calendar },
@@ -63,7 +63,7 @@ export function Sidebar() {
     ],
     DECANO: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { name: 'Carga Horaria', href: '/carga-horaria', icon: Clock },
+      { name: 'Carga Horaria Completa', href: '/carga-horaria-completa', icon: CalendarClock },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Docentes', href: '/docentes', icon: Users },
@@ -78,7 +78,7 @@ export function Sidebar() {
       { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
-      { name: 'Carga Horaria', href: '/carga-horaria', icon: Clock },
+      { name: 'Carga Horaria Completa', href: '/carga-horaria-completa', icon: CalendarClock },
       { name: 'Reportes', href: '/reportes', icon: FileText },
     ],
     SECRETARIA_DEPARTAMENTO: [
@@ -86,12 +86,11 @@ export function Sidebar() {
       { name: 'Curriculas', href: '/planes-estudio', icon: GraduationCap },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Gestión de Carga Lectiva', href: '/carga-lectiva', icon: BookOpen },
-      { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
       { name: 'Demanda de Departamento', href: '/demanda-departamento', icon: FileText },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Docentes', href: '/docentes', icon: Users },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
-      { name: 'Carga Horaria', href: '/carga-horaria', icon: Clock },
+      { name: 'Carga Horaria Completa', href: '/carga-horaria-completa', icon: CalendarClock },
       { name: 'Asignación', href: '/asignacion', icon: Calendar },
       { name: 'Reportes', href: '/reportes', icon: FileText },
     ],
@@ -105,7 +104,7 @@ export function Sidebar() {
       { name: 'Demanda Académica', href: '/demanda-escuela', icon: FileText },
       { name: 'Asignación de Horarios', href: '/asignacion', icon: Calendar },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
-      { name: 'Carga Horaria', href: '/carga-horaria', icon: Clock },
+      { name: 'Carga Horaria Completa', href: '/carga-horaria-completa', icon: CalendarClock },
       { name: 'Reportes', href: '/reportes', icon: FileText },
     ],
     DIRECTOR_ESCUELA: [
@@ -121,15 +120,12 @@ export function Sidebar() {
     ],
     DOCENTE: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-      { name: 'Horario Personal', href: '/horario-personal', icon: Calendar },
-      { name: 'Carga No Lectiva', href: '/carga-no-lectiva', icon: Clock },
+      { name: 'Carga Horaria Completa', href: '/carga-horaria-completa', icon: CalendarClock },
       { name: 'Declaraciones', href: '/declaraciones', icon: FileText },
       { name: 'Formatos', href: '/formatos', icon: FileText },
       { name: 'Cursos', href: '/cursos', icon: BookOpen },
       { name: 'Horarios', href: '/horarios', icon: Calendar },
-      { name: 'Carga Horaria', href: '/carga-horaria', icon: Clock },
       { name: 'Mi Disponibilidad', href: '/disponibilidad', icon: Calendar },
-      { name: 'Reportes', href: '/reportes', icon: FileText },
     ],
     INVITADO: [
       { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -161,7 +157,7 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href ||
-            (item.href !== '/' && pathname.startsWith(item.href));
+            (item.href !== '/' && pathname.startsWith(item.href + '/'));
           const Icon = item.icon;
 
           return (

@@ -208,6 +208,64 @@ export const horarioRouter = createTRPCRouter({
       return service.getDocenteAulaAvailability(input.periodoId, input.aulaId, input.docenteId);
     }),
 
+  availableAulasForFranja: protectedProcedure
+    .input(z.object({
+      periodoId: z.string(),
+      franjaHorariaId: z.string(),
+      grupoId: z.string(),
+      tipo: z.enum(['TEORIA', 'PRACTICA', 'LABORATORIO']),
+    }))
+    .query(async ({ ctx, input }) => {
+      const [grupo, existingAsignaciones, mantenimientos, aulas] = await Promise.all([
+        ctx.prisma.grupo.findUniqueOrThrow({
+          where: { id: input.grupoId },
+          include: { curso: true },
+        }),
+        ctx.prisma.asignacion.findMany({
+          where: {
+            periodoId: input.periodoId,
+            franjaHorariaId: input.franjaHorariaId,
+          },
+          select: { aulaId: true },
+        }),
+        ctx.prisma.mantenimientoAula.findMany({
+          where: { franjaHorariaId: input.franjaHorariaId },
+          select: { aulaId: true },
+        }),
+        ctx.prisma.aula.findMany({
+          orderBy: { codigo: 'asc' },
+        }),
+      ]);
+
+      const occupiedAulaIds = new Set(existingAsignaciones.map((a) => a.aulaId));
+      const maintenanceAulaIds = new Set(mantenimientos.map((m) => m.aulaId));
+
+      let targetNumAlumnos = grupo.numAlumnos;
+      if (input.tipo === 'LABORATORIO' && grupo.curso.numGruposLaboratorio > 1) {
+        targetNumAlumnos = Math.ceil(grupo.numAlumnos / grupo.curso.numGruposLaboratorio);
+      }
+
+      return aulas.map((aula) => {
+        let status: 'LIBRE' | 'OCUPADA' | 'CAPACIDAD_INSUFICIENTE' = 'LIBRE';
+
+        if (occupiedAulaIds.has(aula.id) || maintenanceAulaIds.has(aula.id)) {
+          status = 'OCUPADA';
+        } else if (aula.capacidad < targetNumAlumnos) {
+          status = 'CAPACIDAD_INSUFICIENTE';
+        }
+
+        return {
+          id: aula.id,
+          codigo: aula.codigo,
+          nombre: aula.nombre,
+          tipo: aula.tipo,
+          capacidad: aula.capacidad,
+          status,
+          targetNumAlumnos,
+        };
+      });
+    }),
+
   // ─── Assignments ───────────────────────────────────
 
   list: protectedProcedure
@@ -417,7 +475,7 @@ export const horarioRouter = createTRPCRouter({
       }
 
       return ctx.prisma.asignacion.findMany({
-        where: { docenteId: input.docenteId, periodoId: input.periodoId },
+        where,
         include: {
           grupo: { include: { curso: true } },
           aula: true,
@@ -584,7 +642,10 @@ export const horarioRouter = createTRPCRouter({
       );
 
       if (!validation.valid) {
-        throw new Error(validation.reasons.join(', '));
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: validation.reasons.join(', '),
+        });
       }
 
       return ctx.prisma.asignacion.create({
@@ -612,6 +673,31 @@ export const horarioRouter = createTRPCRouter({
       return ctx.prisma.asignacion.delete({ where: { id: input.id } });
     }),
 
+  clearDocente: secretariaEscuelaProcedure
+    .input(z.object({
+      docenteId: z.string(),
+      periodoId: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      await assertFacultyPeriodNotPublished(ctx.prisma, { docenteId: input.docenteId, periodoId: input.periodoId });
+      const assignments = await ctx.prisma.asignacion.findMany({
+        where: { docenteId: input.docenteId, periodoId: input.periodoId },
+        select: { grupoId: true },
+      });
+      if (assignments.length > 0) {
+        const uniqueGrupoIds = [...new Set(assignments.map((a) => a.grupoId))];
+        for (const grupoId of uniqueGrupoIds) {
+          await assertCanManageHorarioForGrupo(ctx.prisma, ctx.session, grupoId);
+          await assertHorarioNotLocked(ctx.prisma, grupoId, input.periodoId);
+        }
+        return ctx.prisma.asignacion.deleteMany({
+          where: { docenteId: input.docenteId, periodoId: input.periodoId },
+        });
+      }
+      return { count: 0 };
+    }),
+
+
   update: secretariaEscuelaProcedure
     .input(z.object({
       id: z.string(),
@@ -637,7 +723,10 @@ export const horarioRouter = createTRPCRouter({
       );
 
       if (!validation.valid) {
-        throw new Error(validation.reasons.join(', '));
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: validation.reasons.join(', '),
+        });
       }
 
       return ctx.prisma.asignacion.update({
@@ -886,17 +975,19 @@ export const horarioRouter = createTRPCRouter({
           };
         }
 
-        // 2. Persist assignments if requested
-        if (input.overwrite) {
-          const deleteRes = await ctx.prisma.asignacion.deleteMany({
-            where: { periodoId: input.periodoId }
-          });
-          console.log(`[TRPC] Sobreescritura: ${deleteRes.count} asignaciones previas eliminadas.`);
-        }
+        // 2. Persist assignments inside transaction if requested
+        const createdCount = await ctx.prisma.$transaction(async (tx) => {
+          if (input.overwrite) {
+            const deleteRes = await tx.asignacion.deleteMany({
+              where: { periodoId: input.periodoId }
+            });
+            if (process.env.NODE_ENV !== 'production') {
+              console.log(`[TRPC] Sobreescritura: ${deleteRes.count} asignaciones previas eliminadas.`);
+            }
+          }
 
-        const createdCount = await ctx.prisma.$transaction(
-          result.assignments.map(a => 
-            ctx.prisma.asignacion.create({
+          const creations = result.assignments.map(a => 
+            tx.asignacion.create({
               data: {
                 periodoId: input.periodoId,
                 docenteId: a.docenteId,
@@ -907,10 +998,13 @@ export const horarioRouter = createTRPCRouter({
                 confirmado: false
               }
             })
-          )
-        );
+          );
+          return Promise.all(creations);
+        });
         
-        console.log(`[TRPC] Persistencia completada: ${createdCount.length} registros creados.`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`[TRPC] Persistencia completada: ${createdCount.length} registros creados.`);
+        }
 
         return {
           success: true,
@@ -1179,6 +1273,7 @@ export const horarioRouter = createTRPCRouter({
             cursoCodigo: dg.grupo.curso.codigo,
             ciclo: dg.grupo.curso.ciclo,
             numAlumnos: dg.grupo.numAlumnos,
+            numGruposLaboratorio: dg.grupo.curso.numGruposLaboratorio,
             horasTeoria: dg.grupo.curso.horasTeoria,
             horasPractica: dg.grupo.curso.horasPractica,
             horasLaboratorio: dg.grupo.curso.horasLaboratorio,

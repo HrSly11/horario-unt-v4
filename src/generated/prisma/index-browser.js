@@ -270,6 +270,7 @@ exports.Prisma.DisponibilidadDocenteScalarFieldEnum = {
   docenteId: 'docenteId',
   grupoId: 'grupoId',
   tipo: 'tipo',
+  grupoLaboratorio: 'grupoLaboratorio',
   franjaHorariaId: 'franjaHorariaId',
   createdAt: 'createdAt',
   periodoId: 'periodoId'
@@ -598,6 +599,20 @@ exports.Prisma.DocumentoFirmaDigitalScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.HorarioBloqueScalarFieldEnum = {
+  id: 'id',
+  docenteId: 'docenteId',
+  periodoId: 'periodoId',
+  tipoOrigen: 'tipoOrigen',
+  origenId: 'origenId',
+  subtipo: 'subtipo',
+  diaSemana: 'diaSemana',
+  horaInicio: 'horaInicio',
+  horaFin: 'horaFin',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -815,7 +830,8 @@ exports.Prisma.ModelName = {
   CargaNoLectiva: 'CargaNoLectiva',
   HorarioCargaNoLectiva: 'HorarioCargaNoLectiva',
   DeclaracionCarga: 'DeclaracionCarga',
-  DocumentoFirmaDigital: 'DocumentoFirmaDigital'
+  DocumentoFirmaDigital: 'DocumentoFirmaDigital',
+  HorarioBloque: 'HorarioBloque'
 };
 
 /**

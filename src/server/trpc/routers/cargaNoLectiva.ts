@@ -1,7 +1,8 @@
+import { PrismaClient } from '@/generated/prisma/client';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { createTRPCRouter, docenteProcedure, protectedProcedure } from '../init';
-import type { Prisma, PrismaClient } from '@/generated/prisma/client';
+import type { Prisma } from '@/generated/prisma/client';
 import { academicManagerRoles, departmentScopedRoles, getManagedDepartamentoIds, hasRole, assertFacultyPeriodNotPublished } from '../policy';
 import {
   calculateSlotHours,
@@ -202,7 +203,7 @@ export const cargaNoLectivaRouter = createTRPCRouter({
         }
       }
 
-      return ctx.prisma.cargaNoLectiva.create({
+      const result = await ctx.prisma.cargaNoLectiva.create({
         data: {
           ...cargaData,
           horarios: horarios && horarios.length > 0
@@ -211,6 +212,9 @@ export const cargaNoLectivaRouter = createTRPCRouter({
         },
         include: includeHorarios,
       });
+
+      await syncDeclaracionTotals(ctx.prisma, input.docenteId, input.periodoId);
+      return result;
     }),
 
   update: docenteProcedure
@@ -254,7 +258,7 @@ export const cargaNoLectivaRouter = createTRPCRouter({
       }
 
       // Transaction: update carga + replace horarios
-      return ctx.prisma.$transaction(async (tx) => {
+      const updated = await ctx.prisma.$transaction(async (tx) => {
         // If horarios are provided, replace them (delete old → create new)
         if (horarios !== undefined) {
           await tx.horarioCargaNoLectiva.deleteMany({ where: { cargaNoLectivaId: id } });
@@ -271,6 +275,9 @@ export const cargaNoLectivaRouter = createTRPCRouter({
           include: includeHorarios,
         });
       });
+
+      await syncDeclaracionTotals(ctx.prisma, existing.docenteId, existing.periodoId);
+      return updated;
     }),
 
   delete: docenteProcedure
@@ -282,7 +289,9 @@ export const cargaNoLectivaRouter = createTRPCRouter({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'No tiene permiso para eliminar cargas no lectivas de otro docente' });
       }
       await assertPeriodoMutable(ctx.prisma, existing.periodoId);
-      return ctx.prisma.cargaNoLectiva.delete({ where: { id: input.id } });
+      const deleted = await ctx.prisma.cargaNoLectiva.delete({ where: { id: input.id } });
+      await syncDeclaracionTotals(ctx.prisma, existing.docenteId, existing.periodoId);
+      return deleted;
     }),
 
   /**
@@ -371,3 +380,35 @@ export const cargaNoLectivaRouter = createTRPCRouter({
       return ctx.prisma.horarioCargaNoLectiva.delete({ where: { id: input.horarioId } });
     }),
 });
+
+async function syncDeclaracionTotals(prisma: PrismaClient, docenteId: string, periodoId: string) {
+  const declaracion = await prisma.declaracionCarga.findUnique({
+    where: { docenteId_periodoId: { docenteId, periodoId } },
+  });
+  if (!declaracion) return;
+
+  if (declaracion.estado !== 'BORRADOR' && declaracion.estado !== 'RECHAZADA') {
+    return;
+  }
+
+  const [asignaciones, cargas, docente] = await Promise.all([
+    prisma.asignacionCargaLectiva.findMany({ where: { docenteId, periodoId } }),
+    prisma.cargaNoLectiva.findMany({ where: { docenteId, periodoId } }),
+    prisma.docente.findUniqueOrThrow({ where: { id: docenteId }, select: { horasContrato: true } }),
+  ]);
+
+  const totalLectivas = asignaciones.reduce((sum, a) => sum + a.horasAsignadas, 0);
+  const totalNoLectivas = cargas.reduce((sum, c) => sum + c.horas, 0);
+  const totalHoras = totalLectivas + totalNoLectivas;
+  const shouldClearObservaciones = totalHoras >= docente.horasContrato;
+
+  await prisma.declaracionCarga.update({
+    where: { id: declaracion.id },
+    data: {
+      totalHorasLectivas: totalLectivas,
+      totalHorasNoLectivas: totalNoLectivas,
+      totalHoras: totalHoras,
+      ...(shouldClearObservaciones ? { observaciones: null } : {}),
+    },
+  });
+}

@@ -198,6 +198,11 @@ export type DeclaracionCarga = $Result.DefaultSelection<Prisma.$DeclaracionCarga
  * 
  */
 export type DocumentoFirmaDigital = $Result.DefaultSelection<Prisma.$DocumentoFirmaDigitalPayload>
+/**
+ * Model HorarioBloque
+ * 
+ */
+export type HorarioBloque = $Result.DefaultSelection<Prisma.$HorarioBloquePayload>
 
 /**
  * Enums
@@ -985,6 +990,16 @@ export class PrismaClient<
     * ```
     */
   get documentoFirmaDigital(): Prisma.DocumentoFirmaDigitalDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.horarioBloque`: Exposes CRUD operations for the **HorarioBloque** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more HorarioBloques
+    * const horarioBloques = await prisma.horarioBloque.findMany()
+    * ```
+    */
+  get horarioBloque(): Prisma.HorarioBloqueDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1455,7 +1470,8 @@ export namespace Prisma {
     CargaNoLectiva: 'CargaNoLectiva',
     HorarioCargaNoLectiva: 'HorarioCargaNoLectiva',
     DeclaracionCarga: 'DeclaracionCarga',
-    DocumentoFirmaDigital: 'DocumentoFirmaDigital'
+    DocumentoFirmaDigital: 'DocumentoFirmaDigital',
+    HorarioBloque: 'HorarioBloque'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1471,7 +1487,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "facultad" | "departamento" | "escuela" | "curricula" | "cursoCurricula" | "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion" | "asignacionCargaLectiva" | "demandaAcademica" | "demandaLinea" | "demandaLineaCurricula" | "distribucionLectiva" | "coberturaComponente" | "procesoHorarioEscuela" | "cargoDocente" | "reglaCargaPorCargo" | "publicacionAcademica" | "migracionReconciliacion" | "cargaNoLectiva" | "horarioCargaNoLectiva" | "declaracionCarga" | "documentoFirmaDigital"
+      modelProps: "facultad" | "departamento" | "escuela" | "curricula" | "cursoCurricula" | "user" | "log" | "docente" | "notification" | "curso" | "disponibilidadDocente" | "postulacionCurso" | "grupo" | "aula" | "periodoAcademico" | "franjaHoraria" | "asignacion" | "restriccionDocente" | "docenteGrupo" | "feriado" | "mantenimientoAula" | "preasignacion" | "asignacionCargaLectiva" | "demandaAcademica" | "demandaLinea" | "demandaLineaCurricula" | "distribucionLectiva" | "coberturaComponente" | "procesoHorarioEscuela" | "cargoDocente" | "reglaCargaPorCargo" | "publicacionAcademica" | "migracionReconciliacion" | "cargaNoLectiva" | "horarioCargaNoLectiva" | "declaracionCarga" | "documentoFirmaDigital" | "horarioBloque"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4213,6 +4229,80 @@ export namespace Prisma {
           }
         }
       }
+      HorarioBloque: {
+        payload: Prisma.$HorarioBloquePayload<ExtArgs>
+        fields: Prisma.HorarioBloqueFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.HorarioBloqueFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.HorarioBloqueFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>
+          }
+          findFirst: {
+            args: Prisma.HorarioBloqueFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.HorarioBloqueFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>
+          }
+          findMany: {
+            args: Prisma.HorarioBloqueFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>[]
+          }
+          create: {
+            args: Prisma.HorarioBloqueCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>
+          }
+          createMany: {
+            args: Prisma.HorarioBloqueCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.HorarioBloqueCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>[]
+          }
+          delete: {
+            args: Prisma.HorarioBloqueDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>
+          }
+          update: {
+            args: Prisma.HorarioBloqueUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>
+          }
+          deleteMany: {
+            args: Prisma.HorarioBloqueDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.HorarioBloqueUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.HorarioBloqueUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>[]
+          }
+          upsert: {
+            args: Prisma.HorarioBloqueUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$HorarioBloquePayload>
+          }
+          aggregate: {
+            args: Prisma.HorarioBloqueAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateHorarioBloque>
+          }
+          groupBy: {
+            args: Prisma.HorarioBloqueGroupByArgs<ExtArgs>
+            result: $Utils.Optional<HorarioBloqueGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.HorarioBloqueCountArgs<ExtArgs>
+            result: $Utils.Optional<HorarioBloqueCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4358,6 +4448,7 @@ export namespace Prisma {
     horarioCargaNoLectiva?: HorarioCargaNoLectivaOmit
     declaracionCarga?: DeclaracionCargaOmit
     documentoFirmaDigital?: DocumentoFirmaDigitalOmit
+    horarioBloque?: HorarioBloqueOmit
   }
 
   /* Types for Logging */
@@ -4857,6 +4948,7 @@ export namespace Prisma {
     postulaciones: number
     preasignaciones: number
     restricciones: number
+    horarioBloques: number
   }
 
   export type DocenteCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4872,6 +4964,7 @@ export namespace Prisma {
     postulaciones?: boolean | DocenteCountOutputTypeCountPostulacionesArgs
     preasignaciones?: boolean | DocenteCountOutputTypeCountPreasignacionesArgs
     restricciones?: boolean | DocenteCountOutputTypeCountRestriccionesArgs
+    horarioBloques?: boolean | DocenteCountOutputTypeCountHorarioBloquesArgs
   }
 
   // Custom InputTypes
@@ -4967,6 +5060,13 @@ export namespace Prisma {
    */
   export type DocenteCountOutputTypeCountRestriccionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RestriccionDocenteWhereInput
+  }
+
+  /**
+   * DocenteCountOutputType without action
+   */
+  export type DocenteCountOutputTypeCountHorarioBloquesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HorarioBloqueWhereInput
   }
 
 
@@ -5152,6 +5252,7 @@ export namespace Prisma {
     procesosHorario: number
     cargos: number
     publicaciones: number
+    horarioBloques: number
   }
 
   export type PeriodoAcademicoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5167,6 +5268,7 @@ export namespace Prisma {
     procesosHorario?: boolean | PeriodoAcademicoCountOutputTypeCountProcesosHorarioArgs
     cargos?: boolean | PeriodoAcademicoCountOutputTypeCountCargosArgs
     publicaciones?: boolean | PeriodoAcademicoCountOutputTypeCountPublicacionesArgs
+    horarioBloques?: boolean | PeriodoAcademicoCountOutputTypeCountHorarioBloquesArgs
   }
 
   // Custom InputTypes
@@ -5262,6 +5364,13 @@ export namespace Prisma {
    */
   export type PeriodoAcademicoCountOutputTypeCountPublicacionesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PublicacionAcademicaWhereInput
+  }
+
+  /**
+   * PeriodoAcademicoCountOutputType without action
+   */
+  export type PeriodoAcademicoCountOutputTypeCountHorarioBloquesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HorarioBloqueWhereInput
   }
 
 
@@ -15110,6 +15219,7 @@ export namespace Prisma {
     preasignaciones?: boolean | Docente$preasignacionesArgs<ExtArgs>
     restricciones?: boolean | Docente$restriccionesArgs<ExtArgs>
     user?: boolean | Docente$userArgs<ExtArgs>
+    horarioBloques?: boolean | Docente$horarioBloquesArgs<ExtArgs>
     _count?: boolean | DocenteCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["docente"]>
 
@@ -15200,6 +15310,7 @@ export namespace Prisma {
     preasignaciones?: boolean | Docente$preasignacionesArgs<ExtArgs>
     restricciones?: boolean | Docente$restriccionesArgs<ExtArgs>
     user?: boolean | Docente$userArgs<ExtArgs>
+    horarioBloques?: boolean | Docente$horarioBloquesArgs<ExtArgs>
     _count?: boolean | DocenteCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DocenteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -15226,6 +15337,7 @@ export namespace Prisma {
       preasignaciones: Prisma.$PreasignacionPayload<ExtArgs>[]
       restricciones: Prisma.$RestriccionDocentePayload<ExtArgs>[]
       user: Prisma.$UserPayload<ExtArgs> | null
+      horarioBloques: Prisma.$HorarioBloquePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -15656,6 +15768,7 @@ export namespace Prisma {
     preasignaciones<T extends Docente$preasignacionesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$preasignacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreasignacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     restricciones<T extends Docente$restriccionesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$restriccionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RestriccionDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     user<T extends Docente$userArgs<ExtArgs> = {}>(args?: Subset<T, Docente$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    horarioBloques<T extends Docente$horarioBloquesArgs<ExtArgs> = {}>(args?: Subset<T, Docente$horarioBloquesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16429,6 +16542,30 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
+  }
+
+  /**
+   * Docente.horarioBloques
+   */
+  export type Docente$horarioBloquesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    where?: HorarioBloqueWhereInput
+    orderBy?: HorarioBloqueOrderByWithRelationInput | HorarioBloqueOrderByWithRelationInput[]
+    cursor?: HorarioBloqueWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HorarioBloqueScalarFieldEnum | HorarioBloqueScalarFieldEnum[]
   }
 
   /**
@@ -19092,8 +19229,18 @@ export namespace Prisma {
 
   export type AggregateDisponibilidadDocente = {
     _count: DisponibilidadDocenteCountAggregateOutputType | null
+    _avg: DisponibilidadDocenteAvgAggregateOutputType | null
+    _sum: DisponibilidadDocenteSumAggregateOutputType | null
     _min: DisponibilidadDocenteMinAggregateOutputType | null
     _max: DisponibilidadDocenteMaxAggregateOutputType | null
+  }
+
+  export type DisponibilidadDocenteAvgAggregateOutputType = {
+    grupoLaboratorio: number | null
+  }
+
+  export type DisponibilidadDocenteSumAggregateOutputType = {
+    grupoLaboratorio: number | null
   }
 
   export type DisponibilidadDocenteMinAggregateOutputType = {
@@ -19101,6 +19248,7 @@ export namespace Prisma {
     docenteId: string | null
     grupoId: string | null
     tipo: $Enums.TipoAsignacion | null
+    grupoLaboratorio: number | null
     franjaHorariaId: string | null
     createdAt: Date | null
     periodoId: string | null
@@ -19111,6 +19259,7 @@ export namespace Prisma {
     docenteId: string | null
     grupoId: string | null
     tipo: $Enums.TipoAsignacion | null
+    grupoLaboratorio: number | null
     franjaHorariaId: string | null
     createdAt: Date | null
     periodoId: string | null
@@ -19121,6 +19270,7 @@ export namespace Prisma {
     docenteId: number
     grupoId: number
     tipo: number
+    grupoLaboratorio: number
     franjaHorariaId: number
     createdAt: number
     periodoId: number
@@ -19128,11 +19278,20 @@ export namespace Prisma {
   }
 
 
+  export type DisponibilidadDocenteAvgAggregateInputType = {
+    grupoLaboratorio?: true
+  }
+
+  export type DisponibilidadDocenteSumAggregateInputType = {
+    grupoLaboratorio?: true
+  }
+
   export type DisponibilidadDocenteMinAggregateInputType = {
     id?: true
     docenteId?: true
     grupoId?: true
     tipo?: true
+    grupoLaboratorio?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -19143,6 +19302,7 @@ export namespace Prisma {
     docenteId?: true
     grupoId?: true
     tipo?: true
+    grupoLaboratorio?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -19153,6 +19313,7 @@ export namespace Prisma {
     docenteId?: true
     grupoId?: true
     tipo?: true
+    grupoLaboratorio?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -19197,6 +19358,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: DisponibilidadDocenteAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DisponibilidadDocenteSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: DisponibilidadDocenteMinAggregateInputType
@@ -19227,6 +19400,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: DisponibilidadDocenteCountAggregateInputType | true
+    _avg?: DisponibilidadDocenteAvgAggregateInputType
+    _sum?: DisponibilidadDocenteSumAggregateInputType
     _min?: DisponibilidadDocenteMinAggregateInputType
     _max?: DisponibilidadDocenteMaxAggregateInputType
   }
@@ -19236,10 +19411,13 @@ export namespace Prisma {
     docenteId: string
     grupoId: string | null
     tipo: $Enums.TipoAsignacion | null
+    grupoLaboratorio: number | null
     franjaHorariaId: string
     createdAt: Date
     periodoId: string
     _count: DisponibilidadDocenteCountAggregateOutputType | null
+    _avg: DisponibilidadDocenteAvgAggregateOutputType | null
+    _sum: DisponibilidadDocenteSumAggregateOutputType | null
     _min: DisponibilidadDocenteMinAggregateOutputType | null
     _max: DisponibilidadDocenteMaxAggregateOutputType | null
   }
@@ -19263,6 +19441,7 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
+    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
@@ -19277,6 +19456,7 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
+    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
@@ -19291,6 +19471,7 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
+    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
@@ -19305,12 +19486,13 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
+    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
   }
 
-  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "grupoId" | "tipo" | "franjaHorariaId" | "createdAt" | "periodoId", ExtArgs["result"]["disponibilidadDocente"]>
+  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "grupoId" | "tipo" | "grupoLaboratorio" | "franjaHorariaId" | "createdAt" | "periodoId", ExtArgs["result"]["disponibilidadDocente"]>
   export type DisponibilidadDocenteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
     grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
@@ -19343,6 +19525,7 @@ export namespace Prisma {
       docenteId: string
       grupoId: string | null
       tipo: $Enums.TipoAsignacion | null
+      grupoLaboratorio: number | null
       franjaHorariaId: string
       createdAt: Date
       periodoId: string
@@ -19777,6 +19960,7 @@ export namespace Prisma {
     readonly docenteId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly grupoId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly tipo: FieldRef<"DisponibilidadDocente", 'TipoAsignacion'>
+    readonly grupoLaboratorio: FieldRef<"DisponibilidadDocente", 'Int'>
     readonly franjaHorariaId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly createdAt: FieldRef<"DisponibilidadDocente", 'DateTime'>
     readonly periodoId: FieldRef<"DisponibilidadDocente", 'String'>
@@ -24124,6 +24308,7 @@ export namespace Prisma {
     procesosHorario?: boolean | PeriodoAcademico$procesosHorarioArgs<ExtArgs>
     cargos?: boolean | PeriodoAcademico$cargosArgs<ExtArgs>
     publicaciones?: boolean | PeriodoAcademico$publicacionesArgs<ExtArgs>
+    horarioBloques?: boolean | PeriodoAcademico$horarioBloquesArgs<ExtArgs>
     _count?: boolean | PeriodoAcademicoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["periodoAcademico"]>
 
@@ -24186,6 +24371,7 @@ export namespace Prisma {
     procesosHorario?: boolean | PeriodoAcademico$procesosHorarioArgs<ExtArgs>
     cargos?: boolean | PeriodoAcademico$cargosArgs<ExtArgs>
     publicaciones?: boolean | PeriodoAcademico$publicacionesArgs<ExtArgs>
+    horarioBloques?: boolean | PeriodoAcademico$horarioBloquesArgs<ExtArgs>
     _count?: boolean | PeriodoAcademicoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PeriodoAcademicoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -24211,6 +24397,7 @@ export namespace Prisma {
       procesosHorario: Prisma.$ProcesoHorarioEscuelaPayload<ExtArgs>[]
       cargos: Prisma.$CargoDocentePayload<ExtArgs>[]
       publicaciones: Prisma.$PublicacionAcademicaPayload<ExtArgs>[]
+      horarioBloques: Prisma.$HorarioBloquePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -24631,6 +24818,7 @@ export namespace Prisma {
     procesosHorario<T extends PeriodoAcademico$procesosHorarioArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$procesosHorarioArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProcesoHorarioEscuelaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     cargos<T extends PeriodoAcademico$cargosArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$cargosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CargoDocentePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     publicaciones<T extends PeriodoAcademico$publicacionesArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$publicacionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PublicacionAcademicaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    horarioBloques<T extends PeriodoAcademico$horarioBloquesArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademico$horarioBloquesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -25376,6 +25564,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PublicacionAcademicaScalarFieldEnum | PublicacionAcademicaScalarFieldEnum[]
+  }
+
+  /**
+   * PeriodoAcademico.horarioBloques
+   */
+  export type PeriodoAcademico$horarioBloquesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    where?: HorarioBloqueWhereInput
+    orderBy?: HorarioBloqueOrderByWithRelationInput | HorarioBloqueOrderByWithRelationInput[]
+    cursor?: HorarioBloqueWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: HorarioBloqueScalarFieldEnum | HorarioBloqueScalarFieldEnum[]
   }
 
   /**
@@ -51496,6 +51708,1155 @@ export namespace Prisma {
 
 
   /**
+   * Model HorarioBloque
+   */
+
+  export type AggregateHorarioBloque = {
+    _count: HorarioBloqueCountAggregateOutputType | null
+    _min: HorarioBloqueMinAggregateOutputType | null
+    _max: HorarioBloqueMaxAggregateOutputType | null
+  }
+
+  export type HorarioBloqueMinAggregateOutputType = {
+    id: string | null
+    docenteId: string | null
+    periodoId: string | null
+    tipoOrigen: string | null
+    origenId: string | null
+    subtipo: string | null
+    diaSemana: $Enums.DiaSemana | null
+    horaInicio: string | null
+    horaFin: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type HorarioBloqueMaxAggregateOutputType = {
+    id: string | null
+    docenteId: string | null
+    periodoId: string | null
+    tipoOrigen: string | null
+    origenId: string | null
+    subtipo: string | null
+    diaSemana: $Enums.DiaSemana | null
+    horaInicio: string | null
+    horaFin: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type HorarioBloqueCountAggregateOutputType = {
+    id: number
+    docenteId: number
+    periodoId: number
+    tipoOrigen: number
+    origenId: number
+    subtipo: number
+    diaSemana: number
+    horaInicio: number
+    horaFin: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type HorarioBloqueMinAggregateInputType = {
+    id?: true
+    docenteId?: true
+    periodoId?: true
+    tipoOrigen?: true
+    origenId?: true
+    subtipo?: true
+    diaSemana?: true
+    horaInicio?: true
+    horaFin?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type HorarioBloqueMaxAggregateInputType = {
+    id?: true
+    docenteId?: true
+    periodoId?: true
+    tipoOrigen?: true
+    origenId?: true
+    subtipo?: true
+    diaSemana?: true
+    horaInicio?: true
+    horaFin?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type HorarioBloqueCountAggregateInputType = {
+    id?: true
+    docenteId?: true
+    periodoId?: true
+    tipoOrigen?: true
+    origenId?: true
+    subtipo?: true
+    diaSemana?: true
+    horaInicio?: true
+    horaFin?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type HorarioBloqueAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HorarioBloque to aggregate.
+     */
+    where?: HorarioBloqueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioBloques to fetch.
+     */
+    orderBy?: HorarioBloqueOrderByWithRelationInput | HorarioBloqueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: HorarioBloqueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioBloques from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioBloques.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned HorarioBloques
+    **/
+    _count?: true | HorarioBloqueCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: HorarioBloqueMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: HorarioBloqueMaxAggregateInputType
+  }
+
+  export type GetHorarioBloqueAggregateType<T extends HorarioBloqueAggregateArgs> = {
+        [P in keyof T & keyof AggregateHorarioBloque]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateHorarioBloque[P]>
+      : GetScalarType<T[P], AggregateHorarioBloque[P]>
+  }
+
+
+
+
+  export type HorarioBloqueGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: HorarioBloqueWhereInput
+    orderBy?: HorarioBloqueOrderByWithAggregationInput | HorarioBloqueOrderByWithAggregationInput[]
+    by: HorarioBloqueScalarFieldEnum[] | HorarioBloqueScalarFieldEnum
+    having?: HorarioBloqueScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: HorarioBloqueCountAggregateInputType | true
+    _min?: HorarioBloqueMinAggregateInputType
+    _max?: HorarioBloqueMaxAggregateInputType
+  }
+
+  export type HorarioBloqueGroupByOutputType = {
+    id: string
+    docenteId: string
+    periodoId: string
+    tipoOrigen: string
+    origenId: string
+    subtipo: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt: Date
+    updatedAt: Date
+    _count: HorarioBloqueCountAggregateOutputType | null
+    _min: HorarioBloqueMinAggregateOutputType | null
+    _max: HorarioBloqueMaxAggregateOutputType | null
+  }
+
+  type GetHorarioBloqueGroupByPayload<T extends HorarioBloqueGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<HorarioBloqueGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof HorarioBloqueGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], HorarioBloqueGroupByOutputType[P]>
+            : GetScalarType<T[P], HorarioBloqueGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type HorarioBloqueSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    docenteId?: boolean
+    periodoId?: boolean
+    tipoOrigen?: boolean
+    origenId?: boolean
+    subtipo?: boolean
+    diaSemana?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioBloque"]>
+
+  export type HorarioBloqueSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    docenteId?: boolean
+    periodoId?: boolean
+    tipoOrigen?: boolean
+    origenId?: boolean
+    subtipo?: boolean
+    diaSemana?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioBloque"]>
+
+  export type HorarioBloqueSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    docenteId?: boolean
+    periodoId?: boolean
+    tipoOrigen?: boolean
+    origenId?: boolean
+    subtipo?: boolean
+    diaSemana?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["horarioBloque"]>
+
+  export type HorarioBloqueSelectScalar = {
+    id?: boolean
+    docenteId?: boolean
+    periodoId?: boolean
+    tipoOrigen?: boolean
+    origenId?: boolean
+    subtipo?: boolean
+    diaSemana?: boolean
+    horaInicio?: boolean
+    horaFin?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type HorarioBloqueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "periodoId" | "tipoOrigen" | "origenId" | "subtipo" | "diaSemana" | "horaInicio" | "horaFin" | "createdAt" | "updatedAt", ExtArgs["result"]["horarioBloque"]>
+  export type HorarioBloqueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+  }
+  export type HorarioBloqueIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+  }
+  export type HorarioBloqueIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    docente?: boolean | DocenteDefaultArgs<ExtArgs>
+    periodo?: boolean | PeriodoAcademicoDefaultArgs<ExtArgs>
+  }
+
+  export type $HorarioBloquePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "HorarioBloque"
+    objects: {
+      docente: Prisma.$DocentePayload<ExtArgs>
+      periodo: Prisma.$PeriodoAcademicoPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      docenteId: string
+      periodoId: string
+      tipoOrigen: string
+      origenId: string
+      subtipo: string | null
+      diaSemana: $Enums.DiaSemana
+      horaInicio: string
+      horaFin: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["horarioBloque"]>
+    composites: {}
+  }
+
+  type HorarioBloqueGetPayload<S extends boolean | null | undefined | HorarioBloqueDefaultArgs> = $Result.GetResult<Prisma.$HorarioBloquePayload, S>
+
+  type HorarioBloqueCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<HorarioBloqueFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: HorarioBloqueCountAggregateInputType | true
+    }
+
+  export interface HorarioBloqueDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['HorarioBloque'], meta: { name: 'HorarioBloque' } }
+    /**
+     * Find zero or one HorarioBloque that matches the filter.
+     * @param {HorarioBloqueFindUniqueArgs} args - Arguments to find a HorarioBloque
+     * @example
+     * // Get one HorarioBloque
+     * const horarioBloque = await prisma.horarioBloque.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends HorarioBloqueFindUniqueArgs>(args: SelectSubset<T, HorarioBloqueFindUniqueArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one HorarioBloque that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {HorarioBloqueFindUniqueOrThrowArgs} args - Arguments to find a HorarioBloque
+     * @example
+     * // Get one HorarioBloque
+     * const horarioBloque = await prisma.horarioBloque.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends HorarioBloqueFindUniqueOrThrowArgs>(args: SelectSubset<T, HorarioBloqueFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HorarioBloque that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioBloqueFindFirstArgs} args - Arguments to find a HorarioBloque
+     * @example
+     * // Get one HorarioBloque
+     * const horarioBloque = await prisma.horarioBloque.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends HorarioBloqueFindFirstArgs>(args?: SelectSubset<T, HorarioBloqueFindFirstArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first HorarioBloque that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioBloqueFindFirstOrThrowArgs} args - Arguments to find a HorarioBloque
+     * @example
+     * // Get one HorarioBloque
+     * const horarioBloque = await prisma.horarioBloque.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends HorarioBloqueFindFirstOrThrowArgs>(args?: SelectSubset<T, HorarioBloqueFindFirstOrThrowArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more HorarioBloques that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioBloqueFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all HorarioBloques
+     * const horarioBloques = await prisma.horarioBloque.findMany()
+     * 
+     * // Get first 10 HorarioBloques
+     * const horarioBloques = await prisma.horarioBloque.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const horarioBloqueWithIdOnly = await prisma.horarioBloque.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends HorarioBloqueFindManyArgs>(args?: SelectSubset<T, HorarioBloqueFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a HorarioBloque.
+     * @param {HorarioBloqueCreateArgs} args - Arguments to create a HorarioBloque.
+     * @example
+     * // Create one HorarioBloque
+     * const HorarioBloque = await prisma.horarioBloque.create({
+     *   data: {
+     *     // ... data to create a HorarioBloque
+     *   }
+     * })
+     * 
+     */
+    create<T extends HorarioBloqueCreateArgs>(args: SelectSubset<T, HorarioBloqueCreateArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many HorarioBloques.
+     * @param {HorarioBloqueCreateManyArgs} args - Arguments to create many HorarioBloques.
+     * @example
+     * // Create many HorarioBloques
+     * const horarioBloque = await prisma.horarioBloque.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends HorarioBloqueCreateManyArgs>(args?: SelectSubset<T, HorarioBloqueCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many HorarioBloques and returns the data saved in the database.
+     * @param {HorarioBloqueCreateManyAndReturnArgs} args - Arguments to create many HorarioBloques.
+     * @example
+     * // Create many HorarioBloques
+     * const horarioBloque = await prisma.horarioBloque.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many HorarioBloques and only return the `id`
+     * const horarioBloqueWithIdOnly = await prisma.horarioBloque.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends HorarioBloqueCreateManyAndReturnArgs>(args?: SelectSubset<T, HorarioBloqueCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a HorarioBloque.
+     * @param {HorarioBloqueDeleteArgs} args - Arguments to delete one HorarioBloque.
+     * @example
+     * // Delete one HorarioBloque
+     * const HorarioBloque = await prisma.horarioBloque.delete({
+     *   where: {
+     *     // ... filter to delete one HorarioBloque
+     *   }
+     * })
+     * 
+     */
+    delete<T extends HorarioBloqueDeleteArgs>(args: SelectSubset<T, HorarioBloqueDeleteArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one HorarioBloque.
+     * @param {HorarioBloqueUpdateArgs} args - Arguments to update one HorarioBloque.
+     * @example
+     * // Update one HorarioBloque
+     * const horarioBloque = await prisma.horarioBloque.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends HorarioBloqueUpdateArgs>(args: SelectSubset<T, HorarioBloqueUpdateArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more HorarioBloques.
+     * @param {HorarioBloqueDeleteManyArgs} args - Arguments to filter HorarioBloques to delete.
+     * @example
+     * // Delete a few HorarioBloques
+     * const { count } = await prisma.horarioBloque.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends HorarioBloqueDeleteManyArgs>(args?: SelectSubset<T, HorarioBloqueDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HorarioBloques.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioBloqueUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many HorarioBloques
+     * const horarioBloque = await prisma.horarioBloque.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends HorarioBloqueUpdateManyArgs>(args: SelectSubset<T, HorarioBloqueUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more HorarioBloques and returns the data updated in the database.
+     * @param {HorarioBloqueUpdateManyAndReturnArgs} args - Arguments to update many HorarioBloques.
+     * @example
+     * // Update many HorarioBloques
+     * const horarioBloque = await prisma.horarioBloque.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more HorarioBloques and only return the `id`
+     * const horarioBloqueWithIdOnly = await prisma.horarioBloque.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends HorarioBloqueUpdateManyAndReturnArgs>(args: SelectSubset<T, HorarioBloqueUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one HorarioBloque.
+     * @param {HorarioBloqueUpsertArgs} args - Arguments to update or create a HorarioBloque.
+     * @example
+     * // Update or create a HorarioBloque
+     * const horarioBloque = await prisma.horarioBloque.upsert({
+     *   create: {
+     *     // ... data to create a HorarioBloque
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the HorarioBloque we want to update
+     *   }
+     * })
+     */
+    upsert<T extends HorarioBloqueUpsertArgs>(args: SelectSubset<T, HorarioBloqueUpsertArgs<ExtArgs>>): Prisma__HorarioBloqueClient<$Result.GetResult<Prisma.$HorarioBloquePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of HorarioBloques.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioBloqueCountArgs} args - Arguments to filter HorarioBloques to count.
+     * @example
+     * // Count the number of HorarioBloques
+     * const count = await prisma.horarioBloque.count({
+     *   where: {
+     *     // ... the filter for the HorarioBloques we want to count
+     *   }
+     * })
+    **/
+    count<T extends HorarioBloqueCountArgs>(
+      args?: Subset<T, HorarioBloqueCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], HorarioBloqueCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a HorarioBloque.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioBloqueAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends HorarioBloqueAggregateArgs>(args: Subset<T, HorarioBloqueAggregateArgs>): Prisma.PrismaPromise<GetHorarioBloqueAggregateType<T>>
+
+    /**
+     * Group by HorarioBloque.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {HorarioBloqueGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends HorarioBloqueGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: HorarioBloqueGroupByArgs['orderBy'] }
+        : { orderBy?: HorarioBloqueGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, HorarioBloqueGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHorarioBloqueGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the HorarioBloque model
+   */
+  readonly fields: HorarioBloqueFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for HorarioBloque.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__HorarioBloqueClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    docente<T extends DocenteDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DocenteDefaultArgs<ExtArgs>>): Prisma__DocenteClient<$Result.GetResult<Prisma.$DocentePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    periodo<T extends PeriodoAcademicoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PeriodoAcademicoDefaultArgs<ExtArgs>>): Prisma__PeriodoAcademicoClient<$Result.GetResult<Prisma.$PeriodoAcademicoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the HorarioBloque model
+   */
+  interface HorarioBloqueFieldRefs {
+    readonly id: FieldRef<"HorarioBloque", 'String'>
+    readonly docenteId: FieldRef<"HorarioBloque", 'String'>
+    readonly periodoId: FieldRef<"HorarioBloque", 'String'>
+    readonly tipoOrigen: FieldRef<"HorarioBloque", 'String'>
+    readonly origenId: FieldRef<"HorarioBloque", 'String'>
+    readonly subtipo: FieldRef<"HorarioBloque", 'String'>
+    readonly diaSemana: FieldRef<"HorarioBloque", 'DiaSemana'>
+    readonly horaInicio: FieldRef<"HorarioBloque", 'String'>
+    readonly horaFin: FieldRef<"HorarioBloque", 'String'>
+    readonly createdAt: FieldRef<"HorarioBloque", 'DateTime'>
+    readonly updatedAt: FieldRef<"HorarioBloque", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * HorarioBloque findUnique
+   */
+  export type HorarioBloqueFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioBloque to fetch.
+     */
+    where: HorarioBloqueWhereUniqueInput
+  }
+
+  /**
+   * HorarioBloque findUniqueOrThrow
+   */
+  export type HorarioBloqueFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioBloque to fetch.
+     */
+    where: HorarioBloqueWhereUniqueInput
+  }
+
+  /**
+   * HorarioBloque findFirst
+   */
+  export type HorarioBloqueFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioBloque to fetch.
+     */
+    where?: HorarioBloqueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioBloques to fetch.
+     */
+    orderBy?: HorarioBloqueOrderByWithRelationInput | HorarioBloqueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HorarioBloques.
+     */
+    cursor?: HorarioBloqueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioBloques from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioBloques.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HorarioBloques.
+     */
+    distinct?: HorarioBloqueScalarFieldEnum | HorarioBloqueScalarFieldEnum[]
+  }
+
+  /**
+   * HorarioBloque findFirstOrThrow
+   */
+  export type HorarioBloqueFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioBloque to fetch.
+     */
+    where?: HorarioBloqueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioBloques to fetch.
+     */
+    orderBy?: HorarioBloqueOrderByWithRelationInput | HorarioBloqueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for HorarioBloques.
+     */
+    cursor?: HorarioBloqueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioBloques from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioBloques.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HorarioBloques.
+     */
+    distinct?: HorarioBloqueScalarFieldEnum | HorarioBloqueScalarFieldEnum[]
+  }
+
+  /**
+   * HorarioBloque findMany
+   */
+  export type HorarioBloqueFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * Filter, which HorarioBloques to fetch.
+     */
+    where?: HorarioBloqueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of HorarioBloques to fetch.
+     */
+    orderBy?: HorarioBloqueOrderByWithRelationInput | HorarioBloqueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing HorarioBloques.
+     */
+    cursor?: HorarioBloqueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` HorarioBloques from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` HorarioBloques.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of HorarioBloques.
+     */
+    distinct?: HorarioBloqueScalarFieldEnum | HorarioBloqueScalarFieldEnum[]
+  }
+
+  /**
+   * HorarioBloque create
+   */
+  export type HorarioBloqueCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * The data needed to create a HorarioBloque.
+     */
+    data: XOR<HorarioBloqueCreateInput, HorarioBloqueUncheckedCreateInput>
+  }
+
+  /**
+   * HorarioBloque createMany
+   */
+  export type HorarioBloqueCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many HorarioBloques.
+     */
+    data: HorarioBloqueCreateManyInput | HorarioBloqueCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * HorarioBloque createManyAndReturn
+   */
+  export type HorarioBloqueCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * The data used to create many HorarioBloques.
+     */
+    data: HorarioBloqueCreateManyInput | HorarioBloqueCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HorarioBloque update
+   */
+  export type HorarioBloqueUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * The data needed to update a HorarioBloque.
+     */
+    data: XOR<HorarioBloqueUpdateInput, HorarioBloqueUncheckedUpdateInput>
+    /**
+     * Choose, which HorarioBloque to update.
+     */
+    where: HorarioBloqueWhereUniqueInput
+  }
+
+  /**
+   * HorarioBloque updateMany
+   */
+  export type HorarioBloqueUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update HorarioBloques.
+     */
+    data: XOR<HorarioBloqueUpdateManyMutationInput, HorarioBloqueUncheckedUpdateManyInput>
+    /**
+     * Filter which HorarioBloques to update
+     */
+    where?: HorarioBloqueWhereInput
+    /**
+     * Limit how many HorarioBloques to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * HorarioBloque updateManyAndReturn
+   */
+  export type HorarioBloqueUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * The data used to update HorarioBloques.
+     */
+    data: XOR<HorarioBloqueUpdateManyMutationInput, HorarioBloqueUncheckedUpdateManyInput>
+    /**
+     * Filter which HorarioBloques to update
+     */
+    where?: HorarioBloqueWhereInput
+    /**
+     * Limit how many HorarioBloques to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * HorarioBloque upsert
+   */
+  export type HorarioBloqueUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * The filter to search for the HorarioBloque to update in case it exists.
+     */
+    where: HorarioBloqueWhereUniqueInput
+    /**
+     * In case the HorarioBloque found by the `where` argument doesn't exist, create a new HorarioBloque with this data.
+     */
+    create: XOR<HorarioBloqueCreateInput, HorarioBloqueUncheckedCreateInput>
+    /**
+     * In case the HorarioBloque was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<HorarioBloqueUpdateInput, HorarioBloqueUncheckedUpdateInput>
+  }
+
+  /**
+   * HorarioBloque delete
+   */
+  export type HorarioBloqueDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+    /**
+     * Filter which HorarioBloque to delete.
+     */
+    where: HorarioBloqueWhereUniqueInput
+  }
+
+  /**
+   * HorarioBloque deleteMany
+   */
+  export type HorarioBloqueDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which HorarioBloques to delete
+     */
+    where?: HorarioBloqueWhereInput
+    /**
+     * Limit how many HorarioBloques to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * HorarioBloque without action
+   */
+  export type HorarioBloqueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the HorarioBloque
+     */
+    select?: HorarioBloqueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the HorarioBloque
+     */
+    omit?: HorarioBloqueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: HorarioBloqueInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -51689,6 +53050,7 @@ export namespace Prisma {
     docenteId: 'docenteId',
     grupoId: 'grupoId',
     tipo: 'tipo',
+    grupoLaboratorio: 'grupoLaboratorio',
     franjaHorariaId: 'franjaHorariaId',
     createdAt: 'createdAt',
     periodoId: 'periodoId'
@@ -52096,6 +53458,23 @@ export namespace Prisma {
   };
 
   export type DocumentoFirmaDigitalScalarFieldEnum = (typeof DocumentoFirmaDigitalScalarFieldEnum)[keyof typeof DocumentoFirmaDigitalScalarFieldEnum]
+
+
+  export const HorarioBloqueScalarFieldEnum: {
+    id: 'id',
+    docenteId: 'docenteId',
+    periodoId: 'periodoId',
+    tipoOrigen: 'tipoOrigen',
+    origenId: 'origenId',
+    subtipo: 'subtipo',
+    diaSemana: 'diaSemana',
+    horaInicio: 'horaInicio',
+    horaFin: 'horaFin',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type HorarioBloqueScalarFieldEnum = (typeof HorarioBloqueScalarFieldEnum)[keyof typeof HorarioBloqueScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -53225,6 +54604,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionListRelationFilter
     restricciones?: RestriccionDocenteListRelationFilter
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    horarioBloques?: HorarioBloqueListRelationFilter
   }
 
   export type DocenteOrderByWithRelationInput = {
@@ -53262,6 +54642,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionOrderByRelationAggregateInput
     restricciones?: RestriccionDocenteOrderByRelationAggregateInput
     user?: UserOrderByWithRelationInput
+    horarioBloques?: HorarioBloqueOrderByRelationAggregateInput
   }
 
   export type DocenteWhereUniqueInput = Prisma.AtLeast<{
@@ -53302,6 +54683,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionListRelationFilter
     restricciones?: RestriccionDocenteListRelationFilter
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    horarioBloques?: HorarioBloqueListRelationFilter
   }, "id" | "codigo" | "email" | "dni" | "codigoIBM">
 
   export type DocenteOrderByWithAggregationInput = {
@@ -53598,6 +54980,7 @@ export namespace Prisma {
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: IntNullableFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
@@ -53612,6 +54995,7 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrderInput | SortOrder
     tipo?: SortOrderInput | SortOrder
+    grupoLaboratorio?: SortOrderInput | SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
@@ -53623,13 +55007,14 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    docenteId_periodoId_franjaHorariaId_grupoId_tipo?: DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoCompoundUniqueInput
+    docenteId_periodoId_franjaHorariaId_grupoId_tipo_grupoLaboratorio?: DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoGrupoLaboratorioCompoundUniqueInput
     AND?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     OR?: DisponibilidadDocenteWhereInput[]
     NOT?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: IntNullableFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
@@ -53637,19 +55022,22 @@ export namespace Prisma {
     grupo?: XOR<GrupoNullableScalarRelationFilter, GrupoWhereInput> | null
     franjaHoraria?: XOR<FranjaHorariaScalarRelationFilter, FranjaHorariaWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
-  }, "id" | "docenteId_periodoId_franjaHorariaId_grupoId_tipo">
+  }, "id" | "docenteId_periodoId_franjaHorariaId_grupoId_tipo_grupoLaboratorio">
 
   export type DisponibilidadDocenteOrderByWithAggregationInput = {
     id?: SortOrder
     docenteId?: SortOrder
     grupoId?: SortOrderInput | SortOrder
     tipo?: SortOrderInput | SortOrder
+    grupoLaboratorio?: SortOrderInput | SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
     _count?: DisponibilidadDocenteCountOrderByAggregateInput
+    _avg?: DisponibilidadDocenteAvgOrderByAggregateInput
     _max?: DisponibilidadDocenteMaxOrderByAggregateInput
     _min?: DisponibilidadDocenteMinOrderByAggregateInput
+    _sum?: DisponibilidadDocenteSumOrderByAggregateInput
   }
 
   export type DisponibilidadDocenteScalarWhereWithAggregatesInput = {
@@ -53660,6 +55048,7 @@ export namespace Prisma {
     docenteId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableWithAggregatesFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableWithAggregatesFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: IntNullableWithAggregatesFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeWithAggregatesFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
@@ -53946,6 +55335,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaListRelationFilter
     cargos?: CargoDocenteListRelationFilter
     publicaciones?: PublicacionAcademicaListRelationFilter
+    horarioBloques?: HorarioBloqueListRelationFilter
   }
 
   export type PeriodoAcademicoOrderByWithRelationInput = {
@@ -53973,6 +55363,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaOrderByRelationAggregateInput
     cargos?: CargoDocenteOrderByRelationAggregateInput
     publicaciones?: PublicacionAcademicaOrderByRelationAggregateInput
+    horarioBloques?: HorarioBloqueOrderByRelationAggregateInput
   }
 
   export type PeriodoAcademicoWhereUniqueInput = Prisma.AtLeast<{
@@ -54003,6 +55394,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaListRelationFilter
     cargos?: CargoDocenteListRelationFilter
     publicaciones?: PublicacionAcademicaListRelationFilter
+    horarioBloques?: HorarioBloqueListRelationFilter
   }, "id" | "nombre">
 
   export type PeriodoAcademicoOrderByWithAggregationInput = {
@@ -55953,6 +57345,95 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"DocumentoFirmaDigital"> | Date | string
   }
 
+  export type HorarioBloqueWhereInput = {
+    AND?: HorarioBloqueWhereInput | HorarioBloqueWhereInput[]
+    OR?: HorarioBloqueWhereInput[]
+    NOT?: HorarioBloqueWhereInput | HorarioBloqueWhereInput[]
+    id?: StringFilter<"HorarioBloque"> | string
+    docenteId?: StringFilter<"HorarioBloque"> | string
+    periodoId?: StringFilter<"HorarioBloque"> | string
+    tipoOrigen?: StringFilter<"HorarioBloque"> | string
+    origenId?: StringFilter<"HorarioBloque"> | string
+    subtipo?: StringNullableFilter<"HorarioBloque"> | string | null
+    diaSemana?: EnumDiaSemanaFilter<"HorarioBloque"> | $Enums.DiaSemana
+    horaInicio?: StringFilter<"HorarioBloque"> | string
+    horaFin?: StringFilter<"HorarioBloque"> | string
+    createdAt?: DateTimeFilter<"HorarioBloque"> | Date | string
+    updatedAt?: DateTimeFilter<"HorarioBloque"> | Date | string
+    docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
+    periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
+  }
+
+  export type HorarioBloqueOrderByWithRelationInput = {
+    id?: SortOrder
+    docenteId?: SortOrder
+    periodoId?: SortOrder
+    tipoOrigen?: SortOrder
+    origenId?: SortOrder
+    subtipo?: SortOrderInput | SortOrder
+    diaSemana?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    docente?: DocenteOrderByWithRelationInput
+    periodo?: PeriodoAcademicoOrderByWithRelationInput
+  }
+
+  export type HorarioBloqueWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    docenteId_periodoId_diaSemana_horaInicio?: HorarioBloqueDocenteIdPeriodoIdDiaSemanaHoraInicioCompoundUniqueInput
+    AND?: HorarioBloqueWhereInput | HorarioBloqueWhereInput[]
+    OR?: HorarioBloqueWhereInput[]
+    NOT?: HorarioBloqueWhereInput | HorarioBloqueWhereInput[]
+    docenteId?: StringFilter<"HorarioBloque"> | string
+    periodoId?: StringFilter<"HorarioBloque"> | string
+    tipoOrigen?: StringFilter<"HorarioBloque"> | string
+    origenId?: StringFilter<"HorarioBloque"> | string
+    subtipo?: StringNullableFilter<"HorarioBloque"> | string | null
+    diaSemana?: EnumDiaSemanaFilter<"HorarioBloque"> | $Enums.DiaSemana
+    horaInicio?: StringFilter<"HorarioBloque"> | string
+    horaFin?: StringFilter<"HorarioBloque"> | string
+    createdAt?: DateTimeFilter<"HorarioBloque"> | Date | string
+    updatedAt?: DateTimeFilter<"HorarioBloque"> | Date | string
+    docente?: XOR<DocenteScalarRelationFilter, DocenteWhereInput>
+    periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
+  }, "id" | "docenteId_periodoId_diaSemana_horaInicio">
+
+  export type HorarioBloqueOrderByWithAggregationInput = {
+    id?: SortOrder
+    docenteId?: SortOrder
+    periodoId?: SortOrder
+    tipoOrigen?: SortOrder
+    origenId?: SortOrder
+    subtipo?: SortOrderInput | SortOrder
+    diaSemana?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: HorarioBloqueCountOrderByAggregateInput
+    _max?: HorarioBloqueMaxOrderByAggregateInput
+    _min?: HorarioBloqueMinOrderByAggregateInput
+  }
+
+  export type HorarioBloqueScalarWhereWithAggregatesInput = {
+    AND?: HorarioBloqueScalarWhereWithAggregatesInput | HorarioBloqueScalarWhereWithAggregatesInput[]
+    OR?: HorarioBloqueScalarWhereWithAggregatesInput[]
+    NOT?: HorarioBloqueScalarWhereWithAggregatesInput | HorarioBloqueScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"HorarioBloque"> | string
+    docenteId?: StringWithAggregatesFilter<"HorarioBloque"> | string
+    periodoId?: StringWithAggregatesFilter<"HorarioBloque"> | string
+    tipoOrigen?: StringWithAggregatesFilter<"HorarioBloque"> | string
+    origenId?: StringWithAggregatesFilter<"HorarioBloque"> | string
+    subtipo?: StringNullableWithAggregatesFilter<"HorarioBloque"> | string | null
+    diaSemana?: EnumDiaSemanaWithAggregatesFilter<"HorarioBloque"> | $Enums.DiaSemana
+    horaInicio?: StringWithAggregatesFilter<"HorarioBloque"> | string
+    horaFin?: StringWithAggregatesFilter<"HorarioBloque"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"HorarioBloque"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"HorarioBloque"> | Date | string
+  }
+
   export type FacultadCreateInput = {
     id?: string
     nombre: string
@@ -56719,6 +58200,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateInput = {
@@ -56755,6 +58237,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUpdateInput = {
@@ -56791,6 +58274,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateInput = {
@@ -56827,6 +58311,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteCreateManyInput = {
@@ -57172,6 +58657,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
@@ -57184,6 +58670,7 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -57192,6 +58679,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
@@ -57204,6 +58692,7 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -57214,6 +58703,7 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -57222,6 +58712,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -57230,6 +58721,7 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -57519,6 +59011,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateInput = {
@@ -57545,6 +59038,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUpdateInput = {
@@ -57571,6 +59065,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateInput = {
@@ -57597,6 +59092,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoCreateManyInput = {
@@ -59569,6 +61065,102 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type HorarioBloqueCreateInput = {
+    id?: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    docente: DocenteCreateNestedOneWithoutHorarioBloquesInput
+    periodo: PeriodoAcademicoCreateNestedOneWithoutHorarioBloquesInput
+  }
+
+  export type HorarioBloqueUncheckedCreateInput = {
+    id?: string
+    docenteId: string
+    periodoId: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type HorarioBloqueUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneRequiredWithoutHorarioBloquesNestedInput
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutHorarioBloquesNestedInput
+  }
+
+  export type HorarioBloqueUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioBloqueCreateManyInput = {
+    id?: string
+    docenteId: string
+    periodoId: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type HorarioBloqueUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioBloqueUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -60406,6 +61998,12 @@ export namespace Prisma {
     none?: RestriccionDocenteWhereInput
   }
 
+  export type HorarioBloqueListRelationFilter = {
+    every?: HorarioBloqueWhereInput
+    some?: HorarioBloqueWhereInput
+    none?: HorarioBloqueWhereInput
+  }
+
   export type AsignacionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -60435,6 +62033,10 @@ export namespace Prisma {
   }
 
   export type RestriccionDocenteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type HorarioBloqueOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -60695,6 +62297,17 @@ export namespace Prisma {
     not?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel> | $Enums.TipoAsignacion | null
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type DocenteScalarRelationFilter = {
     is?: DocenteWhereInput
     isNot?: DocenteWhereInput
@@ -60715,12 +62328,13 @@ export namespace Prisma {
     isNot?: PeriodoAcademicoWhereInput
   }
 
-  export type DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoCompoundUniqueInput = {
+  export type DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoGrupoLaboratorioCompoundUniqueInput = {
     docenteId: string
     periodoId: string
     franjaHorariaId: string
     grupoId: string
     tipo: $Enums.TipoAsignacion
+    grupoLaboratorio: number
   }
 
   export type DisponibilidadDocenteCountOrderByAggregateInput = {
@@ -60728,9 +62342,14 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrder
     tipo?: SortOrder
+    grupoLaboratorio?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
+  }
+
+  export type DisponibilidadDocenteAvgOrderByAggregateInput = {
+    grupoLaboratorio?: SortOrder
   }
 
   export type DisponibilidadDocenteMaxOrderByAggregateInput = {
@@ -60738,6 +62357,7 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrder
     tipo?: SortOrder
+    grupoLaboratorio?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
@@ -60748,9 +62368,14 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrder
     tipo?: SortOrder
+    grupoLaboratorio?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
+  }
+
+  export type DisponibilidadDocenteSumOrderByAggregateInput = {
+    grupoLaboratorio?: SortOrder
   }
 
   export type EnumTipoAsignacionNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -60761,6 +62386,22 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
     _max?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -61337,17 +62978,6 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type EnumRolAsignacionDocenteFilter<$PrismaModel = never> = {
     equals?: $Enums.RolAsignacionDocente | EnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
     in?: $Enums.RolAsignacionDocente[] | ListEnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
@@ -61438,22 +63068,6 @@ export namespace Prisma {
   export type AsignacionCargaLectivaSumOrderByAggregateInput = {
     horasAsignadas?: SortOrder
     grupoLaboratorio?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type EnumRolAsignacionDocenteWithAggregatesFilter<$PrismaModel = never> = {
@@ -62469,6 +64083,55 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumRolFirmanteDocumentoFilter<$PrismaModel>
     _max?: NestedEnumRolFirmanteDocumentoFilter<$PrismaModel>
+  }
+
+  export type HorarioBloqueDocenteIdPeriodoIdDiaSemanaHoraInicioCompoundUniqueInput = {
+    docenteId: string
+    periodoId: string
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+  }
+
+  export type HorarioBloqueCountOrderByAggregateInput = {
+    id?: SortOrder
+    docenteId?: SortOrder
+    periodoId?: SortOrder
+    tipoOrigen?: SortOrder
+    origenId?: SortOrder
+    subtipo?: SortOrder
+    diaSemana?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type HorarioBloqueMaxOrderByAggregateInput = {
+    id?: SortOrder
+    docenteId?: SortOrder
+    periodoId?: SortOrder
+    tipoOrigen?: SortOrder
+    origenId?: SortOrder
+    subtipo?: SortOrder
+    diaSemana?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type HorarioBloqueMinOrderByAggregateInput = {
+    id?: SortOrder
+    docenteId?: SortOrder
+    periodoId?: SortOrder
+    tipoOrigen?: SortOrder
+    origenId?: SortOrder
+    subtipo?: SortOrder
+    diaSemana?: SortOrder
+    horaInicio?: SortOrder
+    horaFin?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserCreateNestedOneWithoutFacultadDecanadaInput = {
@@ -64379,6 +66042,13 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type HorarioBloqueCreateNestedManyWithoutDocenteInput = {
+    create?: XOR<HorarioBloqueCreateWithoutDocenteInput, HorarioBloqueUncheckedCreateWithoutDocenteInput> | HorarioBloqueCreateWithoutDocenteInput[] | HorarioBloqueUncheckedCreateWithoutDocenteInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutDocenteInput | HorarioBloqueCreateOrConnectWithoutDocenteInput[]
+    createMany?: HorarioBloqueCreateManyDocenteInputEnvelope
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+  }
+
   export type AsignacionUncheckedCreateNestedManyWithoutDocenteInput = {
     create?: XOR<AsignacionCreateWithoutDocenteInput, AsignacionUncheckedCreateWithoutDocenteInput> | AsignacionCreateWithoutDocenteInput[] | AsignacionUncheckedCreateWithoutDocenteInput[]
     connectOrCreate?: AsignacionCreateOrConnectWithoutDocenteInput | AsignacionCreateOrConnectWithoutDocenteInput[]
@@ -64467,6 +66137,13 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutDocenteInput, UserUncheckedCreateWithoutDocenteInput>
     connectOrCreate?: UserCreateOrConnectWithoutDocenteInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput = {
+    create?: XOR<HorarioBloqueCreateWithoutDocenteInput, HorarioBloqueUncheckedCreateWithoutDocenteInput> | HorarioBloqueCreateWithoutDocenteInput[] | HorarioBloqueUncheckedCreateWithoutDocenteInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutDocenteInput | HorarioBloqueCreateOrConnectWithoutDocenteInput[]
+    createMany?: HorarioBloqueCreateManyDocenteInputEnvelope
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
   }
 
   export type EnumCategoriaDocenteFieldUpdateOperationsInput = {
@@ -64669,6 +66346,20 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDocenteInput, UserUpdateWithoutDocenteInput>, UserUncheckedUpdateWithoutDocenteInput>
   }
 
+  export type HorarioBloqueUpdateManyWithoutDocenteNestedInput = {
+    create?: XOR<HorarioBloqueCreateWithoutDocenteInput, HorarioBloqueUncheckedCreateWithoutDocenteInput> | HorarioBloqueCreateWithoutDocenteInput[] | HorarioBloqueUncheckedCreateWithoutDocenteInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutDocenteInput | HorarioBloqueCreateOrConnectWithoutDocenteInput[]
+    upsert?: HorarioBloqueUpsertWithWhereUniqueWithoutDocenteInput | HorarioBloqueUpsertWithWhereUniqueWithoutDocenteInput[]
+    createMany?: HorarioBloqueCreateManyDocenteInputEnvelope
+    set?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    disconnect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    delete?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    update?: HorarioBloqueUpdateWithWhereUniqueWithoutDocenteInput | HorarioBloqueUpdateWithWhereUniqueWithoutDocenteInput[]
+    updateMany?: HorarioBloqueUpdateManyWithWhereWithoutDocenteInput | HorarioBloqueUpdateManyWithWhereWithoutDocenteInput[]
+    deleteMany?: HorarioBloqueScalarWhereInput | HorarioBloqueScalarWhereInput[]
+  }
+
   export type AsignacionUncheckedUpdateManyWithoutDocenteNestedInput = {
     create?: XOR<AsignacionCreateWithoutDocenteInput, AsignacionUncheckedCreateWithoutDocenteInput> | AsignacionCreateWithoutDocenteInput[] | AsignacionUncheckedCreateWithoutDocenteInput[]
     connectOrCreate?: AsignacionCreateOrConnectWithoutDocenteInput | AsignacionCreateOrConnectWithoutDocenteInput[]
@@ -64845,6 +66536,20 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDocenteInput, UserUpdateWithoutDocenteInput>, UserUncheckedUpdateWithoutDocenteInput>
+  }
+
+  export type HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput = {
+    create?: XOR<HorarioBloqueCreateWithoutDocenteInput, HorarioBloqueUncheckedCreateWithoutDocenteInput> | HorarioBloqueCreateWithoutDocenteInput[] | HorarioBloqueUncheckedCreateWithoutDocenteInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutDocenteInput | HorarioBloqueCreateOrConnectWithoutDocenteInput[]
+    upsert?: HorarioBloqueUpsertWithWhereUniqueWithoutDocenteInput | HorarioBloqueUpsertWithWhereUniqueWithoutDocenteInput[]
+    createMany?: HorarioBloqueCreateManyDocenteInputEnvelope
+    set?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    disconnect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    delete?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    update?: HorarioBloqueUpdateWithWhereUniqueWithoutDocenteInput | HorarioBloqueUpdateWithWhereUniqueWithoutDocenteInput[]
+    updateMany?: HorarioBloqueUpdateManyWithWhereWithoutDocenteInput | HorarioBloqueUpdateManyWithWhereWithoutDocenteInput[]
+    deleteMany?: HorarioBloqueScalarWhereInput | HorarioBloqueScalarWhereInput[]
   }
 
   export type DocenteCreateNestedOneWithoutNotificacionesInput = {
@@ -65089,6 +66794,14 @@ export namespace Prisma {
 
   export type NullableEnumTipoAsignacionFieldUpdateOperationsInput = {
     set?: $Enums.TipoAsignacion | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput = {
@@ -65609,6 +67322,13 @@ export namespace Prisma {
     connect?: PublicacionAcademicaWhereUniqueInput | PublicacionAcademicaWhereUniqueInput[]
   }
 
+  export type HorarioBloqueCreateNestedManyWithoutPeriodoInput = {
+    create?: XOR<HorarioBloqueCreateWithoutPeriodoInput, HorarioBloqueUncheckedCreateWithoutPeriodoInput> | HorarioBloqueCreateWithoutPeriodoInput[] | HorarioBloqueUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutPeriodoInput | HorarioBloqueCreateOrConnectWithoutPeriodoInput[]
+    createMany?: HorarioBloqueCreateManyPeriodoInputEnvelope
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+  }
+
   export type AsignacionUncheckedCreateNestedManyWithoutPeriodoInput = {
     create?: XOR<AsignacionCreateWithoutPeriodoInput, AsignacionUncheckedCreateWithoutPeriodoInput> | AsignacionCreateWithoutPeriodoInput[] | AsignacionUncheckedCreateWithoutPeriodoInput[]
     connectOrCreate?: AsignacionCreateOrConnectWithoutPeriodoInput | AsignacionCreateOrConnectWithoutPeriodoInput[]
@@ -65691,6 +67411,13 @@ export namespace Prisma {
     connectOrCreate?: PublicacionAcademicaCreateOrConnectWithoutPeriodoInput | PublicacionAcademicaCreateOrConnectWithoutPeriodoInput[]
     createMany?: PublicacionAcademicaCreateManyPeriodoInputEnvelope
     connect?: PublicacionAcademicaWhereUniqueInput | PublicacionAcademicaWhereUniqueInput[]
+  }
+
+  export type HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput = {
+    create?: XOR<HorarioBloqueCreateWithoutPeriodoInput, HorarioBloqueUncheckedCreateWithoutPeriodoInput> | HorarioBloqueCreateWithoutPeriodoInput[] | HorarioBloqueUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutPeriodoInput | HorarioBloqueCreateOrConnectWithoutPeriodoInput[]
+    createMany?: HorarioBloqueCreateManyPeriodoInputEnvelope
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
   }
 
   export type EnumEstadoPeriodoFieldUpdateOperationsInput = {
@@ -65875,6 +67602,20 @@ export namespace Prisma {
     deleteMany?: PublicacionAcademicaScalarWhereInput | PublicacionAcademicaScalarWhereInput[]
   }
 
+  export type HorarioBloqueUpdateManyWithoutPeriodoNestedInput = {
+    create?: XOR<HorarioBloqueCreateWithoutPeriodoInput, HorarioBloqueUncheckedCreateWithoutPeriodoInput> | HorarioBloqueCreateWithoutPeriodoInput[] | HorarioBloqueUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutPeriodoInput | HorarioBloqueCreateOrConnectWithoutPeriodoInput[]
+    upsert?: HorarioBloqueUpsertWithWhereUniqueWithoutPeriodoInput | HorarioBloqueUpsertWithWhereUniqueWithoutPeriodoInput[]
+    createMany?: HorarioBloqueCreateManyPeriodoInputEnvelope
+    set?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    disconnect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    delete?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    update?: HorarioBloqueUpdateWithWhereUniqueWithoutPeriodoInput | HorarioBloqueUpdateWithWhereUniqueWithoutPeriodoInput[]
+    updateMany?: HorarioBloqueUpdateManyWithWhereWithoutPeriodoInput | HorarioBloqueUpdateManyWithWhereWithoutPeriodoInput[]
+    deleteMany?: HorarioBloqueScalarWhereInput | HorarioBloqueScalarWhereInput[]
+  }
+
   export type AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput = {
     create?: XOR<AsignacionCreateWithoutPeriodoInput, AsignacionUncheckedCreateWithoutPeriodoInput> | AsignacionCreateWithoutPeriodoInput[] | AsignacionUncheckedCreateWithoutPeriodoInput[]
     connectOrCreate?: AsignacionCreateOrConnectWithoutPeriodoInput | AsignacionCreateOrConnectWithoutPeriodoInput[]
@@ -66041,6 +67782,20 @@ export namespace Prisma {
     update?: PublicacionAcademicaUpdateWithWhereUniqueWithoutPeriodoInput | PublicacionAcademicaUpdateWithWhereUniqueWithoutPeriodoInput[]
     updateMany?: PublicacionAcademicaUpdateManyWithWhereWithoutPeriodoInput | PublicacionAcademicaUpdateManyWithWhereWithoutPeriodoInput[]
     deleteMany?: PublicacionAcademicaScalarWhereInput | PublicacionAcademicaScalarWhereInput[]
+  }
+
+  export type HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput = {
+    create?: XOR<HorarioBloqueCreateWithoutPeriodoInput, HorarioBloqueUncheckedCreateWithoutPeriodoInput> | HorarioBloqueCreateWithoutPeriodoInput[] | HorarioBloqueUncheckedCreateWithoutPeriodoInput[]
+    connectOrCreate?: HorarioBloqueCreateOrConnectWithoutPeriodoInput | HorarioBloqueCreateOrConnectWithoutPeriodoInput[]
+    upsert?: HorarioBloqueUpsertWithWhereUniqueWithoutPeriodoInput | HorarioBloqueUpsertWithWhereUniqueWithoutPeriodoInput[]
+    createMany?: HorarioBloqueCreateManyPeriodoInputEnvelope
+    set?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    disconnect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    delete?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    connect?: HorarioBloqueWhereUniqueInput | HorarioBloqueWhereUniqueInput[]
+    update?: HorarioBloqueUpdateWithWhereUniqueWithoutPeriodoInput | HorarioBloqueUpdateWithWhereUniqueWithoutPeriodoInput[]
+    updateMany?: HorarioBloqueUpdateManyWithWhereWithoutPeriodoInput | HorarioBloqueUpdateManyWithWhereWithoutPeriodoInput[]
+    deleteMany?: HorarioBloqueScalarWhereInput | HorarioBloqueScalarWhereInput[]
   }
 
   export type AsignacionCreateNestedManyWithoutFranjaHorariaInput = {
@@ -66525,14 +68280,6 @@ export namespace Prisma {
     create?: XOR<CoberturaComponenteCreateWithoutAsignacionesInput, CoberturaComponenteUncheckedCreateWithoutAsignacionesInput>
     connectOrCreate?: CoberturaComponenteCreateOrConnectWithoutAsignacionesInput
     connect?: CoberturaComponenteWhereUniqueInput
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type EnumRolAsignacionDocenteFieldUpdateOperationsInput = {
@@ -67653,6 +69400,34 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFirmasDigitalesInput, UserUpdateWithoutFirmasDigitalesInput>, UserUncheckedUpdateWithoutFirmasDigitalesInput>
   }
 
+  export type DocenteCreateNestedOneWithoutHorarioBloquesInput = {
+    create?: XOR<DocenteCreateWithoutHorarioBloquesInput, DocenteUncheckedCreateWithoutHorarioBloquesInput>
+    connectOrCreate?: DocenteCreateOrConnectWithoutHorarioBloquesInput
+    connect?: DocenteWhereUniqueInput
+  }
+
+  export type PeriodoAcademicoCreateNestedOneWithoutHorarioBloquesInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutHorarioBloquesInput, PeriodoAcademicoUncheckedCreateWithoutHorarioBloquesInput>
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutHorarioBloquesInput
+    connect?: PeriodoAcademicoWhereUniqueInput
+  }
+
+  export type DocenteUpdateOneRequiredWithoutHorarioBloquesNestedInput = {
+    create?: XOR<DocenteCreateWithoutHorarioBloquesInput, DocenteUncheckedCreateWithoutHorarioBloquesInput>
+    connectOrCreate?: DocenteCreateOrConnectWithoutHorarioBloquesInput
+    upsert?: DocenteUpsertWithoutHorarioBloquesInput
+    connect?: DocenteWhereUniqueInput
+    update?: XOR<XOR<DocenteUpdateToOneWithWhereWithoutHorarioBloquesInput, DocenteUpdateWithoutHorarioBloquesInput>, DocenteUncheckedUpdateWithoutHorarioBloquesInput>
+  }
+
+  export type PeriodoAcademicoUpdateOneRequiredWithoutHorarioBloquesNestedInput = {
+    create?: XOR<PeriodoAcademicoCreateWithoutHorarioBloquesInput, PeriodoAcademicoUncheckedCreateWithoutHorarioBloquesInput>
+    connectOrCreate?: PeriodoAcademicoCreateOrConnectWithoutHorarioBloquesInput
+    upsert?: PeriodoAcademicoUpsertWithoutHorarioBloquesInput
+    connect?: PeriodoAcademicoWhereUniqueInput
+    update?: XOR<XOR<PeriodoAcademicoUpdateToOneWithWhereWithoutHorarioBloquesInput, PeriodoAcademicoUpdateWithoutHorarioBloquesInput>, PeriodoAcademicoUncheckedUpdateWithoutHorarioBloquesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -67952,6 +69727,33 @@ export namespace Prisma {
     _max?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -68058,33 +69860,6 @@ export namespace Prisma {
     in?: $Enums.RolAsignacionDocente[] | ListEnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
     notIn?: $Enums.RolAsignacionDocente[] | ListEnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
     not?: NestedEnumRolAsignacionDocenteFilter<$PrismaModel> | $Enums.RolAsignacionDocente
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumRolAsignacionDocenteWithAggregatesFilter<$PrismaModel = never> = {
@@ -69062,6 +70837,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutDepartamentoInput = {
@@ -69097,6 +70873,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutDepartamentoInput = {
@@ -71903,6 +73680,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutAprobadoPorInput = {
@@ -71928,6 +73706,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutAprobadoPorInput = {
@@ -71973,6 +73752,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutUserInput = {
@@ -72008,6 +73788,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutUserInput = {
@@ -72660,6 +74441,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutUserInput = {
@@ -72695,6 +74477,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type UserCreateWithoutLogsInput = {
@@ -73098,6 +74881,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutDocenteInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
@@ -73108,6 +74892,7 @@ export namespace Prisma {
     id?: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -73369,6 +75154,42 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutDocenteInput, UserUncheckedCreateWithoutDocenteInput>
   }
 
+  export type HorarioBloqueCreateWithoutDocenteInput = {
+    id?: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    periodo: PeriodoAcademicoCreateNestedOneWithoutHorarioBloquesInput
+  }
+
+  export type HorarioBloqueUncheckedCreateWithoutDocenteInput = {
+    id?: string
+    periodoId: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type HorarioBloqueCreateOrConnectWithoutDocenteInput = {
+    where: HorarioBloqueWhereUniqueInput
+    create: XOR<HorarioBloqueCreateWithoutDocenteInput, HorarioBloqueUncheckedCreateWithoutDocenteInput>
+  }
+
+  export type HorarioBloqueCreateManyDocenteInputEnvelope = {
+    data: HorarioBloqueCreateManyDocenteInput | HorarioBloqueCreateManyDocenteInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AsignacionUpsertWithWhereUniqueWithoutDocenteInput = {
     where: AsignacionWhereUniqueInput
     update: XOR<AsignacionUpdateWithoutDocenteInput, AsignacionUncheckedUpdateWithoutDocenteInput>
@@ -73543,6 +75364,7 @@ export namespace Prisma {
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: IntNullableFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
@@ -73798,6 +75620,39 @@ export namespace Prisma {
     periodosAprobados?: PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorNestedInput
   }
 
+  export type HorarioBloqueUpsertWithWhereUniqueWithoutDocenteInput = {
+    where: HorarioBloqueWhereUniqueInput
+    update: XOR<HorarioBloqueUpdateWithoutDocenteInput, HorarioBloqueUncheckedUpdateWithoutDocenteInput>
+    create: XOR<HorarioBloqueCreateWithoutDocenteInput, HorarioBloqueUncheckedCreateWithoutDocenteInput>
+  }
+
+  export type HorarioBloqueUpdateWithWhereUniqueWithoutDocenteInput = {
+    where: HorarioBloqueWhereUniqueInput
+    data: XOR<HorarioBloqueUpdateWithoutDocenteInput, HorarioBloqueUncheckedUpdateWithoutDocenteInput>
+  }
+
+  export type HorarioBloqueUpdateManyWithWhereWithoutDocenteInput = {
+    where: HorarioBloqueScalarWhereInput
+    data: XOR<HorarioBloqueUpdateManyMutationInput, HorarioBloqueUncheckedUpdateManyWithoutDocenteInput>
+  }
+
+  export type HorarioBloqueScalarWhereInput = {
+    AND?: HorarioBloqueScalarWhereInput | HorarioBloqueScalarWhereInput[]
+    OR?: HorarioBloqueScalarWhereInput[]
+    NOT?: HorarioBloqueScalarWhereInput | HorarioBloqueScalarWhereInput[]
+    id?: StringFilter<"HorarioBloque"> | string
+    docenteId?: StringFilter<"HorarioBloque"> | string
+    periodoId?: StringFilter<"HorarioBloque"> | string
+    tipoOrigen?: StringFilter<"HorarioBloque"> | string
+    origenId?: StringFilter<"HorarioBloque"> | string
+    subtipo?: StringNullableFilter<"HorarioBloque"> | string | null
+    diaSemana?: EnumDiaSemanaFilter<"HorarioBloque"> | $Enums.DiaSemana
+    horaInicio?: StringFilter<"HorarioBloque"> | string
+    horaFin?: StringFilter<"HorarioBloque"> | string
+    createdAt?: DateTimeFilter<"HorarioBloque"> | Date | string
+    updatedAt?: DateTimeFilter<"HorarioBloque"> | Date | string
+  }
+
   export type DocenteCreateWithoutNotificacionesInput = {
     id?: string
     codigo?: string | null
@@ -73831,6 +75686,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutNotificacionesInput = {
@@ -73866,6 +75722,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutNotificacionesInput = {
@@ -73990,6 +75847,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutNotificacionesInput = {
@@ -74025,6 +75883,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type UserUpsertWithoutNotificacionesInput = {
@@ -74439,6 +76298,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutDisponibilidadesInput = {
@@ -74474,6 +76334,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutDisponibilidadesInput = {
@@ -74574,6 +76435,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutDisponibilidadesInput = {
@@ -74599,6 +76461,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutDisponibilidadesInput = {
@@ -74650,6 +76513,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutDisponibilidadesInput = {
@@ -74685,6 +76549,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type GrupoUpsertWithoutDisponibilidadesInput = {
@@ -74803,6 +76668,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutDisponibilidadesInput = {
@@ -74828,6 +76694,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type CursoCreateWithoutPostulacionesInput = {
@@ -74924,6 +76791,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutPostulacionesInput = {
@@ -74959,6 +76827,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutPostulacionesInput = {
@@ -75077,6 +76946,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutPostulacionesInput = {
@@ -75112,6 +76982,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type AsignacionCreateWithoutGrupoInput = {
@@ -75215,6 +77086,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutGrupoInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
@@ -75225,6 +77097,7 @@ export namespace Prisma {
     id?: string
     docenteId: string
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -75324,6 +77197,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutGruposInput = {
@@ -75349,6 +77223,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutGruposInput = {
@@ -75627,6 +77502,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutGruposInput = {
@@ -75652,6 +77528,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PreasignacionUpsertWithWhereUniqueWithoutGrupoInput = {
@@ -76031,6 +77908,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutPeriodoInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
@@ -76042,6 +77920,7 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -76395,6 +78274,42 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type HorarioBloqueCreateWithoutPeriodoInput = {
+    id?: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    docente: DocenteCreateNestedOneWithoutHorarioBloquesInput
+  }
+
+  export type HorarioBloqueUncheckedCreateWithoutPeriodoInput = {
+    id?: string
+    docenteId: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type HorarioBloqueCreateOrConnectWithoutPeriodoInput = {
+    where: HorarioBloqueWhereUniqueInput
+    create: XOR<HorarioBloqueCreateWithoutPeriodoInput, HorarioBloqueUncheckedCreateWithoutPeriodoInput>
+  }
+
+  export type HorarioBloqueCreateManyPeriodoInputEnvelope = {
+    data: HorarioBloqueCreateManyPeriodoInput | HorarioBloqueCreateManyPeriodoInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AsignacionUpsertWithWhereUniqueWithoutPeriodoInput = {
     where: AsignacionWhereUniqueInput
     update: XOR<AsignacionUpdateWithoutPeriodoInput, AsignacionUncheckedUpdateWithoutPeriodoInput>
@@ -76666,6 +78581,22 @@ export namespace Prisma {
     data: XOR<PublicacionAcademicaUpdateManyMutationInput, PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoInput>
   }
 
+  export type HorarioBloqueUpsertWithWhereUniqueWithoutPeriodoInput = {
+    where: HorarioBloqueWhereUniqueInput
+    update: XOR<HorarioBloqueUpdateWithoutPeriodoInput, HorarioBloqueUncheckedUpdateWithoutPeriodoInput>
+    create: XOR<HorarioBloqueCreateWithoutPeriodoInput, HorarioBloqueUncheckedCreateWithoutPeriodoInput>
+  }
+
+  export type HorarioBloqueUpdateWithWhereUniqueWithoutPeriodoInput = {
+    where: HorarioBloqueWhereUniqueInput
+    data: XOR<HorarioBloqueUpdateWithoutPeriodoInput, HorarioBloqueUncheckedUpdateWithoutPeriodoInput>
+  }
+
+  export type HorarioBloqueUpdateManyWithWhereWithoutPeriodoInput = {
+    where: HorarioBloqueScalarWhereInput
+    data: XOR<HorarioBloqueUpdateManyMutationInput, HorarioBloqueUncheckedUpdateManyWithoutPeriodoInput>
+  }
+
   export type AsignacionCreateWithoutFranjaHorariaInput = {
     id?: string
     tipo: $Enums.TipoAsignacion
@@ -76703,6 +78634,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutFranjaHorariaInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
@@ -76714,6 +78646,7 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     periodoId: string
   }
@@ -76954,6 +78887,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutAsignacionesInput = {
@@ -76989,6 +78923,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutAsignacionesInput = {
@@ -77089,6 +79024,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutAsignacionesInput = {
@@ -77114,6 +79050,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutAsignacionesInput = {
@@ -77239,6 +79176,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutAsignacionesInput = {
@@ -77274,6 +79212,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type FranjaHorariaUpsertWithoutAsignacionesInput = {
@@ -77392,6 +79331,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutAsignacionesInput = {
@@ -77417,6 +79357,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type ProcesoHorarioEscuelaUpsertWithoutAsignacionesInput = {
@@ -77495,6 +79436,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutRestriccionesInput = {
@@ -77530,6 +79472,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutRestriccionesInput = {
@@ -77612,6 +79555,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutRestriccionesInput = {
@@ -77647,6 +79591,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type FranjaHorariaUpsertWithoutRestriccionesInput = {
@@ -77719,6 +79664,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutDocenteGruposInput = {
@@ -77754,6 +79700,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutDocenteGruposInput = {
@@ -77844,6 +79791,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutDocenteGruposInput = {
@@ -77879,6 +79827,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type GrupoUpsertWithoutDocenteGruposInput = {
@@ -78095,6 +80044,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutPreasignacionesInput = {
@@ -78130,6 +80080,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutPreasignacionesInput = {
@@ -78230,6 +80181,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutPreasignacionesInput = {
@@ -78255,6 +80207,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutPreasignacionesInput = {
@@ -78306,6 +80259,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutPreasignacionesInput = {
@@ -78341,6 +80295,7 @@ export namespace Prisma {
     postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type FranjaHorariaUpsertWithoutPreasignacionesInput = {
@@ -78459,6 +80414,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutPreasignacionesInput = {
@@ -78484,6 +80440,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type DocenteCreateWithoutAsignacionesCargaCompartidaInput = {
@@ -78519,6 +80476,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutAsignacionesCargaCompartidaInput = {
@@ -78554,6 +80512,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutAsignacionesCargaCompartidaInput = {
@@ -78594,6 +80553,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutAsignacionesCargaInput = {
@@ -78629,6 +80589,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutAsignacionesCargaInput = {
@@ -78698,6 +80659,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutAsignacionesCargaInput = {
@@ -78723,6 +80685,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutAsignacionesCargaInput = {
@@ -78840,6 +80803,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutAsignacionesCargaCompartidaInput = {
@@ -78875,6 +80839,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUpsertWithoutAsignacionesCargaInput = {
@@ -78921,6 +80886,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutAsignacionesCargaInput = {
@@ -78956,6 +80922,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type GrupoUpsertWithoutAsignacionesCargaInput = {
@@ -79037,6 +81004,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutAsignacionesCargaInput = {
@@ -79062,6 +81030,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type DistribucionLectivaUpsertWithoutAsignacionesInput = {
@@ -79200,6 +81169,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutDemandasInput = {
@@ -79225,6 +81195,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutDemandasInput = {
@@ -79495,6 +81466,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutDemandasInput = {
@@ -79520,6 +81492,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type UserUpsertWithoutDemandasEnviadasInput = {
@@ -80361,6 +82334,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutDistribucionesInput = {
@@ -80386,6 +82360,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutDistribucionesInput = {
@@ -80692,6 +82667,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutDistribucionesInput = {
@@ -80717,6 +82693,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type UserUpsertWithoutDistribucionesEnviadasInput = {
@@ -81185,6 +83162,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutProcesosHorarioInput = {
@@ -81210,6 +83188,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutProcesosHorarioInput = {
@@ -81516,6 +83495,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutProcesosHorarioInput = {
@@ -81541,6 +83521,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type UserUpsertWithoutProcesosRevisadosInput = {
@@ -81766,6 +83747,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutCargosInput = {
@@ -81801,6 +83783,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutCargosInput = {
@@ -81831,6 +83814,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaCreateNestedManyWithoutPeriodoInput
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutCargosInput = {
@@ -81856,6 +83840,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutCargosInput = {
@@ -82008,6 +83993,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutCargosInput = {
@@ -82043,6 +84029,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type PeriodoAcademicoUpsertWithoutCargosInput = {
@@ -82079,6 +84066,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUpdateManyWithoutPeriodoNestedInput
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutCargosInput = {
@@ -82104,6 +84092,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type DepartamentoUpsertWithoutCargosInput = {
@@ -82277,6 +84266,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaCreateNestedManyWithoutPeriodoInput
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutPublicacionesInput = {
@@ -82302,6 +84292,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUncheckedCreateNestedManyWithoutPeriodoInput
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutPublicacionesInput = {
@@ -82451,6 +84442,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUpdateManyWithoutPeriodoNestedInput
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutPublicacionesInput = {
@@ -82476,6 +84468,7 @@ export namespace Prisma {
     distribuciones?: DistribucionLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type UserUpsertWithoutPublicacionesInput = {
@@ -82742,6 +84735,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutCargasNoLectivasInput = {
@@ -82777,6 +84771,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutCargasNoLectivasInput = {
@@ -82807,6 +84802,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutCargasNoLectivasInput = {
@@ -82832,6 +84828,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutCargasNoLectivasInput = {
@@ -82913,6 +84910,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutCargasNoLectivasInput = {
@@ -82948,6 +84946,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type PeriodoAcademicoUpsertWithoutCargasNoLectivasInput = {
@@ -82984,6 +84983,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutCargasNoLectivasInput = {
@@ -83009,6 +85009,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type HorarioCargaNoLectivaUpsertWithWhereUniqueWithoutCargaNoLectivaInput = {
@@ -83296,6 +85297,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
     user?: UserCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteUncheckedCreateWithoutDeclaracionesInput = {
@@ -83331,6 +85333,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
     restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
     user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutDocenteInput
   }
 
   export type DocenteCreateOrConnectWithoutDeclaracionesInput = {
@@ -83361,6 +85364,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoUncheckedCreateWithoutDeclaracionesInput = {
@@ -83386,6 +85390,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
     cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
     publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    horarioBloques?: HorarioBloqueUncheckedCreateNestedManyWithoutPeriodoInput
   }
 
   export type PeriodoAcademicoCreateOrConnectWithoutDeclaracionesInput = {
@@ -83710,6 +85715,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutDeclaracionesInput = {
@@ -83745,6 +85751,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type PeriodoAcademicoUpsertWithoutDeclaracionesInput = {
@@ -83781,6 +85788,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutDeclaracionesInput = {
@@ -83806,6 +85814,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type UserUpsertWithoutDeclaracionesVBDecanoInput = {
@@ -84153,6 +86162,286 @@ export namespace Prisma {
     notificaciones?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
     logs?: LogUncheckedUpdateManyWithoutUserNestedInput
     periodosAprobados?: PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorNestedInput
+  }
+
+  export type DocenteCreateWithoutHorarioBloquesInput = {
+    id?: string
+    codigo?: string | null
+    nombre: string
+    email: string
+    categoria: $Enums.CategoriaDocente
+    tipo: $Enums.TipoDocente
+    modalidad?: $Enums.ModalidadDocente
+    antiguedad: Date | string
+    activo?: boolean
+    gradoAcademico?: string | null
+    especialidad?: string | null
+    experienciaAnios?: number
+    perfilAcademico?: string | null
+    dni?: string | null
+    codigoIBM?: string | null
+    horasContrato?: number
+    dictaOtraUniversidad?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    asignaciones?: AsignacionCreateNestedManyWithoutDocenteInput
+    asignacionesCargaCompartida?: AsignacionCargaLectivaCreateNestedManyWithoutDocenteCompartidoInput
+    asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutDocenteInput
+    cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutDocenteInput
+    cargos?: CargoDocenteCreateNestedManyWithoutDocenteInput
+    declaraciones?: DeclaracionCargaCreateNestedManyWithoutDocenteInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutDocenteInput
+    docenteGrupos?: DocenteGrupoCreateNestedManyWithoutDocenteInput
+    departamento?: DepartamentoCreateNestedOneWithoutDocentesInput
+    notificaciones?: NotificationCreateNestedManyWithoutDocenteInput
+    postulaciones?: PostulacionCursoCreateNestedManyWithoutDocenteInput
+    preasignaciones?: PreasignacionCreateNestedManyWithoutDocenteInput
+    restricciones?: RestriccionDocenteCreateNestedManyWithoutDocenteInput
+    user?: UserCreateNestedOneWithoutDocenteInput
+  }
+
+  export type DocenteUncheckedCreateWithoutHorarioBloquesInput = {
+    id?: string
+    codigo?: string | null
+    nombre: string
+    email: string
+    categoria: $Enums.CategoriaDocente
+    tipo: $Enums.TipoDocente
+    modalidad?: $Enums.ModalidadDocente
+    antiguedad: Date | string
+    activo?: boolean
+    gradoAcademico?: string | null
+    especialidad?: string | null
+    experienciaAnios?: number
+    perfilAcademico?: string | null
+    dni?: string | null
+    codigoIBM?: string | null
+    departamentoId?: string | null
+    horasContrato?: number
+    dictaOtraUniversidad?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    asignaciones?: AsignacionUncheckedCreateNestedManyWithoutDocenteInput
+    asignacionesCargaCompartida?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutDocenteCompartidoInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutDocenteInput
+    cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutDocenteInput
+    cargos?: CargoDocenteUncheckedCreateNestedManyWithoutDocenteInput
+    declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutDocenteInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutDocenteInput
+    docenteGrupos?: DocenteGrupoUncheckedCreateNestedManyWithoutDocenteInput
+    notificaciones?: NotificationUncheckedCreateNestedManyWithoutDocenteInput
+    postulaciones?: PostulacionCursoUncheckedCreateNestedManyWithoutDocenteInput
+    preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutDocenteInput
+    restricciones?: RestriccionDocenteUncheckedCreateNestedManyWithoutDocenteInput
+    user?: UserUncheckedCreateNestedOneWithoutDocenteInput
+  }
+
+  export type DocenteCreateOrConnectWithoutHorarioBloquesInput = {
+    where: DocenteWhereUniqueInput
+    create: XOR<DocenteCreateWithoutHorarioBloquesInput, DocenteUncheckedCreateWithoutHorarioBloquesInput>
+  }
+
+  export type PeriodoAcademicoCreateWithoutHorarioBloquesInput = {
+    id?: string
+    nombre: string
+    fechaInicio: Date | string
+    fechaFin: Date | string
+    activo?: boolean
+    estado?: $Enums.EstadoPeriodo
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    asignaciones?: AsignacionCreateNestedManyWithoutPeriodoInput
+    asignacionesCarga?: AsignacionCargaLectivaCreateNestedManyWithoutPeriodoInput
+    cargasNoLectivas?: CargaNoLectivaCreateNestedManyWithoutPeriodoInput
+    declaraciones?: DeclaracionCargaCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteCreateNestedManyWithoutPeriodoInput
+    grupos?: GrupoCreateNestedManyWithoutPeriodoAcademicoInput
+    aprobadoPor?: UserCreateNestedOneWithoutPeriodosAprobadosInput
+    preasignaciones?: PreasignacionCreateNestedManyWithoutPeriodoInput
+    demandas?: DemandaAcademicaCreateNestedManyWithoutPeriodoInput
+    distribuciones?: DistribucionLectivaCreateNestedManyWithoutPeriodoInput
+    procesosHorario?: ProcesoHorarioEscuelaCreateNestedManyWithoutPeriodoInput
+    cargos?: CargoDocenteCreateNestedManyWithoutPeriodoInput
+    publicaciones?: PublicacionAcademicaCreateNestedManyWithoutPeriodoInput
+  }
+
+  export type PeriodoAcademicoUncheckedCreateWithoutHorarioBloquesInput = {
+    id?: string
+    nombre: string
+    fechaInicio: Date | string
+    fechaFin: Date | string
+    activo?: boolean
+    estado?: $Enums.EstadoPeriodo
+    aprobadoPorId?: string | null
+    fechaAprobacion?: Date | string | null
+    comentariosDirector?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    asignaciones?: AsignacionUncheckedCreateNestedManyWithoutPeriodoInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedCreateNestedManyWithoutPeriodoInput
+    cargasNoLectivas?: CargaNoLectivaUncheckedCreateNestedManyWithoutPeriodoInput
+    declaraciones?: DeclaracionCargaUncheckedCreateNestedManyWithoutPeriodoInput
+    disponibilidades?: DisponibilidadDocenteUncheckedCreateNestedManyWithoutPeriodoInput
+    grupos?: GrupoUncheckedCreateNestedManyWithoutPeriodoAcademicoInput
+    preasignaciones?: PreasignacionUncheckedCreateNestedManyWithoutPeriodoInput
+    demandas?: DemandaAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+    distribuciones?: DistribucionLectivaUncheckedCreateNestedManyWithoutPeriodoInput
+    procesosHorario?: ProcesoHorarioEscuelaUncheckedCreateNestedManyWithoutPeriodoInput
+    cargos?: CargoDocenteUncheckedCreateNestedManyWithoutPeriodoInput
+    publicaciones?: PublicacionAcademicaUncheckedCreateNestedManyWithoutPeriodoInput
+  }
+
+  export type PeriodoAcademicoCreateOrConnectWithoutHorarioBloquesInput = {
+    where: PeriodoAcademicoWhereUniqueInput
+    create: XOR<PeriodoAcademicoCreateWithoutHorarioBloquesInput, PeriodoAcademicoUncheckedCreateWithoutHorarioBloquesInput>
+  }
+
+  export type DocenteUpsertWithoutHorarioBloquesInput = {
+    update: XOR<DocenteUpdateWithoutHorarioBloquesInput, DocenteUncheckedUpdateWithoutHorarioBloquesInput>
+    create: XOR<DocenteCreateWithoutHorarioBloquesInput, DocenteUncheckedCreateWithoutHorarioBloquesInput>
+    where?: DocenteWhereInput
+  }
+
+  export type DocenteUpdateToOneWithWhereWithoutHorarioBloquesInput = {
+    where?: DocenteWhereInput
+    data: XOR<DocenteUpdateWithoutHorarioBloquesInput, DocenteUncheckedUpdateWithoutHorarioBloquesInput>
+  }
+
+  export type DocenteUpdateWithoutHorarioBloquesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: NullableStringFieldUpdateOperationsInput | string | null
+    nombre?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    categoria?: EnumCategoriaDocenteFieldUpdateOperationsInput | $Enums.CategoriaDocente
+    tipo?: EnumTipoDocenteFieldUpdateOperationsInput | $Enums.TipoDocente
+    modalidad?: EnumModalidadDocenteFieldUpdateOperationsInput | $Enums.ModalidadDocente
+    antiguedad?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    gradoAcademico?: NullableStringFieldUpdateOperationsInput | string | null
+    especialidad?: NullableStringFieldUpdateOperationsInput | string | null
+    experienciaAnios?: IntFieldUpdateOperationsInput | number
+    perfilAcademico?: NullableStringFieldUpdateOperationsInput | string | null
+    dni?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoIBM?: NullableStringFieldUpdateOperationsInput | string | null
+    horasContrato?: IntFieldUpdateOperationsInput | number
+    dictaOtraUniversidad?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    asignaciones?: AsignacionUpdateManyWithoutDocenteNestedInput
+    asignacionesCargaCompartida?: AsignacionCargaLectivaUpdateManyWithoutDocenteCompartidoNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutDocenteNestedInput
+    cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutDocenteNestedInput
+    cargos?: CargoDocenteUpdateManyWithoutDocenteNestedInput
+    declaraciones?: DeclaracionCargaUpdateManyWithoutDocenteNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutDocenteNestedInput
+    docenteGrupos?: DocenteGrupoUpdateManyWithoutDocenteNestedInput
+    departamento?: DepartamentoUpdateOneWithoutDocentesNestedInput
+    notificaciones?: NotificationUpdateManyWithoutDocenteNestedInput
+    postulaciones?: PostulacionCursoUpdateManyWithoutDocenteNestedInput
+    preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
+    restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
+    user?: UserUpdateOneWithoutDocenteNestedInput
+  }
+
+  export type DocenteUncheckedUpdateWithoutHorarioBloquesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: NullableStringFieldUpdateOperationsInput | string | null
+    nombre?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    categoria?: EnumCategoriaDocenteFieldUpdateOperationsInput | $Enums.CategoriaDocente
+    tipo?: EnumTipoDocenteFieldUpdateOperationsInput | $Enums.TipoDocente
+    modalidad?: EnumModalidadDocenteFieldUpdateOperationsInput | $Enums.ModalidadDocente
+    antiguedad?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    gradoAcademico?: NullableStringFieldUpdateOperationsInput | string | null
+    especialidad?: NullableStringFieldUpdateOperationsInput | string | null
+    experienciaAnios?: IntFieldUpdateOperationsInput | number
+    perfilAcademico?: NullableStringFieldUpdateOperationsInput | string | null
+    dni?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoIBM?: NullableStringFieldUpdateOperationsInput | string | null
+    departamentoId?: NullableStringFieldUpdateOperationsInput | string | null
+    horasContrato?: IntFieldUpdateOperationsInput | number
+    dictaOtraUniversidad?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    asignaciones?: AsignacionUncheckedUpdateManyWithoutDocenteNestedInput
+    asignacionesCargaCompartida?: AsignacionCargaLectivaUncheckedUpdateManyWithoutDocenteCompartidoNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutDocenteNestedInput
+    cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutDocenteNestedInput
+    cargos?: CargoDocenteUncheckedUpdateManyWithoutDocenteNestedInput
+    declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutDocenteNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutDocenteNestedInput
+    docenteGrupos?: DocenteGrupoUncheckedUpdateManyWithoutDocenteNestedInput
+    notificaciones?: NotificationUncheckedUpdateManyWithoutDocenteNestedInput
+    postulaciones?: PostulacionCursoUncheckedUpdateManyWithoutDocenteNestedInput
+    preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
+    restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
+    user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+  }
+
+  export type PeriodoAcademicoUpsertWithoutHorarioBloquesInput = {
+    update: XOR<PeriodoAcademicoUpdateWithoutHorarioBloquesInput, PeriodoAcademicoUncheckedUpdateWithoutHorarioBloquesInput>
+    create: XOR<PeriodoAcademicoCreateWithoutHorarioBloquesInput, PeriodoAcademicoUncheckedCreateWithoutHorarioBloquesInput>
+    where?: PeriodoAcademicoWhereInput
+  }
+
+  export type PeriodoAcademicoUpdateToOneWithWhereWithoutHorarioBloquesInput = {
+    where?: PeriodoAcademicoWhereInput
+    data: XOR<PeriodoAcademicoUpdateWithoutHorarioBloquesInput, PeriodoAcademicoUncheckedUpdateWithoutHorarioBloquesInput>
+  }
+
+  export type PeriodoAcademicoUpdateWithoutHorarioBloquesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    asignaciones?: AsignacionUpdateManyWithoutPeriodoNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUpdateManyWithoutPeriodoNestedInput
+    cargasNoLectivas?: CargaNoLectivaUpdateManyWithoutPeriodoNestedInput
+    declaraciones?: DeclaracionCargaUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUpdateManyWithoutPeriodoNestedInput
+    grupos?: GrupoUpdateManyWithoutPeriodoAcademicoNestedInput
+    aprobadoPor?: UserUpdateOneWithoutPeriodosAprobadosNestedInput
+    preasignaciones?: PreasignacionUpdateManyWithoutPeriodoNestedInput
+    demandas?: DemandaAcademicaUpdateManyWithoutPeriodoNestedInput
+    distribuciones?: DistribucionLectivaUpdateManyWithoutPeriodoNestedInput
+    procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
+    cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
+    publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+  }
+
+  export type PeriodoAcademicoUncheckedUpdateWithoutHorarioBloquesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: DateTimeFieldUpdateOperationsInput | Date | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    estado?: EnumEstadoPeriodoFieldUpdateOperationsInput | $Enums.EstadoPeriodo
+    aprobadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    fechaAprobacion?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comentariosDirector?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    asignaciones?: AsignacionUncheckedUpdateManyWithoutPeriodoNestedInput
+    asignacionesCarga?: AsignacionCargaLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
+    cargasNoLectivas?: CargaNoLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
+    declaraciones?: DeclaracionCargaUncheckedUpdateManyWithoutPeriodoNestedInput
+    disponibilidades?: DisponibilidadDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
+    grupos?: GrupoUncheckedUpdateManyWithoutPeriodoAcademicoNestedInput
+    preasignaciones?: PreasignacionUncheckedUpdateManyWithoutPeriodoNestedInput
+    demandas?: DemandaAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    distribuciones?: DistribucionLectivaUncheckedUpdateManyWithoutPeriodoNestedInput
+    procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
+    cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
+    publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type DepartamentoCreateManyFacultadInput = {
@@ -84552,6 +86841,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUpdateManyWithoutDocenteNestedInput
     user?: UserUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateWithoutDepartamentoInput = {
@@ -84587,6 +86877,7 @@ export namespace Prisma {
     preasignaciones?: PreasignacionUncheckedUpdateManyWithoutDocenteNestedInput
     restricciones?: RestriccionDocenteUncheckedUpdateManyWithoutDocenteNestedInput
     user?: UserUncheckedUpdateOneWithoutDocenteNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutDocenteNestedInput
   }
 
   export type DocenteUncheckedUpdateManyWithoutDepartamentoInput = {
@@ -86083,6 +88374,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateWithoutAprobadoPorInput = {
@@ -86108,6 +88400,7 @@ export namespace Prisma {
     procesosHorario?: ProcesoHorarioEscuelaUncheckedUpdateManyWithoutPeriodoNestedInput
     cargos?: CargoDocenteUncheckedUpdateManyWithoutPeriodoNestedInput
     publicaciones?: PublicacionAcademicaUncheckedUpdateManyWithoutPeriodoNestedInput
+    horarioBloques?: HorarioBloqueUncheckedUpdateManyWithoutPeriodoNestedInput
   }
 
   export type PeriodoAcademicoUncheckedUpdateManyWithoutAprobadoPorInput = {
@@ -86218,6 +88511,7 @@ export namespace Prisma {
     id?: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -86264,6 +88558,19 @@ export namespace Prisma {
     franjaHorariaId: string
     tipo: $Enums.TipoRestriccion
     createdAt?: Date | string
+  }
+
+  export type HorarioBloqueCreateManyDocenteInput = {
+    id?: string
+    periodoId: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type AsignacionUpdateWithoutDocenteInput = {
@@ -86546,6 +88853,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
@@ -86556,6 +88864,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -86565,6 +88874,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -86697,6 +89007,45 @@ export namespace Prisma {
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     tipo?: EnumTipoRestriccionFieldUpdateOperationsInput | $Enums.TipoRestriccion
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioBloqueUpdateWithoutDocenteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo?: PeriodoAcademicoUpdateOneRequiredWithoutHorarioBloquesNestedInput
+  }
+
+  export type HorarioBloqueUncheckedUpdateWithoutDocenteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioBloqueUncheckedUpdateManyWithoutDocenteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    periodoId?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CursoCurriculaCreateManyCursoInput = {
@@ -86921,6 +89270,7 @@ export namespace Prisma {
     id?: string
     docenteId: string
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -87042,6 +89392,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutGrupoInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
@@ -87052,6 +89403,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -87061,6 +89413,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -87246,6 +89599,7 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -87336,6 +89690,19 @@ export namespace Prisma {
     publicadaPorId: string
     publicadaEn?: Date | string
     version?: number
+  }
+
+  export type HorarioBloqueCreateManyPeriodoInput = {
+    id?: string
+    docenteId: string
+    tipoOrigen: string
+    origenId: string
+    subtipo?: string | null
+    diaSemana: $Enums.DiaSemana
+    horaInicio: string
+    horaFin: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type AsignacionUpdateWithoutPeriodoInput = {
@@ -87531,6 +89898,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutPeriodoInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
@@ -87542,6 +89910,7 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -87551,6 +89920,7 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -87839,6 +90209,45 @@ export namespace Prisma {
     version?: IntFieldUpdateOperationsInput | number
   }
 
+  export type HorarioBloqueUpdateWithoutPeriodoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    docente?: DocenteUpdateOneRequiredWithoutHorarioBloquesNestedInput
+  }
+
+  export type HorarioBloqueUncheckedUpdateWithoutPeriodoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type HorarioBloqueUncheckedUpdateManyWithoutPeriodoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    docenteId?: StringFieldUpdateOperationsInput | string
+    tipoOrigen?: StringFieldUpdateOperationsInput | string
+    origenId?: StringFieldUpdateOperationsInput | string
+    subtipo?: NullableStringFieldUpdateOperationsInput | string | null
+    diaSemana?: EnumDiaSemanaFieldUpdateOperationsInput | $Enums.DiaSemana
+    horaInicio?: StringFieldUpdateOperationsInput | string
+    horaFin?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AsignacionCreateManyFranjaHorariaInput = {
     id?: string
     grupoId: string
@@ -87856,6 +90265,7 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
+    grupoLaboratorio?: number | null
     createdAt?: Date | string
     periodoId: string
   }
@@ -87925,6 +90335,7 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
@@ -87936,6 +90347,7 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
   }
@@ -87945,6 +90357,7 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
+    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
   }

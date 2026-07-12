@@ -188,20 +188,24 @@ export const declaracionRouter = createTRPCRouter({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Solo se pueden actualizar los totales en estado BORRADOR o RECHAZADA' });
       }
 
-      const [asignaciones, cargas] = await Promise.all([
+      const [asignaciones, cargas, docente] = await Promise.all([
         ctx.prisma.asignacionCargaLectiva.findMany({ where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId } }),
         ctx.prisma.cargaNoLectiva.findMany({ where: { docenteId: declaracion.docenteId, periodoId: declaracion.periodoId } }),
+        ctx.prisma.docente.findUniqueOrThrow({ where: { id: declaracion.docenteId }, select: { horasContrato: true } }),
       ]);
 
       const totalLectivas = asignaciones.reduce((sum, a) => sum + a.horasAsignadas, 0);
       const totalNoLectivas = cargas.reduce((sum, c) => sum + c.horas, 0);
+      const totalHoras = totalLectivas + totalNoLectivas;
+      const shouldClearObservaciones = totalHoras >= docente.horasContrato;
 
       return ctx.prisma.declaracionCarga.update({
         where: { id: input.id },
         data: {
           totalHorasLectivas: totalLectivas,
           totalHorasNoLectivas: totalNoLectivas,
-          totalHoras: totalLectivas + totalNoLectivas,
+          totalHoras: totalHoras,
+          ...(shouldClearObservaciones ? { observaciones: null } : {}),
         },
         include: { docente: { select: { id: true, nombre: true, horasContrato: true } } },
       });

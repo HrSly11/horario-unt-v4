@@ -201,6 +201,7 @@ model Docente {
   preasignaciones             Preasignacion[]
   restricciones               RestriccionDocente[]
   user                        User?
+  horarioBloques              HorarioBloque[]
 
   @@index([tipo, categoria, antiguedad])
   @@map("docentes")
@@ -351,6 +352,7 @@ model PeriodoAcademico {
   procesosHorario     ProcesoHorarioEscuela[]
   cargos              CargoDocente[]
   publicaciones       PublicacionAcademica[]
+  horarioBloques      HorarioBloque[]
 
   @@map("periodos_academicos")
 }
@@ -780,6 +782,28 @@ model DocumentoFirmaDigital {
   @@unique([declaracionId, tipo, firmanteRol, version])
   @@index([documentoHash])
   @@map("documentos_firmas_digitales")
+}
+
+model HorarioBloque {
+  id          String   @id @default(cuid())
+  docenteId   String   @map("docente_id")
+  periodoId   String   @map("periodo_id")
+  tipoOrigen  String   @map("tipo_origen") // "lectiva" | "no_lectiva"
+  origenId    String   @map("origen_id")
+  subtipo     String?  // "teoria" | "practica" | "laboratorio" | null
+  diaSemana   DiaSemana @map("dia_semana")
+  horaInicio  String   @map("hora_inicio") // "07:00"
+  horaFin     String   @map("hora_fin")    // "08:00"
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  docente     Docente          @relation(fields: [docenteId], references: [id], onDelete: Cascade)
+  periodo     PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Cascade)
+
+  @@unique([docenteId, periodoId, diaSemana, horaInicio])
+  @@index([docenteId, periodoId])
+  @@index([origenId])
+  @@map("horario_bloques")
 }
 
 enum CategoriaDocente {

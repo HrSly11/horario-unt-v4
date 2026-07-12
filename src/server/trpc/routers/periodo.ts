@@ -7,6 +7,9 @@ const periodoInput = z.object({
   fechaFin: z.coerce.date(),
   activo: z.boolean().optional().default(false),
   estado: z.enum(['PLANIFICACION', 'POSTULACION', 'ASIGNACION', 'REVISION', 'APROBADO', 'FINALIZADO']).optional(),
+}).refine(data => data.fechaFin > data.fechaInicio, {
+  message: 'La fecha de fin debe ser posterior a la fecha de inicio',
+  path: ['fechaFin'],
 });
 
 export const periodoRouter = createTRPCRouter({
