@@ -9,7 +9,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('🌱 Populando séptimo ciclo (2026-I)...');
+  console.log('🌱 Actualizando séptimo ciclo (2026-I)...');
 
   // 1. Obtener datos base
   const periodo2026I = await prisma.periodoAcademico.findUniqueOrThrow({ where: { nombre: '2026-I' } });
@@ -18,7 +18,7 @@ async function main() {
   const deptoSistemas = await prisma.departamento.findFirstOrThrow({ where: { nombre: 'Departamento de Ingeniería de Sistemas' } });
   const deptoIndustrial = await prisma.departamento.findFirstOrThrow({ where: { nombre: 'Departamento de Ingeniería Industrial' } });
 
-  // 2. Añadir docentes faltantes
+  // 2. Añadir docentes faltantes (Jhoe González Vásquez)
   const docentesData = [
     { nombre: 'Jhoe González Vásquez', email: 'jgonzalez@unitru.edu.pe', categoria: CategoriaDocente.AUXILIAR, tipo: TipoDocente.NOMBRADO, antiguedad: new Date('2021-01-01'), dni: '88899900', codigoIBM: 'IBM032', modalidad: ModalidadDocente.TIEMPO_COMPLETO, horasContrato: 40, departamentoId: deptoIndustrial.id, gradoAcademico: 'Ingeniero', especialidad: 'Cadena de Suministros', experienciaAnios: 5 },
   ];
@@ -43,20 +43,20 @@ async function main() {
   const oscar = await prisma.docente.findUniqueOrThrow({ where: { email: 'oalcantara@unitru.edu.pe' } });
   const jhoe = await prisma.docente.findUniqueOrThrow({ where: { email: 'jgonzalez@unitru.edu.pe' } });
 
-  // 3. Añadir aula faltante
-  let aulaAudiovisuales = await prisma.aula.findUnique({ where: { codigo: 'AUDIOVISUALES' } });
-  if (!aulaAudiovisuales) {
-    aulaAudiovisuales = await prisma.aula.create({
+  // 3. Añadir aula faltante (Lab 5)
+  let lab5 = await prisma.aula.findUnique({ where: { codigo: 'LAB-5' } });
+  if (!lab5) {
+    lab5 = await prisma.aula.create({
       data: {
-        codigo: 'AUDIOVISUALES',
-        nombre: 'Audiovisuales',
-        capacidad: 50,
-        tipo: TipoAula.TEORIA,
-        edificio: 'Edificio Principal',
+        codigo: 'LAB-5',
+        nombre: 'Laboratorio 5',
+        capacidad: 30,
+        tipo: TipoAula.LABORATORIO,
+        edificio: 'Edificio de Laboratorios',
         piso: 1,
       },
     });
-    console.log('  ✅ Aula Audiovisuales creada');
+    console.log('  ✅ Aula Laboratorio 5 creada');
   }
 
   // 4. Obtener aulas necesarias
@@ -70,16 +70,23 @@ async function main() {
   const tallerConfecciones = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'TALLER-CONFECCIONES' } });
 
   // 5. Obtener cursos del séptimo ciclo
-  const cursoIngSoftwareI = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-704' } });
-  const cursoRedesComunicacionesI = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-703' } });
-  const cursoNegociosElectronicos = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EL-702' } });
-  const cursoGestionServiciosTI = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-701' } });
-  const cursoMetodologiaInvestigacion = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-901' } });
-  const cursoAdminBasesDatos = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-603' } });
-  const cursoPlaneamientoEstrategico = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-702' } });
-  const cursoCadenaSuministros = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EP-701' } });
+  const cursoIngSoftwareI = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-704' } }); // Ingeniería de Software I
+  const cursoRedesComunicacionesI = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-703' } }); // Redes y Comunicaciones I
+  const cursoNegociosElectronicos = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EL-702' } }); // Negocios Electrónicos
+  const cursoGestionServiciosTI = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-701' } }); // Gestión de Servicios de TI
+  const cursoMetodologiaInvestigacion = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-901' } }); // Metodología de la Investigación Científica
+  const cursoAdminBasesDatos = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-603' } }); // Administración de Base de Datos
+  const cursoPlaneamientoEstrategico = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-702' } }); // Planeamiento Estratégico de TI
+  const cursoCadenaSuministros = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EP-701' } }); // Cadena de Suministros
 
-  // 6. Crear grupos para sección A
+  // 6. Primero, ELIMINAR todas las asignaciones, asignaciones de carga lectiva, docente-grupo y grupos existentes para este ciclo
+  console.log('  🗑️  Limpiando datos existentes del séptimo ciclo...');
+  await prisma.asignacion.deleteMany({ where: { grupo: { periodoAcademicoId: periodo2026I.id, curso: { ciclo: 7 } } } });
+  await prisma.asignacionCargaLectiva.deleteMany({ where: { periodoId: periodo2026I.id, grupo: { curso: { ciclo: 7 } } } });
+  await prisma.docenteGrupo.deleteMany({ where: { grupo: { periodoAcademicoId: periodo2026I.id, curso: { ciclo: 7 } } } });
+  await prisma.grupo.deleteMany({ where: { periodoAcademicoId: periodo2026I.id, curso: { ciclo: 7 } } });
+
+  // 7. Crear grupos para sección A
   const crearGrupo = async (curso: any) => {
     let grupo = await prisma.grupo.findFirst({
       where: { cursoId: curso.id, periodoAcademicoId: periodo2026I.id, nombre: 'A' },
@@ -106,9 +113,9 @@ async function main() {
   const grupoAdminBasesDatos = await crearGrupo(cursoAdminBasesDatos);
   const grupoPlaneamientoEstrategico = await crearGrupo(cursoPlaneamientoEstrategico);
   const grupoCadenaSuministros = await crearGrupo(cursoCadenaSuministros);
-  console.log('  ✅ Grupos creados o verificados');
+  console.log('  ✅ Grupos creados');
 
-  // 7. Crear AsignacionCargaLectiva
+  // 8. Crear AsignacionCargaLectiva
   const crearAsignacionCarga = async (docente: any, grupo: any, tipo: TipoAsignacion, horas: number, grupoLaboratorio?: number) => {
     const existing = await prisma.asignacionCargaLectiva.findFirst({
       where: { docenteId: docente.id, grupoId: grupo.id, periodoId: periodo2026I.id, tipo, grupoLaboratorio },
@@ -128,24 +135,45 @@ async function main() {
     return existing;
   };
 
-  await crearAsignacionCarga(juanPedro, grupoIngSoftwareI, TipoAsignacion.LABORATORIO, 3);
+  // --- Ingeniería de Software ---
+  await crearAsignacionCarga(juanPedro, grupoIngSoftwareI, TipoAsignacion.LABORATORIO, 3, 1);
   await crearAsignacionCarga(juanPedro, grupoIngSoftwareI, TipoAsignacion.TEORIA, 3);
-  await crearAsignacionCarga(cesar, grupoRedesComunicacionesI, TipoAsignacion.LABORATORIO, 3);
+  await crearAsignacionCarga(robert, grupoIngSoftwareI, TipoAsignacion.LABORATORIO, 3, 2);
+  await crearAsignacionCarga(robert, grupoIngSoftwareI, TipoAsignacion.LABORATORIO, 3, 3);
+
+  // --- Redes y Comunicaciones ---
+  await crearAsignacionCarga(cesar, grupoRedesComunicacionesI, TipoAsignacion.LABORATORIO, 3, 1);
+  await crearAsignacionCarga(cesar, grupoRedesComunicacionesI, TipoAsignacion.LABORATORIO, 3, 2);
+  await crearAsignacionCarga(cesar, grupoRedesComunicacionesI, TipoAsignacion.LABORATORIO, 3, 3);
   await crearAsignacionCarga(cesar, grupoRedesComunicacionesI, TipoAsignacion.TEORIA, 2);
-  await crearAsignacionCarga(robert, grupoIngSoftwareI, TipoAsignacion.LABORATORIO, 6);
-  await crearAsignacionCarga(everson, grupoNegociosElectronicos, TipoAsignacion.TEORIA, 3);
+
+  // --- Negocios Electrónicos ---
+  await crearAsignacionCarga(everson, grupoNegociosElectronicos, TipoAsignacion.TEORIA, 2);
+  await crearAsignacionCarga(paul, grupoNegociosElectronicos, TipoAsignacion.LABORATORIO, 2, 1);
+  await crearAsignacionCarga(paul, grupoNegociosElectronicos, TipoAsignacion.LABORATORIO, 2, 2);
+
+  // --- Gestión de Servicios de TI ---
   await crearAsignacionCarga(alberto, grupoGestionServiciosTI, TipoAsignacion.TEORIA, 3);
-  await crearAsignacionCarga(alberto, grupoGestionServiciosTI, TipoAsignacion.LABORATORIO, 4);
+  await crearAsignacionCarga(alberto, grupoGestionServiciosTI, TipoAsignacion.LABORATORIO, 4, 1);
+
+  // --- Metodología de la Investigación ---
   await crearAsignacionCarga(paul, grupoMetodologiaInvestigacion, TipoAsignacion.TEORIA, 4);
+
+  // --- Administración de Base de Datos ---
   await crearAsignacionCarga(ricardo, grupoAdminBasesDatos, TipoAsignacion.TEORIA, 2);
-  await crearAsignacionCarga(ricardo, grupoAdminBasesDatos, TipoAsignacion.LABORATORIO, 6);
-  await crearAsignacionCarga(oscar, grupoPlaneamientoEstrategico, TipoAsignacion.TEORIA, 2);
-  await crearAsignacionCarga(oscar, grupoPlaneamientoEstrategico, TipoAsignacion.LABORATORIO, 4);
-  await crearAsignacionCarga(paul, grupoNegociosElectronicos, TipoAsignacion.LABORATORIO, 5);
+  await crearAsignacionCarga(ricardo, grupoAdminBasesDatos, TipoAsignacion.LABORATORIO, 6, 1);
+
+  // --- Planeamiento Estratégico de TI ---
+  await crearAsignacionCarga(oscar, grupoPlaneamientoEstrategico, TipoAsignacion.TEORIA, 3);
+  await crearAsignacionCarga(oscar, grupoPlaneamientoEstrategico, TipoAsignacion.LABORATORIO, 2, 1);
+  await crearAsignacionCarga(oscar, grupoPlaneamientoEstrategico, TipoAsignacion.LABORATORIO, 2, 2);
+  await crearAsignacionCarga(oscar, grupoPlaneamientoEstrategico, TipoAsignacion.LABORATORIO, 2, 3);
+
+  // --- Cadena de Suministros ---
   await crearAsignacionCarga(jhoe, grupoCadenaSuministros, TipoAsignacion.TEORIA, 4);
   console.log('  ✅ Asignaciones de carga lectiva creadas');
 
-  // 8. Crear docenteGrupo
+  // 9. Crear docenteGrupo
   const crearDocenteGrupo = async (docente: any, grupo: any) => {
     const existing = await prisma.docenteGrupo.findFirst({
       where: { docenteId: docente.id, grupoId: grupo.id },
@@ -159,9 +187,10 @@ async function main() {
   };
 
   await crearDocenteGrupo(juanPedro, grupoIngSoftwareI);
-  await crearDocenteGrupo(cesar, grupoRedesComunicacionesI);
   await crearDocenteGrupo(robert, grupoIngSoftwareI);
+  await crearDocenteGrupo(cesar, grupoRedesComunicacionesI);
   await crearDocenteGrupo(everson, grupoNegociosElectronicos);
+  await crearDocenteGrupo(paul, grupoNegociosElectronicos);
   await crearDocenteGrupo(alberto, grupoGestionServiciosTI);
   await crearDocenteGrupo(paul, grupoMetodologiaInvestigacion);
   await crearDocenteGrupo(ricardo, grupoAdminBasesDatos);
@@ -169,13 +198,13 @@ async function main() {
   await crearDocenteGrupo(jhoe, grupoCadenaSuministros);
   console.log('  ✅ Vinculaciones docente-grupo creadas');
 
-  // 9. Crear Asignaciones (horario real)
+  // 10. Crear Asignaciones (horario real)
   const crearAsignacion = async (grupo: any, docente: any, aula: any, franja: any, tipo: TipoAsignacion) => {
     if (!franja) {
-      console.warn(`  No se encontró franja para la hora indicada`);
+      console.warn(`  ⚠️ No se encontró franja para la hora indicada`);
       return;
     }
-    // Eliminar cualquier asignación existente que entre en conflicto
+    // Eliminar cualquier asignación existente que entre en conflicto con las restricciones únicas
     await prisma.asignacion.deleteMany({
       where: {
         OR: [
@@ -185,7 +214,6 @@ async function main() {
         ],
       },
     });
-    
     return prisma.asignacion.create({
       data: {
         grupoId: grupo.id,
@@ -199,80 +227,104 @@ async function main() {
   };
 
   // --- Juan Pedro Santos: Ingeniería de Software I ---
-  // Martes 7-10 (3h lab, Lab 1)
+  // Martes 07:00 – 10:00 (Laboratorio, grupo 1, Lab 1)
   for (let i = 7; i < 10; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoIngSoftwareI, juanPedro, lab1, getFranja(DiaSemana.MARTES, hora), TipoAsignacion.LABORATORIO);
   }
-  // Martes 10-13 (3h teoría, Posgrado A-303)
+  // Martes 10:00 – 13:00 (Teoría, Posgrado A-303)
   for (let i = 10; i < 13; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoIngSoftwareI, juanPedro, aula303, getFranja(DiaSemana.MARTES, hora), TipoAsignacion.TEORIA);
   }
 
-  // --- César Arellano: Redes y Comunicaciones I ---
-  // Lunes 10-13 (3h lab, Lab 3)
+  // --- Robert Sanchez: Ingeniería de Software I ---
+  // Lunes 07:00 – 10:00 (Laboratorio, grupo 2, Lab 1)
+  for (let i = 7; i < 10; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoIngSoftwareI, robert, lab1, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
+  }
+  // Lunes 10:00 – 13:00 (Laboratorio, grupo 3, Lab 1)
   for (let i = 10; i < 13; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
-    await crearAsignacion(grupoRedesComunicacionesI, cesar, lab3, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
+    await crearAsignacion(grupoIngSoftwareI, robert, lab1, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
   }
-  // Lunes 13-18 (5h lab, Lab 2)
-  for (let i = 13; i < 18; i++) {
+
+  // --- Cesar Arellano: Redes y Comunicaciones I ---
+  // Lunes 10:00 – 13:00 (Laboratorio grupo 1, Lab 2)
+  for (let i = 10; i < 13; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoRedesComunicacionesI, cesar, lab2, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
+  }
+  // Lunes 13:00 – 16:00 (Laboratorio grupo 2, Lab 2)
+  for (let i = 13; i < 16; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoRedesComunicacionesI, cesar, lab2, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
+  }
+  // Lunes 16:00 – 19:00 (Laboratorio grupo 3, Lab 2)
+  for (let i = 16; i < 19; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     const franja = getFranja(DiaSemana.LUNES, hora);
     if (franja) {
       await crearAsignacion(grupoRedesComunicacionesI, cesar, lab2, franja, TipoAsignacion.LABORATORIO);
     }
   }
-  // Viernes 16-18 (2h teoría, Posgrado A-311)
+  // Viernes 16:00 – 18:00 (Teoría, Lab 2)
   for (let i = 16; i < 18; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
-    await crearAsignacion(grupoRedesComunicacionesI, cesar, aula311, getFranja(DiaSemana.VIERNES, hora), TipoAsignacion.TEORIA);
-  }
-
-  // --- Robert Sánchez: Ingeniería de Software I ---
-  // Lunes 7-13 (6h lab, Lab 1)
-  for (let i = 7; i < 13; i++) {
-    const hora = String(i).padStart(2, '0') + ':00';
-    await crearAsignacion(grupoIngSoftwareI, robert, lab1, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
+    await crearAsignacion(grupoRedesComunicacionesI, cesar, lab2, getFranja(DiaSemana.VIERNES, hora), TipoAsignacion.TEORIA);
   }
 
   // --- Everson Agreda: Negocios Electrónicos ---
-  // Martes 15-18 (3h teoría, Posgrado A-311)
-  for (let i = 15; i < 18; i++) {
+  // Martes 16:00 – 18:00 (Teoría, Posgrado 311)
+  for (let i = 16; i < 18; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
-    const franja = getFranja(DiaSemana.MARTES, hora);
-    if (franja) {
-      await crearAsignacion(grupoNegociosElectronicos, everson, aula311, franja, TipoAsignacion.TEORIA);
-    }
+    await crearAsignacion(grupoNegociosElectronicos, everson, aula311, getFranja(DiaSemana.MARTES, hora), TipoAsignacion.TEORIA);
+  }
+
+  // --- Paul Cotrina: Negocios Electrónicos ---
+  // Lunes 14:00 – 16:00 (Laboratorio grupo 1, Lab 4)
+  for (let i = 14; i < 16; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoNegociosElectronicos, paul, lab4, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
+  }
+  // Lunes 16:00 – 18:00 (Laboratorio grupo 2, Lab 4)
+  for (let i = 16; i < 18; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoNegociosElectronicos, paul, lab4, getFranja(DiaSemana.LUNES, hora), TipoAsignacion.LABORATORIO);
   }
 
   // --- Alberto Mendoza: Gestión de Servicios de TI ---
-  // Viernes 7-10 (3h teoría, Posgrado A-303)
+  // Viernes 7:00 – 10:00 (Teoría, EPG-303)
   for (let i = 7; i < 10; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoGestionServiciosTI, alberto, aula303, getFranja(DiaSemana.VIERNES, hora), TipoAsignacion.TEORIA);
   }
-  // Viernes 10-14 (4h lab, Lab 1)
-  for (let i = 10; i < 14; i++) {
+  // Viernes 10:00 – 12:00 (Laboratorio grupo 1, Lab 1)
+  for (let i = 10; i < 12; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoGestionServiciosTI, alberto, lab1, getFranja(DiaSemana.VIERNES, hora), TipoAsignacion.LABORATORIO);
+  }
+  // Viernes 12:00 – 14:00 (Laboratorio grupo 1, Lab 1)
+  for (let i = 12; i < 14; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoGestionServiciosTI, alberto, lab1, getFranja(DiaSemana.VIERNES, hora), TipoAsignacion.LABORATORIO);
   }
 
-  // --- Paul Cotrina: Metodología de la Investigación Científica ---
-  // Jueves 14-18 (4h teoría, Posgrado A-307)
+  // --- Paul Cotrina: Metodología de la Investigación ---
+  // Jueves 14:00 – 18:00 (Teoría, EPG 307)
   for (let i = 14; i < 18; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoMetodologiaInvestigacion, paul, aula307, getFranja(DiaSemana.JUEVES, hora), TipoAsignacion.TEORIA);
   }
 
   // --- Ricardo Mendoza: Administración de Base de Datos ---
-  // Jueves 7-9 (2h teoría, Posgrado A-307)
+  // Jueves 7:00 - 9:00 (Teoría, EPG 307)
   for (let i = 7; i < 9; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoAdminBasesDatos, ricardo, aula307, getFranja(DiaSemana.JUEVES, hora), TipoAsignacion.TEORIA);
   }
-  // Jueves 18-21 (3h lab, Lab 4)
+  // Jueves 18:00 - 21:00 (Laboratorio grupo 1, Lab 4)
   for (let i = 18; i < 21; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     const franja = getFranja(DiaSemana.JUEVES, hora);
@@ -280,62 +332,54 @@ async function main() {
       await crearAsignacion(grupoAdminBasesDatos, ricardo, lab4, franja, TipoAsignacion.LABORATORIO);
     }
   }
-  // Viernes 18-21 (3h lab, Lab 2)
+  // Viernes 18:00 - 21:00 (Laboratorio grupo 1, Lab 4)
   for (let i = 18; i < 21; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     const franja = getFranja(DiaSemana.VIERNES, hora);
     if (franja) {
-      await crearAsignacion(grupoAdminBasesDatos, ricardo, lab2, franja, TipoAsignacion.LABORATORIO);
+      await crearAsignacion(grupoAdminBasesDatos, ricardo, lab4, franja, TipoAsignacion.LABORATORIO);
     }
   }
 
-  // --- Oscar Alcántara: Planeamiento Estratégico de TI ---
-  // Martes 13-15 (2h teoría, Posgrado A-307)
+  // --- Oscar Alcantara: Planeamiento Estratégico de TI ---
+  // Martes 13:00 - 16:00 (Teoría, EPG 307)
+  for (let i = 13; i < 16; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoPlaneamientoEstrategico, oscar, aula307, getFranja(DiaSemana.MARTES, hora), TipoAsignacion.TEORIA);
+  }
+  // Miercoles 13:00 - 15:00 (Laboratorio grupo 1, Lab 4)
   for (let i = 13; i < 15; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
-    const franja = getFranja(DiaSemana.MARTES, hora);
-    if (franja) {
-      await crearAsignacion(grupoPlaneamientoEstrategico, oscar, aula307, franja, TipoAsignacion.TEORIA);
-    }
+    await crearAsignacion(grupoPlaneamientoEstrategico, oscar, lab4, getFranja(DiaSemana.MIERCOLES, hora), TipoAsignacion.LABORATORIO);
   }
-  // Miércoles 13-17 (4h lab, Lab 4)
-  for (let i = 13; i < 17; i++) {
+  // Miercoles 15:00 - 17:00 (Laboratorio grupo 2, Lab 4)
+  for (let i = 15; i < 17; i++) {
+    const hora = String(i).padStart(2, '0') + ':00';
+    await crearAsignacion(grupoPlaneamientoEstrategico, oscar, lab4, getFranja(DiaSemana.MIERCOLES, hora), TipoAsignacion.LABORATORIO);
+  }
+  // Miercoles 17:00 - 19:00 (Laboratorio grupo 3, Lab 5)
+  for (let i = 17; i < 19; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     const franja = getFranja(DiaSemana.MIERCOLES, hora);
     if (franja) {
-      await crearAsignacion(grupoPlaneamientoEstrategico, oscar, lab4, franja, TipoAsignacion.LABORATORIO);
+      await crearAsignacion(grupoPlaneamientoEstrategico, oscar, lab5, franja, TipoAsignacion.LABORATORIO);
     }
   }
-  // Miércoles 17-18 (1h teoría, Audiovisuales)
-  const franja17 = getFranja(DiaSemana.MIERCOLES, '17:00');
-  if (franja17) {
-    await crearAsignacion(grupoPlaneamientoEstrategico, oscar, aulaAudiovisuales, franja17, TipoAsignacion.TEORIA);
-  }
-  // Jueves 9-11 (2h lab, Lab 3)
+  // Jueves 9:00 - 11:00 (Laboratorio grupo 2, Lab 3)
   for (let i = 9; i < 11; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoPlaneamientoEstrategico, oscar, lab3, getFranja(DiaSemana.JUEVES, hora), TipoAsignacion.LABORATORIO);
   }
 
-  // --- Paul Cotrina: Negocios Electrónicos ---
-  // Lunes 13-18 (5h lab, Lab 4)
-  for (let i = 13; i < 18; i++) {
-    const hora = String(i).padStart(2, '0') + ':00';
-    const franja = getFranja(DiaSemana.LUNES, hora);
-    if (franja) {
-      await crearAsignacion(grupoNegociosElectronicos, paul, lab4, franja, TipoAsignacion.LABORATORIO);
-    }
-  }
-
-  // --- Jhoe González: Cadena de Suministros ---
-  // Miércoles 7-11 (4h teoría, Taller de Confecciones)
+  // --- Jhoe Gonzalez: Cadena de Suministros ---
+  // Miercoles 7:00 - 11:00 (Teoría y práctica, Taller de confecciones)
   for (let i = 7; i < 11; i++) {
     const hora = String(i).padStart(2, '0') + ':00';
     await crearAsignacion(grupoCadenaSuministros, jhoe, tallerConfecciones, getFranja(DiaSemana.MIERCOLES, hora), TipoAsignacion.TEORIA);
   }
 
   console.log('  ✅ Asignaciones de horario creadas');
-  console.log('✅ Séptimo ciclo populado exitosamente!');
+  console.log('✅ Séptimo ciclo actualizado exitosamente!');
 }
 
 main()

@@ -276,6 +276,30 @@ function renderScheduleGrid(slots: SlotData[], options: { showDocente?: boolean;
     colorIdx++;
   });
   
+  // Helper function to get consecutive span for a specific slot
+  const getConsecutiveSpan = (baseSlot: SlotData, startRowIdx: number): { span: number; keys: Set<string> } => {
+    const keys = new Set<string>();
+    let span = 1;
+    for (let i = startRowIdx + 1; i < HORAS.length; i++) {
+      const currentHora = HORAS[i];
+      const sameSlot = slots.find(s => 
+        s.dia === baseSlot.dia &&
+        s.horaInicio === currentHora &&
+        s.cursoCodigo === baseSlot.cursoCodigo &&
+        s.grupoNombre === baseSlot.grupoNombre &&
+        s.tipo === baseSlot.tipo &&
+        s.aulaCodigo === baseSlot.aulaCodigo
+      );
+      if (sameSlot) {
+        span++;
+        keys.add(`${baseSlot.dia}-${currentHora}`);
+      } else {
+        break;
+      }
+    }
+    return { span, keys };
+  };
+  
   return `
     <table class="schedule-grid">
       <thead>
@@ -294,43 +318,66 @@ function renderScheduleGrid(slots: SlotData[], options: { showDocente?: boolean;
                 const key = `${dia}-${hora}`;
                 if (renderedCells.has(key)) return '';
 
-                const slot = slots.find(s => s.dia === dia && s.horaInicio === hora);
-                if (!slot) return '<td></td>';
+                // Get ALL slots for this day and hour
+                const cellSlots = slots.filter(s => s.dia === dia && s.horaInicio === hora);
+                if (cellSlots.length === 0) return '<td></td>';
 
-                // Find consecutive blocks
-                let rowSpan = 1;
-                for (let i = rowIndex + 1; i < HORAS.length; i++) {
-                  const currentBlockHora = HORAS[i];
-                  const sameSlot = slots.find(s => 
-                    s.dia === dia && 
-                    s.horaInicio === currentBlockHora && 
-                    s.cursoCodigo === slot.cursoCodigo && 
-                    s.grupoNombre === slot.grupoNombre &&
-                    s.tipo === slot.tipo
-                  );
-                  if (sameSlot) {
-                    rowSpan++;
-                    renderedCells.add(`${dia}-${currentBlockHora}`);
-                  } else {
-                    break;
-                  }
+                // For each slot, calculate their consecutive spans and get all their keys
+                const slotInfos = cellSlots.map(slot => {
+                  const { span, keys: spanKeys } = getConsecutiveSpan(slot, rowIndex);
+                  const comboKey = `${slot.cursoCodigo}-${slot.grupoNombre}-${slot.tipo}-${slot.aulaCodigo}`;
+                  if (!uniqueCombos.has(comboKey)) uniqueCombos.set(comboKey, correlativo++);
+                  return {
+                    slot,
+                    span,
+                    spanKeys,
+                    nro: uniqueCombos.get(comboKey),
+                    colorClass: courseColors.get(slot.cursoCodigo) || ''
+                  };
+                });
+
+                // Mark all keys as rendered
+                slotInfos.forEach(info => {
+                  info.spanKeys.forEach(k => renderedCells.add(k));
+                });
+
+                // If only one slot, render normally
+                if (slotInfos.length === 1) {
+                  const { slot, span, nro, colorClass } = slotInfos[0];
+                  return `
+                    <td rowspan="${span}" class="${colorClass}">
+                      <div class="slot-box">
+                        <div class="slot-correlativo">(${nro})</div>
+                        <div class="slot-curso">${slot.cursoCodigo} - G${slot.grupoNombre}</div>
+                        ${options.showDocente ? `<div class="slot-docente">${slot.docenteNombre.split(' ').slice(0, 2).join(' ')}</div>` : ''}
+                        ${options.showAula ? `<div class="slot-aula">${slot.aulaCodigo}</div>` : ''}
+                        ${options.showCiclo ? `<div class="slot-ciclo">Ciclo: ${slot.ciclo}</div>` : ''}
+                        <div class="slot-tipo">${slot.tipo.charAt(0)}</div>
+                      </div>
+                    </td>
+                  `;
                 }
 
-                const comboKey = `${slot.cursoCodigo}-${slot.grupoNombre}-${slot.tipo}`;
-                if (!uniqueCombos.has(comboKey)) uniqueCombos.set(comboKey, correlativo++);
-                const nro = uniqueCombos.get(comboKey);
-                const colorClass = courseColors.get(slot.cursoCodigo) || '';
-
+                // If multiple slots, render as nested table with horizontal splits
+                const maxSpan = Math.max(...slotInfos.map(s => s.span));
                 return `
-                  <td rowspan="${rowSpan}" class="${colorClass}">
-                    <div class="slot-box">
-                      <div class="slot-correlativo">(${nro})</div>
-                      <div class="slot-curso">${slot.cursoCodigo} - G${slot.grupoNombre}</div>
-                      ${options.showDocente ? `<div class="slot-docente">${slot.docenteNombre.split(' ').slice(0, 2).join(' ')}</div>` : ''}
-                      ${options.showAula ? `<div class="slot-aula">${slot.aulaCodigo}</div>` : ''}
-                      ${options.showCiclo ? `<div class="slot-ciclo">Ciclo: ${slot.ciclo}</div>` : ''}
-                      <div class="slot-tipo">${slot.tipo.charAt(0)}</div>
-                    </div>
+                  <td rowspan="${maxSpan}" style="padding: 0;">
+                    <table style="width:100%; height:100%; border-collapse: collapse;">
+                      <tr>
+                        ${slotInfos.map((info, index) => `
+                          <td class="${info.colorClass}" style="padding: 2px; width: ${100 / slotInfos.length}%; border-right: ${index === slotInfos.length - 1 ? 'none' : '1px solid #000'};">
+                            <div class="slot-box">
+                              <div class="slot-correlativo">(${info.nro})</div>
+                              <div class="slot-curso">${info.slot.cursoCodigo} - G${info.slot.grupoNombre}</div>
+                              ${options.showDocente ? `<div class="slot-docente">${info.slot.docenteNombre.split(' ').slice(0, 2).join(' ')}</div>` : ''}
+                              ${options.showAula ? `<div class="slot-aula">${info.slot.aulaCodigo}</div>` : ''}
+                              ${options.showCiclo ? `<div class="slot-ciclo">Ciclo: ${info.slot.ciclo}</div>` : ''}
+                              <div class="slot-tipo">${info.slot.tipo.charAt(0)}</div>
+                            </div>
+                          </td>
+                        `).join('')}
+                      </tr>
+                    </table>
                   </td>
                 `;
               }).join('')}
