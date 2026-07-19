@@ -81,8 +81,8 @@ async function main() {
 
   // 6. Primero, ELIMINAR todas las asignaciones, asignaciones de carga lectiva, docente-grupo y grupos existentes para este ciclo
   console.log('  🗑️  Limpiando datos existentes del séptimo ciclo...');
-  await prisma.asignacion.deleteMany({ where: { grupo: { periodoAcademicoId: periodo2026I.id, curso: { ciclo: 7 } } } });
-  await prisma.asignacionCargaLectiva.deleteMany({ where: { periodoId: periodo2026I.id, grupo: { curso: { ciclo: 7 } } } });
+  await prisma.asignacion.deleteMany({ where: { periodoId: periodo2026I.id } });
+  await prisma.asignacionCargaLectiva.deleteMany({ where: { periodoId: periodo2026I.id } });
   await prisma.docenteGrupo.deleteMany({ where: { grupo: { periodoAcademicoId: periodo2026I.id, curso: { ciclo: 7 } } } });
   await prisma.grupo.deleteMany({ where: { periodoAcademicoId: periodo2026I.id, curso: { ciclo: 7 } } });
 

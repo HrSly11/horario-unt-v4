@@ -2,7 +2,7 @@
 
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Calendar, Save, Loader2, CheckCircle2, AlertCircle, BookOpen, ChevronDown, Clock, FlaskConical, Presentation, Users } from 'lucide-react';
 
 const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'] as const;
@@ -56,14 +56,18 @@ export default function DisponibilidadPage() {
     enabled: !!activePeriodo?.id,
   });
 
-  // Effect-like initialization
-  const [initializedMap, setInitializedMap] = useState<Record<string, boolean>>({});
+  // Effect-like initialization (use useEffect to avoid render-time state updates!)
+  const initializedMapRef = useRef<Record<string, boolean>>({});
   
   const currentKey = `${selectedGrupoId || 'general'}-${selectedGrupoId ? selectedTipo : 'none'}`;
-  if (!loadingAvail && !initializedMap[currentKey]) {
-    setSelectedIds(new Set(currentAvail.map((d: any) => d.franjaHorariaId)));
-    setInitializedMap(prev => ({ ...prev, [currentKey]: true }));
-  }
+  
+  // Use useEffect instead of direct state updates during render
+  useEffect(() => {
+    if (!loadingAvail && !initializedMapRef.current[currentKey]) {
+      setSelectedIds(new Set(currentAvail.map((d: any) => d.franjaHorariaId)));
+      initializedMapRef.current = { ...initializedMapRef.current, [currentKey]: true };
+    }
+  }, [loadingAvail, currentKey, currentAvail]);
 
   const saveMutation = useMutation(
     trpc.docente.saveAvailability.mutationOptions({
@@ -79,10 +83,12 @@ export default function DisponibilidadPage() {
   );
 
   const toggleFranja = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setSelectedIds(next);
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const handleSave = () => {
@@ -98,10 +104,10 @@ export default function DisponibilidadPage() {
     setSelectedGrupoId(grupoId);
     setSelectedTipo(tipo);
     const key = `${grupoId}-${tipo}`;
-    setInitializedMap(prev => ({ ...prev, [key]: false }));
+    initializedMapRef.current = { ...initializedMapRef.current, [key]: false };
   };
 
-  if (loadingFranjas || (loadingAvail && !initializedMap[currentKey])) {
+  if (loadingFranjas || (loadingAvail && !initializedMapRef.current[currentKey])) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
@@ -110,22 +116,38 @@ export default function DisponibilidadPage() {
   }
 
   const assignedCursos = cargaLectiva?.asignaciones || [];
-  // Group by group
-  const groupedCursos = assignedCursos.reduce((acc: any, asig: any) => {
+  
+  // First create a structure with Maps, then convert to arrays
+  type TempGroupedType = Record<string, { grupo: any; tiposMap: Map<string, number> }>;
+  const tempGrouped: TempGroupedType = assignedCursos.reduce((acc, asig: any) => {
     if (!acc[asig.grupoId]) {
       acc[asig.grupoId] = {
         grupo: asig.grupo,
-        tipos: [],
+        tiposMap: new Map(),
       };
     }
-    acc[asig.grupoId].tipos.push({
-      tipo: asig.tipo,
-      horas: asig.horasAsignadas,
-    });
+    const currentHoras = acc[asig.grupoId].tiposMap.get(asig.tipo) || 0;
+    acc[asig.grupoId].tiposMap.set(asig.tipo, currentHoras + asig.horasAsignadas);
     return acc;
-  }, {});
+  }, {} as TempGroupedType);
+  
+  // Now convert to the final structure with arrays
+  type FinalGroupedType = Record<string, { grupo: any; tipos: Array<{ tipo: string; horas: number }> }>;
+  const groupedCursos: FinalGroupedType = {};
+  Object.keys(tempGrouped).forEach(grupoId => {
+    groupedCursos[grupoId] = {
+      grupo: tempGrouped[grupoId].grupo,
+      tipos: Array.from(tempGrouped[grupoId].tiposMap.entries()).map(([tipo, horas]) => ({
+        tipo,
+        horas,
+      })),
+    };
+  });
 
-  const selectedCarga = assignedCursos.find(a => a.grupoId === selectedGrupoId && a.tipo === selectedTipo);
+  const selectedCargaEntries = assignedCursos.filter(a => a.grupoId === selectedGrupoId && a.tipo === selectedTipo);
+  const selectedCarga = selectedCargaEntries.length > 0 
+    ? { ...selectedCargaEntries[0], horasAsignadas: selectedCargaEntries.reduce((sum, a) => sum + a.horasAsignadas, 0) } 
+    : undefined;
 
   return (
     <div className="max-w-5xl mx-auto">

@@ -270,7 +270,6 @@ exports.Prisma.DisponibilidadDocenteScalarFieldEnum = {
   docenteId: 'docenteId',
   grupoId: 'grupoId',
   tipo: 'tipo',
-  grupoLaboratorio: 'grupoLaboratorio',
   franjaHorariaId: 'franjaHorariaId',
   createdAt: 'createdAt',
   periodoId: 'periodoId'

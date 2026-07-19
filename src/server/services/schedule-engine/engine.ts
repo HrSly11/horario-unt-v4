@@ -31,6 +31,12 @@ interface ScheduleEngineInput {
   blockedDocenteGrupoTipoSlots?: Set<string>;
   /** Blocked slots per aula (mantenimiento, etc.) */
   blockedAulaSlots?: Set<string>;
+  /** Preferred slots: general for docente (docenteId::franjaId) */
+  preferredDocenteSlots?: Set<string>;
+  /** Preferred slots: per docente-grupo (docenteId::grupoId::franjaId) */
+  preferredDocenteGrupoSlots?: Set<string>;
+  /** Preferred slots: per docente-grupo-tipo (docenteId::grupoId::tipo::franjaId) */
+  preferredDocenteGrupoTipoSlots?: Set<string>;
 }
 
 /**
@@ -52,6 +58,9 @@ export class ScheduleEngine {
   private blockedDocenteGrupoSlots: Set<string>;
   private blockedDocenteGrupoTipoSlots: Set<string>;
   private blockedAulaSlots: Set<string>;
+  private preferredDocenteSlots: Set<string>;
+  private preferredDocenteGrupoSlots: Set<string>;
+  private preferredDocenteGrupoTipoSlots: Set<string>;
 
   constructor(input: ScheduleEngineInput) {
     this.input = input;
@@ -61,6 +70,9 @@ export class ScheduleEngine {
     this.blockedDocenteGrupoSlots = new Set(input.blockedDocenteGrupoSlots || []);
     this.blockedDocenteGrupoTipoSlots = new Set(input.blockedDocenteGrupoTipoSlots || []);
     this.blockedAulaSlots = new Set(input.blockedAulaSlots || []);
+    this.preferredDocenteSlots = new Set(input.preferredDocenteSlots || []);
+    this.preferredDocenteGrupoSlots = new Set(input.preferredDocenteGrupoSlots || []);
+    this.preferredDocenteGrupoTipoSlots = new Set(input.preferredDocenteGrupoTipoSlots || []);
   }
 
   generate(): ScheduleResult {
@@ -255,7 +267,7 @@ export class ScheduleEngine {
       dayFranjas.sort((a, b) => a.numeroBloque - b.numeroBloque);
     }
 
-    const tryAssignBlocks = (ignoreSoftBlocked: boolean) => {
+    const tryAssignBlocks = (ignoreSoftBlocked: boolean, preferredOnly: boolean) => {
       for (let blockSize = Math.min(hoursNeeded, 6); blockSize >= 1; blockSize--) {
         if (assignedCount >= hoursNeeded) break;
 
@@ -288,6 +300,14 @@ export class ScheduleEngine {
               this.assignments.some((a) => a.franjaHorariaId === f.id && a.docenteId === docenteId)
             );
             if (isAlreadyAssigned) continue;
+
+            // If preferredOnly, check all slots in block are preferred
+            if (preferredOnly) {
+              const allPreferred = candidateBlock.every((franja) => 
+                this.isPreferredSlot(docenteId, franja.id, grupoId, tipo)
+              );
+              if (!allPreferred) continue;
+            }
 
             const isBlockAvailable = candidateBlock.every((franja) => {
               if (this.isDocenteBlocked(docenteId, franja.id, grupoId, tipo, ignoreSoftBlocked)) return false;
@@ -384,9 +404,15 @@ export class ScheduleEngine {
       }
     };
 
-    tryAssignBlocks(false);
+    // First try: preferred only, no soft blocked
+    tryAssignBlocks(false, true);
+    // Second try: all slots, no soft blocked
     if (assignedCount < hoursNeeded) {
-      tryAssignBlocks(true);
+      tryAssignBlocks(false, false);
+    }
+    // Third try: all slots, ignore soft blocked
+    if (assignedCount < hoursNeeded) {
+      tryAssignBlocks(true, false);
     }
 
     if (assignedCount < hoursNeeded) {
@@ -463,6 +489,31 @@ export class ScheduleEngine {
       const groupKey = `${docenteId}::${grupoId}::${franjaId}`;
       if (this.blockedDocenteGrupoSlots.has(groupKey)) return true;
     }
+
+    return false;
+  }
+
+  private isPreferredSlot(
+    docenteId: string,
+    franjaId: string,
+    grupoId?: string,
+    tipo?: string
+  ): boolean {
+    // Check most specific first: docente-grupo-tipo
+    if (grupoId && tipo) {
+      const typeKey = `${docenteId}::${grupoId}::${tipo}::${franjaId}`;
+      if (this.preferredDocenteGrupoTipoSlots.has(typeKey)) return true;
+    }
+
+    // Then check docente-grupo
+    if (grupoId) {
+      const groupKey = `${docenteId}::${grupoId}::${franjaId}`;
+      if (this.preferredDocenteGrupoSlots.has(groupKey)) return true;
+    }
+
+    // Finally check general docente availability
+    const key = `${docenteId}::${franjaId}`;
+    if (this.preferredDocenteSlots.has(key)) return true;
 
     return false;
   }

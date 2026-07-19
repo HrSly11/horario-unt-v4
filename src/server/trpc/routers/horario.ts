@@ -7,6 +7,7 @@ import { ScheduleEngine } from '@/server/services/schedule-engine';
 import { AssignmentService } from '@/server/services/assignment.service';
 import { assertCanAccessEscuela, getManagedEscuelaIds, getManagedDepartamentoIds, assertFacultyPeriodNotPublished } from '../policy';
 import type { Prisma, PrismaClient } from '@/generated/prisma/client';
+import { DiaSemana } from '@/generated/prisma/client';
 
 type SnapshotAsignacion = {
   docenteId?: string | null;
@@ -310,11 +311,21 @@ export const horarioRouter = createTRPCRouter({
       const isPrivileged = role === 'ADMIN' || role === 'SECRETARIA_ACADEMICA' || role === 'DIRECTOR_ESCUELA' || role === 'DECANO';
       const isPublished = periodo?.estado === 'APROBADO' || periodo?.estado === 'FINALIZADO';
 
+      // Map input.diaSemana (1-6) to DiaSemana enum
+      const diaMap: Record<number, DiaSemana> = {
+        1: 'LUNES',
+        2: 'MARTES',
+        3: 'MIERCOLES',
+        4: 'JUEVES',
+        5: 'VIERNES',
+        6: 'SABADO',
+      };
+      
       const where: Prisma.AsignacionWhereInput = {
         periodoId: input.periodoId,
         ...(input.docenteId ? { docenteId: input.docenteId } : {}),
         ...(input.aulaId ? { aulaId: input.aulaId } : {}),
-        ...(input.diaSemana ? { diaSemana: input.diaSemana } : {}),
+        ...(input.diaSemana ? { franjaHoraria: { dia: diaMap[input.diaSemana] } } : {}),
       };
 
       if (!isPrivileged && !isPublished) {
@@ -812,6 +823,10 @@ export const horarioRouter = createTRPCRouter({
         const hardBlockedDocenteSlots = new Set<string>();
         const blockedDocenteGrupoSlots = new Set<string>();
         const blockedDocenteGrupoTipoSlots = new Set<string>();
+        const preferredDocenteSlots = new Set<string>();
+        const preferredDocenteGrupoSlots = new Set<string>();
+        const preferredDocenteGrupoTipoSlots = new Set<string>();
+        
         restricciones.forEach(r => {
           hardBlockedDocenteSlots.add(`${r.docenteId}::${r.franjaHorariaId}`);
         });
@@ -824,6 +839,7 @@ export const horarioRouter = createTRPCRouter({
           const set = generalAvailMap.get(d.docenteId) || new Set<string>();
           set.add(d.franjaHorariaId);
           generalAvailMap.set(d.docenteId, set);
+          preferredDocenteSlots.add(`${d.docenteId}::${d.franjaHorariaId}`);
         });
 
         docentes.forEach(docente => {
@@ -846,6 +862,7 @@ export const horarioRouter = createTRPCRouter({
           const set = specificAvailMap.get(key) || new Set<string>();
           set.add(d.franjaHorariaId);
           specificAvailMap.set(key, set);
+          preferredDocenteGrupoSlots.add(`${d.docenteId}::${d.grupoId}::${d.franjaHorariaId}`);
         });
 
         docenteGroupsWithSpecificAvail.forEach(key => {
@@ -867,6 +884,7 @@ export const horarioRouter = createTRPCRouter({
           const set = granularAvailMap.get(key) || new Set<string>();
           set.add(d.franjaHorariaId);
           granularAvailMap.set(key, set);
+          preferredDocenteGrupoTipoSlots.add(`${d.docenteId}::${d.grupoId}::${d.tipo}::${d.franjaHorariaId}`);
         });
 
         docenteGroupTypesWithGranularAvail.forEach(key => {
@@ -928,6 +946,9 @@ export const horarioRouter = createTRPCRouter({
           blockedDocenteGrupoSlots,
           blockedDocenteGrupoTipoSlots,
           blockedAulaSlots: new Set(mantenimientos.map(m => `${m.aulaId}::${m.franjaHorariaId}`)),
+          preferredDocenteSlots,
+          preferredDocenteGrupoSlots,
+          preferredDocenteGrupoTipoSlots,
           existingAssignments: [] // Start from zero on mass generate
         };
 
@@ -1307,6 +1328,9 @@ export const horarioRouter = createTRPCRouter({
           blockedDocenteGrupoSlots: new Set<string>(),
           blockedDocenteGrupoTipoSlots: new Set<string>(),
           blockedAulaSlots: new Set<string>(),
+          preferredDocenteSlots: new Set<string>(),
+          preferredDocenteGrupoSlots: new Set<string>(),
+          preferredDocenteGrupoTipoSlots: new Set<string>(),
           existingAssignments: existingAssignments.map(a => ({
             grupoId: a.grupoId,
             docenteId: a.docenteId!,
@@ -1321,6 +1345,9 @@ export const horarioRouter = createTRPCRouter({
         const generalAvail = disponibilidades.filter(d => !d.grupoId);
         if (generalAvail.length > 0) {
           const positiveSet = new Set(generalAvail.map(d => d.franjaHorariaId));
+          generalAvail.forEach(d => {
+            engineInput.preferredDocenteSlots.add(`${docente.id}::${d.franjaHorariaId}`);
+          });
           franjas.forEach(f => {
             if (!positiveSet.has(f.id)) {
               engineInput.blockedDocenteSlots.add(`${docente.id}::${f.id}`);
@@ -1332,6 +1359,9 @@ export const horarioRouter = createTRPCRouter({
         const specificAvail = disponibilidades.filter(d => d.grupoId && !d.tipo);
         if (specificAvail.length > 0) {
           const groupsWithSpecAvail = new Set(specificAvail.map(d => d.grupoId));
+          specificAvail.forEach(d => {
+            engineInput.preferredDocenteGrupoSlots.add(`${docente.id}::${d.grupoId}::${d.franjaHorariaId}`);
+          });
           groupsWithSpecAvail.forEach(gId => {
             const positiveSetForGroup = new Set(
               specificAvail.filter(d => d.grupoId === gId).map(d => d.franjaHorariaId)
@@ -1348,6 +1378,9 @@ export const horarioRouter = createTRPCRouter({
         const granularAvail = disponibilidades.filter(d => d.grupoId && d.tipo);
         if (granularAvail.length > 0) {
           const groupTypesWithGranularAvail = new Set(granularAvail.map(d => `${d.grupoId}::${d.tipo}`));
+          granularAvail.forEach(d => {
+            engineInput.preferredDocenteGrupoTipoSlots.add(`${docente.id}::${d.grupoId}::${d.tipo}::${d.franjaHorariaId}`);
+          });
           groupTypesWithGranularAvail.forEach(key => {
             const [gId, tipo] = key.split('::');
             const positiveSetForGroupType = new Set(

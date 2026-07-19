@@ -19229,18 +19229,8 @@ export namespace Prisma {
 
   export type AggregateDisponibilidadDocente = {
     _count: DisponibilidadDocenteCountAggregateOutputType | null
-    _avg: DisponibilidadDocenteAvgAggregateOutputType | null
-    _sum: DisponibilidadDocenteSumAggregateOutputType | null
     _min: DisponibilidadDocenteMinAggregateOutputType | null
     _max: DisponibilidadDocenteMaxAggregateOutputType | null
-  }
-
-  export type DisponibilidadDocenteAvgAggregateOutputType = {
-    grupoLaboratorio: number | null
-  }
-
-  export type DisponibilidadDocenteSumAggregateOutputType = {
-    grupoLaboratorio: number | null
   }
 
   export type DisponibilidadDocenteMinAggregateOutputType = {
@@ -19248,7 +19238,6 @@ export namespace Prisma {
     docenteId: string | null
     grupoId: string | null
     tipo: $Enums.TipoAsignacion | null
-    grupoLaboratorio: number | null
     franjaHorariaId: string | null
     createdAt: Date | null
     periodoId: string | null
@@ -19259,7 +19248,6 @@ export namespace Prisma {
     docenteId: string | null
     grupoId: string | null
     tipo: $Enums.TipoAsignacion | null
-    grupoLaboratorio: number | null
     franjaHorariaId: string | null
     createdAt: Date | null
     periodoId: string | null
@@ -19270,7 +19258,6 @@ export namespace Prisma {
     docenteId: number
     grupoId: number
     tipo: number
-    grupoLaboratorio: number
     franjaHorariaId: number
     createdAt: number
     periodoId: number
@@ -19278,20 +19265,11 @@ export namespace Prisma {
   }
 
 
-  export type DisponibilidadDocenteAvgAggregateInputType = {
-    grupoLaboratorio?: true
-  }
-
-  export type DisponibilidadDocenteSumAggregateInputType = {
-    grupoLaboratorio?: true
-  }
-
   export type DisponibilidadDocenteMinAggregateInputType = {
     id?: true
     docenteId?: true
     grupoId?: true
     tipo?: true
-    grupoLaboratorio?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -19302,7 +19280,6 @@ export namespace Prisma {
     docenteId?: true
     grupoId?: true
     tipo?: true
-    grupoLaboratorio?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -19313,7 +19290,6 @@ export namespace Prisma {
     docenteId?: true
     grupoId?: true
     tipo?: true
-    grupoLaboratorio?: true
     franjaHorariaId?: true
     createdAt?: true
     periodoId?: true
@@ -19358,18 +19334,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: DisponibilidadDocenteAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: DisponibilidadDocenteSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: DisponibilidadDocenteMinAggregateInputType
@@ -19400,8 +19364,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: DisponibilidadDocenteCountAggregateInputType | true
-    _avg?: DisponibilidadDocenteAvgAggregateInputType
-    _sum?: DisponibilidadDocenteSumAggregateInputType
     _min?: DisponibilidadDocenteMinAggregateInputType
     _max?: DisponibilidadDocenteMaxAggregateInputType
   }
@@ -19411,13 +19373,10 @@ export namespace Prisma {
     docenteId: string
     grupoId: string | null
     tipo: $Enums.TipoAsignacion | null
-    grupoLaboratorio: number | null
     franjaHorariaId: string
     createdAt: Date
     periodoId: string
     _count: DisponibilidadDocenteCountAggregateOutputType | null
-    _avg: DisponibilidadDocenteAvgAggregateOutputType | null
-    _sum: DisponibilidadDocenteSumAggregateOutputType | null
     _min: DisponibilidadDocenteMinAggregateOutputType | null
     _max: DisponibilidadDocenteMaxAggregateOutputType | null
   }
@@ -19441,7 +19400,6 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
-    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
@@ -19456,7 +19414,6 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
-    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
@@ -19471,7 +19428,6 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
-    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
@@ -19486,13 +19442,12 @@ export namespace Prisma {
     docenteId?: boolean
     grupoId?: boolean
     tipo?: boolean
-    grupoLaboratorio?: boolean
     franjaHorariaId?: boolean
     createdAt?: boolean
     periodoId?: boolean
   }
 
-  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "grupoId" | "tipo" | "grupoLaboratorio" | "franjaHorariaId" | "createdAt" | "periodoId", ExtArgs["result"]["disponibilidadDocente"]>
+  export type DisponibilidadDocenteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "docenteId" | "grupoId" | "tipo" | "franjaHorariaId" | "createdAt" | "periodoId", ExtArgs["result"]["disponibilidadDocente"]>
   export type DisponibilidadDocenteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     docente?: boolean | DocenteDefaultArgs<ExtArgs>
     grupo?: boolean | DisponibilidadDocente$grupoArgs<ExtArgs>
@@ -19525,7 +19480,6 @@ export namespace Prisma {
       docenteId: string
       grupoId: string | null
       tipo: $Enums.TipoAsignacion | null
-      grupoLaboratorio: number | null
       franjaHorariaId: string
       createdAt: Date
       periodoId: string
@@ -19960,7 +19914,6 @@ export namespace Prisma {
     readonly docenteId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly grupoId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly tipo: FieldRef<"DisponibilidadDocente", 'TipoAsignacion'>
-    readonly grupoLaboratorio: FieldRef<"DisponibilidadDocente", 'Int'>
     readonly franjaHorariaId: FieldRef<"DisponibilidadDocente", 'String'>
     readonly createdAt: FieldRef<"DisponibilidadDocente", 'DateTime'>
     readonly periodoId: FieldRef<"DisponibilidadDocente", 'String'>
@@ -53050,7 +53003,6 @@ export namespace Prisma {
     docenteId: 'docenteId',
     grupoId: 'grupoId',
     tipo: 'tipo',
-    grupoLaboratorio: 'grupoLaboratorio',
     franjaHorariaId: 'franjaHorariaId',
     createdAt: 'createdAt',
     periodoId: 'periodoId'
@@ -54980,7 +54932,6 @@ export namespace Prisma {
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: IntNullableFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
@@ -54995,7 +54946,6 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrderInput | SortOrder
     tipo?: SortOrderInput | SortOrder
-    grupoLaboratorio?: SortOrderInput | SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
@@ -55007,14 +54957,13 @@ export namespace Prisma {
 
   export type DisponibilidadDocenteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    docenteId_periodoId_franjaHorariaId_grupoId_tipo_grupoLaboratorio?: DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoGrupoLaboratorioCompoundUniqueInput
+    docenteId_periodoId_franjaHorariaId_grupoId_tipo?: DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoCompoundUniqueInput
     AND?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     OR?: DisponibilidadDocenteWhereInput[]
     NOT?: DisponibilidadDocenteWhereInput | DisponibilidadDocenteWhereInput[]
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: IntNullableFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
@@ -55022,22 +54971,19 @@ export namespace Prisma {
     grupo?: XOR<GrupoNullableScalarRelationFilter, GrupoWhereInput> | null
     franjaHoraria?: XOR<FranjaHorariaScalarRelationFilter, FranjaHorariaWhereInput>
     periodo?: XOR<PeriodoAcademicoScalarRelationFilter, PeriodoAcademicoWhereInput>
-  }, "id" | "docenteId_periodoId_franjaHorariaId_grupoId_tipo_grupoLaboratorio">
+  }, "id" | "docenteId_periodoId_franjaHorariaId_grupoId_tipo">
 
   export type DisponibilidadDocenteOrderByWithAggregationInput = {
     id?: SortOrder
     docenteId?: SortOrder
     grupoId?: SortOrderInput | SortOrder
     tipo?: SortOrderInput | SortOrder
-    grupoLaboratorio?: SortOrderInput | SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
     _count?: DisponibilidadDocenteCountOrderByAggregateInput
-    _avg?: DisponibilidadDocenteAvgOrderByAggregateInput
     _max?: DisponibilidadDocenteMaxOrderByAggregateInput
     _min?: DisponibilidadDocenteMinOrderByAggregateInput
-    _sum?: DisponibilidadDocenteSumOrderByAggregateInput
   }
 
   export type DisponibilidadDocenteScalarWhereWithAggregatesInput = {
@@ -55048,7 +54994,6 @@ export namespace Prisma {
     docenteId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableWithAggregatesFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableWithAggregatesFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: IntNullableWithAggregatesFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeWithAggregatesFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringWithAggregatesFilter<"DisponibilidadDocente"> | string
@@ -58657,7 +58602,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
@@ -58670,7 +58614,6 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -58679,7 +58622,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
@@ -58692,7 +58634,6 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -58703,7 +58644,6 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -58712,7 +58652,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -58721,7 +58660,6 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -62297,17 +62235,6 @@ export namespace Prisma {
     not?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel> | $Enums.TipoAsignacion | null
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type DocenteScalarRelationFilter = {
     is?: DocenteWhereInput
     isNot?: DocenteWhereInput
@@ -62328,13 +62255,12 @@ export namespace Prisma {
     isNot?: PeriodoAcademicoWhereInput
   }
 
-  export type DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoGrupoLaboratorioCompoundUniqueInput = {
+  export type DisponibilidadDocenteDocenteIdPeriodoIdFranjaHorariaIdGrupoIdTipoCompoundUniqueInput = {
     docenteId: string
     periodoId: string
     franjaHorariaId: string
     grupoId: string
     tipo: $Enums.TipoAsignacion
-    grupoLaboratorio: number
   }
 
   export type DisponibilidadDocenteCountOrderByAggregateInput = {
@@ -62342,14 +62268,9 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrder
     tipo?: SortOrder
-    grupoLaboratorio?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
-  }
-
-  export type DisponibilidadDocenteAvgOrderByAggregateInput = {
-    grupoLaboratorio?: SortOrder
   }
 
   export type DisponibilidadDocenteMaxOrderByAggregateInput = {
@@ -62357,7 +62278,6 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrder
     tipo?: SortOrder
-    grupoLaboratorio?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
@@ -62368,14 +62288,9 @@ export namespace Prisma {
     docenteId?: SortOrder
     grupoId?: SortOrder
     tipo?: SortOrder
-    grupoLaboratorio?: SortOrder
     franjaHorariaId?: SortOrder
     createdAt?: SortOrder
     periodoId?: SortOrder
-  }
-
-  export type DisponibilidadDocenteSumOrderByAggregateInput = {
-    grupoLaboratorio?: SortOrder
   }
 
   export type EnumTipoAsignacionNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -62386,22 +62301,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
     _max?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -62978,6 +62877,17 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type EnumRolAsignacionDocenteFilter<$PrismaModel = never> = {
     equals?: $Enums.RolAsignacionDocente | EnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
     in?: $Enums.RolAsignacionDocente[] | ListEnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
@@ -63068,6 +62978,22 @@ export namespace Prisma {
   export type AsignacionCargaLectivaSumOrderByAggregateInput = {
     horasAsignadas?: SortOrder
     grupoLaboratorio?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type EnumRolAsignacionDocenteWithAggregatesFilter<$PrismaModel = never> = {
@@ -66796,14 +66722,6 @@ export namespace Prisma {
     set?: $Enums.TipoAsignacion | null
   }
 
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput = {
     create?: XOR<DocenteCreateWithoutDisponibilidadesInput, DocenteUncheckedCreateWithoutDisponibilidadesInput>
     connectOrCreate?: DocenteCreateOrConnectWithoutDisponibilidadesInput
@@ -68282,6 +68200,14 @@ export namespace Prisma {
     connect?: CoberturaComponenteWhereUniqueInput
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type EnumRolAsignacionDocenteFieldUpdateOperationsInput = {
     set?: $Enums.RolAsignacionDocente
   }
@@ -69727,33 +69653,6 @@ export namespace Prisma {
     _max?: NestedEnumTipoAsignacionNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -69860,6 +69759,33 @@ export namespace Prisma {
     in?: $Enums.RolAsignacionDocente[] | ListEnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
     notIn?: $Enums.RolAsignacionDocente[] | ListEnumRolAsignacionDocenteFieldRefInput<$PrismaModel>
     not?: NestedEnumRolAsignacionDocenteFilter<$PrismaModel> | $Enums.RolAsignacionDocente
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumRolAsignacionDocenteWithAggregatesFilter<$PrismaModel = never> = {
@@ -74881,7 +74807,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutDocenteInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     createdAt?: Date | string
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
@@ -74892,7 +74817,6 @@ export namespace Prisma {
     id?: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -75364,7 +75288,6 @@ export namespace Prisma {
     docenteId?: StringFilter<"DisponibilidadDocente"> | string
     grupoId?: StringNullableFilter<"DisponibilidadDocente"> | string | null
     tipo?: EnumTipoAsignacionNullableFilter<"DisponibilidadDocente"> | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: IntNullableFilter<"DisponibilidadDocente"> | number | null
     franjaHorariaId?: StringFilter<"DisponibilidadDocente"> | string
     createdAt?: DateTimeFilter<"DisponibilidadDocente"> | Date | string
     periodoId?: StringFilter<"DisponibilidadDocente"> | string
@@ -77086,7 +77009,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutGrupoInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     franjaHoraria: FranjaHorariaCreateNestedOneWithoutDisponibilidadesInput
@@ -77097,7 +77019,6 @@ export namespace Prisma {
     id?: string
     docenteId: string
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -77908,7 +77829,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutPeriodoInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
@@ -77920,7 +77840,6 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -78634,7 +78553,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteCreateWithoutFranjaHorariaInput = {
     id?: string
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     createdAt?: Date | string
     docente: DocenteCreateNestedOneWithoutDisponibilidadesInput
     grupo?: GrupoCreateNestedOneWithoutDisponibilidadesInput
@@ -78646,7 +78564,6 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     createdAt?: Date | string
     periodoId: string
   }
@@ -88511,7 +88428,6 @@ export namespace Prisma {
     id?: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -88853,7 +88769,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutDocenteInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
@@ -88864,7 +88779,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -88874,7 +88788,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -89270,7 +89183,6 @@ export namespace Prisma {
     id?: string
     docenteId: string
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
     periodoId: string
@@ -89392,7 +89304,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutGrupoInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     franjaHoraria?: FranjaHorariaUpdateOneRequiredWithoutDisponibilidadesNestedInput
@@ -89403,7 +89314,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -89413,7 +89323,6 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     docenteId?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
@@ -89599,7 +89508,6 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     franjaHorariaId: string
     createdAt?: Date | string
   }
@@ -89898,7 +89806,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutPeriodoInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
@@ -89910,7 +89817,6 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -89920,7 +89826,6 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     franjaHorariaId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -90265,7 +90170,6 @@ export namespace Prisma {
     docenteId: string
     grupoId?: string | null
     tipo?: $Enums.TipoAsignacion | null
-    grupoLaboratorio?: number | null
     createdAt?: Date | string
     periodoId: string
   }
@@ -90335,7 +90239,6 @@ export namespace Prisma {
   export type DisponibilidadDocenteUpdateWithoutFranjaHorariaInput = {
     id?: StringFieldUpdateOperationsInput | string
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     docente?: DocenteUpdateOneRequiredWithoutDisponibilidadesNestedInput
     grupo?: GrupoUpdateOneWithoutDisponibilidadesNestedInput
@@ -90347,7 +90250,6 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
   }
@@ -90357,7 +90259,6 @@ export namespace Prisma {
     docenteId?: StringFieldUpdateOperationsInput | string
     grupoId?: NullableStringFieldUpdateOperationsInput | string | null
     tipo?: NullableEnumTipoAsignacionFieldUpdateOperationsInput | $Enums.TipoAsignacion | null
-    grupoLaboratorio?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     periodoId?: StringFieldUpdateOperationsInput | string
   }

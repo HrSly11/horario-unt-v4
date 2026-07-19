@@ -3,7 +3,7 @@
 import { useTRPC } from '@/trpc/client';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Building2, FlaskConical, User, Calendar, FileDown, CheckCircle2, XCircle, Send, AlertTriangle, EyeOff, Loader2, X } from 'lucide-react';
+import { Building2, FlaskConical, User, Calendar, FileDown, CheckCircle2, XCircle, Send, AlertTriangle, EyeOff, Loader2, X, Eye } from 'lucide-react';
 
 const DIAS = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 const DIA_LABELS: Record<string, string> = {
@@ -74,6 +74,8 @@ export default function HorariosPage() {
   const [selectedPeriodoId, setSelectedPeriodoId] = useState<string | null>(null);
   const [rejectComment, setRejectComment] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewPdfData, setPreviewPdfData] = useState<{ pdf: string; filename: string } | null>(null);
 
   const { data: periodos = [] } = useQuery({ ...trpc.periodo.list.queryOptions() });
   const { data: periodoActivo } = useQuery({ ...trpc.periodo.active.queryOptions() });
@@ -144,7 +146,10 @@ export default function HorariosPage() {
 
   const generatePDFMutation = useMutation(
     trpc.reporte.generatePDF.mutationOptions({
-      onSuccess: (data) => downloadBase64PDF(data.pdf, data.filename),
+      onSuccess: (data) => {
+        setPreviewPdfData({ pdf: data.pdf, filename: data.filename });
+        setShowPreviewModal(true);
+      },
       onError: () => alert('Error al generar el PDF'),
     })
   );
@@ -422,7 +427,7 @@ export default function HorariosPage() {
                 disabled={generatePDFMutation.isPending || !currentPeriodo}
                 className="btn-secondary"
               >
-                <FileDown className="h-4 w-4" /> {generatePDFMutation.isPending ? 'Generando...' : 'Descargar PDF'}
+                <Eye className="h-4 w-4" /> {generatePDFMutation.isPending ? 'Generando...' : 'Previsualizar PDF'}
               </button>
             </div>
           </div>
@@ -584,6 +589,45 @@ export default function HorariosPage() {
             </table>
           </div>
         </>
+      )}
+
+      {/* ===== PDF PREVIEW MODAL ===== */}
+      {showPreviewModal && previewPdfData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div className="flex items-center gap-3">
+                <Eye className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-bold text-text-main">Previsualización de PDF</h2>
+                <span className="text-sm text-text-sub">{previewPdfData.filename}</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => downloadBase64PDF(previewPdfData.pdf, previewPdfData.filename)}
+                  className="btn-primary"
+                >
+                  <FileDown className="h-4 w-4" /> Descargar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPreviewModal(false);
+                    setPreviewPdfData(null);
+                  }}
+                  className="btn-secondary"
+                >
+                  <X className="h-4 w-4" /> Cerrar
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-4 bg-slate-100">
+              <iframe
+                src={`data:application/pdf;base64,${previewPdfData.pdf}`}
+                className="w-full h-full border-0 rounded-lg"
+                title="PDF Preview"
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

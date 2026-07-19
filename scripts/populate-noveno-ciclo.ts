@@ -40,16 +40,31 @@ async function main() {
   const marcelino = await prisma.docente.findUniqueOrThrow({ where: { email: 'mtorres@unitru.edu.pe' } });
   const camilo = await prisma.docente.findUniqueOrThrow({ where: { email: 'csuarez@unitru.edu.pe' } });
 
-  // 3. Obtener aulas necesarias
+  // 3. Añadir aula faltante (AUDIOVISUALES)
+  let aulaAudiovisuales = await prisma.aula.findUnique({ where: { codigo: 'AUDIOVISUALES' } });
+  if (!aulaAudiovisuales) {
+    aulaAudiovisuales = await prisma.aula.create({
+      data: {
+        codigo: 'AUDIOVISUALES',
+        nombre: 'Sala Audiovisuales',
+        capacidad: 50,
+        tipo: TipoAula.TEORIA,
+        edificio: 'Edificio Principal',
+        piso: 2,
+      },
+    });
+    console.log('  ✅ Aula Audiovisuales creada');
+  }
+
+  // 4. Obtener aulas necesarias
   const aula303 = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'EPG-303' } });
   const lab2 = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'LAB-2' } });
   const aula311 = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'EPG-311' } });
   const lab4 = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'LAB-4' } });
   const lab3 = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'LAB-3' } });
-  const aulaAudiovisuales = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'AUDIOVISUALES' } });
   const lab1 = await prisma.aula.findUniqueOrThrow({ where: { codigo: 'LAB-1' } });
 
-  // 4. Obtener cursos del noveno ciclo
+  // 5. Obtener cursos del noveno ciclo
   const cursoTesisI = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EI-901' } });
   const cursoAnaliticaNegocios = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-903' } });
   const cursoAuditoriaInformatica = await prisma.curso.findUniqueOrThrow({ where: { codigo: 'EE-902' } });
